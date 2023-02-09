@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 import { createRoot } from "react-dom/client";
 import { HashRouter as Router } from "react-router-dom";
-import Tabs from "./tabs";
+import Options from "./options";
 
 const init = () => {
   const appContainer = document.createElement("div");
@@ -9,12 +11,15 @@ const init = () => {
   if (!appContainer) {
     throw new Error("Can not find AppContainer");
   }
+  console.log("Init from options index");
   const root = createRoot(appContainer);
   console.log(appContainer);
   root.render(
-    <Router>
-       <Tabs />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <Options />
+      </Router>
+    </Provider>
   );
 };
 init();

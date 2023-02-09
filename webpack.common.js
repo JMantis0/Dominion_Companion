@@ -10,16 +10,17 @@ module.exports = {
 
   entry: {
     popup: path.resolve("./src/popup/index.tsx"),
-    options: path.resolve("./src/options/options.tsx"),
+    options: path.resolve("./src/options/index.tsx"),
     background: path.resolve("./src/background/background.ts"),
     content: path.resolve("./src/content/index.tsx"),
     newTab: path.resolve("./src/tabs/index.tsx"),
+    // deck: path.resolve("./src/model/deck.ts"),
   },
   module: {
     rules: [
       {
         use: "ts-loader",
-        test: /\.tsx$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
       },
       {
@@ -56,7 +57,6 @@ module.exports = {
           from: path.resolve("src/static"),
           to: path.resolve("dist"),
         },
-        { from: path.resolve("src/model/"), to: path.resolve("dist") },
       ],
     }),
     ...getHtmlPlugins(["popup", "options", "newTab"]),
@@ -86,7 +86,3 @@ function getHtmlPlugins(chunks) {
       })
   );
 }
-
-$(".card-stacks")[0].childNodes[20].addEventListener("hover", () => {
-  console.log("hovering over library");
-});

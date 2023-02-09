@@ -5,6 +5,7 @@ import Content from "./content";
 
 const init = () => {
   const appContainer = document.createElement("div");
+  appContainer.setAttribute("id", "hack");
   if (!appContainer) {
     throw new Error("can't find appContainer");
   }

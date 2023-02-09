@@ -26,7 +26,6 @@
     {
       "js": [
         "content.js",
-        "deck.js",
         "jquery-3.6.3.min.js"
       ],
       "matches": [

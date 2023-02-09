@@ -4,10 +4,12 @@ import "../assets/tailwind.css";
 const handleInput = (e) => {
   e.preventDefault();
   const name = e.target[0].value;
-  chrome.storage.sync.set({ frog: name }).then(() => {
+  let frog = []
+  frog[0] = "test"
+  chrome.storage.sync.set({ name: name }).then(() => {
     console.log("Name is set to " + name);
   });
-  chrome.storage.local.set({ frog: name }).then(() => {
+  chrome.storage.local.set({ name: name }).then(() => {
     console.log("Name is set to " + name);
   });
 };

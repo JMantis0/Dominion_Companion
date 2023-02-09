@@ -1,13 +1,16 @@
-// import React from "react";
+import React from "react";
+import { Deck } from "../model/deck";
+// import GameLogExtractor from "./components/GameLogExtractor";
+const Content = () => {
+  return(
+  <React.Fragment>
+    <div id="dom-hack-area">Content</div>
+    {/* <GameLogExtractor /> */}
+  </React.Fragment>
+)};
 
-// const Content = () => {
-//   return <div id="dom-hack-area">Content</div>;
-// };
+export default Content;
 
-// export default Content;
-
-/*global chrome */
-// let Deck = require("./deck.js");
 let logInitialized = false;
 let kingdomInitialized = false;
 let playersInitialized = false;
@@ -27,7 +30,9 @@ const initializeKingdom = () => {
     try {
       for (let elt of document
         .getElementsByClassName("kingdom-viewer-group")[0]
-        .getElementsByClassName("name-layer")) {
+        .getElementsByClassName(
+          "name-layer"
+        ) as HTMLCollectionOf<HTMLElement>) {
         const card = elt.innerText.trim();
         cards.push(card);
       }
@@ -73,7 +78,9 @@ const getPlayerNames = () => {
   const index2 = DOMarr[6].indexOf(" starts with 3 Estates.");
   playerAbbreviatedNames.push(DOMarr[4].substring(0, index1));
   playerAbbreviatedNames.push(DOMarr[6].substring(0, index2));
-  const playerElements = document.getElementsByTagName("player-info-name");
+  const playerElements = document.getElementsByTagName(
+    "player-info-name"
+  ) as HTMLCollectionOf<HTMLElement>;
   for (let i = 0; i <= 1; i++) {
     playerNames.push(playerElements[i].innerText);
   }
@@ -156,6 +163,15 @@ const updateDeck = (newLogsToDispatch) => {
       separatedLogs[2].length;
     linesDispatched += newLinesDispatched;
   }
+  let stringDeck = JSON.stringify(decks.get(playerNames[1]));
+  // console.log("Stringified Deck,", stringDeck);
+  chrome.storage.sync.set({ playerDeck: stringDeck }).then(() => {
+    console.log(`${playerNames[1]}'s deck in sync storage set`);
+  });
+  stringDeck = JSON.stringify(decks.get(playerNames[0]));
+  chrome.storage.sync.set({ opponentDeck: stringDeck }).then(() => {
+    console.log(`${playerNames[0]}'s deck in sync storage set`);
+  });
 };
 // splits the logs up into two arrays that apply only to a single deck
 const separateDeckLogs = (newLogEntries) => {
@@ -227,13 +243,14 @@ const appendElements = () => {
 
   $("#statebutton").click(() => {
     const myDeck = decks.get("GoodBeard");
+    console.log("Deck List: ", myDeck.getEntireDeck());
     console.log("Hand: ", myDeck.getHand());
     console.log("Discard: ", myDeck.getGraveyard());
     console.log("Library: ", myDeck.getLibrary());
     console.log("Trash: ", myDeck.getTrash());
     console.log("In Play: ", myDeck.getInPlay());
-    console.log("deck DOMlog: ", myDeck.getDOMlog());
-    console.log("deck logArchive: ", myDeck.getLogArchive());
+    // console.log("deck DOMlog: ", myDeck.getDOMlog());
+    // console.log("deck logArchive: ", myDeck.getLogArchive());
   });
   messageButton.click(() => {
     // sendMessage();
