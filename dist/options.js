@@ -661,7 +661,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _HandView__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HandView */ "./src/options/components/HandView.tsx");
-/* harmony import */ var _DiscardFrame__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DiscardFrame */ "./src/options/components/DiscardFrame.tsx");
+/* harmony import */ var _DiscardView__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DiscardView */ "./src/options/components/DiscardView.tsx");
 /* harmony import */ var _LibraryView__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./LibraryView */ "./src/options/components/LibraryView.tsx");
 /* harmony import */ var _TrashView__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TrashView */ "./src/options/components/TrashView.tsx");
 /* harmony import */ var _InPlayView__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./InPlayView */ "./src/options/components/InPlayView.tsx");
@@ -679,7 +679,7 @@ const CurrentGame = () => {
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_InPlayView__WEBPACK_IMPORTED_MODULE_5__["default"], null),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DiscardFrame__WEBPACK_IMPORTED_MODULE_2__["default"], null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DiscardView__WEBPACK_IMPORTED_MODULE_2__["default"], null),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_TrashView__WEBPACK_IMPORTED_MODULE_4__["default"], null)));
 };
@@ -727,10 +727,10 @@ const DecklistView = () => {
 
 /***/ }),
 
-/***/ "./src/options/components/DiscardFrame.tsx":
-/*!*************************************************!*\
-  !*** ./src/options/components/DiscardFrame.tsx ***!
-  \*************************************************/
+/***/ "./src/options/components/DiscardView.tsx":
+/*!************************************************!*\
+  !*** ./src/options/components/DiscardView.tsx ***!
+  \************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -746,7 +746,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const DiscardFrame = () => {
+const DiscardView = () => {
     const [discardMap, setDiscardMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
     const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
@@ -761,7 +761,7 @@ const DiscardFrame = () => {
             return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: discardMap.get(card) }));
         })));
 };
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DiscardFrame);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DiscardView);
 
 
 /***/ }),

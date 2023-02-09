@@ -1,7 +1,7 @@
 import React from "react";
 
 import HandView from "./HandView";
-import DiscardFrame from "./DiscardFrame";
+import DiscardFrame from "./DiscardView";
 import DecklistView from "./DecklistView";
 import LibraryView from "./LibraryView";
 import TrashView from "./TrashView";
