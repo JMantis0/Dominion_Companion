@@ -499,7 +499,7 @@ class Deck {
     //Check Functions
     checkForMineGain() {
         let len = this.logArchive.length;
-        return this.logArchive[len - 2];
+        return this.logArchive[len - 2].match(" plays a Mine");
     }
     checkForHarbingerTopDeck() {
         const len = this.logArchive.length;
@@ -552,10 +552,18 @@ __webpack_require__.r(__webpack_exports__);
 
 const CardRow = ({ cardAmount, drawProbability, cardName }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
-        "cardrow",
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null, cardAmount),
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null, drawProbability),
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null, cardName)));
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null,
+            " ",
+            drawProbability,
+            " "),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null,
+            " ",
+            cardName,
+            " "),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null,
+            " ",
+            cardAmount,
+            " ")));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CardRow);
 
@@ -583,22 +591,36 @@ const ChromeStorageInterface = () => {
     const pDeck = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
     const oDeck = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.opponentDeck);
     const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-        for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-            // console.log(
-            //   `Storage key "${key}" in namespace "${namespace}" changed.`,
-            //   `Old value was "${oldValue}", new value is "${newValue}".`
-            // );
-            if (key === "playerDeck") {
-                console.log("dispatching setPlayerDeck");
-                dispatch((0,_redux_optionsSlice__WEBPACK_IMPORTED_MODULE_2__.setPlayerDeck)(newValue));
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        console.log("Message from Chrome Storage Interface UseEffect");
+        chrome.storage.sync.get(["playerDeck", "opponentDeck"]).then((result) => {
+            console.log("First render.  Setting initial redux state.");
+            //  Next step update state with results
+            dispatch((0,_redux_optionsSlice__WEBPACK_IMPORTED_MODULE_2__.setPlayerDeck)(JSON.parse(result.playerDeck)));
+            dispatch((0,_redux_optionsSlice__WEBPACK_IMPORTED_MODULE_2__.setOpponentDeck)(JSON.parse(result.opponentDeck)));
+        });
+        const storageLlistenerFunction = (changes, namespace) => {
+            for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+                // console.log(
+                //   `Storage key "${key}" in namespace "${namespace}" changed.`,
+                //   `Old value was "${oldValue}", new value is "${newValue}".`
+                // );
+                console.log("Storage change detected:");
+                if (key === "playerDeck") {
+                    console.log("Dispatching setPlayerDeck");
+                    dispatch((0,_redux_optionsSlice__WEBPACK_IMPORTED_MODULE_2__.setPlayerDeck)(JSON.parse(newValue)));
+                }
+                else if (key === "opponentDeck") {
+                    console.log("Dispatching setOpponentDeck");
+                    dispatch((0,_redux_optionsSlice__WEBPACK_IMPORTED_MODULE_2__.setOpponentDeck)(JSON.parse(newValue)));
+                }
             }
-            else if (key === "opponentDeck") {
-                console.log("dispatching setOpponentDeck");
-                dispatch((0,_redux_optionsSlice__WEBPACK_IMPORTED_MODULE_2__.setOpponentDeck)(newValue));
-            }
-        }
-    });
+        };
+        chrome.storage.onChanged.addListener(storageLlistenerFunction);
+        return function cleanup() {
+            chrome.storage.onChanged.removeListener(storageLlistenerFunction);
+        };
+    }, []);
     const getCountsFromArray = (decklistArray) => {
         const cardCountsMap = new Map();
         decklistArray.forEach((card) => {
@@ -613,12 +635,12 @@ const ChromeStorageInterface = () => {
     };
     return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
         "ChromeStorageInterface",
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => console.log("Testing the redux state: ", JSON.parse(pDeck)) }, "Test player deck state"),
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => console.log("Testing the redux state: ", JSON.parse(oDeck)) }, "Test opponent deck state"),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => console.log("Testing the redux state: ", pDeck) }, "Test player deck state"),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => console.log("Testing the redux state: ", oDeck) }, "Test opponent deck state"),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => {
                 // console.log("testing functino turnDeckListIntoMap");
                 console.log("pdeck", pDeck);
-                console.log(getCountsFromArray(JSON.parse(pDeck).entireDeck));
+                console.log(getCountsFromArray(pDeck.entireDeck));
             } }, "Get Decklist Card Counts")));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ChromeStorageInterface);
@@ -626,9 +648,244 @@ const ChromeStorageInterface = () => {
 
 /***/ }),
 
-/***/ "./src/options/components/DeckFrame.tsx":
+/***/ "./src/options/components/CurrentGame.tsx":
+/*!************************************************!*\
+  !*** ./src/options/components/CurrentGame.tsx ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _HandView__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HandView */ "./src/options/components/HandView.tsx");
+/* harmony import */ var _DiscardFrame__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DiscardFrame */ "./src/options/components/DiscardFrame.tsx");
+/* harmony import */ var _LibraryView__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./LibraryView */ "./src/options/components/LibraryView.tsx");
+/* harmony import */ var _TrashView__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TrashView */ "./src/options/components/TrashView.tsx");
+/* harmony import */ var _InPlayView__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./InPlayView */ "./src/options/components/InPlayView.tsx");
+
+
+
+
+
+
+const CurrentGame = () => {
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_HandView__WEBPACK_IMPORTED_MODULE_1__["default"], null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LibraryView__WEBPACK_IMPORTED_MODULE_3__["default"], null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_InPlayView__WEBPACK_IMPORTED_MODULE_5__["default"], null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DiscardFrame__WEBPACK_IMPORTED_MODULE_2__["default"], null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_TrashView__WEBPACK_IMPORTED_MODULE_4__["default"], null)));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CurrentGame);
+
+
+/***/ }),
+
+/***/ "./src/options/components/DecklistView.tsx":
+/*!*************************************************!*\
+  !*** ./src/options/components/DecklistView.tsx ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/utilityFunctions */ "./src/options/utils/utilityFunctions.tsx");
+/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
+
+
+
+
+const DecklistView = () => {
+    const [listMap, setListMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
+    const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        setListMap((0,_utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__.getCountsFromArray)(pd.entireDeck));
+    }, [pd]);
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
+            "Full Decklist ",
+            pd.entireDeck.length),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        Array.from(listMap.keys()).map((card, idx) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: listMap.get(card) }));
+        })));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DecklistView);
+
+
+/***/ }),
+
+/***/ "./src/options/components/DiscardFrame.tsx":
+/*!*************************************************!*\
+  !*** ./src/options/components/DiscardFrame.tsx ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/utilityFunctions */ "./src/options/utils/utilityFunctions.tsx");
+/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
+
+
+
+
+const DiscardFrame = () => {
+    const [discardMap, setDiscardMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
+    const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        setDiscardMap((0,_utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__.getCountsFromArray)(pd.graveyard));
+    }, [pd]);
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
+            "Discard Pile ",
+            pd.graveyard.length),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        Array.from(discardMap.keys()).map((card, idx) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: discardMap.get(card) }));
+        })));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DiscardFrame);
+
+
+/***/ }),
+
+/***/ "./src/options/components/HandView.tsx":
+/*!*********************************************!*\
+  !*** ./src/options/components/HandView.tsx ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/utilityFunctions */ "./src/options/utils/utilityFunctions.tsx");
+/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
+
+
+
+
+const HandView = () => {
+    const [handMap, setHandMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
+    const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        setHandMap((0,_utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__.getCountsFromArray)(pd.hand));
+    }, [pd]);
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
+            "Hand ",
+            pd.hand.length),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        Array.from(handMap.keys()).map((card, idx) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: handMap.get(card) }));
+        })));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (HandView);
+
+
+/***/ }),
+
+/***/ "./src/options/components/InPlayView.tsx":
+/*!***********************************************!*\
+  !*** ./src/options/components/InPlayView.tsx ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/utilityFunctions */ "./src/options/utils/utilityFunctions.tsx");
+/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
+
+
+
+
+const InPlayView = () => {
+    const [inPlayMap, setInPlayMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
+    const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        setInPlayMap((0,_utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__.getCountsFromArray)(pd.inPlay));
+    }, [pd]);
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
+            "InPlay ",
+            pd.inPlay.length),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        Array.from(inPlayMap.keys()).map((card, idx) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: inPlayMap.get(card) }));
+        })));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (InPlayView);
+
+
+/***/ }),
+
+/***/ "./src/options/components/LibraryView.tsx":
+/*!************************************************!*\
+  !*** ./src/options/components/LibraryView.tsx ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/utilityFunctions */ "./src/options/utils/utilityFunctions.tsx");
+/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
+
+
+
+
+const LibraryView = () => {
+    const [libraryMap, setLibraryMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
+    const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
+    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+        setLibraryMap((0,_utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__.getCountsFromArray)(pd.library));
+    }, [pd]);
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
+            "Library ",
+            pd.library.length),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        Array.from(libraryMap.keys()).map((card, idx) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: libraryMap.get(card) }));
+        })));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (LibraryView);
+
+
+/***/ }),
+
+/***/ "./src/options/components/TrashView.tsx":
 /*!**********************************************!*\
-  !*** ./src/options/components/DeckFrame.tsx ***!
+  !*** ./src/options/components/TrashView.tsx ***!
   \**********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -639,56 +896,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
+/* harmony import */ var _utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/utilityFunctions */ "./src/options/utils/utilityFunctions.tsx");
+/* harmony import */ var _CardRow__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CardRow */ "./src/options/components/CardRow.tsx");
 
 
 
-const getCountsFromArray = (decklistArray) => {
-    const cardCountsMap = new Map();
-    decklistArray.forEach((card) => {
-        if (cardCountsMap.has(card)) {
-            cardCountsMap.set(card, cardCountsMap.get(card) + 1);
-        }
-        else {
-            cardCountsMap.set(card, 1);
-        }
-    });
-    return cardCountsMap;
-};
-const DeckFrame = () => {
-    const [countMap, setCountMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
-    const playerDeckState = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
+
+const TrashView = () => {
+    const [trashMap, setTrashMap] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(new Map());
+    const pd = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)((state) => state.options.playerDeck);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-        setCountMap(getCountsFromArray(JSON.parse(playerDeckState).entireDeck));
-    }, [playerDeckState]);
+        setTrashMap((0,_utils_utilityFunctions__WEBPACK_IMPORTED_MODULE_2__.getCountsFromArray)(pd.trash));
+    }, [pd]);
     return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "DeckFrame"),
-        Array.from(countMap.keys()).map((card, idx) => {
-            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_2__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: countMap.get(card) }));
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
+            "Trash ",
+            pd.trash.length),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("br", null),
+        Array.from(trashMap.keys()).map((card, idx) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CardRow__WEBPACK_IMPORTED_MODULE_3__["default"], { key: idx, drawProbability: "", cardName: card, cardAmount: trashMap.get(card) }));
         })));
 };
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DeckFrame);
-
-
-/***/ }),
-
-/***/ "./src/options/components/Home.tsx":
-/*!*****************************************!*\
-  !*** ./src/options/components/Home.tsx ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-
-const Home = () => {
-    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, "Home"));
-};
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Home);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TrashView);
 
 
 /***/ }),
@@ -745,8 +974,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/dist/index.js");
 /* harmony import */ var _components_ChromeStorageInterface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/ChromeStorageInterface */ "./src/options/components/ChromeStorageInterface.tsx");
-/* harmony import */ var _components_Home__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/Home */ "./src/options/components/Home.tsx");
-/* harmony import */ var _components_DeckFrame__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/DeckFrame */ "./src/options/components/DeckFrame.tsx");
+/* harmony import */ var _components_CurrentGame__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/CurrentGame */ "./src/options/components/CurrentGame.tsx");
+/* harmony import */ var _components_DecklistView__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/DecklistView */ "./src/options/components/DecklistView.tsx");
 
 
 // import "../assets/tailwind.css";
@@ -759,18 +988,16 @@ const Options = () => {
         return () => { };
     }, []);
     return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h1", { className: "text-4xl text-green-500" }, "Options"),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h1", { className: "text-4xl text-green-500" }, "Dom View"),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("ul", null,
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("li", null,
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("a", { href: "#/" }, "Home")),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("a", { href: "#/" }, "Full List")),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("li", null,
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("a", { href: "#/chromeStorage" }, "Chrome Storage")),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("li", null,
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("a", { href: "#/deckFrame" }, "Deck Frame"))),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("a", { href: "#/currentGame" }, "Current Game"))),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Routes, null,
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, { path: "/", element: react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_Home__WEBPACK_IMPORTED_MODULE_2__["default"], null) }),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, { path: "/chromeStorage", element: react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_ChromeStorageInterface__WEBPACK_IMPORTED_MODULE_1__["default"], null) }),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, { path: "/deckFrame", element: react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_DeckFrame__WEBPACK_IMPORTED_MODULE_3__["default"], null) }))));
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, { path: "/", element: react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_DecklistView__WEBPACK_IMPORTED_MODULE_3__["default"], null) }),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, { path: "/currentGame", element: react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_CurrentGame__WEBPACK_IMPORTED_MODULE_2__["default"], null) })),
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_ChromeStorageInterface__WEBPACK_IMPORTED_MODULE_1__["default"], null)));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Options);
 
@@ -792,27 +1019,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "setPlayerDeck": () => (/* binding */ setPlayerDeck)
 /* harmony export */ });
 /* harmony import */ var _reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @reduxjs/toolkit */ "./node_modules/@reduxjs/toolkit/dist/redux-toolkit.esm.js");
-/* harmony import */ var _reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @reduxjs/toolkit */ "./node_modules/immer/dist/immer.esm.mjs");
 /* harmony import */ var _model_deck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../model/deck */ "./src/model/deck.ts");
 
 
-
 const initialState = {
-    playerDeck: JSON.stringify(new _model_deck__WEBPACK_IMPORTED_MODULE_0__.Deck("emptyPlayer", "ep", ["empty Kingdom"])),
-    opponentDeck: JSON.stringify(new _model_deck__WEBPACK_IMPORTED_MODULE_0__.Deck("emptyOpponent", "eo", ["empty Kingdom"])),
+    playerDeck: JSON.parse(JSON.stringify(new _model_deck__WEBPACK_IMPORTED_MODULE_0__.Deck("emptyPlayer", "ep", ["empty Kingdom"]))),
+    opponentDeck: JSON.parse(JSON.stringify(new _model_deck__WEBPACK_IMPORTED_MODULE_0__.Deck("emptyOpponent", "eo", ["empty Kingdom"]))),
 };
 const optionsSlice = (0,_reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_1__.createSlice)({
     name: "options",
     initialState,
     reducers: {
         setPlayerDeck: (state, action) => {
-            console.log("SetPlayer Reducer");
-            console.log("currentstate is:", (0,_reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_2__.current)(state));
             state.playerDeck = action.payload;
         },
         setOpponentDeck: (state, action) => {
-            console.log("SetOpponent Reducer");
-            console.log("currentstate is:", (0,_reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_2__.current)(state));
             state.opponentDeck = action.payload;
         },
     },
@@ -843,6 +1064,50 @@ const store = (0,_reduxjs_toolkit__WEBPACK_IMPORTED_MODULE_1__.configureStore)({
         options: _optionsSlice__WEBPACK_IMPORTED_MODULE_0__["default"],
     },
 });
+
+
+/***/ }),
+
+/***/ "./src/options/utils/utilityFunctions.tsx":
+/*!************************************************!*\
+  !*** ./src/options/utils/utilityFunctions.tsx ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "createDeckFromJSON": () => (/* binding */ createDeckFromJSON),
+/* harmony export */   "getCountsFromArray": () => (/* binding */ getCountsFromArray)
+/* harmony export */ });
+/* harmony import */ var _model_deck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../model/deck */ "./src/model/deck.ts");
+
+const getCountsFromArray = (decklistArray) => {
+    const cardCountsMap = new Map();
+    decklistArray.forEach((card) => {
+        if (cardCountsMap.has(card)) {
+            cardCountsMap.set(card, cardCountsMap.get(card) + 1);
+        }
+        else {
+            cardCountsMap.set(card, 1);
+        }
+    });
+    return cardCountsMap;
+};
+const createDeckFromJSON = (JSONstring) => {
+    const deckObject = JSON.parse(JSONstring);
+    const deck = new _model_deck__WEBPACK_IMPORTED_MODULE_0__.Deck(deckObject.playerName, deckObject.abbrvName, deckObject.kingdom);
+    deck.setCurrentVP(deckObject.setCurrentVP);
+    // deck.setKingdom(deckObject.kingdom);
+    deck.setLibrary(deckObject.library);
+    deck.setGraveyard(deckObject.graveyard);
+    deck.setInPlay(deckObject.inPlay);
+    deck.setHand(deckObject.hand);
+    deck.setTrash(deckObject.trash);
+    deck.setLogArchive(deckObject.logArchive);
+    deck.setDOMlog(deckObject.DOMLog);
+    deck.setEntireDeck(deckObject.entireDeck);
+    return deck;
+};
 
 
 /***/ })

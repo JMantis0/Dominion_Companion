@@ -1,28 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setPlayerDeck, setOpponentDeck } from "../redux/optionsSlice";
+import { RootState } from "../redux/store";
+import { StoreDeck } from "../../model/storeDeck";
 
 const ChromeStorageInterface = () => {
-  const pDeck = useSelector((state: any) => state.options.playerDeck);
-  const oDeck = useSelector((state: any) => state.options.opponentDeck);
+  const pDeck: StoreDeck = useSelector(
+    (state: RootState) => state.options.playerDeck
+  );
+  const oDeck: StoreDeck = useSelector(
+    (state: RootState) => state.options.opponentDeck
+  );
   const dispatch = useDispatch();
-
-  chrome.storage.onChanged.addListener((changes, namespace) => {
-    for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-      // console.log(
-      //   `Storage key "${key}" in namespace "${namespace}" changed.`,
-      //   `Old value was "${oldValue}", new value is "${newValue}".`
-      // );
-      if (key === "playerDeck") {
-        console.log("dispatching setPlayerDeck");
-        dispatch(setPlayerDeck(newValue));
-      } else if (key === "opponentDeck") {
-        console.log("dispatching setOpponentDeck");
-        dispatch(setOpponentDeck(newValue));
+  useEffect(() => {
+    console.log("Message from Chrome Storage Interface UseEffect");
+    chrome.storage.sync.get(["playerDeck", "opponentDeck"]).then((result) => {
+      console.log("First render.  Setting initial redux state.")
+      //  Next step update state with results
+      dispatch(setPlayerDeck(JSON.parse(result.playerDeck)));
+      dispatch(setOpponentDeck(JSON.parse(result.opponentDeck)));
+    });
+    const storageLlistenerFunction = (
+      changes: {
+        [key: string]: chrome.storage.StorageChange;
+      },
+      namespace: "sync" | "local" | "managed" | "session"
+    ) => {
+      for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+        // console.log(
+        //   `Storage key "${key}" in namespace "${namespace}" changed.`,
+        //   `Old value was "${oldValue}", new value is "${newValue}".`
+        // );
+        console.log("Storage change detected:")
+        if (key === "playerDeck") {
+          console.log("Dispatching setPlayerDeck");
+          dispatch(setPlayerDeck(JSON.parse(newValue)));
+        } else if (key === "opponentDeck") {
+          console.log("Dispatching setOpponentDeck");
+          dispatch(setOpponentDeck(JSON.parse(newValue)));
+        }
       }
-    }
-  });
+    };
+    chrome.storage.onChanged.addListener(storageLlistenerFunction);
+    return function cleanup() {
+      chrome.storage.onChanged.removeListener(storageLlistenerFunction);
+    };
+  }, []);
 
   const getCountsFromArray = (
     decklistArray: Array<string>
@@ -41,25 +64,17 @@ const ChromeStorageInterface = () => {
   return (
     <div>
       ChromeStorageInterface
-      <button
-        onClick={() =>
-          console.log("Testing the redux state: ", JSON.parse(pDeck))
-        }
-      >
+      <button onClick={() => console.log("Testing the redux state: ", pDeck)}>
         Test player deck state
       </button>
-      <button
-        onClick={() =>
-          console.log("Testing the redux state: ", JSON.parse(oDeck))
-        }
-      >
+      <button onClick={() => console.log("Testing the redux state: ", oDeck)}>
         Test opponent deck state
       </button>
       <button
         onClick={() => {
           // console.log("testing functino turnDeckListIntoMap");
           console.log("pdeck", pDeck);
-          console.log(getCountsFromArray(JSON.parse(pDeck).entireDeck));
+          console.log(getCountsFromArray(pDeck.entireDeck));
         }}
       >
         Get Decklist Card Counts

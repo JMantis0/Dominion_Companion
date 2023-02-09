@@ -464,7 +464,7 @@ export class Deck {
   //Check Functions
   checkForMineGain() {
     let len = this.logArchive.length;
-    return this.logArchive[len - 2];
+    return this.logArchive[len - 2].match(" plays a Mine");
   }
 
   checkForCleanUp = (line) => {
