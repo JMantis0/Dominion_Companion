@@ -2,12 +2,13 @@ import React from "react";
 import { Deck } from "../model/deck";
 // import GameLogExtractor from "./components/GameLogExtractor";
 const Content = () => {
-  return(
-  <React.Fragment>
-    <div id="dom-hack-area">Content</div>
-    {/* <GameLogExtractor /> */}
-  </React.Fragment>
-)};
+  return (
+    <React.Fragment>
+      <div id="dom-hack-area">Content</div>
+      {/* <GameLogExtractor /> */}
+    </React.Fragment>
+  );
+};
 
 export default Content;
 
@@ -274,19 +275,39 @@ const getUnprocessedLogs = () => {
 };
 
 const resetGame = () => {
+  chrome.storage.sync.set({ playerDeck: "" }).then(() => {
+    console.log(`Player Deck sync storage reset`);
+  });
+  chrome.storage.sync.set({ opponentDeck: "" }).then(() => {
+    console.log(`Opponent Deck sync storage reset`);
+  });
   logInitialized = false;
   playersInitialized = false;
   kingdomInitialized = false;
   playerDeckInitialized = false;
+  logInitialized = false;
+  kingdomInitialized = false;
+  playersInitialized = false;
+  playerDeckInitialized = false;
+  sameFirstLetter = false;
+  logsProcessed = "";
+  DOMlog;
+  playerNames = [];
+  playerAbbreviatedNames = [];
+  decks = new Map();
+  kingdom = [];
+  linesDispatched = 0;
   initInterval = setInterval(initIntervalFunction, 1000);
 };
 
 const initIntervalFunction = () => {
+  console.log("Initialized = ", initialized());
   if (!logInitialized) initializeDOMLog();
   if (!playersInitialized) initializePlayers();
   if (!kingdomInitialized) initializeKingdom();
   if (!playerDeckInitialized) initializePlayerDeck();
   if (initialized()) {
+    console.log("Initialized = ", initialized());
     clearInterval(initInterval);
     appendElements();
     const deckUpdateInterval = setInterval(() => {
@@ -294,8 +315,7 @@ const initIntervalFunction = () => {
         console.log("No game log, resetting");
         resetGame();
         clearInterval(deckUpdateInterval);
-      }
-      if (checkNewLogs()) {
+      } else if (checkNewLogs()) {
         updateDeck(getUnprocessedLogs());
         // sendToFront(decks.get("GoodBeard"));
       }

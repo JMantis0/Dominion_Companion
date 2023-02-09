@@ -4,12 +4,10 @@ import { RootState } from "../redux/store";
 import { getCountsFromArray } from "../utils/utilityFunctions";
 import CardRow from "./CardRow";
 
-const DiscardFrame = () => {
+const DiscardView = () => {
   const [discardMap, setDiscardMap] = useState<Map<string, number>>(new Map());
 
-  const pd = useSelector(
-    (state: RootState) => state.options.playerDeck
-  );
+  const pd = useSelector((state: RootState) => state.options.playerDeck);
 
   useEffect(() => {
     setDiscardMap(getCountsFromArray(pd.graveyard));
@@ -33,4 +31,4 @@ const DiscardFrame = () => {
   );
 };
 
-export default DiscardFrame;
+export default DiscardView;
