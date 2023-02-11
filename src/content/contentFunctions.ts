@@ -19,6 +19,9 @@ const getGameLog = (): string => {
   return gameLog;
 };
 
+/*
+Used to check if the player-info elements are present
+*/
 const arePlayerInfoElementsPresent = (): boolean => {
   const playerElements = document.getElementsByTagName(
     "player-info-name"
@@ -27,6 +30,8 @@ const arePlayerInfoElementsPresent = (): boolean => {
   return playerElementsPresent;
 };
 
+/*Used to get the player-info elements that are used to determine player name and opponent 
+*/
 const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   const playerInfoElements: HTMLCollectionOf<HTMLElement> =
     document.getElementsByTagName(
@@ -36,50 +41,39 @@ const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   return playerInfoElements;
 };
 
-const getPlayerInfoNameElements = (): HTMLCollectionOf<HTMLElement> => {
-  let playerInfoNameElements: HTMLCollectionOf<HTMLElement>;
-  playerInfoNameElements = document.getElementsByTagName(
-    "player-info-name"
-  ) as HTMLCollectionOf<HTMLElement>;
-
-  return playerInfoNameElements;
-};
-
 const getPlayerAndOpponentNameByComparingElementPosition = (
   playerInfoElements: HTMLCollectionOf<HTMLElement>
 ): Array<string> => {
   let playerName: string;
   let opponentName: string;
-  let playerTransformComparison = [];
+  const nameTransformMap: Map<string, number> = new Map();
   for (let element of playerInfoElements) {
     const nameElement = element.getElementsByTagName(
       "player-info-name"
-    )[0] as HTMLElement; 
-    const nomen = nameElement.innerText;
-    const transform = element.style.transform;
-    const yTransForm = parseFloat(
+    )[0] as HTMLElement;
+    const nomen: string = nameElement.innerText;
+    const transform: string = element.style.transform;
+    const yTransForm: number = parseFloat(
       transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
     );
-    playerTransformComparison.push([nomen, yTransForm]);
+    nameTransformMap.set(nomen, yTransForm);
   }
   //  Compare the Ytransform values.  The greatest one gets assigned to player.
-  //  The lower one gets assigned to opponent
-  const p1TransformValue = playerTransformComparison[0][1];
-  const p2TransformValue = playerTransformComparison[1][1];
-  const p1Name = playerTransformComparison[0][0];
-  const p2Name = playerTransformComparison[1][0];
-
-  if (p1TransformValue > p2TransformValue) {
-    // p1 is the player, p2 is the opponent
-    playerName = p1Name;
-    opponentName = p2Name;
-  } else {
-    // p2 is the player, p1 is the opponent
-    playerName = p2Name;
-    opponentName = p1Name;
-  }
+  playerName = [...nameTransformMap.entries()].reduce((prev, current) => {
+    return prev[1] > current[1] ? prev : current;
+  })[0];
+  opponentName = [...nameTransformMap.entries()].reduce((prev, current) => {
+    return prev[1] < current[1] ? prev : current;
+  })[0];
 
   return [playerName, opponentName];
+};
+
+const getPlayerNameAbbreviations = (): Array<string> => {
+  let playerNameAbbreviation: string;
+  let opponentNameAbbreviation: string;
+
+  return [playerNameAbbreviation, opponentNameAbbreviation];
 };
 
 export {
@@ -87,6 +81,5 @@ export {
   getGameLog,
   arePlayerInfoElementsPresent,
   getPlayerInfoElements,
-  getPlayerInfoNameElements,
   getPlayerAndOpponentNameByComparingElementPosition,
 };

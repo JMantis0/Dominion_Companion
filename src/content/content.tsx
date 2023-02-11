@@ -6,6 +6,7 @@ import {
   arePlayerInfoElementsPresent,
   getPlayerInfoElements,
   getPlayerInfoNameElements,
+  getPlayerAndOpponentNameByComparingElementPosition,
 } from "./contentFunctions";
 // import GameLogExtractor from "./components/GameLogExtractor";
 const Content = () => {
@@ -104,44 +105,9 @@ const initializePlayers = () => {
 const getPlayerNames = () => {
   const playerInfoElements = getPlayerInfoElements();
   console.log("playerInfoElements:", playerInfoElements);
-  // comparison array to hold Ytransform player name
-  let playerTransformComparison = [];
-  for (let element of playerInfoElements) {
-    const nameElement = element.getElementsByTagName(
-      "player-info-name"
-    )[0] as HTMLElement;
-    let thisElement: HTMLElement = element;
-    console.log(
-      `attempt to change tranform property to asdf from ${thisElement.style.transform}`
-    );
-    thisElement.style.transform = "asdf";
-    console.log(`tranform propertyis now${thisElement.style.transform}`);
-    console.log("nameElement", nameElement);
-    const nomen = nameElement.innerText;
-    const transform = element.style.transform;
-    const yTransForm = parseFloat(
-      transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
-    );
-    console.log(`Ytransform for ${nomen} is `, yTransForm);
-    playerTransformComparison.push([nomen, yTransForm]);
-  }
-  //  Compare the Ytransform values.  The greatest one gets assigned to player.
-  //  The lower one gets assigned to opponent
-  const p1TransformValue = playerTransformComparison[0][1];
-  const p2TransformValue = playerTransformComparison[1][1];
-  const p1Name = playerTransformComparison[0][0];
-  const p2Name = playerTransformComparison[1][0];
 
-  if (p1TransformValue > p2TransformValue) {
-    // p1 is the player, p2 is the opponent
-    playerNames.push(p1Name);
-    playerNames.push(p2Name);
-  } else {
-    // p2 is the player, p1 is the opponent
-    playerNames.push(p2Name);
-    playerNames.push(p1Name);
-  }
-
+  playerNames =
+    getPlayerAndOpponentNameByComparingElementPosition(playerInfoElements);
   console.log("playerNames is: ", playerNames);
 
   // Assign the abbreviated names
