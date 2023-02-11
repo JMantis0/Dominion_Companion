@@ -94,26 +94,11 @@ const initializeKingdom = () => {
 //   }
 // };
 
-// gets the player names, assigns them global variable, and assigns truthy value
-// to global variable for if the names start with the same letter(important for log parsing)
 const initializePlayers = () => {
-  if (arePlayerInfoElementsPresent()) {
-    getPlayerNames();
-    playersInitialized = true;
-  }
-};
-// pairs with function initializePlayers()
-const getPlayerNames = () => {
   const playerInfoElements = getPlayerInfoElements();
-  console.log("playerInfoElements:", playerInfoElements);
-
   playerNames =
     getPlayerAndOpponentNameByComparingElementPosition(playerInfoElements);
-  console.log("playerNames is: ", playerNames);
-
   playerAbbreviatedNames = getPlayerNameAbbreviations(gameLog, playerNames);
-
-  console.log(`playerAbbreviatedNames is ${playerAbbreviatedNames}`);
 };
 
 // creats a deck for each player and adds them to the global array, and
@@ -466,7 +451,12 @@ const initIntervalFunction = () => {
       logInitialized = true;
     }
   }
-  if (!playersInitialized) initializePlayers();
+  if (!playersInitialized) {
+    if (arePlayerInfoElementsPresent()) {
+      initializePlayers();
+      playersInitialized = true;
+    }
+  }
   if (!kingdomInitialized) initializeKingdom();
   if (!playerDeckInitialized) initializePlayerDeck();
   if (initialized()) {
