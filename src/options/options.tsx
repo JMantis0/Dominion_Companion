@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 // import "../assets/tailwind.css";
-import ChromeStorageInterface from "./components/ChromeStorageInterface";
+import DataInterface from "./components/DataInterface";
 import CurrentGame from "./components/CurrentGame";
 import DecklistView from "./components/DecklistView";
 
@@ -26,7 +26,7 @@ const Options = () => {
         <Route path="/" element={<DecklistView />} />
         <Route path="/currentGame" element={<CurrentGame />} />
       </Routes>
-      <ChromeStorageInterface />
+      <DataInterface />
     </div>
   );
 };

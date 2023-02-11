@@ -7,7 +7,9 @@ import CardRow from "./CardRow";
 const DiscardView = () => {
   const [discardMap, setDiscardMap] = useState<Map<string, number>>(new Map());
 
-  const pd = useSelector((state: RootState) => state.options.playerDeck);
+  const pd = useSelector((state: RootState) =>
+    state.options.playerDeck)
+  ;
 
   useEffect(() => {
     setDiscardMap(getCountsFromArray(pd.graveyard));
