@@ -7,6 +7,7 @@ import {
   getPlayerInfoElements,
   getPlayerInfoNameElements,
   getPlayerAndOpponentNameByComparingElementPosition,
+  getPlayerNameAbbreviations,
 } from "./contentFunctions";
 // import GameLogExtractor from "./components/GameLogExtractor";
 const Content = () => {
@@ -20,20 +21,20 @@ const Content = () => {
 
 export default Content;
 
-let logInitialized = false;
-let kingdomInitialized = false;
-let playersInitialized = false;
-let playerDeckInitialized = false;
-let sameFirstLetter = false;
-let logsProcessed = "";
-let gameLog;
-let playerNames = [];
-let playerAbbreviatedNames = [];
-let decks = new Map();
-let kingdom = [];
-let linesDispatched = 0;
-let treasureLine = false;
-let observerOn = false;
+let logInitialized: boolean = false;
+let kingdomInitialized: boolean = false;
+let playersInitialized: boolean = false;
+let playerDeckInitialized: boolean = false;
+let sameFirstLetter: boolean = false;
+let logsProcessed: string = "";
+let gameLog: string;
+let playerNames: Array<string> = [];
+let playerAbbreviatedNames: Array<string> = [];
+let decks: Map<string, Deck> = new Map();
+let kingdom: Array<string> = [];
+let linesDispatched: number = 0;
+let treasureLine: boolean = false;
+let observerOn: boolean = false;
 //used to monitor treasure lines for playing treasure phase
 const observerOptions = {
   childList: true,
@@ -110,19 +111,7 @@ const getPlayerNames = () => {
     getPlayerAndOpponentNameByComparingElementPosition(playerInfoElements);
   console.log("playerNames is: ", playerNames);
 
-  // Assign the abbreviated names
-  let DOMarr = gameLog.split("\n");
-  let n1 = DOMarr[4].split(" ")[0];
-  let n2 = DOMarr[6].split(" ")[0];
-
-  if (playerNames[0].substring(0, n1.length) == n1) {
-    console.log(`${n1} is the abbreviation for ${playerNames[0]}`);
-    playerAbbreviatedNames.push(n1);
-    playerAbbreviatedNames.push(n2);
-  } else {
-    playerAbbreviatedNames.push(n2);
-    playerAbbreviatedNames.push(n1);
-  }
+  playerAbbreviatedNames = getPlayerNameAbbreviations(gameLog, playerNames);
 
   console.log(`playerAbbreviatedNames is ${playerAbbreviatedNames}`);
 };
@@ -339,6 +328,7 @@ const appendElements = () => {
         console.log("DOMloglines:", DOMlogLines);
         console.log("lastDomeLogLine:", lastDOMline);
         console.log("lastLineDispatched", logsProcessed.split("\n").slice(-1));
+        console.log("gameLog", gameLog);
       })
   );
   mydiv.append(
