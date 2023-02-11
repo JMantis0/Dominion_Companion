@@ -30,8 +30,8 @@ const arePlayerInfoElementsPresent = (): boolean => {
   return playerElementsPresent;
 };
 
-/*Used to get the player-info elements that are used to determine player name and opponent 
-*/
+/*Used to get the player-info elements that are used to determine player name and opponent
+ */
 const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   const playerInfoElements: HTMLCollectionOf<HTMLElement> =
     document.getElementsByTagName(
@@ -41,6 +41,10 @@ const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   return playerInfoElements;
 };
 
+/*
+This function takes the <player-info> elements and returns which playername is Player and which is Opponent.
+The elements css positions are compared to determine name assignment.
+*/
 const getPlayerAndOpponentNameByComparingElementPosition = (
   playerInfoElements: HTMLCollectionOf<HTMLElement>
 ): Array<string> => {
@@ -69,9 +73,29 @@ const getPlayerAndOpponentNameByComparingElementPosition = (
   return [playerName, opponentName];
 };
 
-const getPlayerNameAbbreviations = (): Array<string> => {
+/*
+Given the game-log and playerNames, this function returns the player name abbreviations.
+*/
+const getPlayerNameAbbreviations = (
+  gameLog: string,
+  playerNames: Array<string>
+): Array<string> => {
   let playerNameAbbreviation: string;
   let opponentNameAbbreviation: string;
+  const gameLogArr = gameLog.split("\n");
+
+  // n1 player is the player going first.
+  const n1 = gameLogArr[4].split(" ")[0];
+  const n2 = gameLogArr[6].split(" ")[0];
+
+  // first element of playerName is the player (not opponent)
+  if (playerNames[0].substring(0, n1.length) == n1) {
+    playerNameAbbreviation = n1;
+    opponentNameAbbreviation = n2;
+  } else {
+    playerNameAbbreviation = n2;
+    opponentNameAbbreviation = n1;
+  }
 
   return [playerNameAbbreviation, opponentNameAbbreviation];
 };
@@ -82,4 +106,5 @@ export {
   arePlayerInfoElementsPresent,
   getPlayerInfoElements,
   getPlayerAndOpponentNameByComparingElementPosition,
+  getPlayerNameAbbreviations,
 };
