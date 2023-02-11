@@ -4,6 +4,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 import { StoreDeck } from "../../model/storeDeck";
 import { Deck } from "../../model/deck";
+import { EmptyDeck } from "../../model/emptyDeck";
 
 export interface OptionsState {
   playerDeck: StoreDeck;
@@ -11,12 +12,8 @@ export interface OptionsState {
 }
 
 const initialState: OptionsState = {
-  playerDeck: JSON.parse(
-    JSON.stringify(new Deck("emptyPlayer", "ep", ["empty Kingdom"]))
-  ),
-  opponentDeck: JSON.parse(
-    JSON.stringify(new Deck("emptyOpponent", "eo", ["empty Kingdom"]))
-  ),
+  playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
+  opponentDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
 };
 
 export const optionsSlice = createSlice({
@@ -24,10 +21,16 @@ export const optionsSlice = createSlice({
   initialState,
   reducers: {
     setPlayerDeck: (state, action: PayloadAction<StoreDeck>) => {
+      console.log("Reducer setting playerDeck state");
+      console.log("playerDeckState Before: ", state.playerDeck);
       state.playerDeck = action.payload;
+      console.log("playerDeckState After: ", state.playerDeck);
     },
     setOpponentDeck: (state, action: PayloadAction<StoreDeck>) => {
+      console.log("Reducer setting opponentDeck state");
+      console.log("opponentDeckState: Before", state.opponentDeck);
       state.opponentDeck = action.payload;
+      console.log("opponentDeckState: After", state.opponentDeck);
     },
   },
 });

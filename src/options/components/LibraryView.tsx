@@ -7,7 +7,9 @@ import CardRow from "./CardRow";
 const LibraryView = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, number>>(new Map());
 
-  const pd = useSelector((state: RootState) => state.options.playerDeck);
+  const pd = 
+    useSelector((state: RootState) => state.options.playerDeck)
+  ;
 
   useEffect(() => {
     setLibraryMap(getCountsFromArray(pd.library));
@@ -30,4 +32,4 @@ const LibraryView = () => {
     </React.Fragment>
   );
 };
-export default LibraryView
+export default LibraryView;

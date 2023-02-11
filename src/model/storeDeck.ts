@@ -2,7 +2,7 @@ export interface StoreDeck {
   entireDeck: Array<string>;
   playerName: string;
   abbrvName: string;
-  currentVP: number;
+  currentVP: number | string;
   kingdom: Array<string>;
   library: Array<string>;
   graveyard: Array<string>;

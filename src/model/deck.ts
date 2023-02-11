@@ -121,35 +121,29 @@ export class Deck {
       "Dutchy",
     ];
 
-    log.forEach((line, idx, array) => {
-      console.log("line being processed: ", line);
-      let act = "";
-      let cards = [];
-      let numberOfCards = [];
+    const handleTreasureLine = (
+      line: string,
+      idx: number,
+      array: Array<string>
+    ): Array<number> => {
+      // Inside this if, this means that the player is in a play treasure phase.
+      // The two lines must be compared to see how many additional treasures must be
+      // processed
+      const prevLine = this.lastEntryProcessed;
+      const treasures = ["Copper", "Silver", "Gold"];
 
-      actionArray.forEach((action) => {
-        if (line.match(action)) {
-          act = action;
-        }
-      });
+      // get the total number of each treasure that was played on the last line
+      const numberOfPrevCards = [];
+      treasures.forEach((treasure) => {
+        if (prevLine.match(treasure)) {
+          // To account for 2 digit numbers
+          const twoDigits = prevLine[prevLine.indexOf(treasure) - 3].match(/\d/)
+            ? 1
+            : 0;
 
-      this.kingdom.forEach((card) => {
-        let pluralVariant = "";
-        let pluralVariantBoolean = false;
-        if (pluralVariantCandidates.indexOf(card) >= 0) {
-          pluralVariant = card.substring(0, card.length - 1) + "ies";
-          if (line.match(pluralVariant)) pluralVariantBoolean = true;
-        }
-        if (
-          pluralVariantBoolean ? line.match(pluralVariant) : line.match(card)
-        ) {
-          const amountChar = line.substring(
-            pluralVariantBoolean
-              ? line.indexOf(pluralVariant) - 2
-              : line.indexOf(card) - 2,
-            pluralVariantBoolean
-              ? line.indexOf(pluralVariant) - 1
-              : line.indexOf(card) - 1
+          const amountChar = prevLine.substring(
+            prevLine.indexOf(treasure) - 2 - twoDigits,
+            prevLine.indexOf(treasure) - 1
           );
           let amount = 0;
           if (amountChar == "n" || amountChar == "a") {
@@ -157,10 +151,100 @@ export class Deck {
           } else {
             amount = parseInt(amountChar);
           }
-          cards.push(card);
-          numberOfCards.push(amount);
+          numberOfPrevCards.push(amount);
+        } else {
+          numberOfPrevCards.push(0);
         }
       });
+
+      const numberOfCards = [];
+      treasures.forEach((treasure) => {
+        if (line.match(treasure)) {
+          // To account for 2 digit numbers
+          const twoDigits = 0;
+          //  line[line.indexOf(treasure) - 3].match(/\d/)
+          //   ? 1
+          //   : 0;
+
+          const amountChar = line.substring(
+            line.indexOf(treasure) - 2 - twoDigits,
+            line.indexOf(treasure) - 1
+          );
+          let amount = 0;
+          if (amountChar == "n" || amountChar == "a") {
+            amount = 1;
+          } else {
+            amount = parseInt(amountChar);
+          }
+          numberOfCards.push(amount);
+        } else {
+          numberOfCards.push(0);
+        }
+      });
+
+      let amountsToPlay = [
+        numberOfCards[0] - numberOfPrevCards[0],
+        numberOfCards[1] - numberOfPrevCards[1],
+        numberOfCards[2] - numberOfPrevCards[2],
+      ];
+
+      console.log("Amounts to play for copper,silver,gold", amountsToPlay);
+      return amountsToPlay;
+    };
+
+    log.forEach((line, idx, array) => {
+      console.log("line being processed: ", line);
+      let act = "";
+      let cards = [];
+      let numberOfCards = [];
+
+      if (
+        this.lastEntryProcessed.match("plays") &&
+        this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?|/) &&
+        line.match("plays") &&
+        line.match(/Coppers?|Silvers?|Golds?|/)
+      ) {
+        console.log("Handling a treasher line");
+        numberOfCards = handleTreasureLine(line, idx, array);
+        act = "plays";
+        cards = ["Copper", "Silver", "Gold"];
+      } else {
+        actionArray.forEach((action) => {
+          if (line.match(action)) {
+            act = action;
+          }
+        });
+
+        this.kingdom.forEach((card) => {
+          let pluralVariant = "";
+          let pluralVariantBoolean = false;
+          if (pluralVariantCandidates.indexOf(card) >= 0) {
+            pluralVariant = card.substring(0, card.length - 1) + "ies";
+            if (line.match(pluralVariant)) pluralVariantBoolean = true;
+          }
+          if (
+            pluralVariantBoolean ? line.match(pluralVariant) : line.match(card)
+          ) {
+            const twoDigits = line[line.indexOf(card) - 3].match(/\d/) ? 1 : 0;
+            const amountChar = line.substring(
+              pluralVariantBoolean
+                ? line.indexOf(pluralVariant) - 2 - twoDigits
+                : line.indexOf(card) - 2 - twoDigits,
+              pluralVariantBoolean
+                ? line.indexOf(pluralVariant) - 1
+                : line.indexOf(card) - 1
+            );
+            let amount = 0;
+            if (amountChar == "n" || amountChar == "a") {
+              amount = 1;
+            } else {
+              amount = parseInt(amountChar);
+            }
+            cards.push(card);
+            numberOfCards.push(amount);
+          }
+        });
+      }
 
       switch (act) {
         case "shuffles their deck":
@@ -289,7 +373,7 @@ export class Deck {
   draw(card) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.log(`ACTION Drawing ${card} from library into hand`);
+      ////console.log(`action Drawing ${card} from library into hand`);
       this.library.splice(index, 1);
       this.hand.push(card);
     } else {
@@ -300,7 +384,7 @@ export class Deck {
   play(card) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.log(`ACTION Playing ${card} from hand into play`);
+      ////console.log(`action Playing ${card} from hand into play`);
       this.hand.splice(index, 1);
       this.inPlay.push(card);
     } else {
@@ -322,7 +406,7 @@ export class Deck {
   }
 
   shuffle() {
-    console.log("ACTION Shuffling discard into deck");
+    //console.log("action Shuffling discard into deck");
     let currentIndex = this.library.length,
       randomIndex;
 
@@ -345,7 +429,7 @@ export class Deck {
     if (index > -1) {
       this.graveyard.splice(index, 1);
       this.library.push(card);
-      console.log(`ACTION Topdeck ${card} from discard`);
+      //////console.log(`action Topdeck ${card} from discard`);
     } else {
       console.log(`No ${card} in discard`);
     }
@@ -354,7 +438,7 @@ export class Deck {
   playFromDiscard(card) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
-      console.log(`ACTION Playing ${card} from discard`);
+      //////console.log(`action Playing ${card} from discard`);
       this.inPlay.push(card);
       this.graveyard.splice(index, 1);
     } else {
@@ -386,26 +470,26 @@ export class Deck {
       this.inPlay.splice(i, 1);
     }
     for (j; j >= 0; j--) {
-      console.log(`ACTION Cleaning ${this.hand[j]} from hand into discard`);
+      ////console.log(`action Cleaning ${this.hand[j]} from hand into discard`);
       this.graveyard.push(this.hand[j]);
       this.hand.splice(j, 1);
     }
   }
 
   gain(card) {
-    console.log(`ACTION Gaining ${card} into discard`);
+    ////console.log(`action Gaining ${card} into discard`);
     this.graveyard.push(card);
   }
 
   gainIntoHand(card) {
-    console.log(`ACTION Gaining ${card} into hand`);
+    ////console.log(`action Gaining ${card} into hand`);
     this.hand.push(card);
   }
 
   topDeckCardFromHand(card) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.log(`ACTION Topdecking ${this.hand[index]}`);
+      ////console.log(`action Topdecking ${this.hand[index]}`);
       this.library.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {

@@ -7,7 +7,9 @@ import CardRow from "./CardRow";
 const TrashView = () => {
   const [trashMap, setTrashMap] = useState<Map<string, number>>(new Map());
 
-  const pd = useSelector((state: RootState) => state.options.playerDeck);
+  const pd = useSelector((state: RootState) =>
+    state.options.playerDeck
+  );
 
   useEffect(() => {
     setTrashMap(getCountsFromArray(pd.trash));
@@ -30,4 +32,4 @@ const TrashView = () => {
     </React.Fragment>
   );
 };
-export default TrashView
+export default TrashView;

@@ -1,5 +1,12 @@
 import React from "react";
 import { Deck } from "../model/deck";
+import {
+  isGameLogPresent,
+  getGameLog,
+  arePlayerInfoElementsPresent,
+  getPlayerInfoElements,
+  getPlayerInfoNameElements,
+} from "./contentFunctions";
 // import GameLogExtractor from "./components/GameLogExtractor";
 const Content = () => {
   return (
@@ -18,12 +25,33 @@ let playersInitialized = false;
 let playerDeckInitialized = false;
 let sameFirstLetter = false;
 let logsProcessed = "";
-let DOMlog;
+let gameLog;
 let playerNames = [];
 let playerAbbreviatedNames = [];
 let decks = new Map();
 let kingdom = [];
 let linesDispatched = 0;
+let treasureLine = false;
+let observerOn = false;
+//used to monitor treasure lines for playing treasure phase
+const observerOptions = {
+  childList: true,
+};
+const mo = new MutationObserver((mutationList, observer) => {
+  console.log("Mutation observer callback");
+  console.log("mutationList is: ", mutationList);
+  console.log("observer is: ", observer);
+  // mo.disconnect;
+  // const lastLogLineElement = document.getElementsByClassName(
+  //   "log-scroll-container"
+  // )[0]as HTMLElement;
+  // console.log(lastLogLineElement);
+  // if (checkIfTreasureLine(lastLogLineElement.innerText)) {
+  //   mo.observe(lastLogLineElement, observerOptions);
+  // }
+  // const lastDiv
+  console.log(mutationList[mutationList.length - 1].addedNodes[0].innerText);
+});
 
 const initializeKingdom = () => {
   if (document.getElementsByClassName("kingdom-viewer-group").length > 0) {
@@ -57,35 +85,80 @@ const initializeKingdom = () => {
 };
 
 // Function that grabs the initial game log on load and assigns it to global variable
-const initializeDOMLog = () => {
-  if ($(".game-log").length > 0) {
-    DOMlog = $(".game-log")[0].innerText;
-    logInitialized = true;
-  }
-};
+// const initializeDOMLog = () : boolean => {
+//   if ($(".game-log").length > 0) {
+//     gameLog = $(".game-log")[0].innerText;
+//     logInitialized = true;
+//   }
+// };
 
 // gets the player names, assigns them global variable, and assigns truthy value
 // to global variable for if the names start with the same letter(important for log parsing)
 const initializePlayers = () => {
-  if (document.getElementsByTagName("player-info-name").length > 0) {
+  if (arePlayerInfoElementsPresent()) {
     getPlayerNames();
     playersInitialized = true;
   }
 };
 // pairs with function initializePlayers()
 const getPlayerNames = () => {
-  let DOMarr = DOMlog.split("\n");
-  const index1 = DOMarr[4].indexOf(" starts with 3 Estates.");
-  const index2 = DOMarr[6].indexOf(" starts with 3 Estates.");
-  playerAbbreviatedNames.push(DOMarr[4].substring(0, index1));
-  playerAbbreviatedNames.push(DOMarr[6].substring(0, index2));
-  const playerElements = document.getElementsByTagName(
-    "player-info-name"
-  ) as HTMLCollectionOf<HTMLElement>;
-  for (let i = 0; i <= 1; i++) {
-    playerNames.push(playerElements[i].innerText);
+  const playerInfoElements = getPlayerInfoElements();
+  console.log("playerInfoElements:", playerInfoElements);
+  // comparison array to hold Ytransform player name
+  let playerTransformComparison = [];
+  for (let element of playerInfoElements) {
+    const nameElement = element.getElementsByTagName(
+      "player-info-name"
+    )[0] as HTMLElement;
+    let thisElement: HTMLElement = element;
+    console.log(
+      `attempt to change tranform property to asdf from ${thisElement.style.transform}`
+    );
+    thisElement.style.transform = "asdf";
+    console.log(`tranform propertyis now${thisElement.style.transform}`);
+    console.log("nameElement", nameElement);
+    const nomen = nameElement.innerText;
+    const transform = element.style.transform;
+    const yTransForm = parseFloat(
+      transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
+    );
+    console.log(`Ytransform for ${nomen} is `, yTransForm);
+    playerTransformComparison.push([nomen, yTransForm]);
   }
-  if (playerNames[0][0] == playerNames[1][0]) sameFirstLetter = true;
+  //  Compare the Ytransform values.  The greatest one gets assigned to player.
+  //  The lower one gets assigned to opponent
+  const p1TransformValue = playerTransformComparison[0][1];
+  const p2TransformValue = playerTransformComparison[1][1];
+  const p1Name = playerTransformComparison[0][0];
+  const p2Name = playerTransformComparison[1][0];
+
+  if (p1TransformValue > p2TransformValue) {
+    // p1 is the player, p2 is the opponent
+    playerNames.push(p1Name);
+    playerNames.push(p2Name);
+  } else {
+    // p2 is the player, p1 is the opponent
+    playerNames.push(p2Name);
+    playerNames.push(p1Name);
+  }
+
+  console.log("playerNames is: ", playerNames);
+
+  // Assign the abbreviated names
+  let DOMarr = gameLog.split("\n");
+  let n1 = DOMarr[4].split(" ")[0];
+  let n2 = DOMarr[6].split(" ")[0];
+
+  if (playerNames[0].substring(0, n1.length) == n1) {
+    console.log(`${n1} is the abbreviation for ${playerNames[0]}`);
+    playerAbbreviatedNames.push(n1);
+    playerAbbreviatedNames.push(n2);
+  } else {
+    playerAbbreviatedNames.push(n2);
+    playerAbbreviatedNames.push(n1);
+  }
+
+  console.log(`playerAbbreviatedNames is ${playerAbbreviatedNames}`);
 };
 
 // creats a deck for each player and adds them to the global array, and
@@ -121,10 +194,10 @@ const initialized = () => {
 
 // functino that calls the update() method on each deck object
 const updateDeck = (newLogsToDispatch) => {
-  const DOMlogArr = DOMlog.split("\n");
+  const DOMlogArr = gameLog.split("\n");
   Array.from(decks.keys()).forEach((playerName) => {
     decks.get(playerName).setDOMlog(DOMlogArr);
-    console.log("set DOMlog for " + playerName);
+    // console.log("set gameLog for " + playerName);
   });
   let separatedLogs = separateDeckLogs(newLogsToDispatch);
   let dispatched = false;
@@ -156,6 +229,12 @@ const updateDeck = (newLogsToDispatch) => {
     if (logsProcessed == "") {
       logsProcessed = newLogsToDispatch;
     } else {
+      if (treasureLine) {
+        logsProcessed = logsProcessed
+          .split("\n")
+          .slice(0, logsProcessed.split("\n").length - 1)
+          .join("\n");
+      }
       logsProcessed += "\n" + newLogsToDispatch;
     }
     let newLinesDispatched =
@@ -164,18 +243,23 @@ const updateDeck = (newLogsToDispatch) => {
       separatedLogs[2].length;
     linesDispatched += newLinesDispatched;
   }
-  let stringDeck = JSON.stringify(decks.get(playerNames[1]));
+
+  sendToFront(decks.get(playerNames[1]));
+  sendToFront(decks.get(playerNames[0]));
+
+  // let stringDeck = JSON.stringify(decks.get(playerNames[1]));
+
   // console.log("Stringified Deck,", stringDeck);
-  chrome.storage.sync.set({ playerDeck: stringDeck }).then(() => {
-    console.log(`${playerNames[1]}'s deck in sync storage set`);
-  });
-  stringDeck = JSON.stringify(decks.get(playerNames[0]));
-  chrome.storage.sync.set({ opponentDeck: stringDeck }).then(() => {
-    console.log(`${playerNames[0]}'s deck in sync storage set`);
-  });
+  // chrome.storage.sync.set({ playerDeck: stringDeck }).then(() => {
+  // console.log(`${playerNames[1]}'s deck in sync storage set`);
+  // });
+  // stringDeck = JSON.stringify(decks.get(playerNames[0]));
+  // chrome.storage.sync.set({ opponentDeck: stringDeck }).then(() => {
+  // console.log(`${playerNames[0]}'s deck in sync storage set`);
+  // });
 };
 // splits the logs up into two arrays that apply only to a single deck
-const separateDeckLogs = (newLogEntries) => {
+const separateDeckLogs = (newLogEntries: string): Array<Array<string>> => {
   let entryArray = newLogEntries.split("\n");
   // first case player names do not start with same letter:
   let player1Array = [];
@@ -202,18 +286,71 @@ const separateDeckLogs = (newLogEntries) => {
   return [player0Array, player1Array, infoLogs];
 };
 
+const checkIfTreasureLine = (line: string): boolean => {
+  return (
+    line.match(/Coppers?|Silvers?|Golds?|/) !== null &&
+    line.match("plays") !== null
+  );
+};
+
 const checkNewLogs = () => {
-  DOMlog = $(".game-log")[0].innerText;
-  let DMArr = DOMlog.split("\n");
+  // I'd like to refine the checkNewLogs function.
+  //  The way it is set up now, the phase where a player plays treasures is not getting logged.
+  //   This is due to the challenge that a new line isn't necesarrily created during this phase, since players can play multiple treasures during this phase.
+  //   The treasures are all rendered to the same elemenet, it would seem.
+  //   For this reason, logic has been set up to return FALSE for new logs, even if there is a new log line, if that new log line matches nboth "plays" and a treasure.
+  //   I would like to set up better logic that processes this log line.
+  //   It will require some extra logic on both the content side and on the deck object side
+  //   The logic on the front side will have to return that there is a new log, even if the number of lines are the same, in the case of Line.match("plays") and line.match(/Coppers?|Silvers?|Golds?|
+  //   On the deck side, logic must compare the last processed line with whatever line it is curerntly processing, and only process the proper amount of treasure plays.
+  //   For example.  If the last line processed was "L plays 3 coppers," and the next line that comes in is"L plays 5 coppers" the deck needs to play 2 coppers
+
+  // So now I have the code to compare the last 2 lines.  Now the rules to check for new logs
+  // must be changed, because counting lines dispatched vs lines in the DOM won't work.  We should simply compare
+  // The dom log with the lines that have been dispatched?
+  // Maybe we can keep the counting of lines system, but add logic that will prevent the # of lines dispatched
+  gameLog = $(".game-log")[0].innerText;
+  let DMArr = gameLog.split("\n");
   let DOMlogLines = DMArr.length;
   let lastDOMline = DMArr.pop();
+  treasureLine = checkIfTreasureLine(lastDOMline);
+  if (treasureLine && !observerOn) {
+    console.log(
+      "last dom line is a treasure play line.  Attaching a mutation observer to the element: "
+    );
+    const lastLogLineElement = document.getElementsByClassName(
+      "log-scroll-container"
+    )[0] as HTMLElement;
+    console.log(lastLogLineElement);
+
+    mo.observe(lastLogLineElement, observerOptions);
+    observerOn = true;
+  } else if (!treasureLine && observerOn) {
+    if (observerOn) {
+      console.log("Disconnecting observer");
+      mo.disconnect();
+      observerOn = false;
+    }
+  }
+  const newlogsboolean =
+    DOMlogLines > linesDispatched ||
+    (DOMlogLines == linesDispatched && treasureLine && DOMlogLines > 7);
+
+  const lastDomLineMatchesLastProcessedLine = (lastDOMline = logsProcessed
+    .split("\n")
+    .pop());
+
+  console.log(
+    "Checking for new logs..\nNew Logs: ",
+    DOMlogLines > linesDispatched || !lastDomLineMatchesLastProcessedLine
+  );
   return (
-    DOMlogLines > linesDispatched &&
-    !(
-      lastDOMline.match(/Coppers?|Silvers?|Golds?|/) &&
-      lastDOMline.match("plays")
-    ) &&
-    DOMlogLines > 7
+    DOMlogLines > linesDispatched ||
+    // (DOMlogLines == linesDispatched &&
+    //   lastDOMline.match(/Coppers?|Silvers?|Golds?|/) &&
+    //   lastDOMline.match("plays") &&
+    //   DOMlogLines > 7) &&
+    !lastDomLineMatchesLastProcessedLine
   );
 };
 // creates elements to append to the dom and assigns click event listeners
@@ -226,14 +363,28 @@ const appendElements = () => {
   mydiv.append($("<button>").attr("id", "statebutton").text("LOG DECK STATE"));
   mydiv.append(
     $("<button>")
+      .attr("id", "newLogsButton")
+      .text("CheckNewLogsVars")
+      .click(() => {
+        let DMArr = gameLog.split("\n");
+        let DOMlogLines = DMArr.length;
+        let lastDOMline = DMArr.pop();
+        console.log("linesDispatched: ", linesDispatched);
+        console.log("DOMloglines:", DOMlogLines);
+        console.log("lastDomeLogLine:", lastDOMline);
+        console.log("lastLineDispatched", logsProcessed.split("\n").slice(-1));
+      })
+  );
+  mydiv.append(
+    $("<button>")
       .attr("id", "DOMlogsButton")
-      .text("Compare DOMlog to Logs Processed")
+      .text("Compare gameLog to Logs Processed")
       .click(() => {
         let pass = true;
-        for (let i = 0; i < DOMlog.split("\n").length; i++) {
-          let DArr = DOMlog.split("\n");
+        for (let i = 0; i < gameLog.split("\n").length; i++) {
+          let DArr = gameLog.split("\n");
           let lpArr = logsProcessed.split("\n");
-          console.log(`Entry ${i} of DOMlog        is ${DArr[i]}`);
+          console.log(`Entry ${i} of gameLog        is ${DArr[i]}`);
           console.log(`Entry ${i} of logsprocessed is ${lpArr[i]}`);
           if (DArr[i] != lpArr[i]) pass = false;
         }
@@ -250,9 +401,10 @@ const appendElements = () => {
     console.log("Library: ", myDeck.getLibrary());
     console.log("Trash: ", myDeck.getTrash());
     console.log("In Play: ", myDeck.getInPlay());
-    // console.log("deck DOMlog: ", myDeck.getDOMlog());
+    // console.log("deck gameLog: ", myDeck.getDOMlog());
     // console.log("deck logArchive: ", myDeck.getLogArchive());
   });
+
   messageButton.click(() => {
     // sendMessage();
   });
@@ -260,17 +412,43 @@ const appendElements = () => {
 
 // Sends data to the react front end popup
 const sendToFront = (deck) => {
-  chrome.runtime.sendMessage(JSON.stringify(deck));
+  if ((deck.playerName = playerNames[0])) {
+    (async () => {
+      try {
+        console.log("Sending deck as playerdeck:", deck);
+        const response = await chrome.runtime.sendMessage({
+          playerDeck: JSON.stringify(deck),
+        });
+        console.log(response);
+      } catch (e) {
+        console.log("Can't send to front: ", e);
+      }
+    })();
+  } else {
+    (async () => {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          opponentDeck: JSON.stringify(deck),
+        });
+        console.log(response);
+      } catch (e) {
+        console.log("Can't send to front: ", e);
+      }
+    })();
+  }
+
+  // chrome.runtime.sendMessage(JSON.stringify(deck));
 };
 
 const getUnprocessedLogs = () => {
-  const DOMLogArr = DOMlog.split("\n");
+  const DOMLogArr = gameLog.split("\n");
   const DOMlogLines = DOMLogArr.length;
   let newLinesToDispatch = DOMlogLines - linesDispatched;
   let newLogsToDispatch = [];
   for (let i = linesDispatched; i < DOMlogLines; i++) {
     newLogsToDispatch.push(DOMLogArr[i]);
   }
+  console.log("NewLogsToDispatch: ", newLogsToDispatch);
   return newLogsToDispatch.join("\n");
 };
 
@@ -291,18 +469,47 @@ const resetGame = () => {
   playerDeckInitialized = false;
   sameFirstLetter = false;
   logsProcessed = "";
-  DOMlog;
+  gameLog;
   playerNames = [];
   playerAbbreviatedNames = [];
   decks = new Map();
   kingdom = [];
   linesDispatched = 0;
+  mo.disconnect();
   initInterval = setInterval(initIntervalFunction, 1000);
+};
+
+const addOptionsDataInterfaceListener = (): void => {
+  console.log("Adding initial Load event listener");
+  chrome.runtime.onMessage.addListener(function (
+    request,
+    sender,
+    sendResponse
+  ) {
+    console.log(
+      sender.tab
+        ? "from a content script:" + sender.tab.url
+        : "from the extension"
+    );
+    if (request.message === "initLoad") {
+      sendResponse({
+        decks: {
+          playerDeck: decks.get(playerNames[0]),
+          opponentDeck: decks.get(playerNames[1]),
+        },
+      });
+    }
+  });
 };
 
 const initIntervalFunction = () => {
   console.log("Initialized = ", initialized());
-  if (!logInitialized) initializeDOMLog();
+  if (!logInitialized) {
+    if (isGameLogPresent()) {
+      gameLog = getGameLog();
+      logInitialized = true;
+    }
+  }
   if (!playersInitialized) initializePlayers();
   if (!kingdomInitialized) initializeKingdom();
   if (!playerDeckInitialized) initializePlayerDeck();
@@ -325,4 +532,5 @@ const initIntervalFunction = () => {
 
 // The init interval continues until the "initialization" is complete.
 // Once completed, another interval initates, that monitors changes in the log.
+addOptionsDataInterfaceListener();
 let initInterval = setInterval(initIntervalFunction, 1000);

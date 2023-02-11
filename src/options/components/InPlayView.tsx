@@ -7,7 +7,9 @@ import CardRow from "./CardRow";
 const InPlayView = () => {
   const [inPlayMap, setInPlayMap] = useState<Map<string, number>>(new Map());
 
-  const pd = useSelector((state: RootState) => state.options.playerDeck);
+  const pd = useSelector((state: RootState) =>
+    state.options.playerDeck)
+ ;
 
   useEffect(() => {
     setInPlayMap(getCountsFromArray(pd.inPlay));
