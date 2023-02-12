@@ -5,9 +5,11 @@ import {
   getGameLog,
   arePlayerInfoElementsPresent,
   getPlayerInfoElements,
-  getPlayerInfoNameElements,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerNameAbbreviations,
+  isKingdomElementPresent,
+  getKingdom,
+  createPlayerDecks,
 } from "./contentFunctions";
 // import GameLogExtractor from "./components/GameLogExtractor";
 const Content = () => {
@@ -54,72 +56,6 @@ const mo = new MutationObserver((mutationList, observer) => {
   // const lastDiv
   console.log(mutationList[mutationList.length - 1].addedNodes[0].innerText);
 });
-
-const initializeKingdom = () => {
-  if (document.getElementsByClassName("kingdom-viewer-group").length > 0) {
-    let cards = [];
-    try {
-      for (let elt of document
-        .getElementsByClassName("kingdom-viewer-group")[0]
-        .getElementsByClassName(
-          "name-layer"
-        ) as HTMLCollectionOf<HTMLElement>) {
-        const card = elt.innerText.trim();
-        cards.push(card);
-      }
-    } catch (e) {
-      console.log("Error in getKingdom()", e);
-    }
-    [
-      "Province",
-      "Gold",
-      "Duchy",
-      "Silver",
-      "Estate",
-      "Copper",
-      "Curse",
-    ].forEach((card) => {
-      cards.push(card);
-    });
-    kingdom = cards;
-    kingdomInitialized = true;
-  }
-};
-
-// Function that grabs the initial game log on load and assigns it to global variable
-// const initializeDOMLog = () : boolean => {
-//   if ($(".game-log").length > 0) {
-//     gameLog = $(".game-log")[0].innerText;
-//     logInitialized = true;
-//   }
-// };
-
-const initializePlayers = () => {
-  const playerInfoElements = getPlayerInfoElements();
-  playerNames =
-    getPlayerAndOpponentNameByComparingElementPosition(playerInfoElements);
-  playerAbbreviatedNames = getPlayerNameAbbreviations(gameLog, playerNames);
-};
-
-// creats a deck for each player and adds them to the global array, and
-// toggles the playerDeckInitialized global boolean
-const initializePlayerDeck = () => {
-  if (playersInitialized && kingdomInitialized) {
-    playerNames.forEach((player, idx) => {
-      decks.set(player, new Deck(player, playerAbbreviatedNames[idx], kingdom));
-    });
-    console.log(decks);
-    playerDeckInitialized = true;
-  }
-};
-
-// helper dev function
-const outputState = () => {
-  console.log(`logInitialized ${logInitialized}`);
-  console.log(`playersInitialized ${playersInitialized}`);
-  console.log(`kingdomInitialized ${kingdomInitialized}`);
-  console.log(`playerDeckInitialized ${playerDeckInitialized}`);
-};
 
 // returns whether the initializations are complete,
 // this is used to turn off the initializatino interval and move on to log processing
@@ -295,60 +231,30 @@ const checkNewLogs = () => {
 };
 // creates elements to append to the dom and assigns click event listeners
 const appendElements = () => {
-  const messageButton = $("<button>")
-    .attr("id", "msgBtn")
-    .text("SendMessageToExt");
   const mydiv = $("<div>").attr("id", "Jman").text("I'm IN THERE");
   $(".chat-display").append(mydiv);
   mydiv.append($("<button>").attr("id", "statebutton").text("LOG DECK STATE"));
   mydiv.append(
     $("<button>")
       .attr("id", "newLogsButton")
-      .text("CheckNewLogsVars")
-      .click(() => {
-        let DMArr = gameLog.split("\n");
-        let DOMlogLines = DMArr.length;
-        let lastDOMline = DMArr.pop();
+      .text("Console Log Globals")
+      .on("click", () => {
+        console.log("logInitialized: ", logInitialized);
+        console.log("kingdomInitialized: ", kingdomInitialized);
+        console.log("playersInitialized: ", playersInitialized);
+        console.log("playerDeckInitialized: ", playerDeckInitialized);
+        console.log("sameFirstLetter: ", sameFirstLetter);
+        console.log("logsProcessed: ", logsProcessed);
+        console.log("gameLog: ", gameLog);
+        console.log("playerNames: ", playerNames);
+        console.log("playerAbbreviatedNames: ", playerAbbreviatedNames);
+        console.log("decks: ", decks);
+        console.log("kingdom: ", kingdom);
         console.log("linesDispatched: ", linesDispatched);
-        console.log("DOMloglines:", DOMlogLines);
-        console.log("lastDomeLogLine:", lastDOMline);
-        console.log("lastLineDispatched", logsProcessed.split("\n").slice(-1));
-        console.log("gameLog", gameLog);
+        console.log("treasureLine: ", treasureLine);
+        console.log("observerOn: ", observerOn);
       })
   );
-  mydiv.append(
-    $("<button>")
-      .attr("id", "DOMlogsButton")
-      .text("Compare gameLog to Logs Processed")
-      .click(() => {
-        let pass = true;
-        for (let i = 0; i < gameLog.split("\n").length; i++) {
-          let DArr = gameLog.split("\n");
-          let lpArr = logsProcessed.split("\n");
-          console.log(`Entry ${i} of gameLog        is ${DArr[i]}`);
-          console.log(`Entry ${i} of logsprocessed is ${lpArr[i]}`);
-          if (DArr[i] != lpArr[i]) pass = false;
-        }
-        $("#DOMlogsButton").text(pass);
-      })
-  );
-  mydiv.append(messageButton);
-
-  $("#statebutton").click(() => {
-    const myDeck = decks.get("GoodBeard");
-    console.log("Deck List: ", myDeck.getEntireDeck());
-    console.log("Hand: ", myDeck.getHand());
-    console.log("Discard: ", myDeck.getGraveyard());
-    console.log("Library: ", myDeck.getLibrary());
-    console.log("Trash: ", myDeck.getTrash());
-    console.log("In Play: ", myDeck.getInPlay());
-    // console.log("deck gameLog: ", myDeck.getDOMlog());
-    // console.log("deck logArchive: ", myDeck.getLogArchive());
-  });
-
-  messageButton.click(() => {
-    // sendMessage();
-  });
 };
 
 // Sends data to the react front end popup
@@ -453,12 +359,26 @@ const initIntervalFunction = () => {
   }
   if (!playersInitialized) {
     if (arePlayerInfoElementsPresent()) {
-      initializePlayers();
+      playerNames = getPlayerAndOpponentNameByComparingElementPosition(
+        getPlayerInfoElements()
+      );
+      playerAbbreviatedNames = getPlayerNameAbbreviations(gameLog, playerNames);
       playersInitialized = true;
     }
   }
-  if (!kingdomInitialized) initializeKingdom();
-  if (!playerDeckInitialized) initializePlayerDeck();
+  if (!kingdomInitialized) {
+    if (isKingdomElementPresent()) {
+      kingdom = getKingdom();
+      kingdomInitialized = true;
+    }
+  }
+  if (!playerDeckInitialized) {
+    if (playersInitialized && kingdomInitialized) {
+      decks = createPlayerDecks(playerNames, playerAbbreviatedNames, kingdom);
+      playerDeckInitialized = true;
+    }
+  }
+
   if (initialized()) {
     console.log("Initialized = ", initialized());
     clearInterval(initInterval);
