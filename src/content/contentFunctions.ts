@@ -1,3 +1,5 @@
+import { Deck } from "../model/deck";
+
 /*
 Used to check if the current dom has a log present.  If not, the player isn't in a game.
 */
@@ -100,6 +102,47 @@ const getPlayerNameAbbreviations = (
   return [playerNameAbbreviation, opponentNameAbbreviation];
 };
 
+const isKingdomElementPresent = (): boolean => {
+  let kingdomPresent: boolean;
+  kingdomPresent =
+    document.getElementsByClassName("kingdom-viewer-group").length > 0;
+  return kingdomPresent;
+};
+
+const getKingdom = (): Array<string> => {
+  let kingdom: Array<string>;
+  let cards = [];
+  try {
+    for (let elt of document
+      .getElementsByClassName("kingdom-viewer-group")[0]
+      .getElementsByClassName("name-layer") as HTMLCollectionOf<HTMLElement>) {
+      const card = elt.innerText.trim();
+      cards.push(card);
+    }
+  } catch (e) {
+    throw new Error(`Error in getKingdom() ${e}`);
+  }
+  ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
+    (card) => {
+      cards.push(card);
+    }
+  );
+  kingdom = cards;
+  return kingdom;
+};
+
+const createPlayerDecks = (
+  playerNames: Array<string>,
+  abbreviatedNames: Array<string>,
+  kingdom: Array<string>
+): Map<string, Deck> => {
+  let deckMap: Map<string, Deck> = new Map();
+  playerNames.forEach((player, idx) => {
+    deckMap.set(player, new Deck(player, abbreviatedNames[idx], kingdom));
+  });
+  return deckMap;
+};
+
 export {
   isGameLogPresent,
   getGameLog,
@@ -107,4 +150,7 @@ export {
   getPlayerInfoElements,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerNameAbbreviations,
+  isKingdomElementPresent,
+  getKingdom,
+  createPlayerDecks,
 };
