@@ -103,6 +103,7 @@ export class Deck {
   }
 
   update(log) {
+    console.group("Deck Update Log for " + this.playerName);
     const actionArray = [
       "shuffles their deck",
       "gains",
@@ -367,6 +368,7 @@ export class Deck {
       this.lastEntryProcessed = line;
       this.logArchive.push(line);
     });
+    console.groupEnd();
   }
 
   // State change functions

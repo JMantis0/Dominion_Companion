@@ -244,8 +244,12 @@ const appendElements = () => {
         console.log("playersInitialized: ", playersInitialized);
         console.log("playerDeckInitialized: ", playerDeckInitialized);
         console.log("sameFirstLetter: ", sameFirstLetter);
+        console.group("LogsProcessed");
         console.log("logsProcessed: ", logsProcessed);
+        console.groupEnd();
+        console.group("gameLog");
         console.log("gameLog: ", gameLog);
+        console.groupEnd();
         console.log("playerNames: ", playerNames);
         console.log("playerAbbreviatedNames: ", playerAbbreviatedNames);
         console.log("decks: ", decks);
@@ -380,9 +384,9 @@ const initIntervalFunction = () => {
   }
 
   if (initialized()) {
-    console.log("Initialized = ", initialized());
     clearInterval(initInterval);
     appendElements();
+
     const deckUpdateInterval = setInterval(() => {
       if (!$(".game-log")[0]) {
         console.log("No game log, resetting");
