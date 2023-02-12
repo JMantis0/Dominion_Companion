@@ -13,7 +13,7 @@ export class Deck {
   logArchive = [];
   DOMLog = [];
 
-  constructor(playerName, abbrvName, kingdom) {
+  constructor(playerName: string, abbrvName: string, kingdom: Array<string>) {
     this.playerName = playerName;
     this.kingdom = kingdom;
     this.abbrvName = abbrvName;
