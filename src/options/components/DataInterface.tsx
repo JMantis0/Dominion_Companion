@@ -76,6 +76,7 @@ const DataInterface = () => {
         console.log("setting opponentDeck", JSON.parse(request.opponentDeck));
         dispatch(setPlayerDeck(JSON.parse(request.opponentDeck)));
       }
+      sendResponse({ message: `deck updated in Redux for ${request}` });
     };
     chrome.runtime.onMessage.addListener(messageListenerFunction);
 

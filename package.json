@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "webpack --watch --progress --config webpack.common.js",
     "build": "webpack --config webpack.common.js",
-    "test": "jest"
+    "jest": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

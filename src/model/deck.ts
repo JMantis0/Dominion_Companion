@@ -1,17 +1,17 @@
 export class Deck {
-  entireDeck = [];
-  playerName = "";
-  abbrvName = "";
-  currentVP = 3;
-  kingdom = [];
-  library = [];
-  graveyard = [];
-  inPlay = [];
-  hand = [];
-  trash = [];
-  lastEntryProcessed = "";
-  logArchive = [];
-  DOMLog = [];
+  entireDeck: Array<string> = [];
+  playerName: string = "";
+  abbrvName: string = "";
+  currentVP: number = 3;
+  kingdom: Array<string> = [];
+  library: Array<string> = [];
+  graveyard: Array<string> = [];
+  inPlay: Array<string> = [];
+  hand: Array<string> = [];
+  trash: Array<string> = [];
+  lastEntryProcessed: string = "";
+  logArchive: Array<string> = [];
+  DOMLog: Array<string> = [];
 
   constructor(playerName: string, abbrvName: string, kingdom: Array<string>) {
     this.playerName = playerName;
@@ -26,68 +26,68 @@ export class Deck {
       this.library.push("Copper");
     }
   }
-  setPlayerName(name) {
+  setPlayerName(name: string) {
     this.playerName = name;
   }
   getPlayerName() {
     return this.playerName;
   }
-  setAbbvbName(abbrvName) {
+  setAbbvbName(abbrvName: string) {
     this.abbrvName = abbrvName;
   }
   getAbbrvName() {
     return this.abbrvName;
   }
-  setCurrentVP(vp) {
+  setCurrentVP(vp: number) {
     this.currentVP = vp;
   }
   getCurrentVP() {
     return this.currentVP;
   }
-  setKingdom(kingdom) {
+  setKingdom(kingdom: Array<string>) {
     this.kingdom = kingdom;
   }
   getKingdom() {
     return this.kingdom;
   }
-  setLibrary(lib) {
+  setLibrary(lib: Array<string>) {
     this.library = lib;
   }
   getLibrary() {
     return this.library;
   }
-  setGraveyard(gy) {
+  setGraveyard(gy: Array<string>) {
     this.graveyard = gy;
   }
   getGraveyard() {
     return this.graveyard;
   }
-  setInPlay(inPlay) {
+  setInPlay(inPlay: Array<string>) {
     this.inPlay = inPlay;
   }
   getInPlay() {
     return this.inPlay;
   }
-  setHand(hand) {
+  setHand(hand: Array<string>) {
     this.hand = hand;
   }
   getHand() {
     return this.hand;
   }
-  setTrash(trash) {
+  setTrash(trash: Array<string>) {
     this.trash = trash;
   }
   getTrash() {
     return this.trash;
   }
-  setLogArchive(logArchive) {
+  setLogArchive(logArchive: Array<string>) {
     this.logArchive = logArchive;
   }
   getLogArchive() {
     return this.logArchive;
   }
 
-  setDOMlog(DOMlog) {
+  setDOMlog(DOMlog: Array<string>) {
     this.DOMLog = DOMlog;
   }
   getDOMlog() {
@@ -98,11 +98,11 @@ export class Deck {
     return this.entireDeck;
   }
 
-  setEntireDeck(deck) {
+  setEntireDeck(deck: Array<string>) {
     this.entireDeck = deck;
   }
 
-  update(log) {
+  update(log: Array<string>) {
     console.group("Deck Update Log for " + this.playerName);
     const actionArray = [
       "shuffles their deck",
@@ -134,7 +134,7 @@ export class Deck {
       const treasures = ["Copper", "Silver", "Gold"];
 
       // get the total number of each treasure that was played on the last line
-      const numberOfPrevCards = [];
+      const numberOfPrevCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (prevLine.match(treasure)) {
           // To account for 2 digit numbers
@@ -158,7 +158,7 @@ export class Deck {
         }
       });
 
-      const numberOfCards = [];
+      const numberOfCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (line.match(treasure)) {
           // To account for 2 digit numbers
@@ -196,8 +196,8 @@ export class Deck {
     log.forEach((line, idx, array) => {
       console.log("line being processed: ", line);
       let act = "";
-      let cards = [];
-      let numberOfCards = [];
+      let cards: Array<string> = [];
+      let numberOfCards: Array<number> = [];
 
       if (
         this.lastEntryProcessed.match("plays") &&
@@ -372,7 +372,7 @@ export class Deck {
   }
 
   // State change functions
-  draw(card) {
+  draw(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
       ////console.log(`action Drawing ${card} from library into hand`);
@@ -383,7 +383,7 @@ export class Deck {
     }
   }
 
-  play(card) {
+  play(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
       ////console.log(`action Playing ${card} from hand into play`);
@@ -394,11 +394,11 @@ export class Deck {
     }
   }
 
-  addCardToEntireDeck(card) {
+  addCardToEntireDeck(card: string) {
     this.entireDeck.push(card);
   }
 
-  removeCardFromEntireDeck(card) {
+  removeCardFromEntireDeck(card: string) {
     const index = this.entireDeck.indexOf(card);
     if (index > -1) {
       this.entireDeck.splice(index, 1);
@@ -426,7 +426,7 @@ export class Deck {
     }
   }
 
-  topDeckFromGraveyard(card) {
+  topDeckFromGraveyard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
       this.graveyard.splice(index, 1);
@@ -437,7 +437,7 @@ export class Deck {
     }
   }
 
-  playFromDiscard(card) {
+  playFromDiscard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
       //////console.log(`action Playing ${card} from discard`);
@@ -478,17 +478,17 @@ export class Deck {
     }
   }
 
-  gain(card) {
+  gain(card: string) {
     ////console.log(`action Gaining ${card} into discard`);
     this.graveyard.push(card);
   }
 
-  gainIntoHand(card) {
+  gainIntoHand(card: string) {
     ////console.log(`action Gaining ${card} into hand`);
     this.hand.push(card);
   }
 
-  topDeckCardFromHand(card) {
+  topDeckCardFromHand(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
       ////console.log(`action Topdecking ${this.hand[index]}`);
@@ -499,7 +499,7 @@ export class Deck {
     }
   }
 
-  discard(card) {
+  discard(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
       console.log(
@@ -512,7 +512,7 @@ export class Deck {
     }
   }
 
-  discardFromLibrary(card) {
+  discardFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
       console.log(
@@ -525,7 +525,7 @@ export class Deck {
     }
   }
 
-  trashFromHand(card) {
+  trashFromHand(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
       console.log(`Trashing ${this.hand[index]} from hand}`);
@@ -536,7 +536,7 @@ export class Deck {
     }
   }
 
-  trashFromLibrary(card) {
+  trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
       console.log(`Trashing ${this.library[index]} from library`);
@@ -553,16 +553,16 @@ export class Deck {
     return this.logArchive[len - 2].match(" plays a Mine");
   }
 
-  checkForCleanUp = (line) => {
+  checkForCleanUp = (line: string) => {
     let needCleanUp = false;
     // need a cleanup detector
     // if there are exactly 5 draws in the next entry then a cleanup MAY be required before drawing.
     let drawCount = 0;
     if (this.abbrvName.match(/\ban?\b/g)) {
-      drawCount -= this.abbrvName.match(/\ban?\b/g).length;
+      drawCount -= this.abbrvName.match(/\ban?\b/g)!.length;
     }
     if (line.match(/\ban?\b/g)) {
-      drawCount += line.match(/\ban?\b/g).length;
+      drawCount += line.match(/\ban?\b/g)!.length;
     }
     (line.match(/\d/g) || []).forEach((n) => {
       drawCount += parseInt(n);
@@ -573,7 +573,7 @@ export class Deck {
     return needCleanUp;
   };
 
-  checkForShuffle = (line) => {
+  checkForShuffle = (line: string) => {
     return line.match("shuffles their deck");
   };
 
@@ -609,6 +609,7 @@ export class Deck {
 
   checkForSentryTrash() {
     const len = this.logArchive.length;
+    console.log("Logarchive length should be above 3", len);
     return (
       this.logArchive[len - 3].match(" plays a Sentry") ||
       this.logArchive[len - 4].match(" plays a Sentry") ||
@@ -617,7 +618,7 @@ export class Deck {
     );
   }
 
-  checkForBanditTrash = (line) => {
+  checkForBanditTrash = (line: string) => {
     let banditTrash = false;
     let len = this.logArchive.length;
     if (this.logArchive[len - 1].match(" reveals ")) {
@@ -626,7 +627,7 @@ export class Deck {
     return banditTrash;
   };
 
-  checkForBanditDiscard = (line) => {
+  checkForBanditDiscard = (line: string) => {
     let banditDiscard = false;
     let len = this.logArchive.length;
     if (
@@ -642,10 +643,11 @@ export class Deck {
   };
 
   checkForVassalPlay() {
-    let vassalPlay = false;
+    let vassalPlay: boolean | null = false;
     if (this.logArchive.length > 3) {
       vassalPlay =
-        this.logArchive[this.logArchive.length - 3].match(" plays a Vassal");
+        this.logArchive[this.logArchive.length - 3].match(" plays a Vassal") !==
+        null;
     }
     return vassalPlay;
   }
