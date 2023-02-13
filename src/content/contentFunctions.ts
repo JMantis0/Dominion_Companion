@@ -208,6 +208,36 @@ const getUndispatchedLogs = (
   return undispatchedLogs!;
 };
 
+const separateUndispatchedDeckLogs = (
+  undispatchedLogs: string,
+  playerNomen: string,
+  oppnentNomen: string
+): Array<Array<string>> => {
+  let separatedLogs: Array<Array<string>> = [];
+  let entryArray = undispatchedLogs.split("\n");
+  // first case player names do not start with same letter:
+  let opponentLogs: Array<string> = [];
+  let infoLogs: Array<string> = [];
+  const playerLogs = entryArray.filter((line) => {
+    let include = false;
+    if (
+      line.match(/Card Pool|Game #|starts with |Turn /) != null ||
+      line == ""
+    ) {
+      infoLogs.push(line);
+      // } else if (line.match(playerNames[0]) && line.match("Turn ")) {
+      //   opponentLogs.push(line);
+      // } else if (line.match(playerNames[1]) && line.match("Turn ")) {
+      //   include = true;
+    } else {
+      line.match(playerNomen) ? (include = true) : opponentLogs.push(line);
+    }
+    return include;
+  });
+  separatedLogs = [playerLogs, opponentLogs, infoLogs];
+  return separatedLogs;
+};
+
 export {
   isGameLogPresent,
   getGameLog,
@@ -222,4 +252,5 @@ export {
   isATreasurePlayLogEntry,
   getLastLogEntryOf,
   getUndispatchedLogs,
+  separateUndispatchedDeckLogs,
 };
