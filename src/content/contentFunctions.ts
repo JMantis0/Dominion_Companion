@@ -1,5 +1,5 @@
 import { Deck } from "../model/deck";
-
+import { getErrorMessage } from "./utils/utilityFunctions";
 /*
 Used to check if the current dom has a log present.  If not, the player isn't in a game.
 */
@@ -120,7 +120,7 @@ const getKingdom = (): Array<string> => {
       cards.push(card);
     }
   } catch (e) {
-    throw new Error(`Error in getKingdom() ${e}`);
+    throw new Error(`Error in getKingdom`);
   }
   ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
     (card) => {
@@ -143,6 +143,71 @@ const createPlayerDecks = (
   return deckMap;
 };
 
+const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
+  let areNewLogs: boolean;
+  const procArr = logsProcessed.split("\n");
+  const gLogArr = gameLog.split("\n");
+  // need lengths, and last lines.
+  if (procArr.length > gLogArr.length) {
+    throw new Error("Processed logs Larger than game log");
+  } else if (procArr.length < gLogArr.length) {
+    areNewLogs = true;
+  } else if (procArr.pop() !== gLogArr.pop()) {
+    areNewLogs = true;
+  } else areNewLogs = false;
+
+  return areNewLogs;
+};
+
+const isATreasurePlayLogEntry = (line: string): boolean => {
+  let isATreasurePlay: boolean;
+  isATreasurePlay =
+    line.match(/Coppers?|Silvers?|Golds?/) !== null &&
+    line.match("plays") !== null;
+  return isATreasurePlay;
+};
+
+const getLastLogEntryOf = (logs: string): string => {
+  let lastEntry: string;
+  const logArray = logs.split("\n");
+  const logLength = logArray.length;
+  lastEntry = logArray.pop()!;
+  if (!lastEntry) {
+    throw new Error("Empty Log");
+  }
+  return lastEntry;
+};
+
+const getUndispatchedLogs = (
+  logsDispatched: string,
+  gameLog: string
+): string => {
+  let undispatchedLogs: string;
+  const dispatchedArr = logsDispatched.split("\n");
+  const gameLogArr = gameLog.split("\n");
+
+  if (dispatchedArr.length > gameLogArr.length) {
+    console.group("Game Logs vs Dispatched Logs");
+    console.log("gameLog", gameLogArr);
+    console.log("dispatchLog", dispatchedArr);
+    throw new Error("More dispatched logs than game logs");
+  } else if (dispatchedArr.length < gameLogArr.length) {
+    const numberOfUndispatchedLines = gameLogArr.length - dispatchedArr.length;
+    undispatchedLogs = gameLogArr.slice(-numberOfUndispatchedLines).join("\n");
+  } else {
+    const lastGameLogLine = gameLogArr[gameLogArr.length - 1];
+    const lastLogsDispatchedLine = dispatchedArr[dispatchedArr.length - 1];
+    if (lastGameLogLine === lastLogsDispatchedLine) {
+      undispatchedLogs = "No new logs";
+      throw new Error("Equal # lines and last line also equal");
+    } else {
+      undispatchedLogs = lastGameLogLine;
+    }
+  }
+
+  return undispatchedLogs!;
+};
+
 export {
   isGameLogPresent,
   getGameLog,
@@ -153,4 +218,8 @@ export {
   isKingdomElementPresent,
   getKingdom,
   createPlayerDecks,
+  areNewLogsToSend,
+  isATreasurePlayLogEntry,
+  getLastLogEntryOf,
+  getUndispatchedLogs,
 };
