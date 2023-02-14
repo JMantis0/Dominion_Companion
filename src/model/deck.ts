@@ -137,6 +137,7 @@ export class Deck {
       const numberOfPrevCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (prevLine.match(treasure)) {
+          this.logArchive.pop(); // !!!important.  Much work was done to achieve this, to keep the archivelog accurate.
           // To account for 2 digit numbers
           const twoDigits = prevLine[prevLine.indexOf(treasure) - 3].match(/\d/)
             ? 1
@@ -250,7 +251,10 @@ export class Deck {
       switch (act) {
         case "shuffles their deck":
           {
-            const cleanUp = this.checkForCleanUp(array[idx + 1]);
+            const cleanUp =
+              array.length > idx + 1
+                ? this.checkForCleanUp(array[idx + 1])
+                : false;
             const cellarDraws = this.checkForCellarDraw();
             if (cleanUp && !cellarDraws) this.cleanup();
             this.shuffleGraveYardIntoLibrary();

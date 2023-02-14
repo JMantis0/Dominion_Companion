@@ -1,5 +1,5 @@
 import { Deck } from "../model/deck";
-import { getErrorMessage } from "./utils/utilityFunctions";
+
 /*
 Used to check if the current dom has a log present.  If not, the player isn't in a game.
 */
@@ -208,14 +208,18 @@ const getUndispatchedLogs = (
   return undispatchedLogs!;
 };
 
+type SeperatedLogs = {
+  playerLogs: string[];
+  opponentLogs: string[];
+  infoLogs: string[];
+};
 const separateUndispatchedDeckLogs = (
   undispatchedLogs: string,
-  playerNomen: string,
-  oppnentNomen: string
-): Array<Array<string>> => {
-  let separatedLogs: Array<Array<string>> = [];
+  playerNomen: string
+): SeperatedLogs => {
+  console.log("playerNomen", playerNomen);
+  let separatedLogs: SeperatedLogs;
   let entryArray = undispatchedLogs.split("\n");
-  // first case player names do not start with same letter:
   let opponentLogs: Array<string> = [];
   let infoLogs: Array<string> = [];
   const playerLogs = entryArray.filter((line) => {
@@ -225,17 +229,47 @@ const separateUndispatchedDeckLogs = (
       line == ""
     ) {
       infoLogs.push(line);
-      // } else if (line.match(playerNames[0]) && line.match("Turn ")) {
-      //   opponentLogs.push(line);
-      // } else if (line.match(playerNames[1]) && line.match("Turn ")) {
-      //   include = true;
     } else {
-      line.match(playerNomen) ? (include = true) : opponentLogs.push(line);
+      const nomenLength = playerNomen.length;
+      line.slice(0, nomenLength) === playerNomen
+        ? (include = true)
+        : opponentLogs.push(line);
     }
     return include;
   });
-  separatedLogs = [playerLogs, opponentLogs, infoLogs];
+  separatedLogs = {
+    playerLogs: playerLogs,
+    opponentLogs: opponentLogs,
+    infoLogs: infoLogs,
+  };
   return separatedLogs;
+};
+
+const sendToFront = (deck: Deck, playerName: string) => {
+  if ((deck.playerName = playerName)) {
+    (async () => {
+      try {
+        console.log("Sending deck as playerdeck:", deck);
+        const response = await chrome.runtime.sendMessage({
+          playerDeck: JSON.stringify(deck),
+        });
+        console.log(response);
+      } catch (e) {
+        console.log("Can't send to front: ", e);
+      }
+    })();
+  } else {
+    (async () => {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          opponentDeck: JSON.stringify(deck),
+        });
+        console.log(response);
+      } catch (e) {
+        console.log("Can't send to front: ", e);
+      }
+    })();
+  }
 };
 
 export {
@@ -253,4 +287,5 @@ export {
   getLastLogEntryOf,
   getUndispatchedLogs,
   separateUndispatchedDeckLogs,
+  sendToFront,
 };
