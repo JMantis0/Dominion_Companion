@@ -124,8 +124,6 @@ export class Deck {
 
     const handleTreasureLine = (
       line: string,
-      idx: number,
-      array: Array<string>
     ): Array<number> => {
       // Inside this if, this means that the player is in a play treasure phase.
       // The two lines must be compared to see how many additional treasures must be
@@ -207,7 +205,7 @@ export class Deck {
         line.match(/Coppers?|Silvers?|Golds?|/)
       ) {
         console.log("Handling a treasher line");
-        numberOfCards = handleTreasureLine(line, idx, array);
+        numberOfCards = handleTreasureLine(line);
         act = "plays";
         cards = ["Copper", "Silver", "Gold"];
       } else {
@@ -306,7 +304,7 @@ export class Deck {
         case "discards":
           {
             const sentryDiscard = this.checkForSentryDiscard();
-            const banditDiscard = this.checkForBanditDiscard(line);
+            const banditDiscard = this.checkForBanditDiscard();
             const vassalDiscard = this.checkForVassalDiscard();
             for (let i = 0; i < cards.length; i++) {
               for (let j = 0; j < numberOfCards[i]; j++) {
@@ -339,7 +337,7 @@ export class Deck {
         case "trashes":
           {
             const sentryTrash = this.checkForSentryTrash();
-            const banditTrash = this.checkForBanditTrash(line);
+            const banditTrash = this.checkForBanditTrash();
             for (let i = 0; i < cards.length; i++) {
               for (let j = 0; j < numberOfCards[i]; j++) {
                 if (sentryTrash || banditTrash) {
@@ -622,7 +620,7 @@ export class Deck {
     );
   }
 
-  checkForBanditTrash = (line: string) => {
+  checkForBanditTrash = () => {
     let banditTrash = false;
     let len = this.logArchive.length;
     if (this.logArchive[len - 1].match(" reveals ")) {
@@ -631,7 +629,7 @@ export class Deck {
     return banditTrash;
   };
 
-  checkForBanditDiscard = (line: string) => {
+  checkForBanditDiscard = () => {
     let banditDiscard = false;
     let len = this.logArchive.length;
     if (
