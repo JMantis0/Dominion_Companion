@@ -1,6 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { beforeAll } from "@jest/globals";
-import { expect, jest, describe, it } from "@jest/globals";
-import { getKingdom } from "../src/content/contentFunctions";
+import { expect, describe, it } from "@jest/globals";
+import { getKingdom } from "../../src/content/contentFunctions";
 
 describe("Function getKingdom()", () => {
   describe("when element with class kingdom-viewer-group is present", () => {
@@ -20,8 +24,7 @@ describe("Function getKingdom()", () => {
       nameEl4.innerText = "Earth";
       nameEl4.setAttribute("class", "name-layer");
       // create the parent element, and assign kingdom-viewer-group class
-      kingdomViewerGroupElement =
-        document.createElement("div");
+      kingdomViewerGroupElement = document.createElement("div");
       kingdomViewerGroupElement.setAttribute("class", "kingdom-viewer-group");
       //  append name-layer elements to the kingdom-group-layer
       kingdomViewerGroupElement.appendChild(nameEl1);
@@ -32,7 +35,6 @@ describe("Function getKingdom()", () => {
       document.body.appendChild(kingdomViewerGroupElement);
     });
     it("should return an array of the innerText of each name-layer element, and the common cards", () => {
-      console.log(kingdomViewerGroupElement)
       expect(getKingdom()).toStrictEqual([
         "Fire",
         "Water",

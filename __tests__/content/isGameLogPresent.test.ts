@@ -1,6 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { beforeAll } from "@jest/globals";
-import { expect, jest, describe, it } from "@jest/globals";
-import { isGameLogPresent } from "../src/content/contentFunctions";
+import { expect, describe, it } from "@jest/globals";
+import { isGameLogPresent } from "../../src/content/contentFunctions";
 
 describe("Function isGameLogPresent()", () => {
   let mockGameLogElement: HTMLElement;
@@ -15,7 +19,6 @@ describe("Function isGameLogPresent()", () => {
     });
   });
   describe("without game-log element in dom", () => {
-    let nonGameLogFrag: DocumentFragment;
     beforeAll(() => {
       document.body.removeChild(mockGameLogElement);
     });

@@ -1,6 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { beforeAll } from "@jest/globals";
-import { expect, jest, describe, it } from "@jest/globals";
-import { getGameLog } from "../src/content/contentFunctions";
+import { expect,  describe, it } from "@jest/globals";
+import { getGameLog } from "../../src/content/contentFunctions";
 
 describe("Function getGameLog()", () => {
   describe("with game-log element in dom", () => {

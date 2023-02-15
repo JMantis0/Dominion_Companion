@@ -1,6 +1,10 @@
-import { beforeAll } from "@jest/globals";
-import { expect, jest, describe, it } from "@jest/globals";
-import { getPlayerAndOpponentNameByComparingElementPosition } from "../src/content/contentFunctions";
+/**
+ * @jest-environment jsdom
+ */
+
+
+import { expect, describe, it } from "@jest/globals";
+import { getPlayerAndOpponentNameByComparingElementPosition } from "../../src/content/contentFunctions";
 
 describe("Function getPlayerAndOpponentNameByComparingElementPosition()", () => {
   describe("When given an HTMLCollectionOf<HTMLElement> of <player-info> elements", () => {

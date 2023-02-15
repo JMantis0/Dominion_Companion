@@ -1,6 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { beforeAll } from "@jest/globals";
-import { expect, jest, describe, it } from "@jest/globals";
-import { arePlayerInfoElementsPresent } from "../src/content/contentFunctions";
+import { expect, describe, it } from "@jest/globals";
+import { arePlayerInfoElementsPresent } from "../../src/content/contentFunctions";
 
 describe("Function arePlayerInfoElementsPresent()", () => {
   // let mockPlayerInfoElementCollection: HTMLCollection;

@@ -1,5 +1,5 @@
 import { expect, describe, it } from "@jest/globals";
-import { isATreasurePlayLogEntry } from "../src/content/contentFunctions";
+import { isATreasurePlayLogEntry } from "../../src/content/contentFunctions";
 
 describe("Function isATreasurePlayLogEntry()", () => {
   describe("given a log entry that is not a treasue play", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { separateUndispatchedDeckLogs } from "../src/content/contentFunctions";
+import { separateUndispatchedDeckLogs } from "../../src/content/contentFunctions";
 
 describe("Function separateUndispatchedDeckLogs()", () => {
   describe("when given a string of logs, and opponent/player names/abbrnames", () => {
@@ -7,11 +7,6 @@ describe("Function separateUndispatchedDeckLogs()", () => {
       const fakeUndispatchedLogs =
         "Card Pool \nGame # \nstarts with \nPo blahbla1\nTurn \nPp blahbla1\nPp blahblah2\nPo blahblah2\nPp blahblah3\nPo blahblah3";
       const playerNomen = "Pp";
-      type SeperateLogs = {
-        playerLogs: string[];
-        opponentLogs: string[];
-        infoLogs: string[];
-      };
 
       expect(
         separateUndispatchedDeckLogs(fakeUndispatchedLogs, playerNomen)

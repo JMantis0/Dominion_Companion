@@ -1,5 +1,5 @@
-import { jest, describe, it, expect } from "@jest/globals";
-import { getUndispatchedLogs } from "../src/content/contentFunctions";
+import { describe, it, expect } from "@jest/globals";
+import { getUndispatchedLogs } from "../../src/content/contentFunctions";
 
 describe("Function getUndispatchedLogs()", () => {
   describe("when given the current game log, and logs Processed", () => {
