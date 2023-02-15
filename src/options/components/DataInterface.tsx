@@ -15,23 +15,23 @@ const DataInterface = () => {
 
   useEffect(() => {
     console.log("Message from Chrome Storage Interface UseEffect");
-    // Need an initial to content script on load;
+    // // Need an initial to content script on load;
 
-    (async () => {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        lastFocusedWindow: true,
-      });
-      const response = await chrome.tabs.sendMessage(tab.id, {
-        message: "initLoad",
-      });
-      console.log(
-        `Response from initial deck request on options load: `,
-        response
-      );
-      dispatch(setPlayerDeck(JSON.parse(response.decks.playerDeck)));
-      dispatch(setOpponentDeck(JSON.parse(response.decks.opponentDeck)));
-    })();
+    // (async () => {
+    //   const [tab] = await chrome.tabs.query({
+    //     active: true,
+    //     lastFocusedWindow: true,
+    //   });
+    //   const response = await chrome.tabs.sendMessage(tab.id, {
+    //     message: "initLoad",
+    //   });
+    //   console.log(
+    //     `Response from initial deck request on options load: `,
+    //     response
+    //   );
+    //   dispatch(setPlayerDeck(JSON.parse(response.decks.playerDeck)));
+    //   dispatch(setOpponentDeck(JSON.parse(response.decks.opponentDeck)));
+    // })();
 
     // Listener for changes is chrome sync.
     // chrome.storage.sync.get(["playerDeck", "opponentDeck"]).then((result) => {
@@ -74,7 +74,7 @@ const DataInterface = () => {
         dispatch(setPlayerDeck(JSON.parse(request.playerDeck)));
       } else if (request.opponentDeck) {
         console.log("setting opponentDeck", JSON.parse(request.opponentDeck));
-        dispatch(setPlayerDeck(JSON.parse(request.opponentDeck)));
+        dispatch(setOpponentDeck(JSON.parse(request.opponentDeck)));
       }
       sendResponse({ message: `deck updated in Redux for ${request}` });
     };
@@ -119,7 +119,6 @@ const DataInterface = () => {
       >
         Get Decklist Card Counts
       </button>
-      
     </div>
   );
 };
