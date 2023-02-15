@@ -1,8 +1,9 @@
 import { Deck } from "../model/deck";
-
-/*
-Used to check if the current dom has a log present.  If not, the player isn't in a game.
-*/
+/**
+ * Checks for presence of game-log element in the DOM.
+ * Purpose: Control flow of content script.
+ * @returns  The boolean for whether the game-log is present.
+ */
 const isGameLogPresent = (): boolean => {
   const gameLogElementCollection = document.getElementsByClassName("game-log");
   const gameLogElementCount = gameLogElementCollection.length;
@@ -10,9 +11,11 @@ const isGameLogPresent = (): boolean => {
   return gameLogPresent;
 };
 
-/*
-Used to extract the entire game log from the dom and returns it as a string
-*/
+/**
+ * Gets and returns the game log element's innerText.
+ * Purpose: Update the global gameLog variable.
+ * @returns The string of innertext of the game-log element.
+ */
 const getGameLog = (): string => {
   const gameLogElement = document.getElementsByClassName(
     "game-log"
@@ -21,9 +24,11 @@ const getGameLog = (): string => {
   return gameLog;
 };
 
-/*
-Used to check if the player-info elements are present
-*/
+/**
+ * Checks for presence of <player-info-name> elements in the DOM.
+ * Purpose: Control flow of content script.
+ * @returns The boolean for whether the <player-info-name> elements are present in the dome.
+ */
 const arePlayerInfoElementsPresent = (): boolean => {
   const playerElements = document.getElementsByTagName(
     "player-info-name"
@@ -32,7 +37,10 @@ const arePlayerInfoElementsPresent = (): boolean => {
   return playerElementsPresent;
 };
 
-/*Used to get the player-info elements that are used to determine player name and opponent
+/**
+ * Gets the <player-info elements> from the DOM and returns them.
+ * Purpose: Part of initializing the global variables playerName and opponentName.
+ * @returns HTMLCollection<HTMLElement> of <player-info-elmeents>:
  */
 const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   const playerInfoElements: HTMLCollectionOf<HTMLElement> =
@@ -43,10 +51,14 @@ const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   return playerInfoElements;
 };
 
-/*
-This function takes the <player-info> elements and returns which playername is Player and which is Opponent.
-The elements css positions are compared to determine name assignment.
-*/
+/**
+ * Gets the <player-info-name> elements from the DOM, and compares their
+ * css properties to determine which contains the player name and which
+ * ontains the opponentname, then returns those names.
+ * Purpose: Initializing the global variable playerName and opponentName.
+ * @param playerInfoElements - Collection of <player-info> elements.
+ * @returns An array containing the playerName and opponentName as strings.
+ */
 const getPlayerAndOpponentNameByComparingElementPosition = (
   playerInfoElements: HTMLCollectionOf<HTMLElement>
 ): Array<string> => {
@@ -75,33 +87,43 @@ const getPlayerAndOpponentNameByComparingElementPosition = (
   return [playerName, opponentName];
 };
 
-/*
-Given the game-log and playerNames, this function returns the player name abbreviations.
-*/
+/**
+ * Uses the gameLog and player name to determine the player
+ * and opponent abbreviations used in the game log, and returns
+ * them.
+ * Purpose: Initialize the global variables playerNick and opponentNick.
+ * @param gameLog - The gameLog global variable.
+ * @param playerName - The playerName global variable.
+ * @returns Array of two strings, the player nickname and opponent nickname.
+ */
 const getPlayerNameAbbreviations = (
   gameLog: string,
-  playerNames: Array<string>
+  playerName: string
 ): Array<string> => {
-  let playerNameAbbreviation: string;
-  let opponentNameAbbreviation: string;
+  let playerNick: string;
+  let opponentNick: string;
   const gameLogArr = gameLog.split("\n");
 
   // n1 player is the player going first.
   const n1 = gameLogArr[4].split(" ")[0];
   const n2 = gameLogArr[6].split(" ")[0];
 
-  // first element of playerName is the player (not opponent)
-  if (playerNames[0].substring(0, n1.length) == n1) {
-    playerNameAbbreviation = n1;
-    opponentNameAbbreviation = n2;
+  if (playerName.substring(0, n1.length) == n1) {
+    playerNick = n1;
+    opponentNick = n2;
   } else {
-    playerNameAbbreviation = n2;
-    opponentNameAbbreviation = n1;
+    playerNick = n2;
+    opponentNick = n1;
   }
 
-  return [playerNameAbbreviation, opponentNameAbbreviation];
+  return [playerNick, opponentNick];
 };
 
+/**
+ * Checks for presence of kingdom-viewer-group element in the dom.
+ * Purpose: Control flow for content script.
+ * @returns The boolean for presence of the kingdom-viewer-group element.
+ */
 const isKingdomElementPresent = (): boolean => {
   let kingdomPresent: boolean;
   kingdomPresent =
@@ -109,6 +131,14 @@ const isKingdomElementPresent = (): boolean => {
   return kingdomPresent;
 };
 
+/**
+ * Gets the kindom-viewer-group element from the DOM and iterates through the
+ * name-layer elements within it.  Extracts the innerText of each name-layer and
+ * pushes it to an array of strings.  Then adds default strings to the array, and
+ * eturns the array.
+ * Purpose: To initialize the global variable kingdom.
+ * @returns The array of strings containing the kingdom card available in the current game.
+ */
 const getKingdom = (): Array<string> => {
   let kingdom: Array<string>;
   let cards = [];
@@ -131,18 +161,43 @@ const getKingdom = (): Array<string> => {
   return kingdom;
 };
 
+/**
+ * Creates a deckmap object, and creates a Deck instance for the player and
+ * a deck for the opponent, and adds the decks to the map using the
+ * playerNames as a key.  The params are required to call Deck's constructor.
+ * Purpose: To initialize the global decks variable.
+ * @param playerName - The player name.
+ * @param playerNick - The player abbreviation used in logs.
+ * @param opponentName - The opponent name.
+ * @param opponentNick - The opponent abbreviation used in logs.
+ * @param kingdom - The array of kingdom cards.
+ * @returns Map object that contains both the player deck and opponent deck.
+ */
 const createPlayerDecks = (
-  playerNames: Array<string>,
-  abbreviatedNames: Array<string>,
+  playerName: string,
+  playerNick: string,
+  opponentName: string,
+  opponentNick: string,
   kingdom: Array<string>
 ): Map<string, Deck> => {
   let deckMap: Map<string, Deck> = new Map();
-  playerNames.forEach((player, idx) => {
-    deckMap.set(player, new Deck(player, abbreviatedNames[idx], kingdom));
+  [playerName, opponentName].forEach((player, idx) => {
+    deckMap.set(
+      player,
+      new Deck(player, [playerNick, opponentNick][idx], kingdom)
+    );
   });
   return deckMap;
 };
 
+/**
+ * Compares the logs that have been processed with current game log to
+ * check if there are any unprocessed logs.
+ * Purpose: Control flow for updating Deck state.
+ * @param logsProcessed - The logs that have already been processed into the Decks.
+ * @param gameLog - The current game log.
+ * @returns Boolean for whether there are new logs to be processed.
+ */
 const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   let areNewLogs: boolean;
   const procArr = logsProcessed.split("\n");
@@ -159,6 +214,13 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   return areNewLogs;
 };
 
+/**
+ * Checks to see if the line is special type of log that
+ * requires extra processing.
+ * Purpose: Control flow for content script.
+ * @param line - The line being processed.
+ * @returns Boolean for if the line is a treasure line.
+ */
 const isATreasurePlayLogEntry = (line: string): boolean => {
   let isATreasurePlay: boolean;
   isATreasurePlay =
@@ -167,10 +229,16 @@ const isATreasurePlayLogEntry = (line: string): boolean => {
   return isATreasurePlay;
 };
 
+
+/**
+ * Gets the last log entry from a log string and returns it.
+ * Purpose: Control flow for updating Deck state.
+ * @param logs - A log string.
+ * @returns The last log entry of the log string.
+ */
 const getLastLogEntryOf = (logs: string): string => {
   let lastEntry: string;
   const logArray = logs.split("\n");
-  const logLength = logArray.length;
   lastEntry = logArray.pop()!;
   if (!lastEntry) {
     throw new Error("Empty Log");
@@ -178,6 +246,16 @@ const getLastLogEntryOf = (logs: string): string => {
   return lastEntry;
 };
 
+/**
+ * Compares the logs that have been processed to the current
+ * game log.  Gets the logs that have not been processed and
+ * returns them.
+ * Purpose: To get the new logs that are needed to update Deck state.
+ * @param logsDispatched - Logs that have been processed into the Decks
+ * @param gameLog - The entire game log.
+ * @returns The logs that are present in the game log that have not yet been
+ * processed into the Deck states.
+ */
 const getUndispatchedLogs = (
   logsDispatched: string,
   gameLog: string
@@ -208,16 +286,30 @@ const getUndispatchedLogs = (
   return undispatchedLogs!;
 };
 
+/**
+ * Object literal type for next functions return.
+ */
+
 type SeperatedLogs = {
   playerLogs: string[];
   opponentLogs: string[];
   infoLogs: string[];
 };
+
+/**
+ * Takes the logs and splits them into 3 arrays, one to be
+ * used for updating the player Deck state, another to be
+ * used for updaing the opponent Deck state, and another that
+ * contain info logs that are not used to update any state.
+ * Purpose: Separate logs by which Deck they apply to.
+ * @param undispatchedLogs - The logs that haven't been processed into Deck state.
+ * @param playerNick - The abbreviation used for the player name in the game log.
+ * @returns An object literal with 3 properties; the value of each property: a filtered array.
+ */
 const separateUndispatchedDeckLogs = (
   undispatchedLogs: string,
-  playerNomen: string
+  playerNick: string
 ): SeperatedLogs => {
-  console.log("playerNomen", playerNomen);
   let separatedLogs: SeperatedLogs;
   let entryArray = undispatchedLogs.split("\n");
   let opponentLogs: Array<string> = [];
@@ -230,8 +322,8 @@ const separateUndispatchedDeckLogs = (
     ) {
       infoLogs.push(line);
     } else {
-      const nomenLength = playerNomen.length;
-      line.slice(0, nomenLength) === playerNomen
+      const nomenLength = playerNick.length;
+      line.slice(0, nomenLength) === playerNick
         ? (include = true)
         : opponentLogs.push(line);
     }
@@ -245,8 +337,16 @@ const separateUndispatchedDeckLogs = (
   return separatedLogs;
 };
 
+/**
+ * Sends a Deck object to the Chrome runtime, to be picked up by
+ * the DataInterface component.  Player name is used to determine
+ * whether the deck should be sent as a player deck or opponent deck.
+ * Purpose: To update the Deck state in the Options component's redux store.
+ * @param deck - An updated Deck object.
+ * @param playerName - The global variable for the player name.
+ */
 const sendToFront = (deck: Deck, playerName: string) => {
-  if ((deck.playerName = playerName)) {
+  if ((deck.playerName === playerName)) {
     (async () => {
       try {
         console.log("Sending deck as playerdeck:", deck);
@@ -261,6 +361,7 @@ const sendToFront = (deck: Deck, playerName: string) => {
   } else {
     (async () => {
       try {
+        console.log("Sending deck as opponentDeck:", deck);
         const response = await chrome.runtime.sendMessage({
           opponentDeck: JSON.stringify(deck),
         });
