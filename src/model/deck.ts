@@ -122,9 +122,7 @@ export class Deck {
       "Dutchy",
     ];
 
-    const handleTreasureLine = (
-      line: string,
-    ): Array<number> => {
+    const handleTreasureLine = (line: string): Array<number> => {
       // Inside this if, this means that the player is in a play treasure phase.
       // The two lines must be compared to see how many additional treasures must be
       // processed
@@ -373,42 +371,64 @@ export class Deck {
     console.groupEnd();
   }
 
-  // State change functions
+  /**
+   * Checks library field array to see if card is there.  If yes, removes one
+   * instance of that card from the library field array and then adds one
+   * instance of that card to hand field array.
+   * @param card - The given card.
+   */
   draw(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      ////console.log(`action Drawing ${card} from library into hand`);
       this.library.splice(index, 1);
       this.hand.push(card);
     } else {
-      console.log(`No ${card} in deck`);
+      throw new Error(`No ${card} in deck`);
     }
   }
-
+  /**
+   * Checks hand field array to see if card is there.  If yes, removes one
+   * instance of that card from the hand field and then adds one
+   * instance of that card to inPlay field
+   * @param card - The given card.
+   */
   play(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      ////console.log(`action Playing ${card} from hand into play`);
       this.hand.splice(index, 1);
       this.inPlay.push(card);
     } else {
-      console.log(`No ${card} in hand`);
+      throw new Error(`No ${card} in hand`);
     }
   }
 
+  /**
+   * Adds one instance of the card to the entireDeck field array.
+   * @param card - The The given card.
+   */
   addCardToEntireDeck(card: string) {
     this.entireDeck.push(card);
   }
 
+  /**
+   * Checks entireDeck field array to see if card is there.
+   *  If yes, removes one instance of that card from the
+   *  entireDeck field array.
+   * @param card - The The given card..
+   */
   removeCardFromEntireDeck(card: string) {
     const index = this.entireDeck.indexOf(card);
     if (index > -1) {
       this.entireDeck.splice(index, 1);
     } else {
-      console.log`No ${card} in the decklist`;
+      throw new Error("No ${card} in the decklist");
     }
   }
 
+  /**
+   * Randomizes the order of the library array field.
+   * Might be obsolete.  Shuffling is a superficiality.
+   */
   shuffle() {
     //console.log("action Shuffling discard into deck");
     let currentIndex = this.library.length,
@@ -428,28 +448,45 @@ export class Deck {
     }
   }
 
+  /**
+   * Checks graveyard field array to see if card is there.  If yes,
+   * removes one instance of the card from the graveyard field array,
+   * and adds one instance of the card to the library field array.
+   * and adds it to the library.
+   * @param card - The given card.
+   */
   topDeckFromGraveyard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
       this.graveyard.splice(index, 1);
       this.library.push(card);
-      //////console.log(`action Topdeck ${card} from discard`);
     } else {
-      console.log(`No ${card} in discard`);
+      throw new Error(`No ${card} in discard`);
     }
   }
 
+  /**
+   * Checks discard field array to see if card is there.  If yes,
+   * removes one instance of the card from the graveyard field array,
+   * and adds one instance of the card to the inPlay field array.
+   * and removes
+   * @param card  - The given card.
+   */
   playFromDiscard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
-      //////console.log(`action Playing ${card} from discard`);
       this.inPlay.push(card);
       this.graveyard.splice(index, 1);
     } else {
-      console.log(`No ${card} in discard pile`);
+      throw new Error(`No ${card} in discard pile`);
     }
   }
 
+  /**
+   * Iterates over all cards instances in the graveyard array.  For each iteration,
+   * the card instance is added to the library field array and removed from
+   * the graveyard field array.
+   */
   shuffleGraveYardIntoLibrary() {
     let i = this.graveyard.length - 1;
     for (i; i >= 0; i--) {
@@ -462,6 +499,11 @@ export class Deck {
     }
   }
 
+  /**
+   * Iterates over all the card instances in the hand and inPlay field arrays.
+   * For each iteration, the card instance is added to the graveyard array and removed
+   * from the hand and/or inPlay arrays and added to the graveyard array.
+   */
   cleanup() {
     console.log("Cleaning up");
     let i = this.inPlay.length - 1;
