@@ -18,6 +18,7 @@ import {
   sendToFront,
 } from "./contentFunctions";
 import { appendElements } from "./utils/utilityFunctions";
+
 const Content = () => {
   return (
     <React.Fragment>
@@ -25,7 +26,9 @@ const Content = () => {
     </React.Fragment>
   );
 };
+
 export default Content;
+
 let playerName: string = "";
 let playerNick: string = "";
 let opponentName: string = "";
@@ -40,6 +43,7 @@ let decks: Map<string, Deck> = new Map();
 let kingdom: Array<string> = [];
 let treasureLine: boolean = false;
 let observerOn: boolean = false;
+
 const initialized = () => {
   return (
     logInitialized &&
@@ -48,6 +52,7 @@ const initialized = () => {
     playerDeckInitialized
   );
 };
+
 export const resetGame = () => {
   playersInitialized = false;
   logInitialized = false;
@@ -67,10 +72,8 @@ export const resetGame = () => {
 
   initInterval = setInterval(initIntervalFunction, 1000);
 };
-const gameLogObserver: MutationCallback = (
-  mutationList: MutationRecord[],
-  observer: MutationObserver
-) => {
+
+const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
   for (const mutation of mutationList) {
     if (mutation.type === "childList") {
       const addedNodes = mutation.addedNodes;
@@ -82,8 +85,8 @@ const gameLogObserver: MutationCallback = (
         if (lastAddedNodeText.length > 0) {
           if (areNewLogsToSend(logsProcessed, getGameLog())) {
             gameLog = getGameLog();
-            const lastGameLogEntry = getLastLogEntryOf(gameLog);
-            treasureLine = isATreasurePlayLogEntry(lastGameLogEntry);
+            const lastGameLogEntry = getLastLogEntryOf(gameLog); //Might be obsolete and removable because it's completely handled by the Deck object
+            treasureLine = isATreasurePlayLogEntry(lastGameLogEntry); //Might be obsolete and removable
             const newLogsToDispatch = getUndispatchedLogs(
               logsProcessed,
               gameLog
@@ -99,7 +102,7 @@ const gameLogObserver: MutationCallback = (
 
             if (opponentLogs.length > 0) {
               decks.get(opponentName)?.update(opponentLogs);
-              sendToFront(decks.get(opponentName)!, opponentName);
+              sendToFront(decks.get(opponentName)!, playerName);
             }
             logsProcessed = gameLog;
           }
@@ -108,7 +111,9 @@ const gameLogObserver: MutationCallback = (
     }
   }
 };
+
 const mo = new MutationObserver(gameLogObserver);
+
 const initIntervalFunction = () => {
   if (!logInitialized) {
     if (isGameLogPresent()) {
@@ -122,10 +127,10 @@ const initIntervalFunction = () => {
         getPlayerAndOpponentNameByComparingElementPosition(
           getPlayerInfoElements()
         );
-      [playerNick, opponentNick] = getPlayerNameAbbreviations(gameLog, [
-        playerName,
-        opponentName,
-      ]);
+      [playerNick, opponentNick] = getPlayerNameAbbreviations(
+        gameLog,
+        playerName
+      );
       playersInitialized = true;
     }
   }
@@ -138,8 +143,10 @@ const initIntervalFunction = () => {
   if (!playerDeckInitialized) {
     if (playersInitialized && kingdomInitialized) {
       decks = createPlayerDecks(
-        [playerName, opponentName],
-        [playerNick, opponentNick],
+        playerName,
+        playerNick,
+        opponentName,
+        opponentNick,
         kingdom
       );
       playerDeckInitialized = true;
@@ -180,7 +187,7 @@ const initIntervalFunction = () => {
     }
     if (opponentLogs.length > 0) {
       decks.get(opponentName)?.update(opponentLogs);
-      sendToFront(decks.get(opponentName)!, opponentName);
+      sendToFront(decks.get(opponentName)!, playerName);
     }
     logsProcessed = gameLog;
     const gameLogElement = document.getElementsByClassName("game-log")[0];
@@ -191,4 +198,5 @@ const initIntervalFunction = () => {
     mo.observe(gameLogElement, observerOptions);
   }
 };
+
 let initInterval = setInterval(initIntervalFunction, 1000);
