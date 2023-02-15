@@ -1,3 +1,7 @@
+/**
+ * Class for a Deck object used to track a
+ * player's Deck state.
+ */
 export class Deck {
   entireDeck: Array<string> = [];
   playerName: string = "";
@@ -522,16 +526,31 @@ export class Deck {
     }
   }
 
+  /**
+   * Takes a card and pushes it to the graveyard field array.
+   * @param card = The given card.
+   */
   gain(card: string) {
-    ////console.log(`action Gaining ${card} into discard`);
+    console.log(`action Gaining ${card} into discard`);
+
     this.graveyard.push(card);
   }
 
+  /**
+   * Takes a card and pushes it to the hand field array.
+   * @param card - The given card.
+   */
   gainIntoHand(card: string) {
     ////console.log(`action Gaining ${card} into hand`);
     this.hand.push(card);
   }
 
+  /**
+   * Checks hand field array to see if card is there.  If yes,
+   * removes an instance of that card from hand field array
+   * and adds an instance of that card to library field array.
+   * @param card -The given card.
+   */
   topDeckCardFromHand(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
@@ -539,10 +558,16 @@ export class Deck {
       this.library.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
-      console.log(`No ${card} in hand`);
+      throw new Error(`No ${card} in hand`);
     }
   }
 
+  /**
+   * Checks hand field array to see if card is there.  If yes,
+   * removes an instance of that card from the hand field array
+   * and adds an instance of that card to the graveyard field array.
+   * @param card - The given card.
+   */
   discard(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
@@ -552,10 +577,16 @@ export class Deck {
       this.graveyard.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
-      console.log(`No ${card} in hand.`);
+      throw new Error(`No ${card} in hand.`);
     }
   }
 
+  /**
+   * Checks library field array to see if card is there.  If yes,
+   * removes an instance of that card from the library field array
+   * and adds an instance of that card to the graveyard field array.
+   * @param card - The given card.
+   */
   discardFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
@@ -565,7 +596,7 @@ export class Deck {
       this.graveyard.push(this.library[index]);
       this.library.splice(index, 1);
     } else {
-      console.log(`No ${card} in library.`);
+      throw new Error(`No ${card} in library.`);
     }
   }
 
