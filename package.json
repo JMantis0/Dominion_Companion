@@ -6,7 +6,9 @@
   "scripts": {
     "watch": "webpack --watch --progress --config webpack.common.js",
     "build": "webpack --config webpack.common.js",
-    "jest": "jest"
+    "jest:all": "jest ./__tests__/content --all --runInBand",
+    "jest:watch": "jest ./__tests__/content --watch --runInBand",
+    "typedoc": "typedoc"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -30,6 +32,7 @@
     "tailwindcss": "^3.2.4",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
+    "typedoc": "^0.23.25",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
     "webpack-merge": "^5.8.0"
