@@ -600,17 +600,30 @@ export class Deck {
     }
   }
 
+  /**
+   * Checks hand field array to see if given card is there.  If yes,
+   * remvoes an instance of that card from the hand field array and,
+   * addes an instance of that card ti the trash field array.
+   * @param card - The given card.
+   */
   trashFromHand(card: string) {
+    console.log(card);
     const index = this.hand.indexOf(card);
     if (index > -1) {
       console.log(`Trashing ${this.hand[index]} from hand}`);
       this.trash.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
-      console.log(`No ${card} in hand.`);
+      throw new Error(`No ${card} in hand.`);
     }
   }
 
+  /**
+   * Checks if the given card is in the library field array. If yes,
+   * then removes one instance of the card from the library field array
+   * and adds one insttance of the card to the trash field array.
+   * @param card - The given card.
+   */
   trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
@@ -618,14 +631,14 @@ export class Deck {
       this.trash.push(this.library[index]);
       this.library.splice(index, 1);
     } else {
-      console.log(`No ${card} in library`);
+      throw new Error(`No ${card} in library`);
     }
   }
 
   //Check Functions
   checkForMineGain() {
     let len = this.logArchive.length;
-    return this.logArchive[len - 2].match(" plays a Mine");
+    return this.logArchive[len - 2].match(" plays a Mine") !== null;
   }
 
   checkForCleanUp = (line: string) => {
