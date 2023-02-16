@@ -603,7 +603,7 @@ export class Deck {
   /**
    * Checks hand field array to see if given card is there.  If yes,
    * remvoes an instance of that card from the hand field array and,
-   * addes an instance of that card ti the trash field array.
+   * addes an instance of that card tothe trash field array.
    * @param card - The given card.
    */
   trashFromHand(card: string) {
@@ -619,10 +619,12 @@ export class Deck {
   }
 
   /**
+
    * Checks if the given card is in the library field array. If yes,
    * then removes one instance of the card from the library field array
    * and adds one insttance of the card to the trash field array.
    * @param card - The given card.
+
    */
   trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
@@ -635,104 +637,180 @@ export class Deck {
     }
   }
 
-  //Check Functions
+  /**
+   * Looks 2 lines back in the logArchive to determine if
+   * the current line being read is a gain from a Mine card.
+   * Purpose: control flow for deck update.  Gains triggered by Mine
+   * need to be gained into hand.
+   * @returns - Boolean for whether the gain is from a Mine or not.
+   */
   checkForMineGain() {
     let len = this.logArchive.length;
     return this.logArchive[len - 2].match(" plays a Mine") !== null;
   }
-
+  /**
+   * Checks the current line to see if there are exactly five draws
+   * occuring on the line.
+   * Purpose:  Control flow for updating deck.  5 draws are occuring, it
+   * may be necessary to a cleanup before drawing.
+   * @param line
+   * @returns
+   */
   checkForCleanUp = (line: string) => {
     let needCleanUp = false;
-    // need a cleanup detector
-    // if there are exactly 5 draws in the next entry then a cleanup MAY be required before drawing.
     let drawCount = 0;
-    if (this.abbrvName.match(/\ban?\b/g)) {
-      drawCount -= this.abbrvName.match(/\ban?\b/g)!.length;
+    const lineCopyWithoutNickname = line.slice(this.getAbbrvName().length);
+    if (lineCopyWithoutNickname.match(/\ban?\b/g)) {
+      drawCount += lineCopyWithoutNickname.match(/\ban?\b/g)!.length;
     }
-    if (line.match(/\ban?\b/g)) {
-      drawCount += line.match(/\ban?\b/g)!.length;
-    }
-    (line.match(/\d/g) || []).forEach((n) => {
+    (lineCopyWithoutNickname.match(/\d/g) || []).forEach((n) => {
       drawCount += parseInt(n);
     });
+    console.log("drawCount", drawCount);
     if (drawCount == 5) {
       needCleanUp = true;
     }
     return needCleanUp;
   };
 
+  /**
+   * Checks to see if the current line contains the substring
+   * "shuffles their deck".
+   * @param line - The line being checked.
+   * @returns - Boolean for whether the match is found.
+   */
   checkForShuffle = (line: string) => {
-    return line.match("shuffles their deck");
+    return line.match("shuffles their deck") !== null;
   };
 
+  /**
+   * Checks the log archive to see if the entry at the index of 3 less than the
+   * archive log length indicates that a cellar was played.  If yes, then the
+   * control flow should not trigger a shuffle if the current line has 5 draws.
+   * @returns - Boolean for if the current line's draws were from a Cellar.
+   */
   checkForCellarDraw = () => {
     let cellarDraws = false;
+    const logArchLen = this.logArchive.length;
     if (
-      this.logArchive.length > 3 &&
-      this.logArchive[this.logArchive.length - 3].match(" plays a Cellar")
+      (logArchLen > 2 &&
+        this.logArchive[logArchLen - 3].match(" plays a Cellar") !== null) ||
+      (logArchLen > 3 &&
+        this.logArchive[logArchLen - 1].match(" shuffles their deck") !==
+          null &&
+        this.logArchive[logArchLen - 4].match(" plays a Cellar") !== null)
     ) {
       cellarDraws = true;
     }
     return cellarDraws;
   };
 
+  /**
+   * Checks the logArchive to see if the current line's topdeck was triggered
+   * by a Harbinger.
+   * @returns Boolean for if the current line's topdeck came from a Harbinger
+   */
   checkForHarbingerTopDeck() {
     const len = this.logArchive.length;
     return (
-      this.logArchive[len - 4].match(" plays a Harbinger") ||
-      (this.logArchive[len - 5].match(" plays a Harbinger") &&
-        this.logArchive[len - 4].match(" shuffles their deck"))
+      (len > 3 &&
+        this.logArchive[len - 4].match(" plays a Harbinger") !== null) ||
+      (len > 4 &&
+        this.logArchive[len - 5].match(" plays a Harbinger") !== null &&
+        this.logArchive[len - 4].match(" shuffles their deck") !== null)
     );
   }
 
+  /**
+   * Checks the logArchive to see if the current line's discard activity
+   * was triggered by a Sentry.
+   * Purpose: Control flow of deck updates: discards triggered by Sentry must
+   * be discarded from the library field array.
+   * @returns - Boolean for whether the current line's discard was triggered by a Sentry.
+   */
   checkForSentryDiscard() {
     const len = this.logArchive.length;
     return (
-      this.logArchive[len - 4].match(" plays a Sentry") ||
-      this.logArchive[len - 5].match(" plays a Sentry") ||
-      (this.logArchive[len - 6].match(" plays a Sentry") &&
-        this.logArchive[len - 5].match(" shuffles their deck"))
+      // test case 1 (no trashes no shuffle)
+      this.logArchive[len - 4].match(" plays a Sentry") !== null ||
+      // test case 2 (no trashes yes shuffle)
+      (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
+        this.logArchive[len - 4].match(" shuffles their deck") !== null) ||
+      //  test case 3 (yes trash with no shuffle)
+      (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
+        this.logArchive[len - 1].match(" trashes ") !== null) ||
+      // test case 4 ( yes trash and shuffle )
+      (this.logArchive[len - 6].match(" plays a Sentry") !== null &&
+        this.logArchive[len - 5].match(" shuffles their deck") !== null &&
+        this.logArchive[len - 1].match(" trashes ") !== null)
     );
   }
 
+  /**
+   * Checks the logArchive to see if the current line's Trash activity
+   * was triggered by a Sentry.
+   * @returns Boolean for whether the current line's trash was triggered by a Sentry.
+   *
+   */
   checkForSentryTrash() {
     const len = this.logArchive.length;
-    console.log("Logarchive length should be above 3", len);
     return (
-      this.logArchive[len - 3].match(" plays a Sentry") ||
-      this.logArchive[len - 4].match(" plays a Sentry") ||
-      (this.logArchive[len - 5].match(" plays a Sentry") &&
-        this.logArchive[len - 4].match(" shuffles their deck"))
+      // case no shuffle
+      this.logArchive[len - 4].match(" plays a Sentry") !== null ||
+      // case yes shuffle
+      (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
+        // shuffle occursjust after draw, before looks at
+        (this.logArchive[len - 2].match(" shuffles their deck") !== null ||
+          //shuffle occurs before draw
+          this.logArchive[len - 4].match(" shuffles their deck") !== null))
     );
   }
 
+  /**
+   * Checks to see if the trash activity of the current line was triggered
+   * by an opponent's Bandit.  Cards trashed in this way must be removed from
+   * the library field array.
+   * @returns - Boolean for whether the trash activity was triggered by a Bandit.
+   */
   checkForBanditTrash = () => {
     let banditTrash = false;
     let len = this.logArchive.length;
-    if (this.logArchive[len - 1].match(" reveals ")) {
+    if (this.logArchive[len - 1].match(" reveals ") !== null) {
       banditTrash = true;
     }
     return banditTrash;
   };
 
+  /**
+   * Checks to see if the current discard activity of the current line
+   * was triggered by an opponent's Bandit. Cards discarded this way must
+   * be removed from the library field array.
+   * @returns - Boolean for whether the discard activity was triggered by a Bandit.
+   */
   checkForBanditDiscard = () => {
     let banditDiscard = false;
     let len = this.logArchive.length;
     if (
-      (this.logArchive[len - 1].match(" trashes ") &&
-        this.logArchive[len - 2].match(" reveals ")) ||
-      this.logArchive[len - 1].match(" reveals ")
+      // Case with trash
+      (this.logArchive[len - 1].match(" trashes ") !== null &&
+        this.logArchive[len - 2].match(" reveals ") !== null) ||
+      // Case with no trash
+      this.logArchive[len - 1].match(" reveals ") !== null
     ) {
       banditDiscard = true;
-    } else {
-      console.log("not a bandit Discard");
     }
     return banditDiscard;
   };
 
+  /**
+   * Checks to see if the current line's play activity was
+   * triggered by a Vassal.
+   * Purpose: To determine which field array to remove card from.
+   * @returns - Boolean for whether the current line play activity is triggered by a Vassal.
+   */
   checkForVassalPlay() {
-    let vassalPlay: boolean | null = false;
-    if (this.logArchive.length > 3) {
+    let vassalPlay: boolean = false;
+    if (this.logArchive.length > 2) {
       vassalPlay =
         this.logArchive[this.logArchive.length - 3].match(" plays a Vassal") !==
         null;
@@ -740,6 +818,12 @@ export class Deck {
     return vassalPlay;
   }
 
+  /**
+   * Checks to see if the current line's discard activity was
+   * triggered by a Vassal.
+   * Purpose: To determine which field array to discard card from.
+   * @returns - Boolean for whether the current line discard activity is triggered by a Vassal.
+   */
   checkForVassalDiscard() {
     return this.logArchive[this.logArchive.length - 2].match(" plays a Vassal");
   }

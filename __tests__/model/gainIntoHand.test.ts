@@ -7,6 +7,6 @@ describe("Function gainIntoHand()", () => {
   let cardToBeGained = rDeck.getEntireDeck()[0];
   it("should the given card and add it to the Deck's hand field array", () => {
     rDeck.gainIntoHand(cardToBeGained);
-    expect(handBefore.concat([cardToBeGained]).sort()).toStrictEqual(rDeck.getHand())
+    expect(handBefore.concat([cardToBeGained]).sort()).toStrictEqual(rDeck.getHand().sort())
   });
 });
