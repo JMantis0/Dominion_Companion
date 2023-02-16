@@ -31,6 +31,7 @@ describe("Function discardFromLibrary()", () => {
     });
   });
   describe("when given a card that is not in the library field array", () => {
+
     let rDeck = createRandomDeck();
     let cardToBeDiscarded = "Joker";
     it("should throw an Error", () => {

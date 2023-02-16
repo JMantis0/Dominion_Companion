@@ -14,7 +14,13 @@ export const getCountsFromArray = (
   return cardCountsMap;
 };
 
-// generate a random deck to be used for testing purposes
+/**
+ * Creates a randomly generated Deck.  Constructor is invoked
+ * with the playername "rName", player nickname "rNick", and a
+ * randomly generated kingdom.  The field string arrays will have
+ * at least one card from the kingdom.
+ * @returns
+ */
 export const createRandomDeck = (): Deck => {
   const rKingdom: string[] = createRandomKingdom();
   const rDeck = new Deck("rName", "rNick", rKingdom);
