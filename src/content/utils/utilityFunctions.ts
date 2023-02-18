@@ -1,5 +1,9 @@
 import { Deck } from "../../model/deck";
 import { resetGame } from "../content";
+// import {
+//   getLogScrollContainerLogLines,
+//   getVassalPlayByComparingElementPosition,
+// } from "../contentFunctions";
 
 export type ErrorWithMessage = {
   message: string;
@@ -77,6 +81,15 @@ export const appendElements = (
         console.log("kingdom: ", kingdom);
         console.log("treasureLine: ", treasureLine);
         console.log("observerOn: ", observerOn);
+      })
+  );
+
+  mydiv.append(
+    $("<button>")
+      .attr("id", "logScrollContainer")
+      .text("Console Log getLogScrollContainer()")
+      .on("click", () => {
+        // getVassalPlayByComparingElementPosition(getLogScrollContainerLogLines());
       })
   );
 };

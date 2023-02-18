@@ -94,7 +94,22 @@ describe("Function checkForSentryDiscard()", () => {
     it("should return false", () => {
       expect(rDeck.checkForSentryDiscard()).toBeFalsy();
     });
+    // case 5
+    describe("When the logArchive entry at index 2 less than the log archive length contains the substring ' shuffles their deck', and the entry at 5 less than the length contains the substring ' plays a Sentry', and the entry at index 1 less than the length contains the substring ' looks at '", () => {
+      beforeEach(() => {
+        rDeck = createRandomDeck();
+        logArchive = [
+          "G plays a Sentry again.",
+          "G draws a Vassal.",
+          "G gets +1 Action.",
+          "G shuffles their deck.",
+          "G looks at 2 Sentries.",
+        ];
+        rDeck.setLogArchive(logArchive);
+      });
+      it("should return true", () => {
+        expect(rDeck.checkForSentryDiscard()).toBeTruthy();
+      });
+    });
   });
-
-
 });

@@ -200,17 +200,19 @@ const createPlayerDecks = (
  */
 const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   let areNewLogs: boolean;
-  const procArr = logsProcessed.split("\n");
-  const gLogArr = gameLog.split("\n");
-  // need lengths, and last lines.
-  if (procArr.length > gLogArr.length) {
+  const procArr = logsProcessed.split("\n").slice();
+  const gLogArr = gameLog.split("\n").slice();
+  const lastGameLogEntry = gLogArr.slice().pop();
+  if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
+    areNewLogs = false;
+  } else if (procArr.length > gLogArr.length) {
     throw new Error("Processed logs Larger than game log");
+    areNewLogs = true;
   } else if (procArr.length < gLogArr.length) {
     areNewLogs = true;
-  } else if (procArr.pop() !== gLogArr.pop()) {
+  } else if (procArr.slice().pop() !== gLogArr.slice().pop()) {
     areNewLogs = true;
   } else areNewLogs = false;
-
   return areNewLogs;
 };
 
@@ -229,7 +231,6 @@ const isATreasurePlayLogEntry = (line: string): boolean => {
   return isATreasurePlay;
 };
 
-
 /**
  * Gets the last log entry from a log string and returns it.
  * Purpose: Control flow for updating Deck state.
@@ -238,8 +239,8 @@ const isATreasurePlayLogEntry = (line: string): boolean => {
  */
 const getLastLogEntryOf = (logs: string): string => {
   let lastEntry: string;
-  const logArray = logs.split("\n");
-  lastEntry = logArray.pop()!;
+  const logArray = logs.slice().split("\n");
+  lastEntry = logArray.slice().pop()!;
   if (!lastEntry) {
     throw new Error("Empty Log");
   }
@@ -247,7 +248,7 @@ const getLastLogEntryOf = (logs: string): string => {
 };
 
 /**
- * Compares the logs that have been processed to the current
+ * Compares the logs that have been processed with the current
  * game log.  Gets the logs that have not been processed and
  * returns them.
  * Purpose: To get the new logs that are needed to update Deck state.
@@ -261,13 +262,14 @@ const getUndispatchedLogs = (
   gameLog: string
 ): string => {
   let undispatchedLogs: string;
-  const dispatchedArr = logsDispatched.split("\n");
-  const gameLogArr = gameLog.split("\n");
-
+  let dispatchedArr: string[];
+  if (logsDispatched !== "" && logsDispatched !== undefined) {
+    dispatchedArr = logsDispatched.split("\n").slice();
+  } else {
+    dispatchedArr = [];
+  }
+  const gameLogArr = gameLog.split("\n").slice();
   if (dispatchedArr.length > gameLogArr.length) {
-    console.group("Game Logs vs Dispatched Logs");
-    console.log("gameLog", gameLogArr);
-    console.log("dispatchLog", dispatchedArr);
     throw new Error("More dispatched logs than game logs");
   } else if (dispatchedArr.length < gameLogArr.length) {
     const numberOfUndispatchedLines = gameLogArr.length - dispatchedArr.length;
@@ -282,59 +284,7 @@ const getUndispatchedLogs = (
       undispatchedLogs = lastGameLogLine;
     }
   }
-
   return undispatchedLogs!;
-};
-
-/**
- * Object literal type for next functions return.
- */
-
-type SeperatedLogs = {
-  playerLogs: string[];
-  opponentLogs: string[];
-  infoLogs: string[];
-};
-
-/**
- * Takes the logs and splits them into 3 arrays, one to be
- * used for updating the player Deck state, another to be
- * used for updaing the opponent Deck state, and another that
- * contain info logs that are not used to update any state.
- * Purpose: Separate logs by which Deck they apply to.
- * @param undispatchedLogs - The logs that haven't been processed into Deck state.
- * @param playerNick - The abbreviation used for the player name in the game log.
- * @returns An object literal with 3 properties; the value of each property: a filtered array.
- */
-const separateUndispatchedDeckLogs = (
-  undispatchedLogs: string,
-  playerNick: string
-): SeperatedLogs => {
-  let separatedLogs: SeperatedLogs;
-  let entryArray = undispatchedLogs.split("\n");
-  let opponentLogs: Array<string> = [];
-  let infoLogs: Array<string> = [];
-  const playerLogs = entryArray.filter((line) => {
-    let include = false;
-    if (
-      line.match(/Card Pool|Game #|starts with |Turn /) != null ||
-      line == ""
-    ) {
-      infoLogs.push(line);
-    } else {
-      const nomenLength = playerNick.length;
-      line.slice(0, nomenLength) === playerNick
-        ? (include = true)
-        : opponentLogs.push(line);
-    }
-    return include;
-  });
-  separatedLogs = {
-    playerLogs: playerLogs,
-    opponentLogs: opponentLogs,
-    infoLogs: infoLogs,
-  };
-  return separatedLogs;
 };
 
 /**
@@ -346,31 +296,59 @@ const separateUndispatchedDeckLogs = (
  * @param playerName - The global variable for the player name.
  */
 const sendToFront = (deck: Deck, playerName: string) => {
-  if ((deck.playerName === playerName)) {
+  if (deck.playerName === playerName) {
     (async () => {
       try {
-        console.log("Sending deck as playerdeck:", deck);
         const response = await chrome.runtime.sendMessage({
           playerDeck: JSON.stringify(deck),
         });
         console.log(response);
       } catch (e) {
-        console.log("Can't send to front: ", e);
+        // console.log("Can't send to front: ", e);
       }
     })();
   } else {
     (async () => {
       try {
-        console.log("Sending deck as opponentDeck:", deck);
         const response = await chrome.runtime.sendMessage({
           opponentDeck: JSON.stringify(deck),
         });
         console.log(response);
       } catch (e) {
-        console.log("Can't send to front: ", e);
+        // console.log("Can't send to front: ", e);
       }
     })();
   }
+};
+
+/**
+ * Used by decks to eliminate ambiguity for certain Vassal activity.
+ * @returns - A collection of all the divs in the log-scroll-container with the class 'log-line'
+ */
+const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
+  let scrollEl: HTMLCollectionOf<HTMLElement>;
+  scrollEl = document
+    .getElementsByClassName("log-scroll-container")[0]
+    .getElementsByClassName("log-line") as HTMLCollectionOf<HTMLElement>;
+  if (scrollEl == undefined) throw new Error("Element is undefined");
+  return scrollEl;
+};
+
+/**
+ * Used in control flow for whether new logs should be collected.
+ * The client will create buy-lines and then quickly remove them.
+ * This function is used to ensure these do not trigger log collections.
+ * @param logLine - The most recent line in the game-log;
+ * @returns - Boolean for whether the most recent line is a
+ */
+const isLogEntryBuyWithoutGain = (logLine: string): boolean => {
+  let isBuyWithoutGain: boolean;
+  if (logLine.match(" buys ") !== null && logLine.match(" gains ") === null) {
+    isBuyWithoutGain = true;
+  } else {
+    isBuyWithoutGain = false;
+  }
+  return isBuyWithoutGain;
 };
 
 export {
@@ -389,4 +367,6 @@ export {
   getUndispatchedLogs,
   separateUndispatchedDeckLogs,
   sendToFront,
+  getLogScrollContainerLogLines,
+  isLogEntryBuyWithoutGain,
 };

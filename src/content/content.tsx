@@ -11,13 +11,9 @@ import {
   getKingdom,
   createPlayerDecks,
   areNewLogsToSend,
-  isATreasurePlayLogEntry,
-  getLastLogEntryOf,
   getUndispatchedLogs,
-  separateUndispatchedDeckLogs,
   sendToFront,
 } from "./contentFunctions";
-import { appendElements } from "./utils/utilityFunctions";
 
 const Content = () => {
   return (
@@ -37,12 +33,13 @@ let logInitialized: boolean = false;
 let kingdomInitialized: boolean = false;
 let playersInitialized: boolean = false;
 let playerDeckInitialized: boolean = false;
-let logsProcessed: string = "";
+let logsProcessed: string;
 let gameLog: string;
 let decks: Map<string, Deck> = new Map();
 let kingdom: Array<string> = [];
 let treasureLine: boolean = false;
 let observerOn: boolean = false;
+let resetInterval: NodeJS.Timer;
 
 const initialized = () => {
   return (
@@ -69,7 +66,7 @@ export const resetGame = () => {
   if (devBtns !== null) {
     devBtns!.remove();
   }
-
+  clearInterval(resetInterval);
   initInterval = setInterval(initIntervalFunction, 1000);
 };
 
@@ -85,25 +82,14 @@ const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
         if (lastAddedNodeText.length > 0) {
           if (areNewLogsToSend(logsProcessed, getGameLog())) {
             gameLog = getGameLog();
-            const lastGameLogEntry = getLastLogEntryOf(gameLog); //Might be obsolete and removable because it's completely handled by the Deck object
-            treasureLine = isATreasurePlayLogEntry(lastGameLogEntry); //Might be obsolete and removable
             const newLogsToDispatch = getUndispatchedLogs(
               logsProcessed,
               gameLog
-            );
-            const { playerLogs, opponentLogs } = separateUndispatchedDeckLogs(
-              newLogsToDispatch,
-              playerNick
-            );
-            if (playerLogs.length > 0) {
-              decks.get(playerName)?.update(playerLogs);
-              sendToFront(decks.get(playerName)!, playerName);
-            }
-
-            if (opponentLogs.length > 0) {
-              decks.get(opponentName)?.update(opponentLogs);
-              sendToFront(decks.get(opponentName)!, playerName);
-            }
+            )
+              .split("\n")
+              .slice();
+            decks.get(playerName)?.update(newLogsToDispatch);
+            sendToFront(decks.get(playerName)!, playerName);
             logsProcessed = gameLog;
           }
         }
@@ -152,7 +138,7 @@ const initIntervalFunction = () => {
       playerDeckInitialized = true;
     }
   }
-  let resetInterval: NodeJS.Timer;
+
   const resetCheckIntervalFunction = () => {
     if (!isGameLogPresent()) {
       clearInterval(resetInterval);
@@ -162,33 +148,47 @@ const initIntervalFunction = () => {
   if (initialized()) {
     clearInterval(initInterval);
     resetInterval = setInterval(resetCheckIntervalFunction, 1000);
-    appendElements(
-      logInitialized,
-      kingdomInitialized,
-      playersInitialized,
-      playerDeckInitialized,
-      logsProcessed,
-      gameLog,
-      [playerName, opponentName],
-      [playerNick, opponentNick],
-      decks,
-      kingdom,
-      treasureLine,
-      observerOn
+    const mydiv = $("<div>").attr("id", "dev-btns").text("Dev-Buttons");
+    $(".chat-display").append(mydiv);
+    mydiv.append(
+      $("<button>").attr("id", "statebutton").text("LOG DECK STATE")
     );
-    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog);
-    const { playerLogs, opponentLogs } = separateUndispatchedDeckLogs(
-      newLogsToDispatch,
-      playerNick
+    mydiv.append(
+      $("<button>")
+        .text("Reset")
+        .on("click", () => {
+          resetGame();
+        })
     );
-    if (playerLogs.length > 0) {
-      decks.get(playerName)?.update(playerLogs);
-      sendToFront(decks.get(playerName)!, playerName);
-    }
-    if (opponentLogs.length > 0) {
-      decks.get(opponentName)?.update(opponentLogs);
-      sendToFront(decks.get(opponentName)!, playerName);
-    }
+    mydiv.append(
+      $("<button>")
+        .attr("id", "newLogsButton")
+        .text("Console Log Globals")
+        .on("click", () => {
+          console.log("logInitialized: ", logInitialized);
+          console.log("kingdomInitialized: ", kingdomInitialized);
+          console.log("playersInitialized: ", playersInitialized);
+          console.log("playerDeckInitialized: ", playerDeckInitialized);
+          console.group("LogsProcessed Array");
+          console.log("logsProcessed: ", logsProcessed.split("\n"));
+          console.groupEnd();
+          console.group("gameLog Array");
+          console.log("gameLog: ", gameLog.split("\n"));
+          console.groupEnd();
+          console.log("playerNames: ", playerName, opponentName);
+          console.log("playerAbbreviatedNames: ", playerNick, opponentNick);
+          console.log("decks: ", decks);
+          console.log("kingdom: ", kingdom);
+          console.log("treasureLine: ", treasureLine);
+          console.log("observerOn: ", observerOn);
+        })
+    );
+
+    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+      .split("\n")
+      .slice();
+    decks.get(playerName)?.update(newLogsToDispatch);
+    sendToFront(decks.get(playerName)!, playerName);
     logsProcessed = gameLog;
     const gameLogElement = document.getElementsByClassName("game-log")[0];
     const observerOptions = {
