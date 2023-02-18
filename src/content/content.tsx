@@ -80,18 +80,8 @@ const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
         ] as HTMLElement;
         const lastAddedNodeText = lastAddedNode.innerText;
         if (lastAddedNodeText.length > 0) {
-          console.group("Logging added nodes for this mutation");
-          console.log(lastAddedNodeText);
-          console.groupEnd();
           if (areNewLogsToSend(logsProcessed, getGameLog())) {
-            let beforeLength = gameLog.split("\n").length;
-            console.log("Game log size before:", beforeLength);
             gameLog = getGameLog();
-            let afterLength = gameLog.split("\n").length;
-            console.log("Game log size after:", afterLength);
-            if (beforeLength > afterLength) {
-              console.info("Gamelog got smaller!");
-            }
             const newLogsToDispatch = getUndispatchedLogs(
               logsProcessed,
               gameLog
@@ -157,7 +147,6 @@ const initIntervalFunction = () => {
   };
   if (initialized()) {
     clearInterval(initInterval);
-    console.log("initialised");
     resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     const mydiv = $("<div>").attr("id", "dev-btns").text("Dev-Buttons");
     $(".chat-display").append(mydiv);
