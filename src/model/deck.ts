@@ -1,3 +1,5 @@
+import { getLogScrollContainerLogLines } from "../content/contentFunctions";
+
 /**
  * Class for a Deck object used to track a
  * player's Deck state.
@@ -107,7 +109,7 @@ export class Deck {
   }
 
   update(log: Array<string>) {
-    console.group("Deck Update Log for " + this.playerName);
+    // console.group("Deck Update Log for " + this.playerName);
     const actionArray = [
       "shuffles their deck",
       "gains",
@@ -137,8 +139,9 @@ export class Deck {
       const numberOfPrevCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (prevLine.match(treasure)) {
-          this.logArchive.pop(); // !!!important.  Much work was done to achieve this, to keep the archivelog accurate.
+          const removed = this.logArchive.pop(); // !!!important.  Much work was done to achieve this, to keep the archivelog accurate.
           // To account for 2 digit numbers
+          console.error("popping log off", removed);
           const twoDigits = prevLine[prevLine.indexOf(treasure) - 3].match(/\d/)
             ? 1
             : 0;
@@ -190,189 +193,260 @@ export class Deck {
         numberOfCards[2] - numberOfPrevCards[2],
       ];
 
-      console.log("Amounts to play for copper,silver,gold", amountsToPlay);
+      const removed = this.logArchive.pop(); // keep duplicate entries out.
+      console.error("popping log off", removed);
       return amountsToPlay;
     };
 
-    log.forEach((line, idx, array) => {
-      console.log("line being processed: ", line);
-      let act = "";
-      let cards: Array<string> = [];
-      let numberOfCards: Array<number> = [];
+    const handleRepeatBuyGain = (
+      currentLine: string
+      // , card: string
+    ): number => {
+      let ammendedGainAmount: number;
+      const prevLine = this.logArchive.slice().pop();
+      const lastSpaceIndex = prevLine?.lastIndexOf(" ");
+      const secondLastSpaceIndex = prevLine
+        ?.slice(0, lastSpaceIndex)
+        .lastIndexOf(" ");
 
+      const lsi = currentLine.lastIndexOf(" ");
+      const slsi = currentLine.slice(0, lsi).lastIndexOf(" ");
+
+      let prevCount: number;
+      let currCount: number;
       if (
-        this.lastEntryProcessed.match("plays") &&
-        this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?|/) &&
-        line.match("plays") &&
-        line.match(/Coppers?|Silvers?|Golds?|/)
+        prevLine!
+          .substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
+          .match(/\ban?\b/) !== null
       ) {
-        console.log("Handling a treasher line");
-        numberOfCards = handleTreasureLine(line);
-        act = "plays";
-        cards = ["Copper", "Silver", "Gold"];
+        prevCount = 1;
       } else {
-        actionArray.forEach((action) => {
-          if (line.match(action)) {
-            act = action;
-          }
-        });
-
-        this.kingdom.forEach((card) => {
-          let pluralVariant = "";
-          let pluralVariantBoolean = false;
-          if (pluralVariantCandidates.indexOf(card) >= 0) {
-            pluralVariant = card.substring(0, card.length - 1) + "ies";
-            if (line.match(pluralVariant)) pluralVariantBoolean = true;
-          }
-          if (
-            pluralVariantBoolean ? line.match(pluralVariant) : line.match(card)
-          ) {
-            const twoDigits = line[line.indexOf(card) - 3].match(/\d/) ? 1 : 0;
-            const amountChar = line.substring(
-              pluralVariantBoolean
-                ? line.indexOf(pluralVariant) - 2 - twoDigits
-                : line.indexOf(card) - 2 - twoDigits,
-              pluralVariantBoolean
-                ? line.indexOf(pluralVariant) - 1
-                : line.indexOf(card) - 1
-            );
-            let amount = 0;
-            if (amountChar == "n" || amountChar == "a") {
-              amount = 1;
-            } else {
-              amount = parseInt(amountChar);
-            }
-            cards.push(card);
-            numberOfCards.push(amount);
-          }
-        });
+        prevCount = parseInt(
+          prevLine!.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
+        );
       }
 
-      switch (act) {
-        case "shuffles their deck":
-          {
-            const cleanUp =
-              array.length > idx + 1
-                ? this.checkForCleanUp(array[idx + 1])
-                : false;
-            const cellarDraws = this.checkForCellarDraw();
-            if (cleanUp && !cellarDraws) this.cleanup();
-            this.shuffleGraveYardIntoLibrary();
-          }
-          break;
-        case "gains":
-          {
-            const mineGain = this.checkForMineGain();
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                if (mineGain) {
-                  this.gainIntoHand(cards[i]);
-                } else {
-                  this.gain(cards[i]);
-                }
-                this.addCardToEntireDeck(cards[i]);
-              }
-            }
-          }
-          break;
-        case "draws":
-          {
-            const fiveDrawsOccured = this.checkForCleanUp(line);
-            const shuffleOccured = this.checkForShuffle(
-              this.lastEntryProcessed
-            );
-            const cellarDraws = this.checkForCellarDraw();
-            if (fiveDrawsOccured && !shuffleOccured && !cellarDraws) {
-              console.log(
-                "Current line calls for cleanup, and previous line wasnt a shuffle.  Need to clean up before drawing"
-              );
-              this.cleanup();
-            } else {
-              if (cellarDraws)
-                console.log("five draws occured but iit was from a cellar");
-              if (shuffleOccured)
-                console.log(
-                  "Current line calls for cleanup, but last line was a shuffle, and cleanup already occured."
-                );
-            }
+      if (currentLine.substring(slsi + 1, lsi).match(/\ban?\b/) !== null) {
+        currCount = 1;
+      } else {
+        currCount = parseInt(currentLine.substring(slsi + 1, lsi));
+      }
 
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                this.draw(cards[i]);
-              }
+      ammendedGainAmount = currCount - prevCount;
+      return ammendedGainAmount;
+    };
+
+    log.forEach((line, idx, array) => {
+      if (line.slice(0, this.abbrvName.length) === this.abbrvName) {
+        console.group(line);
+        let act = "";
+        let cards: Array<string> = [];
+        let numberOfCards: Array<number> = [];
+
+        if (
+          this.lastEntryProcessed.match("plays") &&
+          this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?/) &&
+          line.match("plays") &&
+          line.match(/Coppers?|Silvers?|Golds?/)
+        ) {
+          numberOfCards = handleTreasureLine(line);
+          act = "plays";
+          cards = ["Copper", "Silver", "Gold"];
+        } else {
+          actionArray.forEach((action) => {
+            if (line.match(action)) {
+              act = action;
             }
+          });
+
+          this.kingdom.forEach((card) => {
+            let pluralVariant = "";
+            let pluralVariantBoolean = false;
+            if (pluralVariantCandidates.indexOf(card) >= 0) {
+              pluralVariant = card.substring(0, card.length - 1) + "ies";
+              if (line.match(pluralVariant)) pluralVariantBoolean = true;
+            }
+            if (
+              pluralVariantBoolean
+                ? line.match(pluralVariant)
+                : line.match(card)
+            ) {
+              const twoDigits: number = (
+                pluralVariantBoolean
+                  ? line[line.indexOf(pluralVariant) - 3].match(/\d/) !== null
+                  : line[line.indexOf(card) - 3].match(/\d/) !== null
+              )
+                ? 1
+                : 0;
+              const amountChar = line.substring(
+                pluralVariantBoolean
+                  ? line.indexOf(pluralVariant) - 2 - twoDigits
+                  : line.indexOf(card) - 2 - twoDigits,
+                pluralVariantBoolean
+                  ? line.indexOf(pluralVariant) - 1
+                  : line.indexOf(card) - 1
+              );
+              let amount = 0;
+              if (amountChar == "n" || amountChar == "a") {
+                amount = 1;
+              } else {
+                amount = parseInt(amountChar);
+              }
+              cards.push(card);
+              numberOfCards.push(amount);
+            }
+          });
+
+          // Section for handling repeat buys and avoiding overgaining
+          if (act === "gains" && cards.length === 1) {
+            const thisLineBuyAndGains = this.checkForBuyAndGain(line, cards[0]);
+            const lastLineBuyAndGains = this.checkForBuyAndGain(
+              this.logArchive[this.logArchive.length - 1],
+              cards[0]
+            );
+            if (lastLineBuyAndGains && thisLineBuyAndGains)
+              numberOfCards[0] = handleRepeatBuyGain(line);
           }
-          break;
-        case "discards":
-          {
-            const sentryDiscard = this.checkForSentryDiscard();
-            const banditDiscard = this.checkForBanditDiscard();
-            const vassalDiscard = this.checkForVassalDiscard();
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                if (sentryDiscard || banditDiscard || vassalDiscard) {
-                  this.discardFromLibrary(cards[i]);
-                } else {
-                  this.discard(cards[i]);
+        }
+
+        switch (act) {
+          case "shuffles their deck":
+            {
+              const cleanUp =
+                array.length > idx + 1
+                  ? this.checkForCleanUp(array[idx + 1])
+                  : false;
+              const cellarDraws = this.checkForCellarDraw();
+              if (cleanUp && !cellarDraws) this.cleanup();
+              this.shuffleGraveYardIntoLibrary();
+            }
+            break;
+          case "gains":
+            {
+              const mineGain = this.checkForMineGain();
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  if (mineGain) {
+                    this.gainIntoHand(cards[i]);
+                  } else {
+                    const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
+                    if (buyAndGain) {
+                      const lastLineBuy =
+                        this.checkPreviousLineProcessedForCurrentCardBuy(
+                          cards[i]
+                        );
+                      if (lastLineBuy) {
+                        // keep the logArchive from accumulating duplicates.
+                        const dupRemoved = this.logArchive.pop();
+                        console.error(
+                          "removing a duplicate entry: ",
+                          dupRemoved
+                        );
+                      }
+                    }
+                    this.gain(cards[i]);
+                  }
+                  this.addCardToEntireDeck(cards[i]);
                 }
               }
             }
-          }
-          break;
-        case "plays":
-          {
-            const throneRoomPlay = line.match(" again.");
-            const vassalPlay = this.checkForVassalPlay();
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                if (throneRoomPlay) {
-                  console.log("Throne room play.  No deck change.");
-                } else if (vassalPlay) {
-                  this.playFromDiscard(cards[i]);
-                } else {
-                  this.play(cards[i]);
+            break;
+          case "draws":
+            {
+              const fiveDrawsOccured = this.checkForCleanUp(line);
+              const shuffleOccured = this.checkForShuffle(
+                this.lastEntryProcessed
+              );
+              const cellarDraws = this.checkForCellarDraw();
+              if (fiveDrawsOccured && !shuffleOccured && !cellarDraws) {
+                this.cleanup();
+              } else {
+                if (cellarDraws)
+                  if (shuffleOccured)
+                    // 5 draws were from cellar, not from an end of turn.
+                    // 5 draws took place this line, but last line was a shuffle, and cleanup already occured.
+                    null;
+              }
+
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  this.draw(cards[i]);
                 }
               }
             }
-          }
-          break;
-        case "trashes":
-          {
-            const sentryTrash = this.checkForSentryTrash();
-            const banditTrash = this.checkForBanditTrash();
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                if (sentryTrash || banditTrash) {
-                  console.log("Trash from lib");
-                  this.trashFromLibrary(cards[i]);
-                } else {
-                  console.log("Trash from hand");
-                  this.trashFromHand(cards[i]);
-                }
-                this.removeCardFromEntireDeck(cards[i]);
-              }
-            }
-          }
-          break;
-        case "topdecks":
-          {
-            const harbingerTopDeck = this.checkForHarbingerTopDeck();
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                if (harbingerTopDeck) {
-                  this.topDeckFromGraveyard(cards[i]);
+            break;
+          case "discards":
+            {
+              const sentryDiscard = this.checkForSentryDiscard();
+              const banditDiscard = this.checkForBanditDiscard();
+              const vassalDiscard = this.checkForVassalDiscard();
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  if (sentryDiscard || banditDiscard || vassalDiscard) {
+                    this.discardFromLibrary(cards[i]);
+                  } else {
+                    this.discard(cards[i]);
+                  }
                 }
               }
             }
+            break;
+          case "plays":
+            {
+              const throneRoomPlay = line.match(" again.");
+              const vassalPlay = this.checkForVassalPlay();
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  if (throneRoomPlay) {
+                  } else if (vassalPlay) {
+                    this.playFromDiscard(cards[i]);
+                  } else {
+                    this.play(cards[i]);
+                  }
+                }
+              }
+            }
+            break;
+          case "trashes":
+            {
+              const sentryTrash = this.checkForSentryTrash();
+              const banditTrash = this.checkForBanditTrash();
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  if (sentryTrash || banditTrash) {
+                    this.trashFromLibrary(cards[i]);
+                  } else {
+                    this.trashFromHand(cards[i]);
+                  }
+                  this.removeCardFromEntireDeck(cards[i]);
+                }
+              }
+            }
+            break;
+          case "topdecks":
+            {
+              const harbingerTopDeck = this.checkForHarbingerTopDeck();
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  if (harbingerTopDeck) {
+                    this.topDeckFromGraveyard(cards[i]);
+                  }
+                }
+              }
+            }
+            break;
+          default: {
+            null;
           }
-          break;
-        default:
-          console.log("no matching action for ", act);
+        }
+      } else {
+        null;
+        //  Opponent log entryies fall here
       }
       this.lastEntryProcessed = line;
       this.logArchive.push(line);
+      console.groupEnd();
     });
-    console.groupEnd();
   }
 
   /**
@@ -384,6 +458,7 @@ export class Deck {
   draw(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
+      console.info(`Drawing ${card} from library into hand.`);
       this.library.splice(index, 1);
       this.hand.push(card);
     } else {
@@ -399,6 +474,7 @@ export class Deck {
   play(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
+      console.info(`Playing ${card} from hand into play.`);
       this.hand.splice(index, 1);
       this.inPlay.push(card);
     } else {
@@ -425,7 +501,7 @@ export class Deck {
     if (index > -1) {
       this.entireDeck.splice(index, 1);
     } else {
-      throw new Error("No ${card} in the decklist");
+      throw new Error(`No ${card} in the decklist`);
     }
   }
 
@@ -434,7 +510,7 @@ export class Deck {
    * Might be obsolete.  Shuffling is a superficiality.
    */
   shuffle() {
-    //console.log("action Shuffling discard into deck");
+    console.info("Shuffling library into a random order.");
     let currentIndex = this.library.length,
       randomIndex;
 
@@ -462,6 +538,7 @@ export class Deck {
   topDeckFromGraveyard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
+      console.info(`Top decking ${card} from discard pile.`);
       this.graveyard.splice(index, 1);
       this.library.push(card);
     } else {
@@ -479,6 +556,7 @@ export class Deck {
   playFromDiscard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
+      console.info(`Playing ${card} from discard pile into play.`);
       this.inPlay.push(card);
       this.graveyard.splice(index, 1);
     } else {
@@ -494,13 +572,13 @@ export class Deck {
   shuffleGraveYardIntoLibrary() {
     let i = this.graveyard.length - 1;
     for (i; i >= 0; i--) {
-      console.log(
-        `ACTION Shuffling ${this.graveyard[i]} from graveyard into library`
+      console.info(
+        `Shuffling ${this.graveyard[i]} from discard pile into library`
       );
       this.library.push(this.graveyard[i]);
       this.graveyard.splice(i, 1);
-      this.shuffle();
     }
+    this.shuffle();
   }
 
   /**
@@ -509,21 +587,22 @@ export class Deck {
    * from the hand and/or inPlay arrays and added to the graveyard array.
    */
   cleanup() {
-    console.log("Cleaning up");
+    console.group("Cleaning up:");
     let i = this.inPlay.length - 1;
     let j = this.hand.length - 1;
     for (i; i >= 0; i--) {
-      console.log(
-        `ACTION Cleaning ${this.inPlay[i]} from in play into into discard`
+      console.info(
+        `Moving ${this.inPlay[i]} from in play into into discard pile.`
       );
       this.graveyard.push(this.inPlay[i]);
       this.inPlay.splice(i, 1);
     }
     for (j; j >= 0; j--) {
-      ////console.log(`action Cleaning ${this.hand[j]} from hand into discard`);
+      console.info(`Moving ${this.hand[j]} from hand into discard pile.`);
       this.graveyard.push(this.hand[j]);
       this.hand.splice(j, 1);
     }
+    console.groupEnd();
   }
 
   /**
@@ -531,8 +610,7 @@ export class Deck {
    * @param card = The given card.
    */
   gain(card: string) {
-    console.log(`action Gaining ${card} into discard`);
-
+    console.info(`Gaining ${card} into discard pile.`);
     this.graveyard.push(card);
   }
 
@@ -541,7 +619,7 @@ export class Deck {
    * @param card - The given card.
    */
   gainIntoHand(card: string) {
-    ////console.log(`action Gaining ${card} into hand`);
+    console.info(`Gaining ${card} into hand.`);
     this.hand.push(card);
   }
 
@@ -554,7 +632,7 @@ export class Deck {
   topDeckCardFromHand(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      ////console.log(`action Topdecking ${this.hand[index]}`);
+      console.info(`Top decking ${this.hand[index]} from hand.`);
       this.library.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
@@ -571,8 +649,8 @@ export class Deck {
   discard(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.log(
-        `ACTION Discarding ${this.hand[index]} from hand into discard}`
+      console.info(
+        `Discarding ${this.hand[index]} from hand into discard pile.`
       );
       this.graveyard.push(this.hand[index]);
       this.hand.splice(index, 1);
@@ -590,8 +668,8 @@ export class Deck {
   discardFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.log(
-        `ACTION dDscarding ${this.library[index]} from library into discard}`
+      console.info(
+        `Discarding ${this.library[index]} from library into discard pile.`
       );
       this.graveyard.push(this.library[index]);
       this.library.splice(index, 1);
@@ -607,10 +685,9 @@ export class Deck {
    * @param card - The given card.
    */
   trashFromHand(card: string) {
-    console.log(card);
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.log(`Trashing ${this.hand[index]} from hand}`);
+      console.info(`Trashing ${this.hand[index]} from hand.`);
       this.trash.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
@@ -629,7 +706,7 @@ export class Deck {
   trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.log(`Trashing ${this.library[index]} from library`);
+      console.info(`Trashing ${this.library[index]} from library.`);
       this.trash.push(this.library[index]);
       this.library.splice(index, 1);
     } else {
@@ -666,7 +743,6 @@ export class Deck {
     (lineCopyWithoutNickname.match(/\d/g) || []).forEach((n) => {
       drawCount += parseInt(n);
     });
-    console.log("drawCount", drawCount);
     if (drawCount == 5) {
       needCleanUp = true;
     }
@@ -728,22 +804,43 @@ export class Deck {
    * be discarded from the library field array.
    * @returns - Boolean for whether the current line's discard was triggered by a Sentry.
    */
-  checkForSentryDiscard() {
+  checkForSentryDiscard(): boolean {
+    let isSentryDiscard: boolean = false;
     const len = this.logArchive.length;
-    return (
-      // test case 1 (no trashes no shuffle)
-      this.logArchive[len - 4].match(" plays a Sentry") !== null ||
-      // test case 2 (no trashes yes shuffle)
-      (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
-        this.logArchive[len - 4].match(" shuffles their deck") !== null) ||
-      //  test case 3 (yes trash with no shuffle)
-      (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
-        this.logArchive[len - 1].match(" trashes ") !== null) ||
+
+    if (len >= 6) {
       // test case 4 ( yes trash and shuffle )
-      (this.logArchive[len - 6].match(" plays a Sentry") !== null &&
+      if (
+        this.logArchive[len - 6].match(" plays a Sentry") !== null &&
         this.logArchive[len - 5].match(" shuffles their deck") !== null &&
-        this.logArchive[len - 1].match(" trashes ") !== null)
-    );
+        this.logArchive[len - 1].match(" trashes ") !== null
+      ) {
+        isSentryDiscard = true;
+      }
+    }
+    if (len >= 5) {
+      if (
+        // test case 2 (no trashes yes shuffle)
+        (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
+          this.logArchive[len - 4].match(" shuffles their deck") !== null) ||
+        //  test case 3 (yes trash with no shuffle)
+        (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
+          this.logArchive[len - 1].match(" trashes ") !== null) ||
+        // test case 5 shuffle after draw but before lookat, no trash.
+        (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
+          this.logArchive[len - 2].match(" shuffles their deck") !== null &&
+          this.logArchive[len - 1].match(" looks at ") !== null)
+      ) {
+        isSentryDiscard = true;
+      }
+    }
+    if (len >= 4) {
+      if (this.logArchive[len - 4].match(" plays a Sentry") !== null) {
+        isSentryDiscard = true;
+      }
+    }
+
+    return isSentryDiscard;
   }
 
   /**
@@ -810,11 +907,61 @@ export class Deck {
    */
   checkForVassalPlay() {
     let vassalPlay: boolean = false;
-    if (this.logArchive.length > 2) {
+    if (this.logArchive.length > 3) {
       vassalPlay =
         this.logArchive[this.logArchive.length - 3].match(" plays a Vassal") !==
-        null;
+          null ||
+        (this.logArchive[this.logArchive.length - 4].match(
+          " plays a Vassal"
+        ) !== null &&
+          this.logArchive[this.logArchive.length - 2].match(
+            " shuffles their deck"
+          ) !== null);
     }
+    if (vassalPlay) {
+      let logScrollElement = getLogScrollContainerLogLines();
+      let currentLinePaddingNumber: number;
+      let currentLinePaddingPercentage: string;
+      currentLinePaddingPercentage =
+        logScrollElement[this.logArchive.length].style.paddingLeft;
+      if (
+        currentLinePaddingPercentage[
+          currentLinePaddingPercentage.length - 1
+        ] === "%"
+      ) {
+        currentLinePaddingNumber = parseFloat(
+          currentLinePaddingPercentage.slice(
+            0,
+            currentLinePaddingPercentage.length - 1
+          )
+        );
+      } else
+        throw new Error(
+          "Current line PaddingLeft property does not end with %"
+        );
+
+      let previousLinePaddingNumber: number;
+      let previousLinePaddingPercentage: string;
+      previousLinePaddingPercentage =
+        logScrollElement[this.logArchive.length - 1].style.paddingLeft;
+      if (previousLinePaddingPercentage.slice(-1) === "%") {
+        previousLinePaddingNumber = parseFloat(
+          previousLinePaddingPercentage.slice(
+            0,
+            previousLinePaddingPercentage.length - 1
+          )
+        );
+      } else
+        throw new Error(
+          "Previous line paddingLeft property does not end with %"
+        );
+
+      if (currentLinePaddingNumber < previousLinePaddingNumber) {
+        vassalPlay = false;
+      } else {
+      }
+    }
+    console.groupEnd();
     return vassalPlay;
   }
 
@@ -825,6 +972,53 @@ export class Deck {
    * @returns - Boolean for whether the current line discard activity is triggered by a Vassal.
    */
   checkForVassalDiscard() {
-    return this.logArchive[this.logArchive.length - 2].match(" plays a Vassal");
+    let vassalDiscard: boolean;
+    let len = this.logArchive.length;
+    if (
+      this.logArchive[len - 2].match(" plays a Vassal") !== null ||
+      (this.logArchive[len - 3].match(" plays a Vassal") !== null &&
+        this.logArchive[len - 1].match(" shuffles their deck") !== null)
+    ) {
+      vassalDiscard = true;
+    } else vassalDiscard = false;
+
+    return vassalDiscard;
   }
+
+  /**
+   * Checks if the card in the current line was gained by buying.
+   * Purpose: Deck control flow to keep logArchive accurate.
+   * @returns - Boolean for whether the card in the current line.
+   * was gained was from a buy.
+   */
+  checkForBuyAndGain(line: string, card: string): boolean {
+    let isBuyAndGain: boolean;
+    if (
+      line.match(" buys and gains ") !== null &&
+      line.match(` ${card.substring(0, card.length - 1)}`)
+    ) {
+      isBuyAndGain = true;
+    } else isBuyAndGain = false;
+    return isBuyAndGain;
+  }
+
+  /**
+   * Checks if the card in the most recent logArchive entry
+   * was for the purchase of the card in the current line.
+   * Purpose: Deck control flow to keep logArchive from having duplicate entries.
+   * @param currentCard - The card to check the latest logArchive entry for.
+   * @returns - Boolean for whether the latest logArchive entry was for the buy of the card
+   * gaines and bought in the current line.
+   */
+  checkPreviousLineProcessedForCurrentCardBuy = (
+    currentCard: string
+  ): boolean => {
+    let previousLineBoughtCurrentLineCard: boolean;
+    if (this.logArchive.slice().pop()?.match(` buys a ${currentCard}`)) {
+      previousLineBoughtCurrentLineCard = true;
+    } else {
+      previousLineBoughtCurrentLineCard = false;
+    }
+    return previousLineBoughtCurrentLineCard;
+  };
 }
