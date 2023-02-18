@@ -365,7 +365,6 @@ export {
   isATreasurePlayLogEntry,
   getLastLogEntryOf,
   getUndispatchedLogs,
-  separateUndispatchedDeckLogs,
   sendToFront,
   getLogScrollContainerLogLines,
   isLogEntryBuyWithoutGain,
