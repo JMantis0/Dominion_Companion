@@ -139,9 +139,9 @@ export class Deck {
       const numberOfPrevCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (prevLine.match(treasure)) {
-          const removed = this.logArchive.pop(); // !!!important.  Much work was done to achieve this, to keep the archivelog accurate.
+          // const removed = this.logArchive.pop(); // !!!important.  Much work was done to achieve this, to keep the archivelog accurate.
           // To account for 2 digit numbers
-          console.error("popping log off", removed);
+          // console.error("popping log off", removed);
           const twoDigits = prevLine[prevLine.indexOf(treasure) - 3].match(/\d/)
             ? 1
             : 0;
@@ -323,10 +323,11 @@ export class Deck {
             break;
           case "gains":
             {
+              const artisanGain = this.checkForArtisanGain();
               const mineGain = this.checkForMineGain();
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
-                  if (mineGain) {
+                  if (mineGain || artisanGain) {
                     this.gainIntoHand(cards[i]);
                   } else {
                     const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
@@ -425,11 +426,14 @@ export class Deck {
             break;
           case "topdecks":
             {
+              const artisanTopDeck = this.checkForArtisanTopDeck();
               const harbingerTopDeck = this.checkForHarbingerTopDeck();
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   if (harbingerTopDeck) {
                     this.topDeckFromGraveyard(cards[i]);
+                  } else if (artisanTopDeck) {
+                    this.topDeckCardFromHand(cards[i]);
                   }
                 }
               }
@@ -1020,5 +1024,22 @@ export class Deck {
       previousLineBoughtCurrentLineCard = false;
     }
     return previousLineBoughtCurrentLineCard;
+  };
+
+  checkForArtisanGain = (): boolean => {
+    let isArtisanGain: boolean;
+    if (this.logArchive.slice().pop()?.match(" plays an Artisan") !== null)
+      isArtisanGain = true;
+    else isArtisanGain = false;
+    return isArtisanGain;
+  };
+
+  checkForArtisanTopDeck = (): boolean => {
+    let artisanTopDeck: boolean;
+    const len = this.logArchive.length;
+    if (this.logArchive[len - 2].match(" plays an Artisan") !== null) {
+      artisanTopDeck = true;
+    } else artisanTopDeck = false;
+    return artisanTopDeck;
   };
 }
