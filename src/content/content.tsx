@@ -187,7 +187,6 @@ const initIntervalFunction = () => {
     const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
       .split("\n")
       .slice();
-    console.log("Initial new logs to dispatch ", newLogsToDispatch);
     decks.get(playerName)?.update(newLogsToDispatch);
     sendToFront(decks.get(playerName)!, playerName);
     logsProcessed = gameLog;
