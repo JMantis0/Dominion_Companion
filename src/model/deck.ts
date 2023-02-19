@@ -17,7 +17,7 @@ export class Deck {
   trash: Array<string> = [];
   lastEntryProcessed: string = "";
   logArchive: Array<string> = [];
-  DOMLog: Array<string> = [];
+  setAside: Array<string> = [];
 
   constructor(playerName: string, abbrvName: string, kingdom: Array<string>) {
     this.playerName = playerName;
@@ -93,12 +93,6 @@ export class Deck {
     return this.logArchive;
   }
 
-  setDOMlog(DOMlog: Array<string>) {
-    this.DOMLog = DOMlog;
-  }
-  getDOMlog() {
-    return this.DOMLog;
-  }
 
   getEntireDeck() {
     return this.entireDeck;
@@ -106,6 +100,14 @@ export class Deck {
 
   setEntireDeck(deck: Array<string>) {
     this.entireDeck = deck;
+  }
+
+  getSetAside() {
+    return this.setAside;
+  }
+
+  setSetAside(setAsideCards: string[]) {
+    this.setAside = setAsideCards;
   }
 
   update(log: Array<string>) {
@@ -119,6 +121,7 @@ export class Deck {
       "trashes",
       "looks at",
       "topdecks",
+      "aside with Library",
     ];
     const pluralVariantCandidates = [
       "Smithy",
@@ -308,6 +311,24 @@ export class Deck {
               numberOfCards[0] = handleRepeatBuyGain(line);
           }
         }
+        if (this.logArchive.length >= 1) {
+          const len = this.logArchive.length;
+          const prevLineLibraryLook = this.checkForLibraryLook(
+            this.logArchive[len - 1]
+          );
+          if (prevLineLibraryLook && act !== "aside with Library") {
+            const prevLine = this.logArchive[len - 1];
+            const prevLineCard = prevLine.substring(
+              prevLine.lastIndexOf(" ") + 1,
+              prevLine.length - 1
+            );
+            console.log(
+              "Previous line was a library look.  This line is not a set aside."
+            );
+            console.log("Drawing previous line's card", prevLineCard);
+            this.draw(prevLineCard);
+          }
+        }
 
         switch (act) {
           case "shuffles their deck":
@@ -381,9 +402,14 @@ export class Deck {
               const sentryDiscard = this.checkForSentryDiscard();
               const banditDiscard = this.checkForBanditDiscard();
               const vassalDiscard = this.checkForVassalDiscard();
+              const libraryDiscard = this.checkForLibraryDiscard(line);
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
-                  if (sentryDiscard || banditDiscard || vassalDiscard) {
+                  if (libraryDiscard) {
+                    this.discardFromLibrary(cards[i]);
+                    const setAsideIdx = this.setAside.indexOf(cards[i]);
+                    this.setAside.splice(setAsideIdx, 1);
+                  } else if (sentryDiscard || banditDiscard || vassalDiscard) {
                     this.discardFromLibrary(cards[i]);
                   } else {
                     this.discard(cards[i]);
@@ -435,6 +461,23 @@ export class Deck {
                   } else if (artisanTopDeck) {
                     this.topDeckCardFromHand(cards[i]);
                   }
+                }
+              }
+            }
+            break;
+          case "looks at":
+            {
+              const libraryLook = this.checkForLibraryLook(line);
+              if (libraryLook) {
+                console.log("It's a library look");
+              }
+            }
+            break;
+          case "aside with Library":
+            {
+              for (let i = 0; i < cards.length; i++) {
+                for (let j = 0; j < numberOfCards[i]; j++) {
+                  this.setAsideWithLibrary(cards[i]);
                 }
               }
             }
@@ -716,6 +759,11 @@ export class Deck {
     } else {
       throw new Error(`No ${card} in library`);
     }
+  }
+
+  setAsideWithLibrary(card: string) {
+    console.info(`Setting aside a ${card} with Library`);
+    this.setAside.push(card);
   }
 
   /**
@@ -1026,6 +1074,12 @@ export class Deck {
     return previousLineBoughtCurrentLineCard;
   };
 
+  /**
+   * Checks the logArchive to determine if the current line gain activity
+   * was triggered by an Artisan.
+   * @returns Boolean for whether the urrent line gain activity
+   * was triggered by an Artisan
+   */
   checkForArtisanGain = (): boolean => {
     let isArtisanGain: boolean;
     if (this.logArchive.slice().pop()?.match(" plays an Artisan") !== null)
@@ -1034,6 +1088,11 @@ export class Deck {
     return isArtisanGain;
   };
 
+  /**
+   * Checks the logArchive to determine if the current line top deck activity
+   * was triggered by an Artisan.
+   * @returns Boolean for whether the urrent line top deck activity.
+   */
   checkForArtisanTopDeck = (): boolean => {
     let artisanTopDeck: boolean;
     const len = this.logArchive.length;
@@ -1042,4 +1101,77 @@ export class Deck {
     } else artisanTopDeck = false;
     return artisanTopDeck;
   };
+
+  /**
+   * Checks the logArchive to determine whether the look at activity was triggered
+   * by a Library.
+   * @param currentLine - The current look at line
+   * @returns The boolean for whether the current look at activity was triggered by a Library
+   */
+  checkForLibraryLook = (currentLine: string): boolean => {
+    let libraryLook: boolean = false;
+    if (currentLine.match(" looks at ") !== null) {
+      let playFound: boolean = false;
+      for (let i = this.logArchive.length - 1; i >= 0; i--) {
+        let logEntry = this.logArchive[i];
+        if (logEntry.match(" plays a ") !== null) {
+          playFound = true;
+          if (logEntry.match(" plays a Library") !== null) {
+            libraryLook = true;
+          } else {
+            libraryLook = false;
+          }
+        }
+        if (playFound) {
+          break;
+        }
+      }
+      if (!playFound) {
+        throw new Error(
+          "All log archive entries checked and no entry containing the substring ' play a ' found."
+        );
+      }
+    } else {
+      libraryLook = false;
+    }
+    return libraryLook;
+  };
+
+  /**
+   * Checks the logArchive to determine whether the discard activity was triggered
+   * by a Library.
+   * @param currentLine - The current discard line
+   * @returns The boolean for whether the current discard activity was triggered by a Library
+   */
+  checkForLibraryDiscard(currentLine: string): boolean {
+    let libraryDiscard: boolean = false;
+    if (currentLine.match(" discards ") !== null) {
+      let playFound: boolean = false;
+      for (let i = this.logArchive.length - 1; i >= 0; i--) {
+        let currentLine = this.logArchive[i];
+        if (currentLine.match(" plays a ") !== null) {
+          playFound = true;
+          if (currentLine.match(" plays a Library") !== null) {
+            libraryDiscard = true;
+          } else {
+            libraryDiscard = false;
+          }
+        }
+        if (playFound) {
+          break;
+        }
+      }
+      if (!playFound) {
+        throw new Error(
+          "All log archive entries checked and no entry containing the substring ' play a ' found."
+        );
+      }
+    } else {
+      libraryDiscard = false;
+      throw new Error("Current line is not a discard line.");
+    }
+    return libraryDiscard;
+  }
+
+  checkForPoacherDiscard() {}
 }
