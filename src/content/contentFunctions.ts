@@ -326,12 +326,15 @@ const sendToFront = (deck: Deck, playerName: string) => {
  * @returns - A collection of all the divs in the log-scroll-container with the class 'log-line'
  */
 const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
-  let scrollEl: HTMLCollectionOf<HTMLElement>;
-  scrollEl = document
-    .getElementsByClassName("log-scroll-container")[0]
-    .getElementsByClassName("log-line") as HTMLCollectionOf<HTMLElement>;
+  let scrollEl: Element;
+  let logLineCollection: HTMLCollectionOf<HTMLElement>;
+
+  scrollEl = document.getElementsByClassName("log-scroll-container")[0];
   if (scrollEl == undefined) throw new Error("Element is undefined");
-  return scrollEl;
+  logLineCollection = scrollEl.getElementsByClassName(
+    "log-line"
+  ) as HTMLCollectionOf<HTMLElement>;
+  return logLineCollection;
 };
 
 /**
