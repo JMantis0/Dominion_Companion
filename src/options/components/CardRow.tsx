@@ -1,6 +1,16 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 
-const CardRow = ({ cardAmount, drawProbability, cardName }) => {
+type CardRowProps = {
+  cardAmount: number;
+  drawProbability: string;
+  cardName: string;
+};
+
+const CardRow: FunctionComponent<CardRowProps> = ({
+  cardAmount,
+  drawProbability,
+  cardName,
+}) => {
   return (
     <div>
       <span> {drawProbability} </span>

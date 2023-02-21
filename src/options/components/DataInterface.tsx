@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setPlayerDeck, setOpponentDeck } from "../redux/optionsSlice";
 import { RootState } from "../redux/store";
 import { StoreDeck } from "../../model/storeDeck";
-
+import { getCountsFromArray } from "../utils/utilityFunctions";
 const DataInterface = () => {
   const pDeck: StoreDeck = useSelector(
     (state: RootState) => state.options.playerDeck
@@ -63,7 +63,13 @@ const DataInterface = () => {
     // };
 
     // Listener for messages from content script
-    const messageListenerFunction = (request, sender, sendResponse) => {
+
+    const messageListenerFunction = (
+      request: any,
+      sender: any,
+      sendResponse: Function
+    ) => {
+      console.log("lookingi at the request for how to type it:", request);
       console.log(
         sender.tab
           ? "from a content script:" + sender.tab.url
@@ -76,7 +82,10 @@ const DataInterface = () => {
         console.log("setting opponentDeck", JSON.parse(request.opponentDeck));
         dispatch(setOpponentDeck(JSON.parse(request.opponentDeck)));
       }
-      sendResponse({ message: `deck updated in Redux for ${request}` });
+      sendResponse({
+        message: `deck updated in Redux for request`,
+        request: request,
+      });
     };
     chrome.runtime.onMessage.addListener(messageListenerFunction);
 
@@ -87,19 +96,19 @@ const DataInterface = () => {
     };
   }, []);
 
-  const getCountsFromArray = (
-    decklistArray: Array<string>
-  ): Map<string, number> => {
-    const cardCountsMap = new Map<string, number>();
-    decklistArray.forEach((card) => {
-      if (cardCountsMap.has(card)) {
-        cardCountsMap.set(card, cardCountsMap.get(card) + 1);
-      } else {
-        cardCountsMap.set(card, 1);
-      }
-    });
-    return cardCountsMap;
-  };
+  // const getCountsFromArray = (
+  //   decklistArray: Array<string>
+  // ): Map<string, number> => {
+  //   const cardCountsMap = new Map<string, number>();
+  //   decklistArray.forEach((card) => {
+  //     if (cardCountsMap.has(card)) {
+  //       cardCountsMap.set(card, cardCountsMap.get(card)! + 1);
+  //     } else {
+  //       cardCountsMap.set(card, 1);
+  //     }
+  //   });
+  //   return cardCountsMap;
+  // };
 
   return (
     <div>

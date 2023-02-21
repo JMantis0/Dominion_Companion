@@ -1,0 +1,56 @@
+#domRoot {
+  z-index: 0;
+}
+
+#libHoverEl {
+  display: initial;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 97.2px;
+  height: 153.36px;
+  z-index: 0;
+  opacity: 0;
+  transform: translateX(105.85px) translateY(732.72px) rotateZ(0deg) scaleX(1);
+  background-color: greenyellow;
+}
+
+#libraryPopUp {
+  display: initial;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 97.2px;
+  height: 153.36px;
+  z-index: 9000;
+  opacity: 1;
+  transform: translateX(105.85px) translateY(732.72px) rotateZ(0deg) scaleX(1);
+  background-color: greenyellow;
+}
+
+#discardHoverEl {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 97.2px;
+  height: 153.36px;
+  z-index: 0;
+  opacity: 0;
+  display: initial;
+  transform: translateX(5.98px) translateY(732.72px) rotateZ(0deg) scaleX(1);
+  background-color: brown;
+}
+
+#logCoverEl {
+ 
+  height: 50vh;
+  width: 23vw;
+  z-index: 0;
+  position: absolute;
+  right: 0;
+  border: 0.2vh solid #aaa;
+  border-right: none;
+  border-bottom: none;
+  background-color: royalblue;
+}
+

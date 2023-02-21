@@ -25,7 +25,7 @@ const DiscardView = () => {
             key={idx}
             drawProbability={""}
             cardName={card}
-            cardAmount={discardMap.get(card)}
+            cardAmount={discardMap.get(card)!}
           />
         );
       })}

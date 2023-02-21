@@ -1,4 +1,5 @@
 import React from "react";
+import { createRoot } from "react-dom/client";
 import { Deck } from "../model/deck";
 import {
   isGameLogPresent,
@@ -13,7 +14,11 @@ import {
   areNewLogsToSend,
   getUndispatchedLogs,
   sendToFront,
+  getHeroPlayerInfoElement,
 } from "./contentFunctions";
+import DomView from "./components/DomView";
+import LibraryHover from "./components/LibraryHover";
+import DomRoot from "./components/DomRoot";
 
 const Content = () => {
   return (
@@ -80,6 +85,7 @@ const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
         ] as HTMLElement;
         const lastAddedNodeText = lastAddedNode.innerText;
         if (lastAddedNodeText.length > 0) {
+          console.log("lastAddedNodeText:, ", lastAddedNodeText);
           if (areNewLogsToSend(logsProcessed, getGameLog())) {
             gameLog = getGameLog();
             const newLogsToDispatch = getUndispatchedLogs(
@@ -88,6 +94,7 @@ const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
             )
               .split("\n")
               .slice();
+            console.log("newLogs to Dispath:", newLogsToDispatch);
             decks.get(playerName)?.update(newLogsToDispatch);
             sendToFront(decks.get(playerName)!, playerName);
             logsProcessed = gameLog;
@@ -151,7 +158,10 @@ const initIntervalFunction = () => {
     const mydiv = $("<div>").attr("id", "dev-btns").text("Dev-Buttons");
     $(".chat-display").append(mydiv);
     mydiv.append(
-      $("<button>").attr("id", "statebutton").text("LOG DECK STATE")
+      $("<button>")
+        .attr("id", "statebutton")
+        .text("heroEl")
+        .on("click", () => console.log(heroEl))
     );
     mydiv.append(
       $("<button>")
@@ -196,6 +206,35 @@ const initIntervalFunction = () => {
       subtree: true,
     };
     mo.observe(gameLogElement, observerOptions);
+
+    const playerInfoParentEl =
+      document.getElementsByClassName("player-info")[0];
+    // console.log(heroInfo?.style.transform);
+
+    // Create element to use as react root.
+    const domViewContainer = document.createElement("div");
+    // set z-index
+    domViewContainer.setAttribute("style", "z-index: 20; position:relative;");
+    // Give it an ID
+    domViewContainer.setAttribute("id", "domViewContainer");
+    //Create a react root with it
+    const domViewRoot = createRoot(domViewContainer);
+    // Put the domView component into the react root
+    domViewRoot.render(<DomRoot />);
+
+    // Now domViewRoot has been added to the domViewContainer
+    //Finally append the domviewContainer, which has the react component
+    // rendered to it, into the DOM of the dominion page, into the <div> that
+    // has class "player-info"
+    const body = document.getElementsByTagName("body")[0];
+    console.log("bodY", body);
+    playerInfoParentEl.appendChild(domViewContainer);
+
+    // Now i'd like to position the thing just above the child <player-info> element for the hero.
+    // Plan to do this by collecting it's css properties
+
+    let heroEl = getHeroPlayerInfoElement(getPlayerInfoElements());
+    console.log(heroEl);
   }
 };
 

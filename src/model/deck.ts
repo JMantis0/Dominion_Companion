@@ -18,6 +18,7 @@ export class Deck {
   lastEntryProcessed: string = "";
   logArchive: Array<string> = [];
   setAside: Array<string> = [];
+  waitToShuffle: boolean = false;
 
   constructor(playerName: string, abbrvName: string, kingdom: Array<string>) {
     this.playerName = playerName;
@@ -93,7 +94,6 @@ export class Deck {
     return this.logArchive;
   }
 
-
   getEntireDeck() {
     return this.entireDeck;
   }
@@ -112,6 +112,7 @@ export class Deck {
 
   update(log: Array<string>) {
     // console.group("Deck Update Log for " + this.playerName);
+
     const actionArray = [
       "shuffles their deck",
       "gains",
@@ -240,7 +241,22 @@ export class Deck {
     };
 
     log.forEach((line, idx, array) => {
-      if (line.slice(0, this.abbrvName.length) === this.abbrvName) {
+      if (
+        // Filters out opponent logs that dont need to be processed
+        line.slice(0, this.abbrvName.length) === this.abbrvName ||
+        line.match(this.playerName) !== null
+      ) {
+        // If previous line was shuffle this section performs a
+        // cleanup if necessary before the shuffle occurs.
+        if (this.waitToShuffle) {
+          const cleanUp = this.checkForCleanUp(line);
+          console.log("shuffle occuring.  cleanup needed is :", cleanUp);
+          const cellarDraws = this.checkForCellarDraw();
+          if (cleanUp && !cellarDraws) this.cleanup();
+          this.shuffleGraveYardIntoLibrary();
+          this.waitToShuffle = false;
+        }
+
         console.group(line);
         let act = "";
         let cards: Array<string> = [];
@@ -333,14 +349,9 @@ export class Deck {
         switch (act) {
           case "shuffles their deck":
             {
-              const cleanUp =
-                array.length > idx + 1
-                  ? this.checkForCleanUp(array[idx + 1])
-                  : false;
-              const cellarDraws = this.checkForCellarDraw();
-              if (cleanUp && !cellarDraws) this.cleanup();
-              this.shuffleGraveYardIntoLibrary();
+              this.waitToShuffle = true;
             }
+
             break;
           case "gains":
             {
@@ -384,10 +395,11 @@ export class Deck {
                 this.cleanup();
               } else {
                 if (cellarDraws)
-                  if (shuffleOccured)
-                    // 5 draws were from cellar, not from an end of turn.
-                    // 5 draws took place this line, but last line was a shuffle, and cleanup already occured.
-                    null;
+                  console.log("5 draws came from a cellar, dont clean up.");
+                if (shuffleOccured)
+                  // 5 draws were from cellar, not from an end of turn.
+                  // 5 draws took place this line, but last line was a shuffle, and cleanup already occured.
+                  null;
               }
 
               for (let i = 0; i < cards.length; i++) {
@@ -489,9 +501,21 @@ export class Deck {
       } else {
         null;
         //  Opponent log entryies fall here
+        if (
+          this.lastEntryProcessed.match("plays") &&
+          this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?/) &&
+          line.match("plays") &&
+          line.match(/Coppers?|Silvers?|Golds?/)
+        ) {
+          //  If playing with no animations, need this to pop off opponent treasure plays.
+          handleTreasureLine(line);
+        }
       }
+
       this.lastEntryProcessed = line;
-      this.logArchive.push(line);
+      if (line !== "Between Turns") {
+        this.logArchive.push(line);
+      }
       console.groupEnd();
     });
   }
@@ -798,6 +822,7 @@ export class Deck {
     if (drawCount == 5) {
       needCleanUp = true;
     }
+    console.log("Checking for cleanup.  DrawCount = ", drawCount);
     return needCleanUp;
   };
 
@@ -959,23 +984,20 @@ export class Deck {
    */
   checkForVassalPlay() {
     let vassalPlay: boolean = false;
-    if (this.logArchive.length > 3) {
+    const len = this.logArchive.length;
+    if (len > 3) {
       vassalPlay =
-        this.logArchive[this.logArchive.length - 3].match(" plays a Vassal") !==
-          null ||
-        (this.logArchive[this.logArchive.length - 4].match(
-          " plays a Vassal"
-        ) !== null &&
-          this.logArchive[this.logArchive.length - 2].match(
-            " shuffles their deck"
-          ) !== null);
+        (this.logArchive[len - 3].match(" plays a Vassal") !== null &&
+          this.logArchive[len - 1].match(" discards a ") !== null) ||
+        (this.logArchive[len - 4].match(" plays a Vassal") !== null &&
+          this.logArchive[len - 2].match(" shuffles their deck") !== null &&
+          this.logArchive[len - 1].match(" discards a ") !== null);
     }
     if (vassalPlay) {
       let logScrollElement = getLogScrollContainerLogLines();
       let currentLinePaddingNumber: number;
       let currentLinePaddingPercentage: string;
-      currentLinePaddingPercentage =
-        logScrollElement[this.logArchive.length].style.paddingLeft;
+      currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
       if (
         currentLinePaddingPercentage[
           currentLinePaddingPercentage.length - 1
@@ -995,7 +1017,7 @@ export class Deck {
       let previousLinePaddingNumber: number;
       let previousLinePaddingPercentage: string;
       previousLinePaddingPercentage =
-        logScrollElement[this.logArchive.length - 1].style.paddingLeft;
+        logScrollElement[len - 1].style.paddingLeft;
       if (previousLinePaddingPercentage.slice(-1) === "%") {
         previousLinePaddingNumber = parseFloat(
           previousLinePaddingPercentage.slice(

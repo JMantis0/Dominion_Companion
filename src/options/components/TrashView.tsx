@@ -25,7 +25,7 @@ const TrashView = () => {
             key={idx}
             drawProbability={""}
             cardName={card}
-            cardAmount={trashMap.get(card)}
+            cardAmount={trashMap.get(card)!}
           />
         );
       })}
