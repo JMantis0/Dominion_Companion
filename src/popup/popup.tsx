@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "../assets/tailwind.css";
 
-const handleInput = (e) => {
+
+const handleInput = (e: React.BaseSyntheticEvent) => {
   e.preventDefault();
-  const name = e.target[0].value;
-  let frog = []
-  frog[0] = "test"
+  console.log(e);
+  const name: any = e.target[0].value;
+  let frog = [];
+  frog[0] = "test";
   chrome.storage.sync.set({ name: name }).then(() => {
     console.log("Name is set to " + name);
   });
@@ -17,7 +19,7 @@ const handleInput = (e) => {
 const Popup = () => {
   useEffect(() => {
     chrome.storage.sync.get(["name"]),
-      (res) => {
+      (res: any) => {
         console.log(res.name);
       };
   }, []);

@@ -9,6 +9,7 @@ const init = () => {
   if (!appContainer) {
     throw new Error("can't find appContainer");
   }
+  
   document.body.appendChild(appContainer);
   const root = createRoot(appContainer);
   console.log(appContainer);
