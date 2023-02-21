@@ -52,6 +52,31 @@ const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
 };
 
 /**
+ * Returns the <player-info> element for the player.
+ * @param playerInfoElements - the collection of all <player-info> elements
+ * @returns - The <player-info> element for the non-opponent player.
+ */
+const getHeroPlayerInfoElement = (
+  playerInfoElements: HTMLCollectionOf<HTMLElement>
+): HTMLElement | undefined => {
+  let heroPlayerInfoEl: HTMLElement;
+  const transformElementMap: Map<number, HTMLElement> = new Map();
+  for (let element of playerInfoElements) {
+    const transform: string = element.style.transform;
+    const yTransForm: number = parseFloat(
+      transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
+    );
+    transformElementMap.set(yTransForm, element);
+  }
+
+  heroPlayerInfoEl = [...transformElementMap.entries()].reduce((prev, curr) => {
+    return prev[0] > curr[0] ? prev : curr;
+  })[1];
+
+  return heroPlayerInfoEl;
+};
+
+/**
  * Gets the <player-info-name> elements from the DOM, and compares their
  * css properties to determine which contains the player name and which
  * ontains the opponentname, then returns those names.
@@ -83,6 +108,8 @@ const getPlayerAndOpponentNameByComparingElementPosition = (
   opponentName = [...nameTransformMap.entries()].reduce((prev, current) => {
     return prev[1] < current[1] ? prev : current;
   })[0];
+
+  // similarly, we can assign the elements to reference variables...
 
   return [playerName, opponentName];
 };
@@ -359,6 +386,7 @@ export {
   getGameLog,
   arePlayerInfoElementsPresent,
   getPlayerInfoElements,
+  getHeroPlayerInfoElement,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerNameAbbreviations,
   isKingdomElementPresent,
