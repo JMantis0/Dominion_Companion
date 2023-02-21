@@ -16,18 +16,25 @@ import {
   sendToFront,
   getHeroPlayerInfoElement,
 } from "./contentFunctions";
-import DomView from "./components/DomView";
-import LibraryHover from "./components/LibraryHover";
+import { Provider } from "react-redux";
+import { store } from "../redux/store";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+
 import DomRoot from "./components/DomRoot";
 
 const Content = () => {
+  const state = useSelector((state: RootState) => state);
+  console.log("state", state);
+
   return (
-    <React.Fragment>
-      <div id="dom-view"></div>
-    </React.Fragment>
+    <Provider store={store}>
+      <React.Fragment>
+        <div id="dom-view"></div>
+      </React.Fragment>
+    </Provider>
   );
 };
-
 export default Content;
 
 let playerName: string = "";
