@@ -54,3 +54,7 @@
   background-color: royalblue;
 }
 
+#accordion {
+  position: fixed;
+  transform: translateX(5.98px) translateY(600px) rotateZ(0deg) scaleX(1);
+}

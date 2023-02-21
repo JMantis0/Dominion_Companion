@@ -1,8 +1,9 @@
 import React from "react";
-
+import { store } from "../redux/store";
 import { createRoot } from "react-dom/client";
 import { HashRouter as Router } from "react-router-dom";
 import Options from "./options";
+import { Provider } from "react-redux";
 
 const init = () => {
   const appContainer = document.createElement("div");
@@ -14,9 +15,11 @@ const init = () => {
   const root = createRoot(appContainer);
   console.log(appContainer);
   root.render(
-    <Router>
-      <Options />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <Options />
+      </Router>
+    </Provider>
   );
 };
 init();
