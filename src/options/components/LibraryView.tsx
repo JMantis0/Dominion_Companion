@@ -25,7 +25,7 @@ const LibraryView = () => {
             key={idx}
             drawProbability={""}
             cardName={card}
-            cardAmount={libraryMap.get(card)}
+            cardAmount={libraryMap.get(card)!}
           />
         );
       })}

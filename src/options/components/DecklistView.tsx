@@ -23,7 +23,7 @@ const DecklistView = () => {
             key={idx}
             drawProbability={""}
             cardName={card}
-            cardAmount={listMap.get(card)}
+            cardAmount={listMap.get(card)!}
           />
         );
       })}

@@ -25,7 +25,7 @@ const InPlayView = () => {
             key={idx}
             drawProbability={""}
             cardName={card}
-            cardAmount={inPlayMap.get(card)}
+            cardAmount={inPlayMap.get(card)!}
           />
         );
       })}
