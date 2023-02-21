@@ -240,7 +240,7 @@ export class Deck {
       return ammendedGainAmount;
     };
 
-    log.forEach((line, idx, array) => {
+    log.forEach((line) => {
       if (
         // Filters out opponent logs that dont need to be processed
         line.slice(0, this.abbrvName.length) === this.abbrvName ||

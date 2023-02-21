@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "../../redux/store";
 import { getCountsFromArray } from "../utils/utilityFunctions";
 import CardRow from "./CardRow";
 
@@ -14,7 +14,7 @@ const DecklistView = () => {
   }, [pd]);
 
   return (
-    <React.Fragment>
+    <div className="outer-shell">
       <div>Full Decklist {pd.entireDeck.length}</div>
       <br></br>
       {Array.from(listMap.keys()).map((card, idx) => {
@@ -27,7 +27,7 @@ const DecklistView = () => {
           />
         );
       })}
-    </React.Fragment>
+    </div>
   );
 };
 

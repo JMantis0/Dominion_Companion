@@ -1,9 +1,9 @@
 import React from "react";
-import { Provider } from "react-redux";
-import { store } from "./redux/store";
+import { store } from "../redux/store";
 import { createRoot } from "react-dom/client";
 import { HashRouter as Router } from "react-router-dom";
 import Options from "./options";
+import { Provider } from "react-redux";
 
 const init = () => {
   const appContainer = document.createElement("div");

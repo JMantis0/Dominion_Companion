@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "../../redux/store";
 import { getCountsFromArray } from "../utils/utilityFunctions";
 import CardRow from "./CardRow";
 

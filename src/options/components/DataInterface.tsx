@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setPlayerDeck, setOpponentDeck } from "../redux/optionsSlice";
-import { RootState } from "../redux/store";
+import { setPlayerDeck, setOpponentDeck } from "../../redux/optionsSlice";
+import { RootState } from "../../redux/store";
 import { StoreDeck } from "../../model/storeDeck";
 import { getCountsFromArray } from "../utils/utilityFunctions";
 const DataInterface = () => {

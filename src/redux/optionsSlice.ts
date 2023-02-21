@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { StoreDeck } from "../../model/storeDeck";
-import { EmptyDeck } from "../../model/emptyDeck";
+import { StoreDeck } from "../model/storeDeck";
+import { EmptyDeck } from "../model/emptyDeck";
 
 export interface OptionsState {
   playerDeck: StoreDeck;
