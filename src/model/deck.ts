@@ -323,8 +323,11 @@ export class Deck {
               this.logArchive[this.logArchive.length - 1],
               cards[0]
             );
-            if (lastLineBuyAndGains && thisLineBuyAndGains)
+            if (lastLineBuyAndGains && thisLineBuyAndGains) {
               numberOfCards[0] = handleRepeatBuyGain(line);
+              const removed = this.logArchive.pop();
+              console.error(`Popping off ${removed}`);
+            }
           }
         }
 
@@ -401,15 +404,7 @@ export class Deck {
               const cellarDraws = this.checkForCellarDraw();
               if (fiveDrawsOccured && !shuffleOccured && !cellarDraws) {
                 this.cleanup();
-              } else {
-                if (cellarDraws)
-                  console.log("5 draws came from a cellar, dont clean up.");
-                if (shuffleOccured)
-                  // 5 draws were from cellar, not from an end of turn.
-                  // 5 draws took place this line, but last line was a shuffle, and cleanup already occured.
-                  null;
               }
-
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   this.draw(cards[i]);
