@@ -11,10 +11,9 @@ import {
 import FullListCardRow from "../../options/components/FullListCardRow";
 
 import Grid from "@mui/material/Grid";
-import "./DecklistView.css";
+import "./content.css";
 
 const DecklistView = () => {
-  /
   const [splitMaps, setSplitMaps] = useState<SplitMaps>(
     createEmptySplitMapsObject()
   );
