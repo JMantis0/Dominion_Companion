@@ -1,5 +1,5 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { Deck } from "../model/deck";
 import {
   isGameLogPresent,
@@ -16,26 +16,8 @@ import {
   sendToFront,
   getHeroPlayerInfoElement,
 } from "./contentFunctions";
-import { Provider } from "react-redux";
-import { store } from "../redux/store";
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
 
-import DomRoot from "./components/DomRoot";
-
-const Content = () => {
-  const state = useSelector((state: RootState) => state);
-  console.log("state", state);
-
-  return (
-    <Provider store={store}>
-      <React.Fragment>
-        <div id="dom-view"></div>
-      </React.Fragment>
-    </Provider>
-  );
-};
-export default Content;
+import DomRoot from "./DomRoot";
 
 let playerName: string = "";
 let playerNick: string = "";
@@ -48,10 +30,13 @@ let playerDeckInitialized: boolean = false;
 let logsProcessed: string;
 let gameLog: string;
 let decks: Map<string, Deck> = new Map();
+let clientDecks: Map<string, Deck> = new Map();
 let kingdom: Array<string> = [];
 let treasureLine: boolean = false;
 let observerOn: boolean = false;
 let resetInterval: NodeJS.Timer;
+let domViewRoot: Root;
+let domViewContainer: HTMLElement;
 
 const initialized = () => {
   return (
@@ -63,6 +48,7 @@ const initialized = () => {
 };
 
 export const resetGame = () => {
+  console.log("resettingGame");
   playersInitialized = false;
   logInitialized = false;
   kingdomInitialized = false;
@@ -72,17 +58,22 @@ export const resetGame = () => {
   playerName = "";
   opponentName = "";
   decks = new Map();
+  clientDecks = new Map();
   kingdom = [];
   mo.disconnect();
   const devBtns = document.getElementById("dev-btns");
   if (devBtns !== null) {
     devBtns!.remove();
   }
+  domViewContainer.remove();
+  domViewRoot.unmount();
   clearInterval(resetInterval);
   initInterval = setInterval(initIntervalFunction, 1000);
 };
 
-const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
+const gameLogObserverForOptions: MutationCallback = (
+  mutationList: MutationRecord[]
+) => {
   for (const mutation of mutationList) {
     if (mutation.type === "childList") {
       const addedNodes = mutation.addedNodes;
@@ -101,7 +92,7 @@ const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
             )
               .split("\n")
               .slice();
-            console.log("newLogs to Dispath:", newLogsToDispatch);
+            console.log("Content.tsx newLogs to Dispath:", newLogsToDispatch);
             decks.get(playerName)?.update(newLogsToDispatch);
             sendToFront(decks.get(playerName)!, playerName);
             logsProcessed = gameLog;
@@ -112,7 +103,7 @@ const gameLogObserver: MutationCallback = (mutationList: MutationRecord[]) => {
   }
 };
 
-const mo = new MutationObserver(gameLogObserver);
+const mo = new MutationObserver(gameLogObserverForOptions);
 
 const initIntervalFunction = () => {
   if (!logInitialized) {
@@ -149,6 +140,13 @@ const initIntervalFunction = () => {
         opponentNick,
         kingdom
       );
+      clientDecks = createPlayerDecks(
+        playerName,
+        playerNick,
+        opponentName,
+        opponentNick,
+        kingdom
+      );
       playerDeckInitialized = true;
     }
   }
@@ -160,16 +158,8 @@ const initIntervalFunction = () => {
     }
   };
   if (initialized()) {
-    clearInterval(initInterval);
-    resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     const mydiv = $("<div>").attr("id", "dev-btns").text("Dev-Buttons");
     $(".chat-display").append(mydiv);
-    mydiv.append(
-      $("<button>")
-        .attr("id", "statebutton")
-        .text("heroEl")
-        .on("click", () => console.log(heroEl))
-    );
     mydiv.append(
       $("<button>")
         .text("Reset")
@@ -200,13 +190,16 @@ const initIntervalFunction = () => {
           console.log("observerOn: ", observerOn);
         })
     );
-
-    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+    clearInterval(initInterval);
+    resetInterval = setInterval(resetCheckIntervalFunction, 1000); // Turn on resetInterval.
+    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog) // Initial dispatch
       .split("\n")
       .slice();
-    decks.get(playerName)?.update(newLogsToDispatch);
-    sendToFront(decks.get(playerName)!, playerName);
+    decks.get(playerName)?.update(newLogsToDispatch); //Decks is rendered in the Options page
+    clientDecks.get(playerName)?.update(newLogsToDispatch); //clientDecks is the set of decks imbedded in the client
+    sendToFront(decks.get(playerName)!, playerName); //Send to the Options page.
     logsProcessed = gameLog;
+
     const gameLogElement = document.getElementsByClassName("game-log")[0];
     const observerOptions = {
       childList: true,
@@ -214,34 +207,22 @@ const initIntervalFunction = () => {
     };
     mo.observe(gameLogElement, observerOptions);
 
+    domViewContainer = document.createElement("div");
+    domViewContainer.setAttribute("style", "z-index: 20; position:relative;");
+    domViewContainer.setAttribute("id", "domViewContainer");
+    domViewRoot = createRoot(domViewContainer);
+    domViewRoot.render(
+      <DomRoot
+        gameLog={gameLog}
+        logsProcessed={logsProcessed}
+        playerName={playerName}
+        opponentName={opponentName}
+        decks={clientDecks}
+      />
+    );
     const playerInfoParentEl =
       document.getElementsByClassName("player-info")[0];
-    // console.log(heroInfo?.style.transform);
-
-    // Create element to use as react root.
-    const domViewContainer = document.createElement("div");
-    // set z-index
-    domViewContainer.setAttribute("style", "z-index: 20; position:relative;");
-    // Give it an ID
-    domViewContainer.setAttribute("id", "domViewContainer");
-    //Create a react root with it
-    const domViewRoot = createRoot(domViewContainer);
-    // Put the domView component into the react root
-    domViewRoot.render(<DomRoot />);
-
-    // Now domViewRoot has been added to the domViewContainer
-    //Finally append the domviewContainer, which has the react component
-    // rendered to it, into the DOM of the dominion page, into the <div> that
-    // has class "player-info"
-    const body = document.getElementsByTagName("body")[0];
-    console.log("bodY", body);
     playerInfoParentEl.appendChild(domViewContainer);
-
-    // Now i'd like to position the thing just above the child <player-info> element for the hero.
-    // Plan to do this by collecting it's css properties
-
-    let heroEl = getHeroPlayerInfoElement(getPlayerInfoElements());
-    console.log(heroEl);
   }
 };
 
