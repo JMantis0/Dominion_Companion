@@ -19,6 +19,7 @@ export class Deck {
   logArchive: Array<string> = [];
   setAside: Array<string> = [];
   waitToShuffle: boolean = false;
+  treasurePopped: boolean = false;
 
   constructor(playerName: string, abbrvName: string, kingdom: Array<string>) {
     this.playerName = playerName;
@@ -143,9 +144,6 @@ export class Deck {
       const numberOfPrevCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (prevLine.match(treasure)) {
-          // const removed = this.logArchive.pop(); // !!!important.  Much work was done to achieve this, to keep the archivelog accurate.
-          // To account for 2 digit numbers
-          // console.error("popping log off", removed);
           const twoDigits = prevLine[prevLine.indexOf(treasure) - 3].match(/\d/)
             ? 1
             : 0;
@@ -198,6 +196,7 @@ export class Deck {
       ];
 
       const removed = this.logArchive.pop(); // keep duplicate entries out.
+      this.treasurePopped = true;
       console.error("popping log off", removed);
       return amountsToPlay;
     };
@@ -241,6 +240,8 @@ export class Deck {
     };
 
     log.forEach((line) => {
+      // reset treasurePopped tracker to false
+      this.treasurePopped = false;
       if (
         // Filters out opponent logs that dont need to be processed
         line.slice(0, this.abbrvName.length) === this.abbrvName ||
@@ -264,10 +265,8 @@ export class Deck {
 
         if (
           // Here we need to check if the current line and previous entry are both treasure plays.  If so a calculation and logArchive edit are required and handled by the handleTreasureLine method.
-          this.lastEntryProcessed.match("plays") &&
-          this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?/) &&
-          line.match("plays") &&
-          line.match(/Coppers?|Silvers?|Golds?/)
+          this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
+          this.checkForTreasurePlayLine(line)
         ) {
           numberOfCards = handleTreasureLine(line);
           act = "plays";
@@ -328,12 +327,17 @@ export class Deck {
               numberOfCards[0] = handleRepeatBuyGain(line);
           }
         }
+
         if (this.logArchive.length >= 1) {
           const len = this.logArchive.length;
           const prevLineLibraryLook = this.checkForLibraryLook(
             this.logArchive[len - 1]
           );
-          if (prevLineLibraryLook && act !== "aside with Library") {
+          if (
+            prevLineLibraryLook &&
+            act !== "aside with Library" &&
+            !this.treasurePopped //here we check to see if a treasure logentry was popped off for this line.  If so, the draw from the library look already occured and this prevents it from drawing again.
+          ) {
             const prevLine = this.logArchive[len - 1];
             const prevLineCard = prevLine.substring(
               prevLine.lastIndexOf(" ") + 1,
@@ -506,10 +510,8 @@ export class Deck {
         null;
         //  Opponent log entryies fall here
         if (
-          this.lastEntryProcessed.match("plays") &&
-          this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?/) &&
-          line.match("plays") &&
-          line.match(/Coppers?|Silvers?|Golds?/)
+          this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
+          this.checkForTreasurePlayLine(line)
         ) {
           //  If playing with no animations, need this to pop off opponent treasure plays.
           handleTreasureLine(line);
@@ -1239,8 +1241,8 @@ export class Deck {
 
   /**
    * Checks the given line to see if it is
-   * @param line 
-   * @returns 
+   * @param line
+   * @returns
    */
   checkForTreasurePlayLine(line: string): boolean {
     let treasureLine: boolean;
