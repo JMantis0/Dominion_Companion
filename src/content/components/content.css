@@ -2,6 +2,11 @@
   z-index: 0;
 }
 
+#primaryFrame {
+  position: fixed;
+  transform: translateX(5.98px) translateY(500px) rotateZ(0deg) scaleX(1);
+}
+
 #libHoverEl {
   display: initial;
   position: fixed;
@@ -42,7 +47,7 @@
 }
 
 #logCoverEl {
- 
+
   height: 50vh;
   width: 23vw;
   z-index: 0;
@@ -52,9 +57,4 @@
   border-right: none;
   border-bottom: none;
   background-color: royalblue;
-}
-
-#accordion {
-  position: fixed;
-  transform: translateX(5.98px) translateY(600px) rotateZ(0deg) scaleX(1);
 }
