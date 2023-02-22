@@ -30,6 +30,17 @@ const DecklistView = () => {
     );
   }, [pd]);
 
+  const calculateDrawProbabilty = (cardAmount: number): string => {
+    let probability: string;
+    if (pd.library.length === 0) {
+      probability = "0%";
+    } else {
+      probability =
+        ((cardAmount / pd.library.length) * 100).toFixed(1).toString() + "%";
+    }
+    return probability;
+  };
+
   return (
     <div className="outer-shell">
       <div>Full Decklist {pd.entireDeck.length}</div>
@@ -41,15 +52,9 @@ const DecklistView = () => {
           return (
             <FullListCardRow
               key={idx}
-              drawProbability={
-                (
-                  (splitMaps.actions!.get(card)?.libraryCount! /
-                    pd.library.length) *
-                  100
-                )
-                  .toString()
-                  .slice(0, 4) + "%"
-              }
+              drawProbability={calculateDrawProbabilty(
+                splitMaps.actions!.get(card)?.libraryCount!
+              )}
               cardName={card}
               cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
               libraryAmount={splitMaps.actions!.get(card)?.libraryCount!}
@@ -62,15 +67,9 @@ const DecklistView = () => {
           return (
             <FullListCardRow
               key={idx}
-              drawProbability={
-                (
-                  (splitMaps.treasures!.get(card)?.libraryCount! /
-                    pd.library.length) *
-                  100
-                )
-                  .toString()
-                  .slice(0, 4) + "%"
-              }
+              drawProbability={calculateDrawProbabilty(
+                splitMaps.treasures!.get(card)?.libraryCount!
+              )}
               cardName={card}
               cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
               libraryAmount={splitMaps.treasures!.get(card)?.libraryCount!}
@@ -83,15 +82,9 @@ const DecklistView = () => {
           return (
             <FullListCardRow
               key={idx}
-              drawProbability={
-                (
-                  (splitMaps.victories!.get(card)?.libraryCount! /
-                    pd.library.length) *
-                  100
-                )
-                  .toString()
-                  .slice(0, 4) + "%"
-              }
+              drawProbability={calculateDrawProbabilty(
+                splitMaps.victories!.get(card)?.libraryCount!
+              )}
               cardName={card}
               cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}
               libraryAmount={splitMaps.victories!.get(card)?.libraryCount!}
