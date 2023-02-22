@@ -39,6 +39,8 @@ let resetInterval: NodeJS.Timer;
 let domViewRoot: Root;
 let domViewContainer: HTMLElement;
 
+let optionsOn: boolean =false;
+
 const initialized = () => {
   return (
     logInitialized &&
@@ -196,17 +198,19 @@ const initIntervalFunction = () => {
     const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog) // Initial dispatch
       .split("\n")
       .slice();
-    decks.get(playerName)?.update(newLogsToDispatch); //Decks is rendered in the Options page
+    if (optionsOn) {
+      const gameLogElement = document.getElementsByClassName("game-log")[0];
+      decks.get(playerName)?.update(newLogsToDispatch); //Decks is rendered in the Options page
+      sendToFront(decks.get(playerName)!, playerName);
+      const observerOptions = {
+        childList: true,
+        subtree: true,
+      };
+      mo.observe(gameLogElement, observerOptions);
+      console.log("INSIDE OPTIONS ON")
+    } //Send to the Options page.
     clientDecks.get(playerName)?.update(newLogsToDispatch); //clientDecks is the set of decks imbedded in the client
-    sendToFront(decks.get(playerName)!, playerName); //Send to the Options page.
     logsProcessed = gameLog;
-
-    const gameLogElement = document.getElementsByClassName("game-log")[0];
-    const observerOptions = {
-      childList: true,
-      subtree: true,
-    };
-    mo.observe(gameLogElement, observerOptions);
 
     domViewContainer = document.createElement("div");
     domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
@@ -221,7 +225,7 @@ const initIntervalFunction = () => {
         decks={clientDecks}
       />
     );
- 
+
     document.body.appendChild(domViewContainer);
   }
 };
