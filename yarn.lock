@@ -1657,12 +1657,19 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jquery@^3.5.16":
+"@types/jquery@*", "@types/jquery@^3.5.16":
   version "3.5.16"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.16.tgz#632131baf30951915b0317d48c98e9890bdf051d"
   integrity sha512-bsI7y4ZgeMkmpG9OM710RRzDFp+w4P1RGiIt30C1mSBT+ExCleeh4HObwgArnDFELmRrOpXgSYN9VF1hj+f1lw==
   dependencies:
     "@types/sizzle" "*"
+
+"@types/jqueryui@^1.12.16":
+  version "1.12.16"
+  resolved "https://registry.yarnpkg.com/@types/jqueryui/-/jqueryui-1.12.16.tgz#9e319f7db39490db950cba77fe83887e0ad3e1d9"
+  integrity sha512-6huAQDpNlso9ayaUT9amBOA3kj02OCeUWs+UvDmbaJmwkHSg/HLsQOoap/D5uveN9ePwl72N45Bl+Frp5xyG1Q==
+  dependencies:
+    "@types/jquery" "*"
 
 "@types/jsdom@^20.0.0":
   version "20.0.1"
@@ -3678,6 +3685,21 @@ jest@^29.4.2:
     "@jest/types" "^29.4.2"
     import-local "^3.0.2"
     jest-cli "^29.4.2"
+
+jquery-ui-bundle@^1.12.1-migrate:
+  version "1.12.1-migrate"
+  resolved "https://registry.yarnpkg.com/jquery-ui-bundle/-/jquery-ui-bundle-1.12.1-migrate.tgz#b9343e2c310743527632cff8bedb0c5e9600b14c"
+  integrity sha512-ihyHzL6NYkCg1SNIRFrQAkgEeAJmet2G6rrecCRwq6RcWNApV6w2NSjqfuJUUoiKywkvlU+pqHJ5NAAEuTet4w==
+
+jquery@^3.6.3:
+  version "3.6.3"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.3.tgz#23ed2ffed8a19e048814f13391a19afcdba160e6"
+  integrity sha512-bZ5Sy3YzKo9Fyc8wH2iIQK4JImJ6R0GWI9kL1/k7Z91ZBNgkRXE6U0JfHIizZbort8ZunhSI3jw9I6253ahKfg==
+
+jqueryui@^1.11.1:
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/jqueryui/-/jqueryui-1.11.1.tgz#8718550705f5568d1199196169094db73b2291bc"
+  integrity sha512-w3k80seYwcirTMG7fhd1MfqYx2dMO9fEi+I0vUN5hbX5+y7YIWySJkFsCBj4UBNuFcYOfUk6I63sUG/hCawdZA==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"

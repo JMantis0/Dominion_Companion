@@ -263,6 +263,7 @@ export class Deck {
         let numberOfCards: Array<number> = [];
 
         if (
+          // Here we need to check if the current line and previous entry are both treasure plays.  If so a calculation and logArchive edit are required and handled by the handleTreasureLine method.
           this.lastEntryProcessed.match("plays") &&
           this.lastEntryProcessed.match(/Coppers?|Silvers?|Golds?/) &&
           line.match("plays") &&
@@ -421,9 +422,9 @@ export class Deck {
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   if (libraryDiscard) {
-                    this.discardFromLibrary(cards[i]);
-                    const setAsideIdx = this.setAside.indexOf(cards[i]);
-                    this.setAside.splice(setAsideIdx, 1);
+                    this.discardFromSetAside(cards[i]);
+                    // const setAsideIdx = this.setAside.indexOf(cards[i]);
+                    // this.setAside.splice(setAsideIdx, 1);
                   } else if (sentryDiscard || banditDiscard || vassalDiscard) {
                     this.discardFromLibrary(cards[i]);
                   } else {
@@ -758,6 +759,17 @@ export class Deck {
       this.library.splice(index, 1);
     } else {
       throw new Error(`No ${card} in library.`);
+    }
+  }
+
+  discardFromSetAside(card: string) {
+    const index = this.setAside.indexOf(card);
+    if (index > -1) {
+      console.log(`Discarding ${card} from setAside`);
+      this.graveyard.push(card);
+      this.setAside.splice(index, 1);
+    } else {
+      throw new Error(`No ${card} in setAside`);
     }
   }
 

@@ -4,7 +4,12 @@
 
 #primaryFrame {
   position: fixed;
-  transform: translateX(5.98px) translateY(500px) rotateZ(0deg) scaleX(1);
+  background-color: burlywood;
+  /* transform: translateX(5.98px) translateY(500px) rotateZ(0deg) scaleX(1); */
+  overflow: auto;
+  width: 200px;
+  height: 175px;
+  display: inline-block;
 }
 
 #libHoverEl {
@@ -57,4 +62,14 @@
   border-right: none;
   border-bottom: none;
   background-color: royalblue;
+}
+
+.outer-shell {
+  position:relative;
+  
+}
+
+.card-row {
+border-top:solid;
+
 }

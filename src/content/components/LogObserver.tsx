@@ -69,7 +69,7 @@ const LogObserver: FunctionComponent<ContentProps> = ({ playerName, decks:d, gam
     };
   }, []);
 
-  return <div>LogObserver</div>;
+  return <div></div>;
 };
 
 export default LogObserver;

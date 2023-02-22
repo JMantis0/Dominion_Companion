@@ -1,4 +1,6 @@
 import React from "react";
+import $ from "jquery";
+import "jqueryui";
 import { createRoot, Root } from "react-dom/client";
 import { Deck } from "../model/deck";
 import {
@@ -14,7 +16,6 @@ import {
   areNewLogsToSend,
   getUndispatchedLogs,
   sendToFront,
-  getHeroPlayerInfoElement,
 } from "./contentFunctions";
 
 import DomRoot from "./DomRoot";
@@ -208,7 +209,7 @@ const initIntervalFunction = () => {
     mo.observe(gameLogElement, observerOptions);
 
     domViewContainer = document.createElement("div");
-    domViewContainer.setAttribute("style", "z-index: 20; position:relative;");
+    domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
     domViewContainer.setAttribute("id", "domViewContainer");
     domViewRoot = createRoot(domViewContainer);
     domViewRoot.render(
@@ -220,9 +221,8 @@ const initIntervalFunction = () => {
         decks={clientDecks}
       />
     );
-    const playerInfoParentEl =
-      document.getElementsByClassName("player-info")[0];
-    playerInfoParentEl.appendChild(domViewContainer);
+ 
+    document.body.appendChild(domViewContainer);
   }
 };
 
