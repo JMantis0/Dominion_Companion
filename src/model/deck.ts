@@ -357,9 +357,12 @@ export class Deck {
             {
               const artisanGain = this.checkForArtisanGain();
               const mineGain = this.checkForMineGain();
+              const bureaucratGain = this.checkForBureaucratGain();
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
-                  if (mineGain || artisanGain) {
+                  if (bureaucratGain) {
+                    this.gainIntoDeck(cards[i]);
+                  } else if (mineGain || artisanGain) {
                     this.gainIntoHand(cards[i]);
                   } else {
                     const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
@@ -695,6 +698,15 @@ export class Deck {
   }
 
   /**
+   * Takes a card and pushes it to the library field array.
+   * @param card
+   */
+  gainIntoDeck(card: string) {
+    console.info(`Gaining ${card} into deck.`);
+    this.library.push(card);
+  }
+
+  /**
    * Checks hand field array to see if card is there.  If yes,
    * removes an instance of that card from hand field array
    * and adds an instance of that card to library field array.
@@ -888,9 +900,12 @@ export class Deck {
     if (len >= 6) {
       // test case 4 ( yes trash and shuffle )
       if (
-        this.logArchive[len - 6].match(" plays a Sentry") !== null &&
-        this.logArchive[len - 5].match(" shuffles their deck") !== null &&
-        this.logArchive[len - 1].match(" trashes ") !== null
+        (this.logArchive[len - 6].match(" plays a Sentry") !== null &&
+          this.logArchive[len - 5].match(" shuffles their deck") !== null &&
+          this.logArchive[len - 1].match(" trashes ") !== null) ||
+        (this.logArchive[len - 6].match(" plays a Sentry") !== null &&
+          this.logArchive[len - 3].match(" shuffles their deck") !== null &&
+          this.logArchive[len - 1].match(" trashes ") !== null)
       ) {
         isSentryDiscard = true;
       }
@@ -1194,6 +1209,19 @@ export class Deck {
     }
     return libraryDiscard;
   }
-
-  checkForPoacherDiscard() {}
+  /**
+   * Checks to see if the current line gain activity was triggered by a Bureaucrat.
+   * Purpose: Control flow for Deck state updates: such gains must be pushed to the library field array.
+   * @returns Boolean for whether the current line's gain activity was from a Bureaucrat
+   */
+  checkForBureaucratGain(): boolean {
+    let bureaucratGain: boolean;
+    const len: number = this.logArchive.length;
+    if (this.logArchive[len - 1].match(" plays a Bureaucrat") !== null) {
+      bureaucratGain = true;
+    } else {
+      bureaucratGain = false;
+    }
+    return bureaucratGain;
+  }
 }

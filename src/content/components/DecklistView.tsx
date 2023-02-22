@@ -7,17 +7,19 @@ import {
   getCountsFromArray,
   splitCombinedMapsByCardTypes,
   SplitMaps,
-} from "../utils/utilityFunctions";
-import FullListCardRow from "./FullListCardRow";
+} from "../../options/utils/utilityFunctions";
+import FullListCardRow from "../../options/components/FullListCardRow";
+
 import Grid from "@mui/material/Grid";
 import "./DecklistView.css";
 
 const DecklistView = () => {
-  // the splitMaps uses a custom type to easily render the 3 types of cards as desired.
+  /
   const [splitMaps, setSplitMaps] = useState<SplitMaps>(
     createEmptySplitMapsObject()
   );
-  const pd = useSelector((state: RootState) => state.options.playerDeck);
+  const pd = useSelector((state: RootState) => state.content.playerDeck);
+
   useEffect(() => {
     setSplitMaps(
       splitCombinedMapsByCardTypes(
@@ -47,7 +49,7 @@ const DecklistView = () => {
                   100
                 )
                   .toString()
-                  .slice(0, 3) + "%"
+                  .slice(0, 4) + "%"
               }
               cardName={card}
               cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
@@ -68,7 +70,7 @@ const DecklistView = () => {
                   100
                 )
                   .toString()
-                  .slice(0, 3) + "%"
+                  .slice(0, 4) + "%"
               }
               cardName={card}
               cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
@@ -89,7 +91,7 @@ const DecklistView = () => {
                   100
                 )
                   .toString()
-                  .slice(0, 3) + "%"
+                  .slice(0, 4) + "%"
               }
               cardName={card}
               cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}

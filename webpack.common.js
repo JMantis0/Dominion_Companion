@@ -12,7 +12,7 @@ module.exports = {
     popup: path.resolve("./src/popup/index.tsx"),
     options: path.resolve("./src/options/index.tsx"),
     background: path.resolve("./src/background/background.ts"),
-    content: path.resolve("./src/content/index.tsx"),
+    content: path.resolve("./src/content/content.tsx"),
     newTab: path.resolve("./src/tabs/index.tsx"),
     // deck: path.resolve("./src/model/deck.ts"),
   },

@@ -233,8 +233,8 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
     areNewLogs = false;
   } else if (procArr.length > gLogArr.length) {
-    throw new Error("Processed logs Larger than game log");
     areNewLogs = true;
+    throw new Error("Processed logs Larger than game log");
   } else if (procArr.length < gLogArr.length) {
     areNewLogs = true;
   } else if (procArr.slice().pop() !== gLogArr.slice().pop()) {
@@ -331,7 +331,7 @@ const sendToFront = (deck: Deck, playerName: string) => {
         });
         console.log(response);
       } catch (e) {
-        // console.log("Can't send to front: ", e);
+        console.log("Can't send to front: ", e);
       }
     })();
   } else {
@@ -342,7 +342,7 @@ const sendToFront = (deck: Deck, playerName: string) => {
         });
         console.log(response);
       } catch (e) {
-        // console.log("Can't send to front: ", e);
+        console.log("Can't send to front: ", e);
       }
     })();
   }
