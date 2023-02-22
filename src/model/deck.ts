@@ -1236,4 +1236,17 @@ export class Deck {
     }
     return bureaucratGain;
   }
+
+  /**
+   * Checks the given line to see if it is
+   * @param line 
+   * @returns 
+   */
+  checkForTreasurePlayLine(line: string): boolean {
+    let treasureLine: boolean;
+    treasureLine =
+      line.match(" plays ") !== null &&
+      line.match(/Coppers?|Silvers?|Golds?/) !== null;
+    return treasureLine;
+  }
 }
