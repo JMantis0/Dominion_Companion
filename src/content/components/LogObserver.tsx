@@ -25,7 +25,6 @@ const LogObserver: FunctionComponent<ContentProps> = ({ playerName, decks:d, gam
           ] as HTMLElement;
           const lastAddedNodeText = lastAddedNode.innerText;
           if (lastAddedNodeText.length > 0) {
-            console.log("lastAddedNodeText:, ", lastAddedNodeText);
             if (areNewLogsToSend(logsProcessed, getGameLog())) {
               gameLog = getGameLog();
               const newLogsToDispatch = getUndispatchedLogs(

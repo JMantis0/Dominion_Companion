@@ -19,16 +19,10 @@ export const contentSlice = createSlice({
   initialState,
   reducers: {
     setPlayerDeck: (state, action: PayloadAction<StoreDeck>) => {
-      console.log("Reducer setting playerDeck state");
-      console.log("playerDeckState Before: ", state.playerDeck);
       state.playerDeck = action.payload;
-      console.log("playerDeckState After: ", state.playerDeck);
     },
     setOpponentDeck: (state, action: PayloadAction<StoreDeck>) => {
-      console.log("Reducer setting opponentDeck state");
-      console.log("opponentDeckState: Before", state.opponentDeck);
       state.opponentDeck = action.payload;
-      console.log("opponentDeckState: After", state.opponentDeck);
     },
   },
 });
