@@ -23,7 +23,7 @@ const HandView = () => {
         return (
           <CardRow
             key={idx}
-            drawProbability={"pend"}
+            drawProbability={""}
             cardName={card}
             cardAmount={handMap.get(card)!}
           />

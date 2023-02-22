@@ -38,6 +38,11 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.11.9",
+    "@mui/material": "^5.11.10",
     "@reduxjs/toolkit": "^1.9.2",
     "@types/react-redux": "^7.1.25",
     "copy-webpack-plugin": "^11.0.0",

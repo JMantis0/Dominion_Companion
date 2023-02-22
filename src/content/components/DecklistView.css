@@ -1,0 +1,11 @@
+.outer-shell {
+  position:relative;
+  border: solid;
+  width: 200px;
+  height: 175px;
+}
+
+.card-row {
+border-top:solid;
+
+}
