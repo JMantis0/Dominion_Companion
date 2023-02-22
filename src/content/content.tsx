@@ -1,4 +1,6 @@
 import React from "react";
+import $ from "jquery";
+import "jqueryui";
 import { createRoot, Root } from "react-dom/client";
 import { Deck } from "../model/deck";
 import {
@@ -14,7 +16,6 @@ import {
   areNewLogsToSend,
   getUndispatchedLogs,
   sendToFront,
-  getHeroPlayerInfoElement,
 } from "./contentFunctions";
 
 import DomRoot from "./DomRoot";
@@ -210,6 +211,8 @@ const initIntervalFunction = () => {
     domViewContainer = document.createElement("div");
     domViewContainer.setAttribute("style", "z-index: 20; position:relative;");
     domViewContainer.setAttribute("id", "domViewContainer");
+    $(domViewContainer).draggable();
+    $(domViewContainer).resizable();
     domViewRoot = createRoot(domViewContainer);
     domViewRoot.render(
       <DomRoot
