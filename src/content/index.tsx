@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { store } from "../redux/store";
 // import "../assets/tailwind.css";
-import Content from "./content";
+// import Content from "./content";
 
 const init = () => {
   const appContainer = document.createElement("div");
@@ -17,7 +17,7 @@ const init = () => {
   console.log(appContainer);
   root.render(
     <Provider store={store}>
-      <Content />
+      {/* <Content /> */}
     </Provider>
   );
 };
