@@ -209,10 +209,8 @@ const initIntervalFunction = () => {
     mo.observe(gameLogElement, observerOptions);
 
     domViewContainer = document.createElement("div");
-    domViewContainer.setAttribute("style", "z-index: 20; position:relative;");
+    domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
     domViewContainer.setAttribute("id", "domViewContainer");
-    $(domViewContainer).draggable();
-    $(domViewContainer).resizable();
     domViewRoot = createRoot(domViewContainer);
     domViewRoot.render(
       <DomRoot
@@ -223,9 +221,8 @@ const initIntervalFunction = () => {
         decks={clientDecks}
       />
     );
-    const playerInfoParentEl =
-      document.getElementsByClassName("player-info")[0];
-    playerInfoParentEl.appendChild(domViewContainer);
+ 
+    document.body.appendChild(domViewContainer);
   }
 };
 
