@@ -9,7 +9,12 @@ import { setPlayerDeck } from "../../redux/contentSlice";
 import { useDispatch } from "react-redux";
 import { ContentProps } from "../DomRoot";
 
-const LogObserver: FunctionComponent<ContentProps> = ({ playerName, decks:d, gameLog:g, logsProcessed:lp }) => {
+const LogObserver: FunctionComponent<ContentProps> = ({
+  playerName,
+  decks: d,
+  gameLog: g,
+  logsProcessed: lp,
+}) => {
   const dispatch = useDispatch();
   let logsProcessed: string = lp;
   let gameLog: string = g;
@@ -68,7 +73,18 @@ const LogObserver: FunctionComponent<ContentProps> = ({ playerName, decks:d, gam
     };
   }, []);
 
-  return <div></div>;
+  return (
+    <div>
+      <button
+        onClick={() => {
+          console.log("gameLog", gameLog.split("\n"));
+          console.log("logsProcessed", logsProcessed.split("\n"));
+        }}
+      >
+        show gameLog /logsProcessed
+      </button>
+    </div>
+  );
 };
 
 export default LogObserver;

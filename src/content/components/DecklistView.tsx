@@ -99,6 +99,11 @@ const DecklistView = () => {
           );
         })}
       </Grid>
+      <button
+        onClick={() => {
+          console.log("player deck:", pd);
+        }}
+      ></button>
     </div>
   );
 };
