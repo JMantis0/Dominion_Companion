@@ -125,13 +125,6 @@ export class Deck {
       "topdecks",
       "aside with Library",
     ];
-    const pluralVariantCandidates = [
-      "Smithy",
-      "Sentry",
-      "Laboratory",
-      "Library",
-      "Dutchy",
-    ];
 
     const handleTreasureLine = (line: string): Array<number> => {
       // Inside this if, this means that the player is in a play treasure phase.
@@ -144,16 +137,11 @@ export class Deck {
       const numberOfPrevCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (prevLine.match(treasure)) {
-          const twoDigits = prevLine[prevLine.indexOf(treasure) - 3].match(/\d/)
-            ? 1
-            : 0;
-
-          const amountChar = prevLine.substring(
-            prevLine.indexOf(treasure) - 2 - twoDigits,
-            prevLine.indexOf(treasure) - 1
-          );
+          const upperSlice = prevLine.indexOf(treasure) - 1;
+          const lowerSlice = prevLine.slice(0, upperSlice).lastIndexOf(" ") + 1;
+          const amountChar = prevLine.substring(lowerSlice, upperSlice);
           let amount = 0;
-          if (amountChar == "n" || amountChar == "a") {
+          if (amountChar === "an" || amountChar === "a") {
             amount = 1;
           } else {
             amount = parseInt(amountChar);
@@ -167,18 +155,11 @@ export class Deck {
       const numberOfCards: Array<number> = [];
       treasures.forEach((treasure) => {
         if (line.match(treasure)) {
-          // To account for 2 digit numbers
-          const twoDigits = 0;
-          //  line[line.indexOf(treasure) - 3].match(/\d/)
-          //   ? 1
-          //   : 0;
-
-          const amountChar = line.substring(
-            line.indexOf(treasure) - 2 - twoDigits,
-            line.indexOf(treasure) - 1
-          );
+          const upperSlice = line.indexOf(treasure) - 1;
+          const lowerSlice = line.slice(0, upperSlice).lastIndexOf(" ") + 1;
+          const amountChar = line.substring(lowerSlice, upperSlice);
           let amount = 0;
-          if (amountChar == "n" || amountChar == "a") {
+          if (amountChar == "an" || amountChar == "a") {
             amount = 1;
           } else {
             amount = parseInt(amountChar);
@@ -257,12 +238,10 @@ export class Deck {
           this.shuffleGraveYardIntoLibrary();
           this.waitToShuffle = false;
         }
-
         console.group(line);
         let act = "";
         let cards: Array<string> = [];
         let numberOfCards: Array<number> = [];
-
         if (
           // Here we need to check if the current line and previous entry are both treasure plays.  If so a calculation and logArchive edit are required and handled by the handleTreasureLine method.
           this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
@@ -277,36 +256,15 @@ export class Deck {
               act = action;
             }
           });
-
           this.kingdom.forEach((card) => {
-            let pluralVariant = "";
-            let pluralVariantBoolean = false;
-            if (pluralVariantCandidates.indexOf(card) >= 0) {
-              pluralVariant = card.substring(0, card.length - 1) + "ies";
-              if (line.match(pluralVariant)) pluralVariantBoolean = true;
-            }
-            if (
-              pluralVariantBoolean
-                ? line.match(pluralVariant)
-                : line.match(card)
-            ) {
-              const twoDigits: number = (
-                pluralVariantBoolean
-                  ? line[line.indexOf(pluralVariant) - 3].match(/\d/) !== null
-                  : line[line.indexOf(card) - 3].match(/\d/) !== null
-              )
-                ? 1
-                : 0;
-              const amountChar = line.substring(
-                pluralVariantBoolean
-                  ? line.indexOf(pluralVariant) - 2 - twoDigits
-                  : line.indexOf(card) - 2 - twoDigits,
-                pluralVariantBoolean
-                  ? line.indexOf(pluralVariant) - 1
-                  : line.indexOf(card) - 1
-              );
+            const cardMatcher = card.substring(0, card.length - 1);
+            if (line.match(cardMatcher) !== null) {
+              let upperSlice = line.indexOf(cardMatcher) - 1;
+              let lowerSlice =
+                line.substring(0, upperSlice).lastIndexOf(" ") + 1;
+              const amountChar = line.substring(lowerSlice, upperSlice);
               let amount = 0;
-              if (amountChar == "n" || amountChar == "a") {
+              if (amountChar == "an" || amountChar == "a") {
                 amount = 1;
               } else {
                 amount = parseInt(amountChar);
