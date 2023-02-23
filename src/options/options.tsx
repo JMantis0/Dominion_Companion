@@ -16,7 +16,7 @@ const Options = () => {
       <h1 className="text-4xl text-green-500">Dom View</h1>
       <ul>
         <li>
-          <a href="#/">DeckListView</a>
+          <a href="#/">Full List</a>
         </li>
         <li>
           <a href="#/currentGame">Current Game</a>

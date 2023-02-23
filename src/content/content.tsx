@@ -1,6 +1,4 @@
 import React from "react";
-import $ from "jquery";
-import "jqueryui";
 import { createRoot, Root } from "react-dom/client";
 import { Deck } from "../model/deck";
 import {
@@ -34,7 +32,6 @@ let decks: Map<string, Deck> = new Map();
 let clientDecks: Map<string, Deck> = new Map();
 let kingdom: Array<string> = [];
 let treasureLine: boolean = false;
-let observerOn: boolean = false;
 let resetInterval: NodeJS.Timer;
 let domViewRoot: Root;
 let domViewContainer: HTMLElement;
@@ -189,7 +186,6 @@ const initIntervalFunction = () => {
           console.log("decks: ", decks);
           console.log("kingdom: ", kingdom);
           console.log("treasureLine: ", treasureLine);
-          console.log("observerOn: ", observerOn);
         })
     );
     clearInterval(initInterval);

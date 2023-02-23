@@ -8,10 +8,12 @@ import {
   splitCombinedMapsByCardTypes,
   SplitMaps,
 } from "../../options/utils/utilityFunctions";
-import FullListCardRow from "../../options/components/FullListCardRow";
+import { calculateDrawProbability } from "../utils/utilityFunctions";
+import FullListCardRow from "./FullListCardRow";
 
 import Grid from "@mui/material/Grid";
 import "./content.css";
+import ViewHeader from "./ViewHeader";
 
 const DecklistView = () => {
   const [splitMaps, setSplitMaps] = useState<SplitMaps>(
@@ -30,30 +32,21 @@ const DecklistView = () => {
     );
   }, [pd]);
 
-  const calculateDrawProbabilty = (cardAmount: number): string => {
-    let probability: string;
-    if (pd.library.length === 0) {
-      probability = "0%";
-    } else {
-      probability =
-        ((cardAmount / pd.library.length) * 100).toFixed(1).toString() + "%";
-    }
-    return probability;
-  };
-
   return (
     <div className="outer-shell">
       <div>Full Decklist {pd.entireDeck.length}</div>
       <br></br>
       <Grid container>
+        <ViewHeader sortState={{ ascending: false }} />
         {/* Action section */}
         <Grid xs={12}>Actions</Grid>
         {Array.from(splitMaps?.actions!.keys()).map((card, idx) => {
           return (
             <FullListCardRow
               key={idx}
-              drawProbability={calculateDrawProbabilty(
-                splitMaps.actions!.get(card)?.libraryCount!
+              drawProbability={calculateDrawProbability(
+                splitMaps.actions!.get(card)?.libraryCount!,
+                pd.library.length
               )}
               cardName={card}
               cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
@@ -67,8 +60,9 @@ const DecklistView = () => {
           return (
             <FullListCardRow
               key={idx}
-              drawProbability={calculateDrawProbabilty(
-                splitMaps.treasures!.get(card)?.libraryCount!
+              drawProbability={calculateDrawProbability(
+                splitMaps.treasures!.get(card)?.libraryCount!,
+                pd.library.length
               )}
               cardName={card}
               cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
@@ -82,8 +76,9 @@ const DecklistView = () => {
           return (
             <FullListCardRow
               key={idx}
-              drawProbability={calculateDrawProbabilty(
-                splitMaps.victories!.get(card)?.libraryCount!
+              drawProbability={calculateDrawProbability(
+                splitMaps.victories!.get(card)?.libraryCount!,
+                pd.library.length
               )}
               cardName={card}
               cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}

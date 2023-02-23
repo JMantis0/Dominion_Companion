@@ -7,6 +7,7 @@ import LibraryHover from "./components/LibraryHover";
 import PrimaryFrame from "./components/PrimaryFrame";
 import LogObserver from "./components/LogObserver";
 
+import "jqueryui";
 export type ContentProps = {
   playerName: string;
   opponentName: string;

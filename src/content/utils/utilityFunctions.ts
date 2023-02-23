@@ -28,3 +28,16 @@ export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
 export const getErrorMessage = (error: unknown) => {
   return toErrorWithMessage(error).message;
 };
+
+export const calculateDrawProbability = (
+  cardAmount: number,
+  libLength: number
+): string => {
+  let probability: string;
+  if (libLength === 0) {
+    probability = "0%";
+  } else {
+    probability = ((cardAmount / libLength) * 100).toFixed(1).toString() + "%";
+  }
+  return probability;
+};

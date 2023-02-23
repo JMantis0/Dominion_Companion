@@ -300,10 +300,16 @@ export class Deck {
             !this.treasurePopped //here we check to see if a treasure logentry was popped off for this line.  If so, the draw from the library look already occured and this prevents it from drawing again.
           ) {
             const prevLine = this.logArchive[len - 1];
-            const prevLineCard = prevLine.substring(
-              prevLine.lastIndexOf(" ") + 1,
-              prevLine.length - 1
-            );
+
+            let prevLineCard: string = "EmptyCard";
+            this.kingdom.forEach((card) => {
+              if (prevLine.match(card) !== null) {
+                prevLineCard = card;
+              }
+            });
+            if (prevLineCard === "EmptyCard")
+              throw new Error("No card found in previous entry");
+
             console.log(
               "Previous line was a library look.  This line is not a set aside."
             );

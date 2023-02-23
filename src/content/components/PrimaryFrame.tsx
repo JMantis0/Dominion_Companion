@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import DecklistView from "./DecklistView";
 import $ from "jquery";
-// import "jqueryui";
-// import 'jquery-ui-bundle';
 import "jquery-ui-bundle/jquery-ui.css";
+import SortableView from "./SortableView";
 
 // import DecklistView from "../../options/components/DecklistView";
 
 const PrimaryFrame = () => {
+  const [viewState, setViewState] = useState("main");
   useEffect(() => {
     $("#primaryFrame").draggable().resizable();
   }, []);
@@ -15,7 +15,14 @@ const PrimaryFrame = () => {
   return (
     <React.Fragment>
       <div id="primaryFrame">
-        <DecklistView />
+        <span>
+          <a onClick={() => setViewState("main")}>Main View</a>
+        </span>
+        <span>
+          <a onClick={() => setViewState("sortable")}>Sortable View</a>
+        </span>
+        {viewState === "main" && <DecklistView />}
+        {viewState === "sortable" && <SortableView />}
       </div>
     </React.Fragment>
   );
