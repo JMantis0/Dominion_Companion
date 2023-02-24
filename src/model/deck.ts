@@ -1,4 +1,5 @@
 import { getLogScrollContainerLogLines } from "../content/contentFunctions";
+import { getErrorMessage } from "../content/utils/utilityFunctions";
 
 /**
  * Class for a Deck object used to track a
@@ -971,6 +972,7 @@ export class Deck {
    * @returns - Boolean for whether the current line play activity is triggered by a Vassal.
    */
   checkForVassalPlay() {
+    console.log("Check for vassal play");
     let vassalPlay: boolean = false;
     const len = this.logArchive.length;
     if (len > 3) {
@@ -982,48 +984,66 @@ export class Deck {
           this.logArchive[len - 1].match(" discards a ") !== null);
     }
     if (vassalPlay) {
-      let logScrollElement = getLogScrollContainerLogLines();
-      let currentLinePaddingNumber: number;
-      let currentLinePaddingPercentage: string;
-      currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
-      if (
-        currentLinePaddingPercentage[
-          currentLinePaddingPercentage.length - 1
-        ] === "%"
-      ) {
-        currentLinePaddingNumber = parseFloat(
-          currentLinePaddingPercentage.slice(
-            0,
+      try {
+        let logScrollElement = getLogScrollContainerLogLines();
+        let currentLinePaddingNumber: number;
+        let currentLinePaddingPercentage: string;
+        console.log("Archivelog length is ", len);
+        console.log("logScrollElement", logScrollElement);
+        console.log(`log element at index ${len} is`, logScrollElement[len]);
+        console.log(
+          `log element at index ${len - 1} is`,
+          logScrollElement[len - 1]
+        );
+        console.log(
+          `log element innertext at index ${len} is`,
+          logScrollElement[len].innerText
+        );
+        console.log("prev Line text:", logScrollElement[len - 1].innerText);
+
+        currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
+        if (
+          currentLinePaddingPercentage[
             currentLinePaddingPercentage.length - 1
-          )
-        );
-      } else
-        throw new Error(
-          "Current line PaddingLeft property does not end with %"
-        );
+          ] === "%"
+        ) {
+          currentLinePaddingNumber = parseFloat(
+            currentLinePaddingPercentage.slice(
+              0,
+              currentLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Current line PaddingLeft property does not end with %"
+          );
 
-      let previousLinePaddingNumber: number;
-      let previousLinePaddingPercentage: string;
-      previousLinePaddingPercentage =
-        logScrollElement[len - 1].style.paddingLeft;
-      if (previousLinePaddingPercentage.slice(-1) === "%") {
-        previousLinePaddingNumber = parseFloat(
-          previousLinePaddingPercentage.slice(
-            0,
-            previousLinePaddingPercentage.length - 1
-          )
-        );
-      } else
-        throw new Error(
-          "Previous line paddingLeft property does not end with %"
-        );
-
-      if (currentLinePaddingNumber < previousLinePaddingNumber) {
-        vassalPlay = false;
-      } else {
+        let previousLinePaddingNumber: number;
+        let previousLinePaddingPercentage: string;
+        previousLinePaddingPercentage =
+          logScrollElement[len - 1].style.paddingLeft;
+        if (previousLinePaddingPercentage.slice(-1) === "%") {
+          previousLinePaddingNumber = parseFloat(
+            previousLinePaddingPercentage.slice(
+              0,
+              previousLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Previous line paddingLeft property does not end with %"
+          );
+        console.log("current line padding", currentLinePaddingNumber);
+        console.log("previous line padding", previousLinePaddingNumber);
+        if (currentLinePaddingNumber < previousLinePaddingNumber) {
+          vassalPlay = false;
+        } else {
+        }
+      } catch (e) {
+        console.error("There was an error: ", getErrorMessage(e));
       }
+      console.groupEnd();
     }
-    console.groupEnd();
     return vassalPlay;
   }
 
@@ -1034,6 +1054,7 @@ export class Deck {
    * @returns - Boolean for whether the current line discard activity is triggered by a Vassal.
    */
   checkForVassalDiscard() {
+    console.log("check for vassal discard");
     let vassalDiscard: boolean;
     let len = this.logArchive.length;
     if (
