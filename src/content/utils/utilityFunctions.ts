@@ -132,8 +132,6 @@ export const createEmptySplitMapsObject = (): SplitMaps => {
   return emptySplitMap;
 };
 
-
-
 export const sortByAmountInLibrary = (
   sortParam: string,
   unsortedMap: Map<string, CardCounts>
@@ -155,5 +153,101 @@ export const sortByAmountInLibrary = (
       break;
     default:
   }
+  return sortedMap;
+};
+
+export const sortTheView = (
+  sortParam: "card" | "owned" | "deck" | "probability",
+  unsortedMap: Map<string, CardCounts>,
+  sortType: "ascending" | "descending"
+): Map<string, CardCounts> => {
+  console.log("sortTheView params", sortParam, unsortedMap, sortType);
+  const mapCopy = new Map(unsortedMap);
+  const sortedMap: Map<string, CardCounts> = new Map();
+  switch (sortParam) {
+    case "probability":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            if (sortType === "ascending") {
+              return entryB[1].libraryCount - entryA[1].libraryCount;
+            } else {
+              return entryA[1].libraryCount - entryB[1].libraryCount;
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    // add cases for card, deckamount, ownedamount
+    case "card":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            let result: number;
+            const card1 = entryA[0];
+            const card2 = entryB[0];
+
+            if (sortType === "ascending") {
+              if (card1 > card2) {
+                result = -1;
+              } else if (card1 < card2) {
+                result = 1;
+              } else result = 0;
+            } else {
+              if (card1 < card2) {
+                result = -1;
+              } else if (card1 < card2) {
+                result = 1;
+              } else result = 0;
+            }
+
+            return result;
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    case "owned":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            if (sortType === "ascending") {
+              return entryB[1].entireDeckCount - entryA[1].entireDeckCount;
+            } else {
+              return entryA[1].entireDeckCount - entryB[1].entireDeckCount;
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    case "deck":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            if (sortType === "ascending") {
+              return entryB[1].libraryCount - entryA[1].libraryCount;
+            } else {
+              return entryA[1].libraryCount - entryB[1].libraryCount;
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    default: {
+      throw new Error("Invalid sort category");
+    }
+  }
+  console.log("Sorted Map", sortedMap);
   return sortedMap;
 };

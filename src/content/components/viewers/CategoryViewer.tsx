@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../../redux/store";
 import {
   calculateDrawProbability,
   getCountsFromArray,
@@ -8,19 +8,21 @@ import {
   splitCombinedMapsByCardTypes,
   createEmptySplitMapsObject,
   SplitMaps,
-  sortByAmountInLibrary,
-} from "../utils/utilityFunctions";
-import FullListCardRow from "./FullListCardRow";
-
+  sortTheView,
+} from "../../utils/utilityFunctions";
+import FullListCardRow from "../FullListCardRow";
 import Grid from "@mui/material/Grid";
-import "./content.css";
-import ViewHeader from "./ViewHeader";
+import ViewHeader from "./SortViewHeader";
 
 const CategoryViewer = () => {
+  const firstRender = useRef(true);
   const [splitMaps, setSplitMaps] = useState<SplitMaps>(
     createEmptySplitMapsObject()
   );
   const pd = useSelector((state: RootState) => state.content.playerDeck);
+  const sortButtonState = useSelector(
+    (state: RootState) => state.content.sortButtonState
+  );
 
   useEffect(() => {
     const unsortedSplitMap = splitCombinedMapsByCardTypes(
@@ -30,17 +32,48 @@ const CategoryViewer = () => {
       )
     );
 
-    const sortedActions = sortByAmountInLibrary(
-      "probability",
-      unsortedSplitMap.actions!
+    const sortedActions = sortTheView(
+      sortButtonState.category,
+      unsortedSplitMap.actions!,
+      sortButtonState.sort
     );
-    const sortedVictories = sortByAmountInLibrary(
-      "probability",
-      unsortedSplitMap.victories!
+    const sortedTreasures = sortTheView(
+      sortButtonState.category,
+      unsortedSplitMap.treasures!,
+      sortButtonState.sort
     );
-    const sortedTreasures = sortByAmountInLibrary(
-      "probability",
-      unsortedSplitMap.treasures!
+    const sortedVictories = sortTheView(
+      sortButtonState.category,
+      unsortedSplitMap.victories!,
+      sortButtonState.sort
+    );
+    setSplitMaps({
+      treasures: sortedTreasures,
+      victories: sortedVictories,
+      actions: sortedActions,
+    });
+  }, [pd]);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      console.log("first render, skipping sort useffect");
+      return;
+    }
+    const sortedActions = sortTheView(
+      sortButtonState.category,
+      splitMaps.actions!,
+      sortButtonState.sort
+    );
+    const sortedTreasures = sortTheView(
+      sortButtonState.category,
+      splitMaps.treasures!,
+      sortButtonState.sort
+    );
+    const sortedVictories = sortTheView(
+      sortButtonState.category,
+      splitMaps.victories!,
+      sortButtonState.sort
     );
 
     setSplitMaps({
@@ -48,7 +81,7 @@ const CategoryViewer = () => {
       victories: sortedVictories,
       actions: sortedActions,
     });
-  }, [pd]);
+  }, [sortButtonState]);
 
   return (
     <div className="outer-shell">
