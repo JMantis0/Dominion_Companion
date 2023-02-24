@@ -1,58 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../../redux/store";
 import {
   CardCounts,
   combineDeckListMapAndLibraryListMap,
   getCountsFromArray,
-} from "../../options/utils/utilityFunctions";
-import { calculateDrawProbability } from "../utils/utilityFunctions";
-import FullListCardRow from "./FullListCardRow";
+  calculateDrawProbability,
+  sortTheView,
+} from "../../utils/utilityFunctions";
+import FullListCardRow from "../FullListCardRow";
 import Grid from "@mui/material/Grid";
-import ViewHeader from "./ViewHeader";
-import "./content.css";
+import ViewHeader from "./SortViewHeader";
 
 const SortableView = () => {
+  // ref used to prevent useEffect from triggering on first render
+  const firstRender = useRef(true);
   const [combinedMap, setCombinedMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
   const pd = useSelector((state: RootState) => state.content.playerDeck);
+  const sortButtonState = useSelector(
+    (state: RootState) => state.content.sortButtonState
+  );
 
   useEffect(() => {
+    console.log("SortableViewer useEffect from playedeck state");
     const unsortedCompinedMap = combineDeckListMapAndLibraryListMap(
       getCountsFromArray(pd.entireDeck),
       getCountsFromArray(pd.library)
     );
-    const sortedCombinedMap = sortByAmountInLibrary(
-      "probability",
-      unsortedCompinedMap
+    const sortedCombinedMap = sortTheView(
+      sortButtonState.category,
+      unsortedCompinedMap,
+      sortButtonState.sort
     );
     setCombinedMap(sortedCombinedMap);
   }, [pd]);
 
-  const sortByAmountInLibrary = (
-    sortParam: string,
-    unsortedMap: Map<string, CardCounts>
-  ): Map<string, CardCounts> => {
-    const mapCopy = new Map(unsortedMap);
-    const sortedMap: Map<string, CardCounts> = new Map();
-    switch (sortParam) {
-      case "probability":
-        {
-          [...mapCopy.entries()]
-            .sort((entryA, entryB) => {
-              return entryB[1].libraryCount - entryA[1].libraryCount;
-            })
-            .forEach((entry) => {
-              const [card, cardCounts] = entry;
-              sortedMap.set(card, cardCounts);
-            });
-        }
-        break;
-      default:
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      console.log("first render, skipping sort useffect");
+      return;
     }
-    return sortedMap;
-  };
+    console.log("SortableViewer useEffect from ButtonState");
+    setCombinedMap(
+      sortTheView(sortButtonState.category, combinedMap, sortButtonState.sort)
+    );
+  }, [sortButtonState]);
 
   return (
     <div className="outer-shell">
@@ -86,7 +81,11 @@ const SortableView = () => {
       </button>
       <button
         onClick={() => {
-          sortByAmountInLibrary("probability", combinedMap);
+          sortTheView(
+            sortButtonState.category,
+            combinedMap,
+            sortButtonState.sort
+          );
         }}
       >
         sort map

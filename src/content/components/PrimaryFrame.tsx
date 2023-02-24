@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import CategoryViewer from "./CategoryViewer";
+import CategoryViewer from "./viewers/CategoryViewer";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
-import SortableViewer from "./SortableViewer";
+import SortableViewer from "./viewers/SortableViewer";
 
 const PrimaryFrame = () => {
   const [viewState, setViewState] = useState("main");
