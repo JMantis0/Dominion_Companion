@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from "react";
 import Grid from "@mui/material/Grid";
-import Item from "@mui/material/Item";
 
 type CardRowProps = {
   cardAmount: number;
@@ -17,20 +16,23 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
 }) => {
   return (
     <React.Fragment>
-      <Grid xs={1}></Grid>
-      <Grid xs={4}>
-        <Item> {cardName} </Item>
+      <Grid item={true} xs={1}></Grid>
+      <Grid item={true} xs={3}>
+        {cardName}
       </Grid>
-      <Grid xs={2}>
-        <Item> {libraryAmount} </Item> <Item>/</Item>
+      <Grid item={true} xs={2}>
+        {libraryAmount}
       </Grid>
-      <Grid xs={2}>
-        <Item> {cardAmount} </Item>
+      <Grid item={true} xs={1}>
+        /
       </Grid>
-      <Grid xs={2}>
-        <Item> {drawProbability} </Item>
+      <Grid item={true} xs={2}>
+        {cardAmount}
       </Grid>
-      <Grid xs={1}></Grid>
+      <Grid item={true} xs={2}>
+        {drawProbability}
+      </Grid>
+      <Grid item={true} xs={1}></Grid>
     </React.Fragment>
   );
 };
