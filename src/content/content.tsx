@@ -1,4 +1,5 @@
 import React from "react";
+import $ from "jquery";
 import { createRoot, Root } from "react-dom/client";
 import { Deck } from "../model/deck";
 import {
@@ -36,7 +37,7 @@ let resetInterval: NodeJS.Timer;
 let domViewRoot: Root;
 let domViewContainer: HTMLElement;
 
-let optionsOn: boolean =false;
+let optionsOn: boolean = false;
 
 const initialized = () => {
   return (
@@ -91,7 +92,6 @@ const gameLogObserverForOptions: MutationCallback = (
             )
               .split("\n")
               .slice();
-            console.log("Content.tsx newLogs to Dispath:", newLogsToDispatch);
             decks.get(playerName)?.update(newLogsToDispatch);
             sendToFront(decks.get(playerName)!, playerName);
             logsProcessed = gameLog;
@@ -176,10 +176,12 @@ const initIntervalFunction = () => {
           console.log("playersInitialized: ", playersInitialized);
           console.log("playerDeckInitialized: ", playerDeckInitialized);
           console.group("LogsProcessed Array");
-          console.log("logsProcessed: ", logsProcessed.split("\n"));
+          if (logsProcessed !== undefined)
+            console.log("logsProcessed: ", logsProcessed.split("\n"));
           console.groupEnd();
           console.group("gameLog Array");
-          console.log("gameLog: ", gameLog.split("\n"));
+          if (gameLog !== undefined)
+            console.log("gameLog: ", gameLog.split("\n"));
           console.groupEnd();
           console.log("playerNames: ", playerName, opponentName);
           console.log("playerAbbreviatedNames: ", playerNick, opponentNick);
@@ -202,7 +204,6 @@ const initIntervalFunction = () => {
         subtree: true,
       };
       mo.observe(gameLogElement, observerOptions);
-      console.log("INSIDE OPTIONS ON")
     } //Send to the Options page.
     clientDecks.get(playerName)?.update(newLogsToDispatch); //clientDecks is the set of decks imbedded in the client
     logsProcessed = gameLog;
