@@ -57,7 +57,7 @@ const CategoryViewer = () => {
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
-      console.log("first render, skipping sort useffect");
+      console.log("first render, skipping sort useEffect");
       return;
     }
     const sortedActions = sortTheView(
@@ -85,7 +85,7 @@ const CategoryViewer = () => {
 
   return (
     <div className="outer-shell">
-      <div className="font-bold">Full Decklist {pd.entireDeck.length}</div>
+      <div className="font-bold">Full Deck List {pd.entireDeck.length}</div>
       <br></br>
       <Grid container>
         <ViewHeader />

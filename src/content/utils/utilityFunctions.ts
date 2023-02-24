@@ -43,10 +43,10 @@ export const calculateDrawProbability = (
 };
 
 export const getCountsFromArray = (
-  decklistArray: Array<string>
+  deckListArray: Array<string>
 ): Map<string, number> => {
   const cardCountsMap = new Map<string, number>();
-  decklistArray.forEach((card) => {
+  deckListArray.forEach((card) => {
     if (cardCountsMap.has(card)) {
       cardCountsMap.set(card, cardCountsMap.get(card)! + 1);
     } else {
@@ -181,7 +181,7 @@ export const sortTheView = (
           });
       }
       break;
-    // add cases for card, deckamount, ownedamount
+    // add cases for card, deckAmount, ownedAmount
     case "card":
       {
         [...mapCopy.entries()]

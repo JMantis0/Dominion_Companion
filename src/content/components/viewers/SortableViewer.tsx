@@ -24,14 +24,14 @@ const SortableView = () => {
   );
 
   useEffect(() => {
-    console.log("SortableViewer useEffect from playedeck state");
-    const unsortedCompinedMap = combineDeckListMapAndLibraryListMap(
+    console.log("SortableViewer useEffect from player deck state");
+    const unsortedCombinedMap = combineDeckListMapAndLibraryListMap(
       getCountsFromArray(pd.entireDeck),
       getCountsFromArray(pd.library)
     );
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
-      unsortedCompinedMap,
+      unsortedCombinedMap,
       sortButtonState.sort
     );
     setCombinedMap(sortedCombinedMap);
@@ -40,7 +40,7 @@ const SortableView = () => {
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
-      console.log("first render, skipping sort useffect");
+      console.log("first render, skipping sort useEffect");
       return;
     }
     console.log("SortableViewer useEffect from ButtonState");
