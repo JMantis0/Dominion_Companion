@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import DecklistView from "./DecklistView";
+import CategoryViewer from "./CategoryViewer";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
-import SortableView from "./SortableView";
-
-// import DecklistView from "../../options/components/DecklistView";
+import SortableViewer from "./SortableViewer";
 
 const PrimaryFrame = () => {
   const [viewState, setViewState] = useState("main");
   useEffect(() => {
-    $("#primaryFrame").draggable().resizable();
+    $("#primaryFrame")
+      .draggable()
+      .resizable({ autoHide: false, handles: "all" });
   }, []);
 
   return (
@@ -21,8 +21,8 @@ const PrimaryFrame = () => {
         <span>
           <a onClick={() => setViewState("sortable")}>Sortable View</a>
         </span>
-        {viewState === "main" && <DecklistView />}
-        {viewState === "sortable" && <SortableView />}
+        {viewState === "main" && <CategoryViewer />}
+        {viewState === "sortable" && <SortableViewer />}
       </div>
     </React.Fragment>
   );

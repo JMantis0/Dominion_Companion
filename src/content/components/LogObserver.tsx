@@ -38,7 +38,6 @@ const LogObserver: FunctionComponent<ContentProps> = ({
               )
                 .split("\n")
                 .slice();
-              console.log("newLogs to Dispath:", newLogsToDispatch);
               decks.get(playerName)?.update(newLogsToDispatch);
               dispatch(
                 setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
@@ -63,7 +62,6 @@ const LogObserver: FunctionComponent<ContentProps> = ({
       const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
         .split("\n")
         .slice();
-      console.log("newLogs to Dispath:", newLogsToDispatch);
       decks.get(playerName)?.update(newLogsToDispatch);
     }
     dispatch(setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName)))));

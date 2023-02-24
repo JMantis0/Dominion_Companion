@@ -130,10 +130,15 @@ const getPlayerNameAbbreviations = (
   let playerNick: string;
   let opponentNick: string;
   const gameLogArr = gameLog.split("\n");
-
-  // n1 player is the player going first.
-  const n1 = gameLogArr[4].split(" ")[0];
-  const n2 = gameLogArr[6].split(" ")[0];
+  let n1: string;
+  let n2: string;
+  if (gameLogArr[0].match(" rated.") !== null) {
+    n1 = gameLogArr[6].split(" ")[0]; // n1 player is the player going first.
+    n2 = gameLogArr[8].split(" ")[0];
+  } else {
+    n1 = gameLogArr[4].split(" ")[0]; // n1 player is the player going first.
+    n2 = gameLogArr[6].split(" ")[0];
+  }
 
   if (playerName.substring(0, n1.length) == n1) {
     playerNick = n1;
