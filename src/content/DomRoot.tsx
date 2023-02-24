@@ -6,6 +6,7 @@ import DiscardHover from "./components/DiscardHover";
 import LibraryHover from "./components/LibraryHover";
 import PrimaryFrame from "./components/PrimaryFrame";
 import LogObserver from "./components/LogObserver";
+import "../assets/tailwind.css"
 
 import "jqueryui";
 export type ContentProps = {
