@@ -1,31 +1,28 @@
+import React from "react";
 import Grid from "@mui/material/Grid";
-import Item from "@mui/material/Item";
-import React, { FunctionComponent } from "react";
-import ExpandMoreSharpIcon from "@mui/icons-material/ExpandMoreSharp";
-import ExpandLessSharpIcon from "@mui/icons-material/ExpandLessSharp";
 
-type ViewHeaderProps = {
-  sortState: {
-    ascending: boolean;
-  };
-};
-const SortViewHeader: FunctionComponent<ViewHeaderProps> = () => {
+
+
+const SortViewHeader = () => {
   return (
     <React.Fragment>
-      <Grid xs={1}></Grid>
-      <Grid xs={4}>
-        <Item>Card</Item>
+      <Grid item={true} xs={1}></Grid>
+      <Grid item={true} xs={3}>
+        <span>Card</span>
       </Grid>
-      <Grid xs={2}>
-        <Item># in Deck </Item> <Item>/</Item>
+      <Grid item={true} xs={2}>
+        <span>Deck </span>
       </Grid>
-      <Grid xs={2}>
-        <Item> # owned </Item>
+      <Grid item={true} xs={1}>
+        <span>/</span>
       </Grid>
-      <Grid xs={2}>
-        <Item> {ExpandMoreSharpIcon} </Item>
+      <Grid item={true} xs={2}>
+        <span>Owned</span>
       </Grid>
-      <Grid xs={1}></Grid>
+      <Grid item={true} xs={2}>
+        prob
+      </Grid>
+      <Grid item={true} xs={1}></Grid>
     </React.Fragment>
   );
 };
