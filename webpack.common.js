@@ -31,8 +31,22 @@ module.exports = {
             loader: "css-loader",
             options: {
               importLoaders: 1,
+              url: {
+                filter: (url, resourcePath) => {
+                  if (
+                    url.match(
+                      "chrome-extension://nmcfafjpmpnjchjdkogjbfolaidedgkf"
+                    ) !== null
+                  ) {
+                    return false;
+                  } else {
+                    return true;
+                  }
+                },
+              },
             },
           },
+
           {
             loader: "postcss-loader",
             options: {
@@ -55,6 +69,10 @@ module.exports = {
       patterns: [
         {
           from: path.resolve("src/static"),
+          to: path.resolve("dist"),
+        },
+        {
+          from: path.resolve("node_modules/jquery-ui-bundle"),
           to: path.resolve("dist"),
         },
       ],
