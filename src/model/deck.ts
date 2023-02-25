@@ -187,7 +187,7 @@ export class Deck {
       currentLine: string
       // , card: string
     ): number => {
-      let ammendedGainAmount: number;
+      let amendedAmount: number;
       const prevLine = this.logArchive.slice().pop();
       const lastSpaceIndex = prevLine?.lastIndexOf(" ");
       const secondLastSpaceIndex = prevLine
@@ -217,13 +217,14 @@ export class Deck {
         currCount = parseInt(currentLine.substring(slsi + 1, lsi));
       }
 
-      ammendedGainAmount = currCount - prevCount;
-      return ammendedGainAmount;
+      amendedAmount = currCount - prevCount;
+      return amendedAmount;
     };
 
     log.forEach((line) => {
       // reset treasurePopped tracker to false
       this.treasurePopped = false;
+
       if (
         // Filters out opponent logs that dont need to be processed
         line.slice(0, this.abbrvName.length) === this.abbrvName ||
@@ -362,20 +363,22 @@ export class Deck {
             break;
           case "draws":
             {
-              const fiveDrawsOccured = this.checkForCleanUp(line);
+              const fiveDrawsOccurred = this.checkForCleanUp(line);
               const shuffleOccured = this.checkForShuffle(
                 this.lastEntryProcessed
               );
               const cellarDraws = this.checkForCellarDraw();
-              if (fiveDrawsOccured && !shuffleOccured && !cellarDraws) {
+              if (fiveDrawsOccurred && !shuffleOccured && !cellarDraws) {
                 this.cleanup();
               }
+
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   this.draw(cards[i]);
                 }
               }
             }
+
             break;
           case "discards":
             {
@@ -434,11 +437,12 @@ export class Deck {
             {
               const artisanTopDeck = this.checkForArtisanTopDeck();
               const harbingerTopDeck = this.checkForHarbingerTopDeck();
+              const bureaucratTopDeck = this.checkForBureaucratTopDeck();
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   if (harbingerTopDeck) {
                     this.topDeckFromGraveyard(cards[i]);
-                  } else if (artisanTopDeck) {
+                  } else if (artisanTopDeck || bureaucratTopDeck) {
                     this.topDeckCardFromHand(cards[i]);
                   }
                 }
@@ -496,8 +500,8 @@ export class Deck {
     const index = this.library.indexOf(card);
     if (index > -1) {
       console.info(`Drawing ${card} from library into hand.`);
-      this.library.splice(index, 1);
       this.hand.push(card);
+      this.library.splice(index, 1);
     } else {
       throw new Error(`No ${card} in deck`);
     }
@@ -512,8 +516,8 @@ export class Deck {
     const index = this.hand.indexOf(card);
     if (index > -1) {
       console.info(`Playing ${card} from hand into play.`);
-      this.hand.splice(index, 1);
       this.inPlay.push(card);
+      this.hand.splice(index, 1);
     } else {
       throw new Error(`No ${card} in hand`);
     }
@@ -576,8 +580,8 @@ export class Deck {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
       console.info(`Top decking ${card} from discard pile.`);
-      this.graveyard.splice(index, 1);
       this.library.push(card);
+      this.graveyard.splice(index, 1);
     } else {
       throw new Error(`No ${card} in discard`);
     }
@@ -784,8 +788,9 @@ export class Deck {
    * @returns - Boolean for whether the gain is from a Mine or not.
    */
   checkForMineGain() {
-    let len = this.logArchive.length;
-    return this.logArchive[len - 2].match(" plays a Mine") !== null;
+    // let len = this.logArchive.length;
+    // return this.logArchive[len - 2].match(" plays a Mine") !== null;
+    return this.getMostRecentPlay(this.logArchive) === "Mine";
   }
   /**
    * Checks the current line to see if there are exactly five draws
@@ -850,14 +855,7 @@ export class Deck {
    * @returns Boolean for if the current line's topdeck came from a Harbinger
    */
   checkForHarbingerTopDeck() {
-    const len = this.logArchive.length;
-    return (
-      (len > 3 &&
-        this.logArchive[len - 4].match(" plays a Harbinger") !== null) ||
-      (len > 4 &&
-        this.logArchive[len - 5].match(" plays a Harbinger") !== null &&
-        this.logArchive[len - 4].match(" shuffles their deck") !== null)
-    );
+    return this.getMostRecentPlay(this.logArchive) === "Harbinger";
   }
 
   /**
@@ -869,42 +867,9 @@ export class Deck {
    */
   checkForSentryDiscard(): boolean {
     let isSentryDiscard: boolean = false;
-    const len = this.logArchive.length;
+    // const len = this.logArchive.length;
 
-    if (len >= 6) {
-      // test case 4 ( yes trash and shuffle )
-      if (
-        (this.logArchive[len - 6].match(" plays a Sentry") !== null &&
-          this.logArchive[len - 5].match(" shuffles their deck") !== null &&
-          this.logArchive[len - 1].match(" trashes ") !== null) ||
-        (this.logArchive[len - 6].match(" plays a Sentry") !== null &&
-          this.logArchive[len - 3].match(" shuffles their deck") !== null &&
-          this.logArchive[len - 1].match(" trashes ") !== null)
-      ) {
-        isSentryDiscard = true;
-      }
-    }
-    if (len >= 5) {
-      if (
-        // test case 2 (no trashes yes shuffle)
-        (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
-          this.logArchive[len - 4].match(" shuffles their deck") !== null) ||
-        //  test case 3 (yes trash with no shuffle)
-        (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
-          this.logArchive[len - 1].match(" trashes ") !== null) ||
-        // test case 5 shuffle after draw but before lookat, no trash.
-        (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
-          this.logArchive[len - 2].match(" shuffles their deck") !== null &&
-          this.logArchive[len - 1].match(" looks at ") !== null)
-      ) {
-        isSentryDiscard = true;
-      }
-    }
-    if (len >= 4) {
-      if (this.logArchive[len - 4].match(" plays a Sentry") !== null) {
-        isSentryDiscard = true;
-      }
-    }
+    isSentryDiscard = this.getMostRecentPlay(this.logArchive) === "Sentry";
 
     return isSentryDiscard;
   }
@@ -916,17 +881,7 @@ export class Deck {
    *
    */
   checkForSentryTrash() {
-    const len = this.logArchive.length;
-    return (
-      // case no shuffle
-      this.logArchive[len - 4].match(" plays a Sentry") !== null ||
-      // case yes shuffle
-      (this.logArchive[len - 5].match(" plays a Sentry") !== null &&
-        // shuffle occursjust after draw, before looks at
-        (this.logArchive[len - 2].match(" shuffles their deck") !== null ||
-          //shuffle occurs before draw
-          this.logArchive[len - 4].match(" shuffles their deck") !== null))
-    );
+    return this.getMostRecentPlay(this.logArchive) === "Sentry";
   }
 
   /**
@@ -936,12 +891,7 @@ export class Deck {
    * @returns - Boolean for whether the trash activity was triggered by a Bandit.
    */
   checkForBanditTrash = () => {
-    let banditTrash = false;
-    let len = this.logArchive.length;
-    if (this.logArchive[len - 1].match(" reveals ") !== null) {
-      banditTrash = true;
-    }
-    return banditTrash;
+    return this.getMostRecentPlay(this.logArchive) === "Bandit";
   };
 
   /**
@@ -951,18 +901,7 @@ export class Deck {
    * @returns - Boolean for whether the discard activity was triggered by a Bandit.
    */
   checkForBanditDiscard = () => {
-    let banditDiscard = false;
-    let len = this.logArchive.length;
-    if (
-      // Case with trash
-      (this.logArchive[len - 1].match(" trashes ") !== null &&
-        this.logArchive[len - 2].match(" reveals ") !== null) ||
-      // Case with no trash
-      this.logArchive[len - 1].match(" reveals ") !== null
-    ) {
-      banditDiscard = true;
-    }
-    return banditDiscard;
+    return this.getMostRecentPlay(this.logArchive) === "Bandit";
   };
 
   /**
@@ -1054,18 +993,7 @@ export class Deck {
    * @returns - Boolean for whether the current line discard activity is triggered by a Vassal.
    */
   checkForVassalDiscard() {
-    console.log("check for vassal discard");
-    let vassalDiscard: boolean;
-    let len = this.logArchive.length;
-    if (
-      this.logArchive[len - 2].match(" plays a Vassal") !== null ||
-      (this.logArchive[len - 3].match(" plays a Vassal") !== null &&
-        this.logArchive[len - 1].match(" shuffles their deck") !== null)
-    ) {
-      vassalDiscard = true;
-    } else vassalDiscard = false;
-
-    return vassalDiscard;
+    return this.getMostRecentPlay(this.logArchive) === "Vassal";
   }
 
   /**
@@ -1112,11 +1040,7 @@ export class Deck {
    * was triggered by an Artisan
    */
   checkForArtisanGain = (): boolean => {
-    let isArtisanGain: boolean;
-    if (this.logArchive.slice().pop()?.match(" plays an Artisan") !== null)
-      isArtisanGain = true;
-    else isArtisanGain = false;
-    return isArtisanGain;
+    return this.getMostRecentPlay(this.logArchive) === "Artisan";
   };
 
   /**
@@ -1125,12 +1049,7 @@ export class Deck {
    * @returns Boolean for whether the urrent line top deck activity.
    */
   checkForArtisanTopDeck = (): boolean => {
-    let artisanTopDeck: boolean;
-    const len = this.logArchive.length;
-    if (this.logArchive[len - 2].match(" plays an Artisan") !== null) {
-      artisanTopDeck = true;
-    } else artisanTopDeck = false;
-    return artisanTopDeck;
+    return this.getMostRecentPlay(this.logArchive) === "Artisan";
   };
 
   /**
@@ -1209,14 +1128,7 @@ export class Deck {
    * @returns Boolean for whether the current line's gain activity was from a Bureaucrat
    */
   checkForBureaucratGain(): boolean {
-    let bureaucratGain: boolean;
-    const len: number = this.logArchive.length;
-    if (this.logArchive[len - 1].match(" plays a Bureaucrat") !== null) {
-      bureaucratGain = true;
-    } else {
-      bureaucratGain = false;
-    }
-    return bureaucratGain;
+    return this.getMostRecentPlay(this.logArchive) === "Bureaucrat";
   }
 
   /**
@@ -1230,5 +1142,49 @@ export class Deck {
       line.match(" plays ") !== null &&
       line.match(/Coppers?|Silvers?|Golds?/) !== null;
     return treasureLine;
+  }
+
+  checkForBureaucratTopDeck() {
+    return this.getMostRecentPlay(this.logArchive) === "Bureaucrat";
+  }
+
+  getMostRecentPlay(logArchive: string[]): string {
+    let mostRecentCardPlayed: string = "None";
+    const len = logArchive.length;
+    if (len === 0) throw new Error("Empty log archive");
+    let playFound: boolean = false;
+
+    for (let i = len - 1; i >= 0; i--) {
+      if (logArchive[i].match(/ plays an? /) !== null) {
+        playFound = true;
+        let lowerIndex: number;
+        if (logArchive[i].match(" plays a ")) {
+          lowerIndex = logArchive[i].indexOf(" plays a ") + " plays a ".length;
+        } else {
+          lowerIndex =
+            logArchive[i].indexOf(" plays an ") + " plays an ".length;
+        }
+
+        // the line might end with the card, or it might end with " again."
+
+        if (logArchive[i].match(" again.")) {
+          mostRecentCardPlayed = logArchive[i].slice(
+            lowerIndex,
+            logArchive[i].lastIndexOf(" ")
+          );
+        } else {
+          mostRecentCardPlayed = logArchive[i].slice(
+            lowerIndex,
+            logArchive[i].length - 1
+          );
+        }
+      }
+      if (playFound) break;
+    }
+    if (!playFound) {
+      playFound = false;
+    }
+
+    return mostRecentCardPlayed;
   }
 }

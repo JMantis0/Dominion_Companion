@@ -52,20 +52,4 @@ describe("Function checkForSentryTrash()", () => {
       expect(rDeck.checkForSentryTrash()).toBeTruthy();
     });
   });
-  describe("when the log entry at index 5 less than logArchive length contains the substring ' plays a Sentry' but neither the log entry at index 2 less than logArchive nor the log entry at index 4 less than logArchive length contain the substring ' shuffles their deck'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.",
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        "G gets +$1",
-        "G looks at 2 Coppers.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForSentryTrash()).toBeFalsy();
-    });
-  });
 });

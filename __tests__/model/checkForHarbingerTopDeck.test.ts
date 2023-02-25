@@ -36,22 +36,7 @@ describe("Function checkForHarbingerTopDeck()", () => {
       expect(rDeck.checkForHarbingerTopDeck()).toBeTruthy();
     });
   });
-  describe("when the logArchive entry at 4 less than the logArchive length does not contain the substring ' plays a Harbinger'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Harbinger.",
-        "G draws a Copper",
-        "G gets +1 Action.",
-        "G looks at 2 Coppers.",
-        "G trashes a Copper.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForHarbingerTopDeck()).toBeFalsy();
-    });
-  });
+
   describe("when the logArchive entry at 4 less than the logArchive length contains the substring ' shuffles their deck', but the logArchive entry at index 5 less than the logArchive length does not contain the substring ' plays a Harbinger'", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();

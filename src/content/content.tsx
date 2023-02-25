@@ -49,7 +49,6 @@ const initialized = () => {
 };
 
 export const resetGame = () => {
-  console.log("resettingGame");
   playersInitialized = false;
   logInitialized = false;
   kingdomInitialized = false;

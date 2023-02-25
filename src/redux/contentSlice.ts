@@ -5,7 +5,7 @@ import { StoreDeck } from "../model/storeDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 
 export interface SortButtonState {
-  category: "card" | "deck" | "owned" | "probability";
+  category: "card" | "zone" | "owned" | "probability";
   sort: "ascending" | "descending";
 }
 
@@ -24,7 +24,7 @@ const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   sortButtonState: {
-    category: "probability",
+    category: "zone",
     sort: "ascending",
   },
 };
