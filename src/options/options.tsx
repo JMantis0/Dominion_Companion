@@ -1,9 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
-// import "../assets/tailwind.css";
 import DataInterface from "./components/DataInterface";
-import CurrentGame from "./components/CurrentGame";
-import DecklistView from "./components/DecklistView";
 
 const Options = () => {
   useEffect(() => {
@@ -22,10 +18,6 @@ const Options = () => {
           <a href="#/currentGame">Current Game</a>
         </li>
       </ul>
-      <Routes>
-        <Route path="/" element={<DecklistView />} />
-        <Route path="/currentGame" element={<CurrentGame />} />
-      </Routes>
       <DataInterface />
     </div>
   );

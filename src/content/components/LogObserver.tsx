@@ -66,7 +66,6 @@ const LogObserver: FunctionComponent<ContentProps> = ({
     }
     dispatch(setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName)))));
     return () => {
-      console.log("UNMOUNTING");
       mo.disconnect();
     };
   }, []);

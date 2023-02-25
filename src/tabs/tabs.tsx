@@ -1,7 +1,4 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Home from "../tabs/components/Home";
-import About from "../tabs/components/About";
 import "./tabs.css";
 
 const Tabs = () => {
@@ -15,10 +12,7 @@ const Tabs = () => {
           <a href="#/about">About</a>
         </li>
       </ul>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" index element={<About />} />
-      </Routes>
+  
     </div>
   );
 };

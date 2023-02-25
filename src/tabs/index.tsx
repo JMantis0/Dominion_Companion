@@ -1,6 +1,5 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter as Router } from "react-router-dom";
 import Tabs from "./tabs";
 
 const init = () => {
@@ -12,9 +11,7 @@ const init = () => {
   const root = createRoot(appContainer);
   console.log(appContainer);
   root.render(
-    <Router>
        <Tabs />
-    </Router>
   );
 };
 init();
