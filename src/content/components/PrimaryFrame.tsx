@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import CategoryViewer from "./viewers/CategoryViewer";
+import React, { useEffect } from "react";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
+import CategoryViewer from "./viewers/CategoryViewer";
 import SortableViewer from "./viewers/SortableViewer";
+import DiscardZoneViewer from "./viewers/DiscardZoneViewer";
+import { Tabs } from "flowbite-react";
 
 const PrimaryFrame = () => {
-  const [viewState, setViewState] = useState("main");
   useEffect(() => {
     $("#primaryFrame")
       .draggable()
@@ -15,14 +16,17 @@ const PrimaryFrame = () => {
   return (
     <React.Fragment>
       <div id="primaryFrame">
-        <span>
-          <a onClick={() => setViewState("main")}>Main View</a>
-        </span>
-        <span>
-          <a onClick={() => setViewState("sortable")}>Sortable View</a>
-        </span>
-        {viewState === "main" && <CategoryViewer />}
-        {viewState === "sortable" && <SortableViewer />}
+        <Tabs.Group aria-label="Full width tabs" style="fullWidth">
+          <Tabs.Item title="Category Viewer">
+            <CategoryViewer />
+          </Tabs.Item>
+          <Tabs.Item title="Sortable Viewer">
+            <SortableViewer />
+          </Tabs.Item>
+          <Tabs.Item title="Discard">
+            <DiscardZoneViewer />
+          </Tabs.Item>
+        </Tabs.Group>
       </div>
     </React.Fragment>
   );

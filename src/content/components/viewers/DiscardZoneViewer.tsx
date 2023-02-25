@@ -5,13 +5,12 @@ import {
   CardCounts,
   combineDeckListMapAndZoneListMap,
   getCountsFromArray,
-  calculateDrawProbability,
   sortTheView,
 } from "../../utils/utilityFunctions";
-import FullListCardRow from "./FullListCardRow";
+import ZoneCardRow from "./ZoneCardRow";
 import ViewHeader from "./SortViewHeader";
 
-const SortableView = () => {
+const DiscardZoneViewer = () => {
   const firstRender = useRef(true);
   const [combinedMap, setCombinedMap] = useState<Map<string, CardCounts>>(
     new Map()
@@ -24,7 +23,7 @@ const SortableView = () => {
   useEffect(() => {
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
       getCountsFromArray(pd.entireDeck),
-      getCountsFromArray(pd.library)
+      getCountsFromArray(pd.graveyard)
     );
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
@@ -50,18 +49,14 @@ const SortableView = () => {
       <div>Sortable View {pd.entireDeck.length}</div>
       <br></br>
       <div className={"grid grid-cols-12"}>
-        <ViewHeader />
+        {/* <ViewHeader /> */}
         {Array.from(combinedMap.keys()).map((card, idx) => {
           return (
-            <FullListCardRow
+            <ZoneCardRow
               key={idx}
-              drawProbability={calculateDrawProbability(
-                combinedMap.get(card)?.zoneCount!,
-                pd.library.length
-              )}
               cardName={card}
-              cardAmount={combinedMap.get(card)?.entireDeckCount!}
-              libraryAmount={combinedMap.get(card)?.zoneCount!}
+              cardAmountOwned={combinedMap.get(card)?.entireDeckCount!}
+              cardAmountInZone={combinedMap.get(card)?.zoneCount!}
             />
           );
         })}
@@ -77,4 +72,4 @@ const SortableView = () => {
   );
 };
 
-export default SortableView;
+export default DiscardZoneViewer;

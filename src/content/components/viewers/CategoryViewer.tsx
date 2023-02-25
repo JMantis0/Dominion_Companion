@@ -4,14 +4,13 @@ import { RootState } from "../../../redux/store";
 import {
   calculateDrawProbability,
   getCountsFromArray,
-  combineDeckListMapAndLibraryListMap,
+  combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
   createEmptySplitMapsObject,
   SplitMaps,
   sortTheView,
 } from "../../utils/utilityFunctions";
-import FullListCardRow from "../FullListCardRow";
-import Grid from "@mui/material/Grid";
+import FullListCardRow from "./FullListCardRow";
 import ViewHeader from "./SortViewHeader";
 
 const CategoryViewer = () => {
@@ -26,12 +25,11 @@ const CategoryViewer = () => {
 
   useEffect(() => {
     const unsortedSplitMap = splitCombinedMapsByCardTypes(
-      combineDeckListMapAndLibraryListMap(
+      combineDeckListMapAndZoneListMap(
         getCountsFromArray(pd.entireDeck),
         getCountsFromArray(pd.library)
       )
     );
-
     const sortedActions = sortTheView(
       sortButtonState.category,
       unsortedSplitMap.actions!,
@@ -56,8 +54,8 @@ const CategoryViewer = () => {
 
   useEffect(() => {
     if (firstRender.current) {
+      // prevents this useEffect on first render
       firstRender.current = false;
-      console.log("first render, skipping sort useffect");
       return;
     }
     const sortedActions = sortTheView(
@@ -85,65 +83,59 @@ const CategoryViewer = () => {
 
   return (
     <div className="outer-shell">
-      <div className="font-bold">Full Decklist {pd.entireDeck.length}</div>
+      <div className="font-bold">Full Deck List {pd.entireDeck.length}</div>
       <br></br>
-      <Grid container>
+      <div className={"grid grid-cols-12"}>
         <ViewHeader />
         {/* Action section */}
-        <Grid item={true} xs={12}>
-          Actions
-        </Grid>
+        <div className="col-span-12">Actions</div>
         {Array.from(splitMaps?.actions!.keys()).map((card, idx) => {
           return (
             <FullListCardRow
               key={idx}
               drawProbability={calculateDrawProbability(
-                splitMaps.actions!.get(card)?.libraryCount!,
+                splitMaps.actions!.get(card)?.zoneCount!,
                 pd.library.length
               )}
               cardName={card}
               cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
-              libraryAmount={splitMaps.actions!.get(card)?.libraryCount!}
+              libraryAmount={splitMaps.actions!.get(card)?.zoneCount!}
             />
           );
         })}
         {/* Treasure Section */}
-        <Grid item={true} xs={12}>
-          Treasures
-        </Grid>
+        <div className="col-span-12">Treasures</div>
         {Array.from(splitMaps.treasures!.keys()).map((card, idx) => {
           return (
             <FullListCardRow
               key={idx}
               drawProbability={calculateDrawProbability(
-                splitMaps.treasures!.get(card)?.libraryCount!,
+                splitMaps.treasures!.get(card)?.zoneCount!,
                 pd.library.length
               )}
               cardName={card}
               cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
-              libraryAmount={splitMaps.treasures!.get(card)?.libraryCount!}
+              libraryAmount={splitMaps.treasures!.get(card)?.zoneCount!}
             />
           );
         })}
         {/* Victory section */}
-        <Grid item={true} xs={12}>
-          Victories
-        </Grid>
+        <div className="col-span-12">Victories</div>
         {Array.from(splitMaps?.victories!.keys()).map((card, idx) => {
           return (
             <FullListCardRow
               key={idx}
               drawProbability={calculateDrawProbability(
-                splitMaps.victories!.get(card)?.libraryCount!,
+                splitMaps.victories!.get(card)?.zoneCount!,
                 pd.library.length
               )}
               cardName={card}
               cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}
-              libraryAmount={splitMaps.victories!.get(card)?.libraryCount!}
+              libraryAmount={splitMaps.victories!.get(card)?.zoneCount!}
             />
           );
         })}
-      </Grid>
+      </div>
       <button
         onClick={() => {
           console.log("player deck:", pd);
