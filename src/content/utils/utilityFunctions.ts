@@ -1,3 +1,5 @@
+import { StoreDeck } from "../../model/storeDeck";
+
 export type ErrorWithMessage = {
   message: string;
 };
@@ -158,25 +160,59 @@ export const sortByAmountInZone = (
 export const sortTheView = (
   sortParam: "card" | "owned" | "zone" | "probability",
   unsortedMap: Map<string, CardCounts>,
-  sortType: "ascending" | "descending"
+  sortType: "ascending" | "descending",
+  pd: StoreDeck
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
   switch (sortParam) {
     case "probability":
       {
-        [...mapCopy.entries()]
-          .sort((entryA, entryB) => {
-            if (sortType === "ascending") {
-              return entryB[1].zoneCount - entryA[1].zoneCount;
-            } else {
-              return entryA[1].zoneCount - entryB[1].zoneCount;
-            }
-          })
-          .forEach((entry) => {
-            const [card, cardCounts] = entry;
-            sortedMap.set(card, cardCounts);
-          });
+        if (pd.library.length > 0) {
+          [...mapCopy.entries()]
+            .sort((entryA, entryB) => {
+              if (sortType === "ascending") {
+                return entryB[1].zoneCount - entryA[1].zoneCount;
+              } else {
+                return entryA[1].zoneCount - entryB[1].zoneCount;
+              }
+            })
+            .forEach((entry) => {
+              const [card, cardCounts] = entry;
+              sortedMap.set(card, cardCounts);
+            });
+        } else {
+          // if the library is empty, calculate the next draw based on values from the discard pile
+          [...mapCopy.entries()]
+            .sort((entryA, entryB) => {
+              const entryAProb = parseFloat(
+                calculateDrawProbability(
+                  unsortedMap.get(entryA[0])?.zoneCount!,
+                  pd.library.length,
+                  getCountsFromArray(pd.graveyard).get(entryA[0])!,
+                  pd.graveyard.length
+                ).slice(0, -1)
+              );
+
+              const entryBProb = parseFloat(
+                calculateDrawProbability(
+                  unsortedMap.get(entryB[0])?.zoneCount!,
+                  pd.library.length,
+                  getCountsFromArray(pd.graveyard).get(entryB[0])!,
+                  pd.graveyard.length
+                ).slice(0, -1)
+              );
+              if (sortType === "ascending") {
+                return entryBProb - entryAProb;
+              } else {
+                return entryAProb - entryBProb;
+              }
+            })
+            .forEach((entry) => {
+              const [card, cardCounts] = entry;
+              sortedMap.set(card, cardCounts);
+            });
+        }
       }
       break;
     // add cases for card, deckAmount, ownedAmount
