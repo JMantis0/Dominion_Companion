@@ -13,12 +13,16 @@ const ZoneCardRow: FunctionComponent<ZoneCardRowProps> = ({
 }) => {
   return (
     <React.Fragment>
-      <div className="col-span-1"></div>
-      <div className="col-span-6">{cardName}</div>
-      <div className="col-span-1"></div>
-      <div className="col-span-3">{cardAmountInZone}</div>
-      {/* <div className="col-span-3">{cardAmountOwned}</div> */}
-      <div className="col-span-1"></div>
+      <div
+        className={"grid grid-cols-12 border-solid border-2 border-white"}
+      >
+        <div className="text-white col-span-1"></div>
+        <div className="text-white col-span-6">{cardName}</div>
+        <div className="text-white col-span-1"></div>
+        <div className="text-white col-span-3">{cardAmountInZone}</div>
+        {/* <div className="col-span-3">{cardAmountOwned}</div> */}
+        <div className="text-white col-span-1"></div>
+      </div>
     </React.Fragment>
   );
 };

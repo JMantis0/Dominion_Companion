@@ -4,26 +4,24 @@ import SortButton from "./SortButton";
 const SortViewHeader = () => {
   return (
     <React.Fragment>
-      <div className="col-span-1"></div>
-      <div className="col-span-3">
-        <span>Card</span>
-        <SortButton category="card" />
+      <div className={"text-xs grid grid-cols-12"}>
+        {/* <div className="col-span-1"></div> */}
+        <div className="col-span-5 whitespace-nowrap">
+          <SortButton title="Card Name" category="card" />
+        </div>
+        <div className="col-span-2 whitespace-nowrap">
+          <SortButton title="Dk #" category="zone" />
+        </div>
+        {/* <div className="col-span-1 whitespace-nowrap">
+          <span>/</span>
+        </div> */}
+        <div className="col-span-2 whitespace-nowrap">
+          <SortButton title="Tot #" category="owned" />
+        </div>
+        <div className="col-span-3 whitespace-nowrap">
+          <SortButton title="Draw%" category="probability" />
+        </div>
       </div>
-      <div className="col-span-2">
-        <span>Deck</span>
-        <SortButton category="zone" />
-      </div>
-      <div className="col-span-1">
-        <span>/</span>
-      </div>
-      <div className="col-span-2">
-        <span>Owned</span>
-        <SortButton category="owned" />
-      </div>
-      <div className="col-span-2 whitespace-nowrap">
-        Prbl % <SortButton category="probability" />
-      </div>
-      <div className="col-span-1"></div>
     </React.Fragment>
   );
 };

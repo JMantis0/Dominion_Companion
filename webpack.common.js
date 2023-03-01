@@ -6,7 +6,7 @@ const autoprefixer = require("autoprefixer");
 
 module.exports = {
   mode: "development",
-  devtool: "cheap-module-source-map",
+  devtool: "inline-source-map",
 
   entry: {
     popup: path.resolve("./src/popup/index.tsx"),

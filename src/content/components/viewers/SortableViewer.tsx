@@ -22,6 +22,8 @@ const SortableView = () => {
   );
 
   useEffect(() => {
+    console.log("useEffect Sortable Viewer");
+    console.log(pd);
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
       getCountsFromArray(pd.entireDeck),
       getCountsFromArray(pd.library)
@@ -31,6 +33,7 @@ const SortableView = () => {
       unsortedCombinedMap,
       sortButtonState.sort
     );
+    console.log("sortedCombinedMap", sortedCombinedMap);
     setCombinedMap(sortedCombinedMap);
   }, [pd]);
 
@@ -47,32 +50,23 @@ const SortableView = () => {
 
   return (
     <div className="outer-shell">
-      <div>Sortable View {pd.entireDeck.length}</div>
-      <br></br>
-      <div className={"grid grid-cols-12"}>
-        <ViewHeader />
-        {Array.from(combinedMap.keys()).map((card, idx) => {
-          return (
-            <FullListCardRow
-              key={idx}
-              drawProbability={calculateDrawProbability(
-                combinedMap.get(card)?.zoneCount!,
-                pd.library.length
-              )}
-              cardName={card}
-              cardAmount={combinedMap.get(card)?.entireDeckCount!}
-              libraryAmount={combinedMap.get(card)?.zoneCount!}
-            />
-          );
-        })}
-      </div>
-      <button
-        onClick={() => {
-          console.log("player deck:", pd);
-        }}
-      >
-        Print pDeck
-      </button>
+      <ViewHeader />
+      {Array.from(combinedMap.keys()).map((card, idx) => {
+        return (
+          <FullListCardRow
+            key={idx}
+            drawProbability={calculateDrawProbability(
+              combinedMap.get(card)?.zoneCount!,
+              pd.library.length,
+              getCountsFromArray(pd.graveyard).get(card)!,
+              pd.graveyard.length
+            )}
+            cardName={card}
+            cardAmount={combinedMap.get(card)?.entireDeckCount!}
+            libraryAmount={combinedMap.get(card)?.zoneCount!}
+          />
+        );
+      })}
     </div>
   );
 };

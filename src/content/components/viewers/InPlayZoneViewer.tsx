@@ -9,7 +9,7 @@ import {
 } from "../../utils/utilityFunctions";
 import ZoneCardRow from "./ZoneCardRow";
 
-const DiscardZoneViewer = () => {
+const InPlayZoneViewer = () => {
   const firstRender = useRef(true);
   const [combinedMap, setCombinedMap] = useState<Map<string, CardCounts>>(
     new Map()
@@ -22,7 +22,7 @@ const DiscardZoneViewer = () => {
   useEffect(() => {
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
       getCountsFromArray(pd.entireDeck),
-      getCountsFromArray(pd.graveyard)
+      getCountsFromArray(pd.inPlay)
     );
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
@@ -45,7 +45,6 @@ const DiscardZoneViewer = () => {
 
   return (
     <div className="outer-shell">
-        {/* <ViewHeader /> */}
         {Array.from(combinedMap.keys()).map((card, idx) => {
           return (
             combinedMap.get(card)?.zoneCount! > 0 && (
@@ -58,8 +57,9 @@ const DiscardZoneViewer = () => {
             )
           );
         })}
+
     </div>
   );
 };
 
-export default DiscardZoneViewer;
+export default InPlayZoneViewer;
