@@ -27,7 +27,7 @@ const InPlayZoneViewer = () => {
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
       unsortedCombinedMap,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     setCombinedMap(sortedCombinedMap);
   }, [pd]);
@@ -39,7 +39,7 @@ const InPlayZoneViewer = () => {
       return;
     }
     setCombinedMap(
-      sortTheView(sortButtonState.category, combinedMap, sortButtonState.sort)
+      sortTheView(sortButtonState.category, combinedMap, sortButtonState.sort,pd)
     );
   }, [sortButtonState]);
 
@@ -51,7 +51,6 @@ const InPlayZoneViewer = () => {
               <ZoneCardRow
                 key={idx}
                 cardName={card}
-                cardAmountOwned={combinedMap.get(card)?.entireDeckCount!}
                 cardAmountInZone={combinedMap.get(card)?.zoneCount!}
               />
             )

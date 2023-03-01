@@ -27,7 +27,7 @@ const HandZoneViewer = () => {
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
       unsortedCombinedMap,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     setCombinedMap(sortedCombinedMap);
   }, [pd]);
@@ -39,7 +39,7 @@ const HandZoneViewer = () => {
       return;
     }
     setCombinedMap(
-      sortTheView(sortButtonState.category, combinedMap, sortButtonState.sort)
+      sortTheView(sortButtonState.category, combinedMap, sortButtonState.sort,pd)
     );
   }, [sortButtonState]);
 
@@ -51,7 +51,6 @@ const HandZoneViewer = () => {
               <ZoneCardRow
                 key={idx}
                 cardName={card}
-                cardAmountOwned={combinedMap.get(card)?.entireDeckCount!}
                 cardAmountInZone={combinedMap.get(card)?.zoneCount!}
               />
             )
