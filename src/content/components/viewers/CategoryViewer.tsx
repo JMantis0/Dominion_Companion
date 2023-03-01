@@ -83,64 +83,62 @@ const CategoryViewer = () => {
 
   return (
     <div className="outer-shell">
-      <div className="font-bold">Full Deck List {pd.entireDeck.length}</div>
-      <br></br>
-      <div className={"grid grid-cols-12"}>
-        <ViewHeader />
-        {/* Action section */}
-        <div className="col-span-12">Actions</div>
-        {Array.from(splitMaps?.actions!.keys()).map((card, idx) => {
-          return (
-            <FullListCardRow
-              key={idx}
-              drawProbability={calculateDrawProbability(
-                splitMaps.actions!.get(card)?.zoneCount!,
-                pd.library.length
-              )}
-              cardName={card}
-              cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
-              libraryAmount={splitMaps.actions!.get(card)?.zoneCount!}
-            />
-          );
-        })}
-        {/* Treasure Section */}
-        <div className="col-span-12">Treasures</div>
-        {Array.from(splitMaps.treasures!.keys()).map((card, idx) => {
-          return (
-            <FullListCardRow
-              key={idx}
-              drawProbability={calculateDrawProbability(
-                splitMaps.treasures!.get(card)?.zoneCount!,
-                pd.library.length
-              )}
-              cardName={card}
-              cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
-              libraryAmount={splitMaps.treasures!.get(card)?.zoneCount!}
-            />
-          );
-        })}
-        {/* Victory section */}
-        <div className="col-span-12">Victories</div>
-        {Array.from(splitMaps?.victories!.keys()).map((card, idx) => {
-          return (
-            <FullListCardRow
-              key={idx}
-              drawProbability={calculateDrawProbability(
-                splitMaps.victories!.get(card)?.zoneCount!,
-                pd.library.length
-              )}
-              cardName={card}
-              cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}
-              libraryAmount={splitMaps.victories!.get(card)?.zoneCount!}
-            />
-          );
-        })}
-      </div>
-      <button
-        onClick={() => {
-          console.log("player deck:", pd);
-        }}
-      ></button>
+      <ViewHeader />
+
+      {/* Action section */}
+      <div className="col-span-12 text-white">Actions</div>
+      {Array.from(splitMaps?.actions!.keys()).map((card, idx) => {
+        return (
+          <FullListCardRow
+            key={idx}
+            drawProbability={calculateDrawProbability(
+              splitMaps.actions!.get(card)?.zoneCount!,
+              pd.library.length,
+              getCountsFromArray(pd.graveyard).get(card)!,
+              pd.graveyard.length
+            )}
+            cardName={card}
+            cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
+            libraryAmount={splitMaps.actions!.get(card)?.zoneCount!}
+          />
+        );
+      })}
+      {/* Treasure Section */}
+      <div className="col-span-12 text-white">Treasures</div>
+      {Array.from(splitMaps.treasures!.keys()).map((card, idx) => {
+        return (
+          <FullListCardRow
+            key={idx}
+            drawProbability={calculateDrawProbability(
+              splitMaps.treasures!.get(card)?.zoneCount!,
+              pd.library.length,
+              getCountsFromArray(pd.graveyard).get(card)!,
+              pd.graveyard.length
+            )}
+            cardName={card}
+            cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
+            libraryAmount={splitMaps.treasures!.get(card)?.zoneCount!}
+          />
+        );
+      })}
+      {/* Victory section */}
+      <div className="col-span-12 text-white">Victories</div>
+      {Array.from(splitMaps?.victories!.keys()).map((card, idx) => {
+        return (
+          <FullListCardRow
+            key={idx}
+            drawProbability={calculateDrawProbability(
+              splitMaps.victories!.get(card)?.zoneCount!,
+              pd.library.length,
+              getCountsFromArray(pd.graveyard).get(card)!,
+              pd.graveyard.length
+            )}
+            cardName={card}
+            cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}
+            libraryAmount={splitMaps.victories!.get(card)?.zoneCount!}
+          />
+        );
+      })}
     </div>
   );
 };

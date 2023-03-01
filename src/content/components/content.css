@@ -2,14 +2,7 @@
   z-index: 0;
 }
 
-#primaryFrame {
-  position: fixed;
-  background-color: burlywood;
-  overflow: auto;
-  width: 200px;
-  height: 175px;
-  display: inline-block;
-}
+
 
 #libHoverEl {
   display: initial;

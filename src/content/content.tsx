@@ -54,7 +54,7 @@ export const resetGame = () => {
   kingdomInitialized = false;
   playerDeckInitialized = false;
   logsProcessed = "";
-  gameLog;
+  gameLog = "";
   playerName = "";
   opponentName = "";
   decks = new Map();

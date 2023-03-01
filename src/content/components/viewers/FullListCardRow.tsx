@@ -15,13 +15,20 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
 }) => {
   return (
     <React.Fragment>
-      <div className="col-span-1"></div>
-      <div className="col-span-3">{cardName}</div>
-      <div className="col-span-2">{libraryAmount}</div>
-      <div className="col-span-1">/</div>
-      <div className="col-span-2">{cardAmount}</div>
-      <div className="col-span-2">{drawProbability}</div>
-      <div className="col-span-1"></div>
+      <main className={"text-xs grid grid-cols-12 last:border border-x even:border-y"}>
+        <div className="text-white col-span-5 pl-1 whitespace-nowrap">
+          {cardName}
+        </div>
+        <div className="align-center text-white col-span-4 text-center">
+          {libraryAmount} / {cardAmount}
+        </div>
+        {/* <div className="align-center text-white col-span-1">/</div>
+        <div className="align-center text-white col-span-1 text-center">
+        </div> */}
+        <div className="align-center text-white col-span-3 text-center pr-1">
+          {drawProbability}
+        </div>
+      </main>
     </React.Fragment>
   );
 };
