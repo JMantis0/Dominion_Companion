@@ -3,20 +3,13 @@ import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
 import CategoryViewer from "./viewers/CategoryViewer";
 import SortableViewer from "./viewers/SortableViewer";
-// import DiscardZoneViewer from "./viewers/DiscardZoneViewer";
-// import { Tabs } from "flowbite-react";
-// import { useSelector } from "react-redux";
-// import { RootState } from "../../redux/store";
-// import HandZoneViewer from "./viewers/HandZoneViewer";
-// import InPlayZoneViewer from "./viewers/InPlayZoneViewer";
+import DiscardZoneViewer from "./viewers/DiscardZoneViewer";
+import { Scrollbars } from "react-custom-scrollbars-2";
 
 const PrimaryFrame = () => {
-  // const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const [tabs, setTabs] = useState<"Game" | "Deck">("Game");
+  const [tabs, setTabs] = useState<"Game" | "Deck" | "Discard">("Game");
   useEffect(() => {
-    $("#primaryFrame")
-      .draggable()
-      .resizable({ autoHide: false, handles: "all" });
+    $("#primaryFrame").draggable().resizable({ handles: "all" });
   }, []);
 
   const handleTabChange = (e: BaseSyntheticEvent) => {
@@ -31,44 +24,52 @@ const PrimaryFrame = () => {
 
   return (
     <React.Fragment>
-      <div id="primaryFrame" className="bg-black/[.85] w-64 h-48">
-        <div className="text-white text-sm grid grid-cols-12">
-          <div className="col-span-4">TOP DIV</div>
-          <div className="col-span-4">
+      <div
+        id="primaryFrame"
+        className="bg-black/[.85] w-[180px] h-[200px] overflow-hidden pt-[40px]"
+      >
+        <div className="text-white text-sm grid grid-cols-12 mt-[-40px]">
+          <div className="col-span-6">
             <button
-              className="w-full outline hover:outline-2 focus:ring"
+              className={`w-full ${
+                tabs === "Discard" ? "border-b-2" : "text-lime-500"
+              }`}
               onClick={handleTabChange}
               name="Game"
             >
-              Game view
+              Deck
             </button>
           </div>
-          <div className="col-span-4">
+          <div className="col-span-6">
             <button
-              className="w-full outline hover:outline-2 focus:ring"
+              className={`w-full border-l-2 ${
+                tabs === "Game" ? "border-b-2" : "text-lime-500"
+              }`}
               onClick={handleTabChange}
-              name="Deck"
+              name="Discard"
             >
-              Deck View
+              Discard Pile
             </button>
           </div>
         </div>
-        <div className="p-1">
-          {tabs === "Game" && <SortableViewer />}
-          {tabs === "Deck" && <CategoryViewer />}
-        </div>
-
-        {/* <Tabs.Group aria-label="Default tabs" style={"default"}>
-          <Tabs.Item title={`Discard: ${pd.graveyard.length}`}>
-            <DiscardZoneViewer />
-          </Tabs.Item>
-          <Tabs.Item title={`Hand: ${pd.hand.length}`}>
-            <HandZoneViewer />
-          </Tabs.Item>
-          <Tabs.Item title={`In Play: ${pd.inPlay.length}`}>
-            <InPlayZoneViewer />
-          </Tabs.Item>
-        </Tabs.Group> */}
+        <Scrollbars
+          renderThumbVertical={({ style, ...props }) => (
+            <div
+              {...props}
+              style={{
+                ...style,
+                backgroundColor: "#e9e9e9",
+                width: "3px",
+                opacity: ".75",
+              }}
+            />
+          )}
+        >
+          <div className="p-1 pt-[15px] mr-2 overflow-hidden">
+            {tabs === "Game" && <SortableViewer />}
+            {tabs === "Discard" && <DiscardZoneViewer />}
+          </div>
+        </Scrollbars>
       </div>
     </React.Fragment>
   );

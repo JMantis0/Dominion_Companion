@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {
-  calculateDrawProbability,
   getCountsFromArray,
   combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
@@ -10,8 +9,8 @@ import {
   SplitMaps,
   sortTheView,
 } from "../../utils/utilityFunctions";
-import FullListCardRow from "./FullListCardRow";
 import ViewHeader from "./SortViewHeader";
+import ZoneCardRow from "./ZoneCardRow";
 
 const CategoryViewer = () => {
   const firstRender = useRef(true);
@@ -33,17 +32,17 @@ const CategoryViewer = () => {
     const sortedActions = sortTheView(
       sortButtonState.category,
       unsortedSplitMap.actions!,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     const sortedTreasures = sortTheView(
       sortButtonState.category,
       unsortedSplitMap.treasures!,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     const sortedVictories = sortTheView(
       sortButtonState.category,
       unsortedSplitMap.victories!,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     setSplitMaps({
       treasures: sortedTreasures,
@@ -61,17 +60,17 @@ const CategoryViewer = () => {
     const sortedActions = sortTheView(
       sortButtonState.category,
       splitMaps.actions!,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     const sortedTreasures = sortTheView(
       sortButtonState.category,
       splitMaps.treasures!,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
     const sortedVictories = sortTheView(
       sortButtonState.category,
       splitMaps.victories!,
-      sortButtonState.sort
+      sortButtonState.sort,pd
     );
 
     setSplitMaps({
@@ -84,22 +83,14 @@ const CategoryViewer = () => {
   return (
     <div className="outer-shell">
       <ViewHeader />
-
       {/* Action section */}
       <div className="col-span-12 text-white">Actions</div>
       {Array.from(splitMaps?.actions!.keys()).map((card, idx) => {
         return (
-          <FullListCardRow
+          <ZoneCardRow
             key={idx}
-            drawProbability={calculateDrawProbability(
-              splitMaps.actions!.get(card)?.zoneCount!,
-              pd.library.length,
-              getCountsFromArray(pd.graveyard).get(card)!,
-              pd.graveyard.length
-            )}
             cardName={card}
-            cardAmount={splitMaps.actions!.get(card)?.entireDeckCount!}
-            libraryAmount={splitMaps.actions!.get(card)?.zoneCount!}
+            cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
           />
         );
       })}
@@ -107,17 +98,10 @@ const CategoryViewer = () => {
       <div className="col-span-12 text-white">Treasures</div>
       {Array.from(splitMaps.treasures!.keys()).map((card, idx) => {
         return (
-          <FullListCardRow
+          <ZoneCardRow
             key={idx}
-            drawProbability={calculateDrawProbability(
-              splitMaps.treasures!.get(card)?.zoneCount!,
-              pd.library.length,
-              getCountsFromArray(pd.graveyard).get(card)!,
-              pd.graveyard.length
-            )}
             cardName={card}
-            cardAmount={splitMaps.treasures!.get(card)?.entireDeckCount!}
-            libraryAmount={splitMaps.treasures!.get(card)?.zoneCount!}
+            cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
           />
         );
       })}
@@ -125,17 +109,10 @@ const CategoryViewer = () => {
       <div className="col-span-12 text-white">Victories</div>
       {Array.from(splitMaps?.victories!.keys()).map((card, idx) => {
         return (
-          <FullListCardRow
+          <ZoneCardRow
             key={idx}
-            drawProbability={calculateDrawProbability(
-              splitMaps.victories!.get(card)?.zoneCount!,
-              pd.library.length,
-              getCountsFromArray(pd.graveyard).get(card)!,
-              pd.graveyard.length
-            )}
             cardName={card}
-            cardAmount={splitMaps.victories!.get(card)?.entireDeckCount!}
-            libraryAmount={splitMaps.victories!.get(card)?.zoneCount!}
+            cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
           />
         );
       })}

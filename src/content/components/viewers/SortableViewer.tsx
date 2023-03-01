@@ -13,7 +13,7 @@ import ViewHeader from "./SortViewHeader";
 
 const SortableView = () => {
   const firstRender = useRef(true);
-  const [combinedMap, setCombinedMap] = useState<Map<string, CardCounts>>(
+  const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
   const pd = useSelector((state: RootState) => state.content.playerDeck);
@@ -31,10 +31,11 @@ const SortableView = () => {
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
       unsortedCombinedMap,
-      sortButtonState.sort
+      sortButtonState.sort,
+      pd
     );
     console.log("sortedCombinedMap", sortedCombinedMap);
-    setCombinedMap(sortedCombinedMap);
+    setLibraryMap(sortedCombinedMap);
   }, [pd]);
 
   useEffect(() => {
@@ -43,27 +44,32 @@ const SortableView = () => {
       firstRender.current = false;
       return;
     }
-    setCombinedMap(
-      sortTheView(sortButtonState.category, combinedMap, sortButtonState.sort)
+    setLibraryMap(
+      sortTheView(
+        sortButtonState.category,
+        libraryMap,
+        sortButtonState.sort,
+        pd
+      )
     );
   }, [sortButtonState]);
 
   return (
     <div className="outer-shell">
       <ViewHeader />
-      {Array.from(combinedMap.keys()).map((card, idx) => {
+      {Array.from(libraryMap.keys()).map((card, idx) => {
         return (
           <FullListCardRow
             key={idx}
             drawProbability={calculateDrawProbability(
-              combinedMap.get(card)?.zoneCount!,
+              libraryMap.get(card)?.zoneCount!,
               pd.library.length,
               getCountsFromArray(pd.graveyard).get(card)!,
               pd.graveyard.length
             )}
             cardName={card}
-            cardAmount={combinedMap.get(card)?.entireDeckCount!}
-            libraryAmount={combinedMap.get(card)?.zoneCount!}
+            cardAmount={libraryMap.get(card)?.entireDeckCount!}
+            libraryAmount={libraryMap.get(card)?.zoneCount!}
           />
         );
       })}

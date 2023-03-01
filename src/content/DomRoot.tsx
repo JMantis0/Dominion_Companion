@@ -25,7 +25,7 @@ const DomRoot: FunctionComponent<ContentProps> = ({
   logsProcessed,
 }) => {
   return (
-    <div id="domRoot">
+    <div id="domRoot" className="-z-100 relative h-[0px] w-[0px]">
       <Provider store={store}>
         <LogObserver
           playerName={playerName}
