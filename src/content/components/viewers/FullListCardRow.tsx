@@ -1,4 +1,5 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { getRowColor } from "../../utils/utilityFunctions";
 
 type CardRowProps = {
   cardAmount: number;
@@ -13,19 +14,23 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
   drawProbability,
   cardName,
 }) => {
+  const [color, setColor] = useState<string>("text-white");
+  useEffect(() => {
+    setColor(getRowColor(cardName));
+  }, []);
+
   return (
     <React.Fragment>
-      <main className={"text-xs grid grid-cols-12 last:border border-x even:border-y"}>
-        <div className="text-white col-span-5 pl-1 whitespace-nowrap">
+      <main
+        className={`text-xs grid grid-cols-12 last:border border-x even:border-y`}
+      >
+        <div className={`${color} col-span-5 pl-1 whitespace-nowrap`}>
           {cardName}
         </div>
-        <div className="align-center text-white col-span-4 text-center">
+        <div className={`${color} align-center  col-span-4 text-center`}>
           {libraryAmount} / {cardAmount}
         </div>
-        {/* <div className="align-center text-white col-span-1">/</div>
-        <div className="align-center text-white col-span-1 text-center">
-        </div> */}
-        <div className="align-center text-white col-span-3 text-center pr-1">
+        <div className={`${color} align-center  col-span-3 text-center pr-1`}>
           {drawProbability}
         </div>
       </main>

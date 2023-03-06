@@ -6,17 +6,17 @@ const SortViewHeader = () => {
     <React.Fragment>
       <div className={"text-xs grid grid-cols-12"}>
         <div className="col-span-5 whitespace-nowrap">
-          <SortButton title="Card Name" category="card" />
+          <SortButton title="Card" category="card" />
         </div>
         <div className="col-span-2 whitespace-nowrap">
-          <SortButton title="Dk #" category="zone" />
+          <SortButton title="D #" category="zone" />
         </div>
     
         <div className="col-span-2 whitespace-nowrap">
-          <SortButton title="Tot #" category="owned" />
+          <SortButton title="T #" category="owned" />
         </div>
         <div className="col-span-3 whitespace-nowrap">
-          <SortButton title="Draw%" category="probability" />
+          <SortButton title="Drw%" category="probability" />
         </div>
       </div>
     </React.Fragment>

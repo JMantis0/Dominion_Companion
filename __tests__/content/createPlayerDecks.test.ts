@@ -1,5 +1,5 @@
 import { expect, describe, it } from "@jest/globals";
-import { createPlayerDecks } from "../../src/content/contentFunctions";
+import { createPlayerDecks } from "../../src/content/contentScriptFunctions";
 import { Deck } from "../../src/model/deck";
 
 describe("Function createPlayerDacks", () => {

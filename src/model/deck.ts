@@ -1,4 +1,4 @@
-import { getLogScrollContainerLogLines } from "../content/contentFunctions";
+import { getLogScrollContainerLogLines } from "../content/contentScriptFunctions";
 import { getErrorMessage } from "../content/utils/utilityFunctions";
 
 /**

@@ -1,7 +1,6 @@
 import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
-import CategoryViewer from "./viewers/CategoryViewer";
 import SortableViewer from "./viewers/SortableViewer";
 import DiscardZoneViewer from "./viewers/DiscardZoneViewer";
 import { Scrollbars } from "react-custom-scrollbars-2";

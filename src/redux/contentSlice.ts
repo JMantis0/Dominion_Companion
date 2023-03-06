@@ -15,16 +15,11 @@ export interface ContentState {
   sortButtonState: SortButtonState;
 }
 
-// export type SortButtonState = {
-//   category: "card" | "deck" | "owned" | "probability";
-//   sort: "ascending" | "descending";
-// };
-
 const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   sortButtonState: {
-    category: "zone",
+    category: "probability",
     sort: "ascending",
   },
 };

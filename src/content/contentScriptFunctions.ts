@@ -14,7 +14,7 @@ const isGameLogPresent = (): boolean => {
 /**
  * Gets and returns the game log element's innerText.
  * Purpose: Update the global gameLog variable.
- * @returns The string of innertext of the game-log element.
+ * @returns The string of innerText of the game-log element.
  */
 const getGameLog = (): string => {
   const gameLogElement = document.getElementsByClassName(
@@ -40,7 +40,7 @@ const arePlayerInfoElementsPresent = (): boolean => {
 /**
  * Gets the <player-info elements> from the DOM and returns them.
  * Purpose: Part of initializing the global variables playerName and opponentName.
- * @returns HTMLCollection<HTMLElement> of <player-info-elmeents>:
+ * @returns HTMLCollection<HTMLElement> of <player-info-elements>:
  */
 const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
   const playerInfoElements: HTMLCollectionOf<HTMLElement> =
@@ -79,7 +79,7 @@ const getHeroPlayerInfoElement = (
 /**
  * Gets the <player-info-name> elements from the DOM, and compares their
  * css properties to determine which contains the player name and which
- * ontains the opponentname, then returns those names.
+ * Contains the opponentName, then returns those names.
  * Purpose: Initializing the global variable playerName and opponentName.
  * @param playerInfoElements - Collection of <player-info> elements.
  * @returns An array containing the playerName and opponentName as strings.
@@ -101,7 +101,7 @@ const getPlayerAndOpponentNameByComparingElementPosition = (
     );
     nameTransformMap.set(nomen, yTransForm);
   }
-  //  Compare the Ytransform values.  The greatest one gets assigned to player.
+  //  Compare the yTransform values.  The greatest one gets assigned to player.
   playerName = [...nameTransformMap.entries()].reduce((prev, current) => {
     return prev[1] > current[1] ? prev : current;
   })[0];
@@ -164,10 +164,10 @@ const isKingdomElementPresent = (): boolean => {
 };
 
 /**
- * Gets the kindom-viewer-group element from the DOM and iterates through the
+ * Gets the kingdom-viewer-group element from the DOM and iterates through the
  * name-layer elements within it.  Extracts the innerText of each name-layer and
  * pushes it to an array of strings.  Then adds default strings to the array, and
- * eturns the array.
+ * returns the array.
  * Purpose: To initialize the global variable kingdom.
  * @returns The array of strings containing the kingdom card available in the current game.
  */
@@ -194,7 +194,7 @@ const getKingdom = (): Array<string> => {
 };
 
 /**
- * Creates a deckmap object, and creates a Deck instance for the player and
+ * Creates a Deck map object, and creates a Deck instance for the player and
  * a deck for the opponent, and adds the decks to the map using the
  * playerNames as a key.  The params are required to call Deck's constructor.
  * Purpose: To initialize the global decks variable.
@@ -355,7 +355,7 @@ const sendToFront = (deck: Deck, playerName: string) => {
 
 /**
  * Used by decks to eliminate ambiguity for certain Vassal activity.
- * @returns - A collection of all the divs in the log-scroll-container with the class 'log-line'
+ * @returns - A collection of all the div's in the log-scroll-container with the class 'log-line'
  */
 const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
   let scrollEl: Element;

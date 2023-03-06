@@ -1,5 +1,5 @@
 import { expect, describe, it } from "@jest/globals";
-import { getLastLogEntryOf } from "../../src/content/contentFunctions";
+import { getLastLogEntryOf } from "../../src/content/contentScriptFunctions";
 
 describe("Function getLastLogEntryOf()", () => {
   describe("given a gameLog or logsProcessed string", () => {
