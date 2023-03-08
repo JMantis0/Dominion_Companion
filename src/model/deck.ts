@@ -125,106 +125,6 @@ export class Deck {
       "aside with Library",
     ];
 
-    const handleTreasureLine = (line: string): Array<number> => {
-      // Inside this if, this means that the player is in a play treasure phase.
-      // The two lines must be compared to see how many additional treasures must be
-      // processed
-      const prevLine = this.lastEntryProcessed;
-      const treasures = ["Copper", "Silver", "Gold"];
-
-      // get the total number of each treasure that was played on the last line
-      const numberOfPrevCards: Array<number> = [];
-      treasures.forEach((treasure) => {
-        if (prevLine.match(treasure)) {
-          const upperSlice = prevLine.indexOf(treasure) - 1;
-          const lowerSlice = prevLine.slice(0, upperSlice).lastIndexOf(" ") + 1;
-          const amountChar = prevLine.substring(lowerSlice, upperSlice);
-          let amount = 0;
-          if (amountChar === "an" || amountChar === "a") {
-            amount = 1;
-          } else {
-            amount = parseInt(amountChar);
-          }
-          numberOfPrevCards.push(amount);
-        } else {
-          numberOfPrevCards.push(0);
-        }
-      });
-
-      const numberOfCards: Array<number> = [];
-      treasures.forEach((treasure) => {
-        if (line.match(treasure)) {
-          const upperSlice = line.indexOf(treasure) - 1;
-          const lowerSlice = line.slice(0, upperSlice).lastIndexOf(" ") + 1;
-          const amountChar = line.substring(lowerSlice, upperSlice);
-          let amount = 0;
-          if (amountChar == "an" || amountChar == "a") {
-            amount = 1;
-          } else {
-            amount = parseInt(amountChar);
-          }
-          numberOfCards.push(amount);
-        } else {
-          numberOfCards.push(0);
-        }
-      });
-
-      let amountsToPlay = [
-        numberOfCards[0] - numberOfPrevCards[0],
-        numberOfCards[1] - numberOfPrevCards[1],
-        numberOfCards[2] - numberOfPrevCards[2],
-      ];
-
-      const removed = this.logArchive.pop(); // keep duplicate entries out.
-      this.treasurePopped = true;
-      console.info("popping log off", removed);
-      return amountsToPlay;
-    };
-
-    const handleRepeatBuyGain = (
-      currentLine: string
-      // , card: string
-    ): number => {
-      let amendedAmount: number;
-      const prevLine = this.logArchive.slice().pop();
-      const lastSpaceIndex = prevLine?.lastIndexOf(" ");
-      const secondLastSpaceIndex = prevLine
-        ?.slice(0, lastSpaceIndex)
-        .lastIndexOf(" ");
-
-      const lastIndex = currentLine.lastIndexOf(" ");
-      const secondLastIndex = currentLine.slice(0, lastIndex).lastIndexOf(" ");
-
-      let prevCount: number;
-      let currCount: number;
-      if (
-        prevLine!
-          .substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
-          .match(/\ban?\b/) !== null
-      ) {
-        prevCount = 1;
-      } else {
-        prevCount = parseInt(
-          prevLine!.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
-        );
-      }
-
-      if (
-        currentLine
-          .substring(secondLastIndex + 1, lastIndex)
-          .match(/\ban?\b/) !== null
-      ) {
-        currCount = 1;
-      } else {
-        currCount = parseInt(
-          currentLine.substring(secondLastIndex + 1, lastIndex)
-        );
-      }
-
-      amendedAmount = currCount - prevCount;
-      return amendedAmount;
-    };
-
     log.forEach((line) => {
       // reset treasurePopped tracker to false
       this.treasurePopped = false;
@@ -253,7 +153,7 @@ export class Deck {
           this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
           this.checkForTreasurePlayLine(line)
         ) {
-          numberOfCards = handleTreasureLine(line);
+          numberOfCards = this.handleTreasureLine(line);
           act = "plays";
           cards = ["Copper", "Silver", "Gold"];
         } else {
@@ -288,7 +188,7 @@ export class Deck {
               cards[0]
             );
             if (lastLineBuyAndGains && thisLineBuyAndGains) {
-              numberOfCards[0] = handleRepeatBuyGain(line);
+              numberOfCards[0] = this.handleRepeatBuyGain(line);
               const removed = this.logArchive.pop();
               console.info(`Popping off ${removed}`);
             }
@@ -308,11 +208,18 @@ export class Deck {
             const prevLine = this.logArchive[len - 1];
 
             let prevLineCard: string = "EmptyCard";
-            this.kingdom.forEach((card) => {
+            for (let i = 0; i < this.kingdom.length; i++) {
+              const card = this.kingdom[i];
               if (prevLine.match(card) !== null) {
                 prevLineCard = card;
+                break;
               }
-            });
+            }
+            // this.kingdom.forEach((card) => {
+            //   if (prevLine.match(card) !== null) {
+            //     prevLineCard = card;
+            //   }
+            // });
             if (prevLineCard === "EmptyCard")
               throw new Error("No card found in previous entry");
 
@@ -333,14 +240,18 @@ export class Deck {
             break;
           case "gains":
             {
-              const artisanGain = this.checkForArtisanGain();
-              const mineGain = this.checkForMineGain();
-              const bureaucratGain = this.checkForBureaucratGain();
+              const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
+              // const artisanGain = this.checkForArtisanGain();
+              // const mineGain = this.checkForMineGain();
+              // const bureaucratGain = this.checkForBureaucratGain();
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
-                  if (bureaucratGain) {
+                  if (mostRecentPlay === "Bureaucrat") {
                     this.gainIntoDeck(cards[i]);
-                  } else if (mineGain || artisanGain) {
+                  } else if (
+                    mostRecentPlay === "Mine" ||
+                    mostRecentPlay === "Artisan"
+                  ) {
                     this.gainIntoHand(cards[i]);
                   } else {
                     const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
@@ -481,7 +392,7 @@ export class Deck {
           this.checkForTreasurePlayLine(line)
         ) {
           //  If playing with no animations, need this to pop off opponent treasure plays.
-          handleTreasureLine(line);
+          this.handleTreasureLine(line);
         }
       }
 
@@ -815,6 +726,14 @@ export class Deck {
     });
     if (drawCount == 5) {
       needCleanUp = true;
+    } else if (
+      this.entireDeck.length < 5 &&
+      drawCount === this.entireDeck.length
+    ) {
+      console.log(
+        "Special cleanup needed, less than 5 draws because less than 5 cards owned."
+      );
+      needCleanUp = true;
     }
     console.log("Checking for cleanup.  DrawCount = ", drawCount);
     return needCleanUp;
@@ -1001,7 +920,7 @@ export class Deck {
     let isBuyAndGain: boolean;
     if (
       line.match(" buys and gains ") !== null &&
-      line.match(` ${card.substring(0, card.length - 1)}`)
+      line.match(` ${card.substring(0, card.length - 1)}`) !== null
     ) {
       isBuyAndGain = true;
     } else isBuyAndGain = false;
@@ -1020,7 +939,9 @@ export class Deck {
     currentCard: string
   ): boolean => {
     let previousLineBoughtCurrentLineCard: boolean;
-    if (this.logArchive.slice().pop()?.match(` buys a ${currentCard}`)) {
+    if (
+      this.logArchive.slice().pop()?.match(` buys a ${currentCard}`) !== null
+    ) {
       previousLineBoughtCurrentLineCard = true;
     } else {
       previousLineBoughtCurrentLineCard = false;
@@ -1189,5 +1110,117 @@ export class Deck {
     }
 
     return mostRecentCardPlayed;
+  }
+
+  /**
+   * This function is used to deal with the Client-DOM behavior of removing and adding
+   * a log line when consecutive treasures are played.  The function looks at the
+   * current line and the previously processed line and calculated the difference in the
+   * amount of treasures played on each line for each treasure, and returns an array with those
+   * counts, to be used by the update method.  It also pops the last log entry off of the logArchive
+   * to keep it identical to what appears in the "game-log" innerText.
+   * @param line - the current line.
+   * @returns - A number array of length 3 representing the number of Copper, Silver, Gold to be played.
+   */
+  handleTreasureLine(line: string): Array<number> {
+    // Inside this if, this means that the player is in a play treasure phase.
+    // The two lines must be compared to see how many additional treasures must be
+    // processed
+    const prevLine = this.lastEntryProcessed;
+    const treasures = ["Copper", "Silver", "Gold"];
+
+    // get the total number of each treasure that was played on the last line
+    const numberOfPrevCards: Array<number> = [];
+    treasures.forEach((treasure) => {
+      if (prevLine.match(treasure)) {
+        const upperSlice = prevLine.indexOf(treasure) - 1;
+        const lowerSlice = prevLine.slice(0, upperSlice).lastIndexOf(" ") + 1;
+        const amountChar = prevLine.substring(lowerSlice, upperSlice);
+        let amount = 0;
+        if (amountChar === "an" || amountChar === "a") {
+          amount = 1;
+        } else {
+          amount = parseInt(amountChar);
+        }
+        numberOfPrevCards.push(amount);
+      } else {
+        numberOfPrevCards.push(0);
+      }
+    });
+
+    const numberOfCards: Array<number> = [];
+    treasures.forEach((treasure) => {
+      if (line.match(treasure)) {
+        const upperSlice = line.indexOf(treasure) - 1;
+        const lowerSlice = line.slice(0, upperSlice).lastIndexOf(" ") + 1;
+        const amountChar = line.substring(lowerSlice, upperSlice);
+        let amount = 0;
+        if (amountChar == "an" || amountChar == "a") {
+          amount = 1;
+        } else {
+          amount = parseInt(amountChar);
+        }
+        numberOfCards.push(amount);
+      } else {
+        numberOfCards.push(0);
+      }
+    });
+
+    let amountsToPlay = [
+      numberOfCards[0] - numberOfPrevCards[0],
+      numberOfCards[1] - numberOfPrevCards[1],
+      numberOfCards[2] - numberOfPrevCards[2],
+    ];
+
+    const removed = this.logArchive.pop(); // keep duplicate entries out.
+    this.treasurePopped = true;
+    console.info("popping log off", removed);
+    return amountsToPlay;
+  }
+
+  /**
+   ** This function is used to deal with the Client-DOM behavior of removing and adding
+   * a log line when the same card is purchased more than once in a row.
+   * @param currentLine - The current line.
+   * @returns - The number of cards to gain (to avoid over gaining)
+   */
+  handleRepeatBuyGain(currentLine: string): number {
+    let amendedAmount: number;
+    const prevLine = this.logArchive.slice().pop();
+    const lastSpaceIndex = prevLine?.lastIndexOf(" ");
+    const secondLastSpaceIndex = prevLine
+      ?.slice(0, lastSpaceIndex)
+      .lastIndexOf(" ");
+
+    const lastIndex = currentLine.lastIndexOf(" ");
+    const secondLastIndex = currentLine.slice(0, lastIndex).lastIndexOf(" ");
+
+    let prevCount: number;
+    let currCount: number;
+    if (
+      prevLine!
+        .substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
+        .match(/\ban?\b/) !== null
+    ) {
+      prevCount = 1;
+    } else {
+      prevCount = parseInt(
+        prevLine!.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
+      );
+    }
+
+    if (
+      currentLine.substring(secondLastIndex + 1, lastIndex).match(/\ban?\b/) !==
+      null
+    ) {
+      currCount = 1;
+    } else {
+      currCount = parseInt(
+        currentLine.substring(secondLastIndex + 1, lastIndex)
+      );
+    }
+
+    amendedAmount = currCount - prevCount;
+    return amendedAmount;
   }
 }
