@@ -10,7 +10,7 @@ describe("Function removeCardFromEntireDeck()", () => {
     tDeck.setEntireDeck(tEntireDeck);
   });
   describe("when given a card that is in the deck", () => {
-    it("should remove that card from the entireDeck field arrat", () => {
+    it("should remove that card from the entireDeck field array", () => {
       tDeck.removeCardFromEntireDeck("Ace");
       expect(tDeck.getEntireDeck().indexOf("Ace")).toBeLessThan(0);
     });

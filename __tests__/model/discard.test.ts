@@ -19,7 +19,7 @@ describe("Function discard()", () => {
       handAfter = rDeck.getHand().slice();
       gyAfter = rDeck.getGraveyard().slice();
     });
-    it("should remove one instance of that card from the hand fielda array", () => {
+    it("should remove one instance of that card from the hand field array", () => {
       expect(handAfter.concat([cardToBeDiscarded]).sort()).toStrictEqual(
         handBefore.sort()
       );

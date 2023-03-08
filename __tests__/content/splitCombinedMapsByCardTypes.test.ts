@@ -1,10 +1,10 @@
 import { describe, it, beforeEach, expect } from "@jest/globals";
 import {
   CardCounts,
-  combineDeckListMapAndLibraryListMap,
+  combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
   SplitMaps,
-} from "../../src/options/utils/utilityFunctions";
+} from "../../src/content/components/componentFunctions";
 import { getCountsFromArray } from "../testUtilFuncs";
 
 describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
@@ -15,8 +15,9 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
   let tMap: Map<string, CardCounts>;
   let aMap: Map<string, CardCounts>;
   let vMap: Map<string, CardCounts>;
+  let cMap: Map<string, CardCounts>;
 
-  describe("when given a combined map of library counts and entirelist counts", () => {
+  describe("when given a combined map of library counts and entire list counts", () => {
     beforeEach(() => {
       entireList = [
         "Copper",
@@ -52,7 +53,7 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
         "Vassal",
         "Vassal",
       ];
-      combinedMap = combineDeckListMapAndLibraryListMap(
+      combinedMap = combineDeckListMapAndZoneListMap(
         getCountsFromArray(entireList),
         getCountsFromArray(libList)
       );
@@ -61,16 +62,23 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
       tMap = new Map();
       aMap = new Map();
       // construct expected object
-      vMap.set("Estate", { libraryCount: 1, entireDeckCount: 3 });
-      aMap.set("Vassal", { libraryCount: 2, entireDeckCount: 3 });
-      tMap.set("Copper", { libraryCount: 2, entireDeckCount: 5 });
-      tMap.set("Silver", { libraryCount: 2, entireDeckCount: 5 });
-      tMap.set("Gold", { libraryCount: 1, entireDeckCount: 5 });
+      vMap.set("Estate", { zoneCount: 1, entireDeckCount: 3 });
+      aMap.set("Vassal", { zoneCount: 2, entireDeckCount: 3 });
+      tMap.set("Copper", { zoneCount: 2, entireDeckCount: 5 });
+      tMap.set("Silver", { zoneCount: 2, entireDeckCount: 5 });
+      tMap.set("Gold", { zoneCount: 1, entireDeckCount: 5 });
 
-      expectedMap = { treasures: tMap, victories: vMap, actions: aMap };
+      expectedMap = {
+        treasures: tMap,
+        victories: vMap,
+        actions: aMap,
+        curses: cMap,
+      };
     });
     it("should return a SplitMaps object with three maps, one with only treasure keys, another with only action keys, and one with only victory keys", () => {
-      expect(splitCombinedMapsByCardTypes(combinedMap)).toStrictEqual(expectedMap);
+      expect(splitCombinedMapsByCardTypes(combinedMap)).toStrictEqual(
+        expectedMap
+      );
     });
   });
 });

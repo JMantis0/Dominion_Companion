@@ -8,7 +8,7 @@ import { isKingdomElementPresent } from "../../src/content/contentScriptFunction
 
 describe("Function isKingdomElementPresent", () => {
   let kingdomElement: HTMLElement;
-  describe("when element with class kinddom-viewer-group is present", () => {
+  describe("when element with class kingdom-viewer-group is present", () => {
     beforeAll(() => {
       kingdomElement = document.createElement("div") as HTMLElement;
       kingdomElement.setAttribute("class", "kingdom-viewer-group");

@@ -16,7 +16,7 @@ describe("Function topDeckFromGraveyard()", () => {
       expect(tDeck.getGraveyard().indexOf("Ace")).toBeLessThan(0);
     });
   });
-  describe("when given a card that is not in the discard field arary", () => {
+  describe("when given a card that is not in the discard field array", () => {
     it("should throw an error", () => {
       expect(() => tDeck.topDeckFromGraveyard("Joker")).toThrow(Error);
     });

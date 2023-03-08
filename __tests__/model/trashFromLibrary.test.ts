@@ -2,7 +2,7 @@ import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
 import { createRandomDeck } from "../testUtilFuncs";
 
-describe("Function trashFromLibrart()", () => {
+describe("Function trashFromLibrary()", () => {
   let rDeck: Deck;
   let cardToTrash: string;
   let libBefore: string[];

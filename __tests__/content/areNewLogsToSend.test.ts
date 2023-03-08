@@ -9,14 +9,14 @@ describe("Function areNewLogsToSend()", () => {
       expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
     });
   });
-  describe("when given non-identical logsProcessd and gameLog", () => {
+  describe("when given non-identical logsProcessed and gameLog", () => {
     const logsProcessed: string = "Log Line1\nLogLine2\nLogLine3";
     const gameLog: string = "Log Line1\nLogLine2\nLogLine3\nLogLine4";
     it("should return true", () => {
       expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(true);
     });
   });
-  describe("when given more logsProcessed than gamelog", () => {
+  describe("when given more logsProcessed than game-log", () => {
     const tooManyLogsProcessed: string =
       "Log Line1\nLogLine2\nLogLine3\nLogLine4";
     const gameLog: string = "Log Line1\nLogLine2\nLogLine3";

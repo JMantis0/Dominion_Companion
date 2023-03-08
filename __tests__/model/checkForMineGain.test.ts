@@ -6,7 +6,7 @@ describe("Function checkForMineGain()", () => {
   let rDeck: Deck;
   let fakeLogArchive: string[];
 
-  describe("when the gain occuring on the line is from a mine play", () => {
+  describe("when the gain occurring on the line is from a mine play", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
       fakeLogArchive = ["pNick plays a Mine.", "pNick trashes a copper."];
@@ -16,7 +16,7 @@ describe("Function checkForMineGain()", () => {
       expect(rDeck.checkForMineGain()).toBe(true);
     });
   });
-  describe("when the gain occuring on the line is not from a mine play", () => {
+  describe("when the gain occurring on the line is not from a mine play", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
       fakeLogArchive = ["pNick gains a Mine", "pNick plays 3 Coppers. (+$3)."];

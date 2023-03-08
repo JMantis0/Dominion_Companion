@@ -3,7 +3,7 @@ import { getUndispatchedLogs } from "../../src/content/contentScriptFunctions";
 
 describe("Function getUndispatchedLogs()", () => {
   describe("when given the current game log, and logs Processed", () => {
-    it("should return the logs that have not been dispatched(arent in the processed logs", () => {
+    it("should return the logs that have not been dispatched", () => {
       const gameLog = "LogLine1\nLogLine2\nLogLine3\nLogLine4\nLine5\nLogLine6";
       const logsDispatched = "LogLine1\nLogLine2\nLogLine3\nLogLine4";
 

@@ -2,8 +2,6 @@ import React, { FunctionComponent } from "react";
 import { Provider } from "react-redux";
 import { Deck } from "../model/deck";
 import { store } from "../redux/store";
-import DiscardHover from "./components/hoverzones/DiscardHover";
-import LibraryHover from "./components/hoverzones/LibraryHover";
 import PrimaryFrame from "./components/PrimaryFrame";
 import LogObserver from "./components/LogObserver";
 import "../assets/tailwind.css"
@@ -42,8 +40,6 @@ const DomRoot: FunctionComponent<ContentProps> = ({
           decks={decks}
           gameLog={gameLog}
         />
-        <DiscardHover />
-        <LibraryHover />
         <PrimaryFrame />
       </Provider>
     </div>

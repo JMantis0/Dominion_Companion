@@ -7,7 +7,6 @@ describe("Function createRandomKingdom()", () => {
     expect(randomKingdom.length).toBe(17);
   });
   it("should have no duplicate members", () => {
-    // randomKingdom.push(randomKingdom[1]);
     randomKingdom.forEach((card) => {
       expect(getAllIndices(randomKingdom, card).length).toBe(1);
     });

@@ -2,7 +2,7 @@ import { expect, describe, it } from "@jest/globals";
 import { isATreasurePlayLogEntry } from "../../src/content/contentScriptFunctions";
 
 describe("Function isATreasurePlayLogEntry()", () => {
-  describe("given a log entry that is not a treasue play", () => {
+  describe("given a log entry that is not a treasure play", () => {
     it("should return false", () => {
       const nonTreasureLogEntry: string = "Player plays a non-treasure card";
       expect(isATreasurePlayLogEntry(nonTreasureLogEntry)).toBe(false);

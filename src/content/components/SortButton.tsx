@@ -8,8 +8,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setSortedButtonsState } from "../../../redux/contentSlice";
-import { RootState } from "../../../redux/store";
+import { setSortedButtonsState } from "../../redux/contentSlice";
+import { RootState } from "../../redux/store";
 
 library.add(faSortUp, faSortDown, faSort);
 
@@ -24,6 +24,7 @@ const SortButton: FunctionComponent<SortButtonProps> = ({
   const [sortState, setSortState] = useState<"ascending" | "descending">(
     "ascending"
   );
+  sortState;
   const sortButtonState = useSelector(
     (state: RootState) => state.content.sortButtonState
   );

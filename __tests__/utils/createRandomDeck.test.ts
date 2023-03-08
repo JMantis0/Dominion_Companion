@@ -8,7 +8,7 @@ describe("Function createRandomDeck()", () => {
     rDeck = createRandomDeck();
     expect(rDeck).toBeInstanceOf(Deck);
   });
-  it("should have an entireDeck field array with length equal to the sum of the lengths of the graveyard, hand, inplay, and library arrays", () => {
+  it("should have an entireDeck field array with length equal to the sum of the lengths of the graveyard, hand, inPlay, and library arrays", () => {
     expect(rDeck.getEntireDeck().length).toBe(
       rDeck.getGraveyard().length +
         rDeck.getHand().length +

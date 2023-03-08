@@ -140,6 +140,8 @@ let domViewRoot: Root;
  */
 // let optionsOn: boolean = false;
 
+let alreadyRendered: boolean = false;
+
 /**
  * Control flow function.
  * @returns boolean, true if all four of the globals within are true.
@@ -175,12 +177,12 @@ export const resetGame = () => {
   decks = new Map();
   clientDecks = new Map();
   kingdom = [];
-  const devBtns = document.getElementById("dev-btns");
-  if (devBtns !== null) {
-    devBtns!.remove();
+  const devButtons = document.getElementById("dev-buttons");
+  if (devButtons !== null) {
+    devButtons!.remove();
   }
-  domViewContainer.remove();
-  domViewRoot.unmount();
+  // domViewContainer.remove();
+  // domViewRoot.unmount();
   clearInterval(resetInterval);
   initInterval = setInterval(initIntervalFunction, 1000);
 };
@@ -246,16 +248,16 @@ const initIntervalFunction = () => {
     }
   };
   if (initialized()) {
-    const mydiv = $("<div>").attr("id", "dev-btns").text("Dev-Buttons");
-    $(".chat-display").append(mydiv);
-    mydiv.append(
+    const myDiv = $("<div>").attr("id", "dev-buttons").text("Dev-Buttons");
+    $(".chat-display").append(myDiv);
+    myDiv.append(
       $("<button>")
         .text("Reset")
         .on("click", () => {
           resetGame();
         })
     );
-    mydiv.append(
+    myDiv.append(
       $("<button>")
         .attr("id", "newLogsButton")
         .text("Console Log Globals")
@@ -280,6 +282,10 @@ const initIntervalFunction = () => {
     );
     clearInterval(initInterval);
     resetInterval = setInterval(resetCheckIntervalFunction, 1000);
+    if (alreadyRendered) {
+      domViewContainer.remove();
+      domViewRoot.unmount();
+    }
     domViewContainer = document.createElement("div");
     domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
     domViewContainer.setAttribute("id", "domViewContainer");
@@ -295,7 +301,7 @@ const initIntervalFunction = () => {
         decks={clientDecks}
       />
     );
-
+    alreadyRendered = true;
     document.body.appendChild(domViewContainer);
   }
 };

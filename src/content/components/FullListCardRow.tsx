@@ -1,11 +1,11 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
-import { getRowColor } from "../../utils/utilityFunctions";
+import React, { FunctionComponent} from "react";
 
 type CardRowProps = {
   cardAmount: number;
   libraryAmount: number;
   drawProbability: string;
   cardName: string;
+  color: string;
 };
 
 const FullListCardRow: FunctionComponent<CardRowProps> = ({
@@ -13,16 +13,12 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
   libraryAmount,
   drawProbability,
   cardName,
+  color,
 }) => {
-  const [color, setColor] = useState<string>("text-white");
-  useEffect(() => {
-    setColor(getRowColor(cardName));
-  }, []);
-
   return (
     <React.Fragment>
       <main
-        className={`text-xs grid grid-cols-12 last:border border-x even:border-y`}
+        className={`text-xs grid grid-cols-12 first:border last:border border-x even:border-y`}
       >
         <div className={`${color} col-span-5 pl-1 whitespace-nowrap`}>
           {cardName}

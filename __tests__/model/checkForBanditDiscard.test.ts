@@ -16,7 +16,7 @@ describe("Function checkForBanditDiscard()", () => {
     });
   });
 
-  describe("whent he log entry at index 1 less thatn the logArchive length contains the substring ' reveals '", () => {
+  describe("when he log entry at index 1 less that the logArchive length contains the substring ' reveals '", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
       logArchive = [

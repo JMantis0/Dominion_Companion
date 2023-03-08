@@ -4,6 +4,11 @@ export type ErrorWithMessage = {
   message: string;
 };
 
+/**
+ * A helper function that determines if the given error has a message property.
+ * @param error  An error
+ * @returns
+ */
 export const isErrorWithMessage = (
   error: unknown
 ): error is ErrorWithMessage => {
@@ -15,6 +20,12 @@ export const isErrorWithMessage = (
   );
 };
 
+/**
+ * A helper function.  Takes an object that might be an error and if it doesn't have a message property creates
+ * a new error with a message property based on the given object.
+ * @param maybeError - The object that may be an error and may or may not have an error message.
+ * @returns - An error with an error message property and value.
+ */
 export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
   if (isErrorWithMessage(maybeError)) return maybeError;
   try {
@@ -24,10 +35,25 @@ export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
   }
 };
 
+/**
+ * A helper function that gets an error message from an error, and if it doesn't have an error message,
+ * assigns one based on the error itself.
+ */
 export const getErrorMessage = (error: unknown) => {
   return toErrorWithMessage(error).message;
 };
 
+/**
+ * Returns a string expressing the probability of the next draw being a certain card.  If
+ * there are no cards in the library, it will calculate the probability from the cards in
+ * the discard pile.
+ * Purpose: Used by SortableViewer as a prop value for FullListCardRow.tsx
+ * @param libAmount - The amount of that card in the deck.
+ * @param libLength - The total amount of cards in the deck.
+ * @param discAmount - The amount of that card in the discard pile.
+ * @param discLength - The total amount of cards in the discard pile.
+ * @returns A string expressing the probability as a percentage.
+ */
 export const calculateDrawProbability = (
   libAmount: number,
   libLength: number,
@@ -36,13 +62,26 @@ export const calculateDrawProbability = (
 ): string => {
   let probability: string;
   if (libLength === 0) {
-    probability = ((discAmount / discLength) * 100).toFixed(1).toString() + "%";
+    if (discAmount === undefined) {
+      probability = "0.0%";
+    } else {
+      probability =
+        ((discAmount / discLength) * 100).toFixed(1).toString() + "%";
+    }
   } else {
     probability = ((libAmount / libLength) * 100).toFixed(1).toString() + "%";
   }
   return probability;
 };
 
+/**
+ * takes a given array of strings and creates a Map object that has a key for each unique
+ * string in the array.  The values for each key are the number of instances that string occurs
+ * in the array.
+ * Purpose: Used by all viewer components.
+ * @param deckListArray - An array of potentially non-unique strings
+ * @returns - A Map<string, number> with the counts of strings occurring in the array.
+ */
 export const getCountsFromArray = (
   deckListArray: Array<string>
 ): Map<string, number> => {
@@ -57,10 +96,25 @@ export const getCountsFromArray = (
   return cardCountsMap;
 };
 
+/**
+ * Custom object literal type.  One property holds value for the total amount of cards
+ * owned.  The other property holds the value for the amount of that card in a specific
+ * zone.
+ */
 export type CardCounts = {
   entireDeckCount: number;
   zoneCount: number;
 };
+
+/**
+ * Function takes takes two Map<string, number> objects and combines them into one Map<string,cardCounts
+ * object, representing the total amount of each card owned by the player and the amount of each card in
+ * a given zone.
+ * Purpose: Used by View Components
+ * @param deckListMap - A Map<string,number> of the counts of each card owned by a player
+ * @param zoneListMap - A Map<string,number> of the counts of each card in a player's specific zone
+ * @returns - a Map<string,CardCounts> object
+ */
 export const combineDeckListMapAndZoneListMap = (
   deckListMap: Map<string, number>,
   zoneListMap: Map<string, number>
@@ -86,22 +140,34 @@ export const combineDeckListMapAndZoneListMap = (
   return newMap;
 };
 
+/**
+ * Custom object literal type, an object with 4 properties, each a Map<string,CardCounts object,
+ * one for each card type: Treasure, Action, Victory, Curse
+ */
 export type SplitMaps = {
   treasures: Map<string, CardCounts> | undefined;
   actions: Map<string, CardCounts> | undefined;
   victories: Map<string, CardCounts> | undefined;
+  curses: Map<string, CardCounts> | undefined;
 };
 
+/**
+ * Function takes a Map<string,CardCounts> and splits it into 3 maps, separated by the 4 card types.
+ * @param combinedMap - A Map<string,CardCounts>
+ * @returns - And object literal with 4 properties, the values of which are Map<string,CardCounts> for each card type.
+ */
 export const splitCombinedMapsByCardTypes = (
   combinedMap: Map<string, CardCounts>
 ): SplitMaps => {
   let tMap: Map<string, CardCounts> = new Map();
   let aMap: Map<string, CardCounts> = new Map();
   let vMap: Map<string, CardCounts> = new Map();
+  let cMap: Map<string, CardCounts> = new Map();
   let splitMaps: SplitMaps = {
     treasures: tMap,
     actions: aMap,
     victories: vMap,
+    curses: cMap,
   };
 
   Array.from(combinedMap.entries()).forEach((entry) => {
@@ -110,6 +176,8 @@ export const splitCombinedMapsByCardTypes = (
       tMap.set(card, CardCounts);
     } else if (["Estate", "Duchy", "Gardens", "Province"].indexOf(card) >= 0) {
       vMap.set(card, CardCounts);
+    } else if (card == "Curse") {
+      cMap.set(card, CardCounts);
     } else {
       aMap.set(card, CardCounts);
     }
@@ -118,10 +186,16 @@ export const splitCombinedMapsByCardTypes = (
   return splitMaps;
 };
 
+/**
+ * Creates and returns an empty SplitMaps object to be used
+ * as an initial state by the CategoryViewer
+ * @returns An empty split maps object
+ */
 export const createEmptySplitMapsObject = (): SplitMaps => {
   let aMap: Map<string, CardCounts> = new Map();
   let tMap: Map<string, CardCounts> = new Map();
   let vMap: Map<string, CardCounts> = new Map();
+  let cMap: Map<string, CardCounts> = new Map();
   aMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
   tMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
   vMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
@@ -129,10 +203,17 @@ export const createEmptySplitMapsObject = (): SplitMaps => {
     treasures: tMap,
     actions: aMap,
     victories: vMap,
+    curses: cMap,
   };
   return emptySplitMap;
 };
 
+/**
+ * Deprecated, not currently being used
+ * @param sortParam
+ * @param unsortedMap
+ * @returns
+ */
 export const sortByAmountInZone = (
   sortParam: string,
   unsortedMap: Map<string, CardCounts>
@@ -157,6 +238,14 @@ export const sortByAmountInZone = (
   return sortedMap;
 };
 
+/**
+ * Returns a sorted map.  Sorts by the sortParam and sortType.
+ * @param sortParam - The category to sort on.
+ * @param unsortedMap - The unsorted map.
+ * @param sortType - Ascending or Descending.
+ * @param pd - the player deck
+ * @returns
+ */
 export const sortTheView = (
   sortParam: "card" | "owned" | "zone" | "probability",
   unsortedMap: Map<string, CardCounts>,
@@ -285,11 +374,16 @@ export const sortTheView = (
   return sortedMap;
 };
 
+/**
+ * Function that returns a tailwind utility class for text-color based on the card type.
+ * @param cardName - The card name
+ * @returns - Utility class for the color of the row.
+ */
 export const getRowColor = (cardName: string): string => {
   let color;
-  const actionClass: string = "text-[#FFE19B]";
+  const actionClass: string = "text-[#fff5c7]";
   const victoryClass: string = "text-green-300";
-  const treasureClass: string = "text-[#FFB905]";
+  const treasureClass: string = "text-[#F4FF00]";
   const curseClass: string = "text-purple-400";
   const victories: string[] = ["Estate", "Duchy", "Province", "Gardens"];
   const treasures: string[] = ["Copper", "Silver", "Gold"];

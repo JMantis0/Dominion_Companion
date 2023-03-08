@@ -40,6 +40,7 @@ const arePlayerInfoElementsPresent = (): boolean => {
 /**
  * Gets the <player-info elements> from the DOM and returns them.
  * Purpose: Part of initializing the global variables playerName and opponentName.
+ * Used by viewer 
  * @returns HTMLCollection<HTMLElement> of <player-info-elements>:
  */
 const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {

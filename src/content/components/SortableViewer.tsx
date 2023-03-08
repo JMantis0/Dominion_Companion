@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { RootState } from "../../redux/store";
 import {
   CardCounts,
   combineDeckListMapAndZoneListMap,
   getCountsFromArray,
   calculateDrawProbability,
   sortTheView,
-} from "../../utils/utilityFunctions";
+  getRowColor,
+} from "./componentFunctions";
 import FullListCardRow from "./FullListCardRow";
-import ViewHeader from "./SortViewHeader";
+import SortViewHeader from "./SortViewHeader";
+import ViewFooter from "./ViewFooter";
 
-const SortableView = () => {
+const SortableViewer = () => {
   const firstRender = useRef(true);
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
@@ -22,8 +24,6 @@ const SortableView = () => {
   );
 
   useEffect(() => {
-    console.log("useEffect Sortable Viewer");
-    console.log(pd);
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
       getCountsFromArray(pd.entireDeck),
       getCountsFromArray(pd.library)
@@ -34,13 +34,11 @@ const SortableView = () => {
       sortButtonState.sort,
       pd
     );
-    console.log("sortedCombinedMap", sortedCombinedMap);
     setLibraryMap(sortedCombinedMap);
   }, [pd]);
 
   useEffect(() => {
     if (firstRender.current) {
-      // prevents this useEffect from doing anything on first render.
       firstRender.current = false;
       return;
     }
@@ -56,7 +54,7 @@ const SortableView = () => {
 
   return (
     <div className="outer-shell">
-      <ViewHeader />
+      <SortViewHeader />
       {Array.from(libraryMap.keys()).map((card, idx) => {
         return (
           <FullListCardRow
@@ -67,14 +65,16 @@ const SortableView = () => {
               getCountsFromArray(pd.graveyard).get(card)!,
               pd.graveyard.length
             )}
+            color={getRowColor(card)}
             cardName={card}
             cardAmount={libraryMap.get(card)?.entireDeckCount!}
             libraryAmount={libraryMap.get(card)?.zoneCount!}
           />
         );
       })}
+      <ViewFooter />
     </div>
   );
 };
 
-export default SortableView;
+export default SortableViewer;

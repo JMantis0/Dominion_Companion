@@ -14,11 +14,7 @@
     "default_title": "Dominion Utility",
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  },
+
   "chrome_url_overrides": {
     "newtab": "newTab.html"
   },

@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { RootState } from "../../redux/store";
 import {
   CardCounts,
   combineDeckListMapAndZoneListMap,
   getCountsFromArray,
+  getRowColor,
   sortTheView,
-} from "../../utils/utilityFunctions";
+} from "./componentFunctions";
 import ZoneCardRow from "./ZoneCardRow";
 
-const InPlayZoneViewer = () => {
+const HandZoneViewer = () => {
   const firstRender = useRef(true);
   const [combinedMap, setCombinedMap] = useState<Map<string, CardCounts>>(
     new Map()
@@ -22,7 +23,7 @@ const InPlayZoneViewer = () => {
   useEffect(() => {
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
       getCountsFromArray(pd.entireDeck),
-      getCountsFromArray(pd.inPlay)
+      getCountsFromArray(pd.hand)
     );
     const sortedCombinedMap = sortTheView(
       sortButtonState.category,
@@ -52,13 +53,14 @@ const InPlayZoneViewer = () => {
                 key={idx}
                 cardName={card}
                 cardAmountInZone={combinedMap.get(card)?.zoneCount!}
+                color={getRowColor(card)}
               />
             )
           );
         })}
-
+  
     </div>
   );
 };
 
-export default InPlayZoneViewer;
+export default HandZoneViewer;

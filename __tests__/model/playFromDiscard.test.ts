@@ -16,8 +16,8 @@ describe("Function playFromDiscard()", () => {
       expect(tDeck.getGraveyard().indexOf("Ace")).toBeLessThan(0);
     });
   });
-  describe("when given a card that is not in the dicard pile", () => {
-    it("should remove that card from the dicard field array and add it to the inPlay field array", () => {
+  describe("when given a card that is not in the discard pile", () => {
+    it("should remove that card from the discard field array and add it to the inPlay field array", () => {
       expect(() => tDeck.playFromDiscard("Joker")).toThrow(Error);
     });
   });

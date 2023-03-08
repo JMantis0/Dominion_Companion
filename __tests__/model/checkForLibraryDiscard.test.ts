@@ -55,15 +55,15 @@ describe("Function checkForLibraryDiscard()", () => {
   describe("when the current line is not a discard line", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
-      logArchive = ["Anthing"];
-      line = "This is not a dscrd line";
+      logArchive = ["Anything"];
+      line = "This is not a discard line";
       rDeck.setLogArchive(logArchive);
     });
     it("should throw error", () => {
       expect(() => rDeck.checkForLibraryDiscard(line)).toThrow(Error);
     });
   });
-  describe("when the current line is a discard line and the most recent logArchive entry that contains the substring ' plays a ', does not also contain the substring ' plays a Libary'", () => {
+  describe("when the current line is a discard line and the most recent logArchive entry that contains the substring ' plays a ', does not also contain the substring ' plays a Library'", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
       logArchive = [

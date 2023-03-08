@@ -19,7 +19,7 @@ describe("Function trashFromHand()", () => {
       handAfter = rDeck.getHand().slice();
       trashAfter = rDeck.getTrash().slice();
     });
-    it("should remove an instance of the card fron the hand field array", () => {
+    it("should remove an instance of the card from the hand field array", () => {
       expect(handBefore.sort()).toStrictEqual(
         handAfter.concat([cardToTrash]).sort()
       );

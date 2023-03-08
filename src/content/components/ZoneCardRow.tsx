@@ -1,18 +1,15 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
-import { getRowColor } from "../../utils/utilityFunctions";
+import React, { FunctionComponent } from "react";
 
 type ZoneCardRowProps = {
   cardName: string;
   cardAmountInZone: number;
+  color: string;
 };
 const ZoneCardRow: FunctionComponent<ZoneCardRowProps> = ({
   cardName,
   cardAmountInZone,
+  color,
 }) => {
-  const [color, setColor] = useState<string>("text-white");
-  useEffect(() => {
-    setColor(getRowColor(cardName));
-  }, []);
   return (
     <React.Fragment>
       <div

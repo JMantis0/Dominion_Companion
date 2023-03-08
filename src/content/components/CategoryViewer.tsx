@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { RootState } from "../../redux/store";
 import {
   getCountsFromArray,
   combineDeckListMapAndZoneListMap,
@@ -8,8 +8,8 @@ import {
   createEmptySplitMapsObject,
   SplitMaps,
   sortTheView,
-} from "../../utils/utilityFunctions";
-import ViewHeader from "./SortViewHeader";
+  getRowColor,
+} from "./componentFunctions";
 import ZoneCardRow from "./ZoneCardRow";
 
 const CategoryViewer = () => {
@@ -30,28 +30,39 @@ const CategoryViewer = () => {
       )
     );
     const sortedActions = sortTheView(
-      sortButtonState.category,
+      "owned",
       unsortedSplitMap.actions!,
-      sortButtonState.sort,pd
+      sortButtonState.sort,
+      pd
     );
     const sortedTreasures = sortTheView(
-      sortButtonState.category,
+      "owned",
       unsortedSplitMap.treasures!,
-      sortButtonState.sort,pd
+      sortButtonState.sort,
+      pd
     );
     const sortedVictories = sortTheView(
-      sortButtonState.category,
+      "owned",
       unsortedSplitMap.victories!,
-      sortButtonState.sort,pd
+      sortButtonState.sort,
+      pd
+    );
+    const sortedCurses = sortTheView(
+      "owned",
+      unsortedSplitMap.curses!,
+      sortButtonState.sort,
+      pd
     );
     setSplitMaps({
       treasures: sortedTreasures,
       victories: sortedVictories,
       actions: sortedActions,
+      curses: sortedCurses,
     });
   }, [pd]);
 
   useEffect(() => {
+    console.log("Category Viewer SortButtonState useEffect");
     if (firstRender.current) {
       // prevents this useEffect on first render
       firstRender.current = false;
@@ -60,59 +71,71 @@ const CategoryViewer = () => {
     const sortedActions = sortTheView(
       sortButtonState.category,
       splitMaps.actions!,
-      sortButtonState.sort,pd
+      sortButtonState.sort,
+      pd
     );
     const sortedTreasures = sortTheView(
       sortButtonState.category,
       splitMaps.treasures!,
-      sortButtonState.sort,pd
+      sortButtonState.sort,
+      pd
     );
     const sortedVictories = sortTheView(
       sortButtonState.category,
       splitMaps.victories!,
-      sortButtonState.sort,pd
+      sortButtonState.sort,
+      pd
     );
-
+    const sortedCurses = sortTheView(
+      sortButtonState.category,
+      splitMaps.curses!,
+      sortButtonState.sort,
+      pd
+    );
     setSplitMaps({
       treasures: sortedTreasures,
       victories: sortedVictories,
       actions: sortedActions,
+      curses: sortedCurses,
     });
   }, [sortButtonState]);
 
   return (
     <div className="outer-shell">
-      <ViewHeader />
+      {/* <ViewHeader /> */}
+      {/* Treasure Section */}
+      {/* <div className="col-span-12 text-white">Treasures</div> */}
+      {Array.from(splitMaps.treasures!.keys()).map((card, idx) => {
+        return (
+          <ZoneCardRow
+            key={idx}
+            cardName={card}
+            cardAmountInZone={splitMaps.treasures!.get(card)?.entireDeckCount!}
+            color={getRowColor(card)}
+          />
+        );
+      })}
+      {/* Victory section */}
+      {/* <div className="col-span-12 text-white">Victories</div> */}
+      {Array.from(splitMaps?.victories!.keys()).map((card, idx) => {
+        return (
+          <ZoneCardRow
+            key={idx}
+            cardName={card}
+            cardAmountInZone={splitMaps.victories!.get(card)?.entireDeckCount!}
+            color={getRowColor(card)}
+          />
+        );
+      })}{" "}
       {/* Action section */}
-      <div className="col-span-12 text-white">Actions</div>
+      {/* <div className="col-span-12 text-white">Actions</div> */}
       {Array.from(splitMaps?.actions!.keys()).map((card, idx) => {
         return (
           <ZoneCardRow
             key={idx}
             cardName={card}
             cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
-          />
-        );
-      })}
-      {/* Treasure Section */}
-      <div className="col-span-12 text-white">Treasures</div>
-      {Array.from(splitMaps.treasures!.keys()).map((card, idx) => {
-        return (
-          <ZoneCardRow
-            key={idx}
-            cardName={card}
-            cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
-          />
-        );
-      })}
-      {/* Victory section */}
-      <div className="col-span-12 text-white">Victories</div>
-      {Array.from(splitMaps?.victories!.keys()).map((card, idx) => {
-        return (
-          <ZoneCardRow
-            key={idx}
-            cardName={card}
-            cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
+            color={getRowColor(card)}
           />
         );
       })}

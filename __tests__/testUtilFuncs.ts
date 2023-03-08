@@ -1,10 +1,10 @@
 import { Deck } from "../src/model/deck";
 
 export const getCountsFromArray = (
-  decklistArray: Array<string>
+  deckListArray: Array<string>
 ): Map<string, number> => {
   const cardCountsMap = new Map<string, number>();
-  decklistArray.forEach((card) => {
+  deckListArray.forEach((card) => {
     if (cardCountsMap.has(card)) {
       cardCountsMap.set(card, cardCountsMap.get(card)! + 1);
     } else {
@@ -16,7 +16,7 @@ export const getCountsFromArray = (
 
 /**
  * Creates a randomly generated Deck.  Constructor is invoked
- * with the playername "rName", player nickname "rNick", and a
+ * with the playerName "rName", player nickname "rNick", and a
  * randomly generated kingdom.  The field string arrays will have
  * at least one card from the kingdom.
  * @returns
@@ -88,7 +88,7 @@ export const createRandomFieldArray = (rKingdom: string[]) => {
 };
 
 /**
- * Generates a random kingdom array from the base cardset and returns it.
+ * Generates a random kingdom array from the base card set and returns it.
  * @returns A random kingdom of 10 random base cards plus the 7 supply cards.
  */
 export const createRandomKingdom = (): string[] => {

@@ -16,16 +16,16 @@ describe("Function checkForCleanup()", () => {
   describe("when given a line that has a combined total of 5 a's and/or an's and/or number values", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
-      line1 = `${rDeck.getAbbrvName} draws a frog, a mouse, a dog, a cat, and a fish`;
-      line2 = `${rDeck.getAbbrvName}draws a frog, a mouse, a dog, and 2 cats`;
-      line3 = `${rDeck.getAbbrvName}draws a frog, a mouse, and 3 dogs.`;
-      line4 = `${rDeck.getAbbrvName}draws a frog and 4 mice`;
-      line5 = `${rDeck.getAbbrvName}draws 5 mice.`;
-      line6 = `${rDeck.getAbbrvName}draws 4 mice and a frog.`;
-      line7 = `${rDeck.getAbbrvName}draws 3 mice, a frog, and a dog.`;
-      line8 = `${rDeck.getAbbrvName}draws 2 mice, a frog, a dog, and a cat.`;
-      line9 = `${rDeck.getAbbrvName}draws a mouse, a frog, a dog, a cat, and a fish.`;
-      line10 = `${rDeck.getAbbrvName}draws 5 dogs.`;
+      line1 = `${rDeck.getPlayerNick} draws a frog, a mouse, a dog, a cat, and a fish`;
+      line2 = `${rDeck.getPlayerNick}draws a frog, a mouse, a dog, and 2 cats`;
+      line3 = `${rDeck.getPlayerNick}draws a frog, a mouse, and 3 dogs.`;
+      line4 = `${rDeck.getPlayerNick}draws a frog and 4 mice`;
+      line5 = `${rDeck.getPlayerNick}draws 5 mice.`;
+      line6 = `${rDeck.getPlayerNick}draws 4 mice and a frog.`;
+      line7 = `${rDeck.getPlayerNick}draws 3 mice, a frog, and a dog.`;
+      line8 = `${rDeck.getPlayerNick}draws 2 mice, a frog, a dog, and a cat.`;
+      line9 = `${rDeck.getPlayerNick}draws a mouse, a frog, a dog, a cat, and a fish.`;
+      line10 = `${rDeck.getPlayerNick}draws 5 dogs.`;
     });
     it("should return true", () => {
       expect(rDeck.checkForCleanUp(line1)).toBeTruthy();

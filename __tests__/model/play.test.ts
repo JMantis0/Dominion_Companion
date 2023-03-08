@@ -19,7 +19,7 @@ describe("Function play()", () => {
     testDeck.setHand(testHand);
   });
   describe("when given a card that is in the hand", () => {
-    it("should remove the card from hand and add it to inplay", () => {
+    it("should remove the card from hand and add it to inPlay", () => {
       testDeck.play("Ace");
       expect(testDeck.getInPlay().indexOf("Ace")).toBeGreaterThan(-1);
       expect(testDeck.getHand().indexOf("Ace")).toBeLessThan(0);
