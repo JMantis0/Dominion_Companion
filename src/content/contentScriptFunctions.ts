@@ -40,7 +40,7 @@ const arePlayerInfoElementsPresent = (): boolean => {
 /**
  * Gets the <player-info elements> from the DOM and returns them.
  * Purpose: Part of initializing the global variables playerName and opponentName.
- * Used by viewer 
+ * Used by viewer
  * @returns HTMLCollection<HTMLElement> of <player-info-elements>:
  */
 const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
@@ -133,13 +133,16 @@ const getPlayerNameAbbreviations = (
   const gameLogArr = gameLog.split("\n");
   let n1: string;
   let n2: string;
-  if (gameLogArr[0].match(" rated.") !== null) {
-    n1 = gameLogArr[6].split(" ")[0]; // n1 player is the player going first.
-    n2 = gameLogArr[8].split(" ")[0];
-  } else {
-    n1 = gameLogArr[4].split(" ")[0]; // n1 player is the player going first.
-    n2 = gameLogArr[6].split(" ")[0];
+
+  let i: number = 0;
+
+  for (i; i < gameLogArr.length; i++) {
+    if (gameLogArr[i].match(" starts with ") !== null) {
+      break;
+    }
   }
+  n1 = gameLogArr[i].split(" ")[0]; // n1 player is the player going first.
+  n2 = gameLogArr[i + 2].split(" ")[0];
 
   if (playerName.substring(0, n1.length) == n1) {
     playerNick = n1;
