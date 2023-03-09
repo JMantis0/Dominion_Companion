@@ -20,6 +20,7 @@ export class Deck {
   logArchive: Array<string> = [];
   setAside: Array<string> = [];
   waitToShuffle: boolean = false;
+  waitToDrawLibraryLook: boolean = false;
   treasurePopped: boolean = false;
 
   constructor(playerName: string, playerNick: string, kingdom: Array<string>) {
@@ -202,6 +203,7 @@ export class Deck {
           );
           if (
             prevLineLibraryLook &&
+            this.waitToDrawLibraryLook &&
             act !== "aside with Library" &&
             !this.treasurePopped //here we check to see if a treasure log entry was popped off for this line.  If so, the draw from the library look already occurred and this prevents it from drawing again.
           ) {
@@ -223,11 +225,12 @@ export class Deck {
             if (prevLineCard === "EmptyCard")
               throw new Error("No card found in previous entry");
 
-            console.log(
-              "Previous line was a library look.  This line is not a set aside."
-            );
             console.log("Drawing previous line's card", prevLineCard);
             this.draw(prevLineCard);
+          }
+          if (this.waitToDrawLibraryLook) {
+            this.waitToDrawLibraryLook = false;
+            console.log("changing waitToDraw to false");
           }
         }
 
@@ -241,9 +244,6 @@ export class Deck {
           case "gains":
             {
               const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
-              // const artisanGain = this.checkForArtisanGain();
-              // const mineGain = this.checkForMineGain();
-              // const bureaucratGain = this.checkForBureaucratGain();
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   if (mostRecentPlay === "Bureaucrat") {
@@ -278,12 +278,12 @@ export class Deck {
             break;
           case "draws":
             {
-              const fiveDrawsOccurred = this.checkForCleanUp(line);
+              const cleanupNeeded = this.checkForCleanUp(line);
               const shuffleOccurred = this.checkForShuffle(
                 this.lastEntryProcessed
               );
               const cellarDraws = this.checkForCellarDraw();
-              if (fiveDrawsOccurred && !shuffleOccurred && !cellarDraws) {
+              if (cleanupNeeded && !shuffleOccurred && !cellarDraws) {
                 this.cleanup();
               }
 
@@ -297,15 +297,15 @@ export class Deck {
             break;
           case "discards":
             {
-              const sentryDiscard = this.checkForSentryDiscard();
-              const banditDiscard = this.checkForBanditDiscard();
-              const vassalDiscard = this.checkForVassalDiscard();
+              const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
               const libraryDiscard = this.checkForLibraryDiscard(line);
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
                   if (libraryDiscard) {
                     this.discardFromSetAside(cards[i]);
-                  } else if (sentryDiscard || banditDiscard || vassalDiscard) {
+                  } else if (
+                    ["Sentry", "Vassal", "Bandit"].includes(mostRecentPlay)
+                  ) {
                     this.discardFromLibrary(cards[i]);
                   } else {
                     this.discard(cards[i]);
@@ -333,11 +333,10 @@ export class Deck {
             break;
           case "trashes":
             {
-              const sentryTrash = this.checkForSentryTrash();
-              const banditTrash = this.checkForBanditTrash();
+              const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
-                  if (sentryTrash || banditTrash) {
+                  if (["Sentry", "Bandit"].includes(mostRecentPlay)) {
                     this.trashFromLibrary(cards[i]);
                   } else {
                     this.trashFromHand(cards[i]);
@@ -349,14 +348,14 @@ export class Deck {
             break;
           case "topdecks":
             {
-              const artisanTopDeck = this.checkForArtisanTopDeck();
-              const harbingerTopDeck = this.checkForHarbingerTopDeck();
-              const bureaucratTopDeck = this.checkForBureaucratTopDeck();
+              const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
               for (let i = 0; i < cards.length; i++) {
                 for (let j = 0; j < numberOfCards[i]; j++) {
-                  if (harbingerTopDeck) {
+                  if (mostRecentPlay === "Harbinger") {
                     this.topDeckFromGraveyard(cards[i]);
-                  } else if (artisanTopDeck || bureaucratTopDeck) {
+                  } else if (
+                    ["Artisan", "Bureaucrat"].includes(mostRecentPlay)
+                  ) {
                     this.topDeckCardFromHand(cards[i]);
                   }
                 }
@@ -367,7 +366,22 @@ export class Deck {
             {
               const libraryLook = this.checkForLibraryLook(line);
               if (libraryLook) {
+                const cardsToDrawNow: string[] = [
+                  "Estate",
+                  "Duchy",
+                  "Province",
+                  "Gardens",
+                  "Copper",
+                  "Silver",
+                  "Gold",
+                ];
                 console.log("It's a library look");
+                if (cardsToDrawNow.includes(cards[0])) {
+                  this.draw(cards[0]);
+                } else {
+                  console.log("waitToDraw changing to true;");
+                  this.waitToDrawLibraryLook = true;
+                }
               }
             }
             break;
@@ -685,13 +699,19 @@ export class Deck {
       this.trash.push(this.library[index]);
       this.library.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in library`);
+      throw new Error(`No ${card} in library.`);
     }
   }
 
   setAsideWithLibrary(card: string) {
-    console.info(`Setting aside a ${card} with Library`);
-    this.setAside.push(card);
+    const index = this.library.indexOf(card);
+    if (index > -1) {
+      console.info(`Setting aside a ${card} with Library`);
+      this.setAside.push(card);
+      this.library.splice(index, 1);
+    } else {
+      throw new Error(`No ${card} in library.`);
+    }
   }
 
   /**
@@ -836,7 +856,6 @@ export class Deck {
     console.log("Check for vassal play");
     let vassalPlay: boolean = false;
     const len = this.logArchive.length;
-    console.log(len);
     if (len > 3) {
       vassalPlay = this.getMostRecentPlay(this.logArchive) === "Vassal";
     }
@@ -845,15 +864,6 @@ export class Deck {
         let logScrollElement = getLogScrollContainerLogLines();
         let currentLinePaddingNumber: number;
         let currentLinePaddingPercentage: string;
-        console.log("Archive log length is ", len);
-        console.log(
-          `log element innerText at index ${len} is`,
-          logScrollElement[len].innerText
-        );
-        console.log(
-          `log element innerText at index ${len - 1} is`,
-          logScrollElement[len - 1].innerText
-        );
         currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
         if (
           currentLinePaddingPercentage[
@@ -870,7 +880,6 @@ export class Deck {
           throw new Error(
             "Current line PaddingLeft property does not end with %"
           );
-
         let previousLinePaddingNumber: number;
         let previousLinePaddingPercentage: string;
         previousLinePaddingPercentage =
@@ -886,8 +895,14 @@ export class Deck {
           throw new Error(
             "Previous line paddingLeft property does not end with %"
           );
-        console.log("current line padding", currentLinePaddingNumber);
-        console.log("previous line padding", previousLinePaddingNumber);
+        console.log(
+          `Padding for line current line ${logScrollElement[len].innerText}`,
+          currentLinePaddingNumber
+        );
+        console.log(
+          `Padding for line previous line ${logScrollElement[len].innerText}`,
+          previousLinePaddingNumber
+        );
         if (currentLinePaddingNumber < previousLinePaddingNumber) {
           vassalPlay = false;
         } else {
@@ -977,28 +992,12 @@ export class Deck {
   checkForLibraryLook = (currentLine: string): boolean => {
     let libraryLook: boolean = false;
     if (currentLine.match(" looks at ") !== null) {
-      let playFound: boolean = false;
-      for (let i = this.logArchive.length - 1; i >= 0; i--) {
-        let logEntry = this.logArchive[i];
-        if (logEntry.match(" plays a ") !== null) {
-          playFound = true;
-          if (logEntry.match(" plays a Library") !== null) {
-            libraryLook = true;
-          } else {
-            libraryLook = false;
-          }
-        }
-        if (playFound) {
-          break;
-        }
-      }
-      if (!playFound) {
-        throw new Error(
-          "All log archive entries checked and no entry containing the substring ' play a ' found."
-        );
+      if (this.getMostRecentPlay(this.logArchive) === "Library") {
+        libraryLook = true;
       }
     } else {
       libraryLook = false;
+      // throw new Error("Current line is not a looks at line.");
     }
     return libraryLook;
   };
@@ -1012,26 +1011,8 @@ export class Deck {
   checkForLibraryDiscard(currentLine: string): boolean {
     let libraryDiscard: boolean = false;
     if (currentLine.match(" discards ") !== null) {
-      let playFound: boolean = false;
-      for (let i = this.logArchive.length - 1; i >= 0; i--) {
-        let currentLine = this.logArchive[i];
-        if (currentLine.match(" plays a ") !== null) {
-          playFound = true;
-          if (currentLine.match(" plays a Library") !== null) {
-            libraryDiscard = true;
-          } else {
-            libraryDiscard = false;
-          }
-        }
-        if (playFound) {
-          break;
-        }
-      }
-      if (!playFound) {
-        throw new Error(
-          "All log archive entries checked and no entry containing the substring ' play a ' found."
-        );
-      }
+      if (this.getMostRecentPlay(this.logArchive) === "Library")
+        libraryDiscard = true;
     } else {
       libraryDiscard = false;
       throw new Error("Current line is not a discard line.");
@@ -1078,7 +1059,6 @@ export class Deck {
     let playFound: boolean = false;
 
     for (let i = len - 1; i >= 0; i--) {
-      console.log("getting most recent play.  Line is ", logArchive[i]);
       if (logArchive[i].match(/ plays an? /) !== null) {
         playFound = true;
         let lowerIndex: number;
