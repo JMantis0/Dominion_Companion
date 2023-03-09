@@ -188,11 +188,18 @@ const getKingdom = (): Array<string> => {
   } catch (e) {
     throw new Error(`Error in getKingdom`);
   }
-  ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
-    (card) => {
-      cards.push(card);
-    }
-  );
+  [
+    "Province",
+    "Gold",
+    "Duchy",
+    "Silver",
+    "Estate",
+    "Copper",
+    "Curse",
+    "card", // used for tracking opponent decks.
+  ].forEach((card) => {
+    cards.push(card);
+  });
   kingdom = cards;
   return kingdom;
 };

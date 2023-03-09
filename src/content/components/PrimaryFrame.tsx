@@ -43,7 +43,7 @@ const PrimaryFrame = () => {
         className="bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]"
       >
         <div className="mt-[-44px] text-white grid grid-cols-12">
-          <div className={`col-span-4 whitespace-nowrap`}>DOM VIEWER</div>{" "}
+          <div className={`col-span-4 whitespace-nowrap`}>{currentTurn}</div>{" "}
           <div className={`cols-span-4 whitespace-nowrap`}>
             <button
               onClick={() => {

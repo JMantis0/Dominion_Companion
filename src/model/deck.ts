@@ -114,34 +114,23 @@ export class Deck {
   }
 
   update(log: Array<string>) {
-    const actionArray = [
-      "shuffles their deck",
-      "gains",
-      "draws",
-      "discards",
-      "plays",
-      "trashes",
-      "looks at",
-      "topdecks",
-      "aside with Library",
-    ];
-
     log.forEach((line) => {
-      // reset treasurePopped tracker to false
       this.treasurePopped = false;
-
-      if (
-        // Filters out opponent logs that don't need to be processed
-        line.slice(0, this.playerNick.length) === this.playerNick ||
-        line.match(this.playerName) !== null
-      ) {
-        // If previous line was shuffle this section performs a
-        // cleanup if necessary before the shuffle occurs.
+      if (!this.logEntryAppliesToThisDeck(line)) {
+        // Inside this if, log entries do not apply to this deck.  They are either
+        // info entries, or apply to opponent decks.
+        if (this.consecutiveTreasurePlays(line)) {
+          //  If playing with no animations, need this to pop off opponent treasure plays.
+          this.handleConsecutiveTreasurePlays(line);
+        }
+      }
+      // inside this else, log entries apply to this deck.
+      else {
+        //Clean up before shuffling if needed.
         if (this.waitToShuffle) {
-          const cleanUp = this.checkForCleanUp(line);
-          console.log("shuffle occurring.  cleanup needed is :", cleanUp);
-          const cellarDraws = this.checkForCellarDraw();
-          if (cleanUp && !cellarDraws) this.cleanup();
+          if (this.ifCleanUpNeeded(line)) {
+            this.cleanup();
+          }
           this.shuffleGraveYardIntoLibrary();
           this.waitToShuffle = false;
         }
@@ -149,89 +138,28 @@ export class Deck {
         let act = "";
         let cards: Array<string> = [];
         let numberOfCards: Array<number> = [];
-        if (
-          // Here we need to check if the current line and previous entry are both treasure plays.  If so a calculation and logArchive edit are required and handled by the handleTreasureLine method.
-          this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
-          this.checkForTreasurePlayLine(line)
-        ) {
-          numberOfCards = this.handleTreasureLine(line);
+        //Pop off repeated treasure log entry if needed
+        if (this.consecutiveTreasurePlays(line)) {
+          numberOfCards = this.handleConsecutiveTreasurePlays(line);
           act = "plays";
           cards = ["Copper", "Silver", "Gold"];
         } else {
-          actionArray.forEach((action) => {
-            if (line.match(action)) {
-              act = action;
-            }
-          });
-          this.kingdom.forEach((card) => {
-            const cardMatcher = card.substring(0, card.length - 1);
-            if (line.match(cardMatcher) !== null) {
-              let upperSlice = line.indexOf(cardMatcher) - 1;
-              let lowerSlice =
-                line.substring(0, upperSlice).lastIndexOf(" ") + 1;
-              const amountChar = line.substring(lowerSlice, upperSlice);
-              let amount = 0;
-              if (amountChar == "an" || amountChar == "a") {
-                amount = 1;
-              } else {
-                amount = parseInt(amountChar);
-              }
-              cards.push(card);
-              numberOfCards.push(amount);
-            }
-          });
-
-          // Section for handling repeat buys and avoiding over-gaining
-          if (act === "gains" && cards.length === 1) {
-            const thisLineBuyAndGains = this.checkForBuyAndGain(line, cards[0]);
-            const lastLineBuyAndGains = this.checkForBuyAndGain(
-              this.logArchive[this.logArchive.length - 1],
-              cards[0]
-            );
-            if (lastLineBuyAndGains && thisLineBuyAndGains) {
-              numberOfCards[0] = this.handleRepeatBuyGain(line);
-              const removed = this.logArchive.pop();
-              console.info(`Popping off ${removed}`);
-            }
+          act = this.getActionFromEntry(line);
+          [cards, numberOfCards] = this.getCardsAndCountsFromEntry(line);
+          //Pop off repeated buy log entry if needed
+          if (
+            this.consecutiveBuysOfSameCard(act, cards.length, line, cards[0])
+          ) {
+            numberOfCards[0] = this.handleRepeatBuyGain(line);
           }
         }
-
-        if (this.logArchive.length >= 1) {
-          const len = this.logArchive.length;
-          const prevLineLibraryLook = this.checkForLibraryLook(
-            this.logArchive[len - 1]
-          );
-          if (
-            prevLineLibraryLook &&
-            this.waitToDrawLibraryLook &&
-            act !== "aside with Library" &&
-            !this.treasurePopped //here we check to see if a treasure log entry was popped off for this line.  If so, the draw from the library look already occurred and this prevents it from drawing again.
-          ) {
-            const prevLine = this.logArchive[len - 1];
-
-            let prevLineCard: string = "EmptyCard";
-            for (let i = 0; i < this.kingdom.length; i++) {
-              const card = this.kingdom[i];
-              if (prevLine.match(card) !== null) {
-                prevLineCard = card;
-                break;
-              }
-            }
-            // this.kingdom.forEach((card) => {
-            //   if (prevLine.match(card) !== null) {
-            //     prevLineCard = card;
-            //   }
-            // });
-            if (prevLineCard === "EmptyCard")
-              throw new Error("No card found in previous entry");
-
-            console.log("Drawing previous line's card", prevLineCard);
-            this.draw(prevLineCard);
-          }
-          if (this.waitToDrawLibraryLook) {
-            this.waitToDrawLibraryLook = false;
-            console.log("changing waitToDraw to false");
-          }
+        // For Library activity, draw card from previous line if needed
+        if (this.libraryTriggeredPreviousLineDraw(act)) {
+          this.drawCardFromPreviousLine();
+        }
+        if (this.waitToDrawLibraryLook) {
+          this.waitToDrawLibraryLook = false;
+          console.log("changing waitToDraw to false");
         }
 
         switch (act) {
@@ -398,19 +326,11 @@ export class Deck {
             null;
           }
         }
-      } else {
-        null;
-        //  Opponent log entries fall here
-        if (
-          this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
-          this.checkForTreasurePlayLine(line)
-        ) {
-          //  If playing with no animations, need this to pop off opponent treasure plays.
-          this.handleTreasureLine(line);
-        }
       }
 
       this.lastEntryProcessed = line;
+
+      //update the log archive
       if (line !== "Between Turns") {
         this.logArchive.push(line);
       }
@@ -685,12 +605,10 @@ export class Deck {
   }
 
   /**
-
    * Checks if the given card is in the library field array. If yes,
    * then removes one instance of the card from the library field array
    * and adds one instance of the card to the trash field array.
    * @param card - The given card.
-
    */
   trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
@@ -703,6 +621,9 @@ export class Deck {
     }
   }
 
+  /**
+   * 
+   */
   setAsideWithLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
@@ -1102,7 +1023,7 @@ export class Deck {
    * @param line - the current line.
    * @returns - A number array of length 3 representing the number of Copper, Silver, Gold to be played.
    */
-  handleTreasureLine(line: string): Array<number> {
+  handleConsecutiveTreasurePlays(line: string): Array<number> {
     // Inside this if, this means that the player is in a play treasure phase.
     // The two lines must be compared to see how many additional treasures must be
     // processed
@@ -1199,8 +1120,171 @@ export class Deck {
         currentLine.substring(secondLastIndex + 1, lastIndex)
       );
     }
-
+    const removed = this.logArchive.pop();
+    console.info(`Popping off ${removed}`);
     amendedAmount = currCount - prevCount;
     return amendedAmount;
+  }
+
+  /**
+   * Checks if the current entry and the previous entry both bought the same card (consecutive buys of the same card).
+   * @param act - The act from the current line
+   * @param numberOfCards - The number of different cards on the line
+   * @param line - The line itself
+   * @param card - the card from the current line
+   * @returns -  Boolean for if the current line and previous line both bought the same card (consecutive buys).
+   */
+  consecutiveBuysOfSameCard(
+    act: string,
+    numberOfCards: number,
+    line: string,
+    card: string
+  ): boolean {
+    let consecutiveBuysOfTheSameCard: boolean = false;
+    if (act === "gains" && numberOfCards === 1) {
+      const thisLineBuyAndGains = this.checkForBuyAndGain(line, card);
+      const lastLineBuyAndGains = this.checkForBuyAndGain(
+        this.logArchive[this.logArchive.length - 1],
+        card
+      );
+      if (lastLineBuyAndGains && thisLineBuyAndGains) {
+        consecutiveBuysOfTheSameCard = true;
+      }
+    }
+    return consecutiveBuysOfTheSameCard;
+  }
+
+  /**
+   * Checks to see if the previous enrty was a library look that needs to be drawn.
+   * @param act - The act from the current entry.
+   * @returns Boolean for whether the card on the previous line needs to be drawn.
+   */
+  libraryTriggeredPreviousLineDraw(act: string): boolean {
+    let needToDrawCardLookedAtFromPreviousLine: boolean = false;
+
+    if (this.logArchive.length >= 1) {
+      const len = this.logArchive.length;
+      const prevLineLibraryLook = this.checkForLibraryLook(
+        this.logArchive[len - 1]
+      );
+      needToDrawCardLookedAtFromPreviousLine =
+        prevLineLibraryLook &&
+        this.waitToDrawLibraryLook &&
+        act !== "aside with Library" &&
+        !this.treasurePopped; //here we check to see if a treasure log entry was popped off for this line.  If so, the draw from the library look already occurred and this prevents it from drawing again.
+    }
+
+    return needToDrawCardLookedAtFromPreviousLine;
+  }
+
+  /**
+   * Draws the card from the previous line.
+   */
+  drawCardFromPreviousLine(): void {
+    const prevLine = this.logArchive.slice().pop()!;
+    let prevLineCard: string = "EmptyCard";
+    for (let i = 0; i < this.kingdom.length; i++) {
+      const card = this.kingdom[i];
+      if (prevLine.match(card) !== null) {
+        prevLineCard = card;
+        break;
+      }
+    }
+    if (prevLineCard === "EmptyCard")
+      throw new Error("No card found in previous entry");
+    this.draw(prevLineCard);
+  }
+
+  /**
+   * Checks to see if the current line applies to the current deck.
+   * @param entry - A log entry from the game-log.
+   * @returns - Boolean for if it applies to this deck.
+   */
+  logEntryAppliesToThisDeck(entry: string): boolean {
+    let applies: boolean;
+    applies =
+      entry.slice(0, this.playerNick.length) === this.playerNick ||
+      entry.match(this.playerName) !== null;
+    return applies;
+  }
+
+  /**
+   * Checks if a cleanUp is needed.
+   * @param entry - A log entry to be checked.
+   */
+  ifCleanUpNeeded(entry: string): boolean {
+    const cleanUp = this.checkForCleanUp(entry);
+    const cellarDraws = this.checkForCellarDraw();
+    return cleanUp && !cellarDraws;
+  }
+
+  /**
+   * Checks to see if the current line is a consecutive treasure play.
+   * @param entry - The log entry to be checked.
+   * @returns - Boolean for whether the log entry and the last entry are both treasure plays.
+   */
+  consecutiveTreasurePlays(entry: string): boolean {
+    let consecutiveTreasurePlays: boolean;
+    consecutiveTreasurePlays =
+      this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
+      this.checkForTreasurePlayLine(entry);
+    return consecutiveTreasurePlays;
+  }
+
+  /**
+   * Parses a log entry to get the action from it.
+   * @param entry -The log entry.
+   * @returns - The action from the entry.
+   */
+  getActionFromEntry(entry: string): string {
+    let act: string = "None";
+    const actionArray = [
+      "shuffles their deck",
+      "gains",
+      "draws",
+      "discards",
+      "plays",
+      "trashes",
+      "looks at",
+      "topdecks",
+      "aside with Library",
+    ];
+    for (let i = 0; i < actionArray.length; i++) {
+      const action = actionArray[i];
+      if (entry.match(action) !== null) {
+        act = action;
+        break;
+      }
+    }
+    return act;
+  }
+
+  /**
+   * Parses the given log entry and creates a card array and a cardAmount array.
+   * For each card in the log entry, that card is pushed to the card array and the amount of
+   * that card is pushed to the cardAmount array.
+   * @param entry - The log entry to get cards and amounts from
+   * @returns -The cards array and cardAmounts array.
+   */
+  getCardsAndCountsFromEntry(entry: string): [string[], number[]] {
+    let cards: string[] = [];
+    let cardAmounts: number[] = [];
+    this.kingdom.forEach((card) => {
+      const cardMatcher = card.substring(0, card.length - 1);
+      if (entry.match(" " + cardMatcher) !== null) {
+        let upperSlice = entry.indexOf(cardMatcher) - 1;
+        let lowerSlice = entry.substring(0, upperSlice).lastIndexOf(" ") + 1;
+        const amountChar = entry.substring(lowerSlice, upperSlice);
+        let amount = 0;
+        if (amountChar == "an" || amountChar == "a") {
+          amount = 1;
+        } else {
+          amount = parseInt(amountChar);
+        }
+        cards.push(card);
+        cardAmounts.push(amount);
+      }
+    });
+    return [cards, cardAmounts];
   }
 }
