@@ -4,9 +4,9 @@ import { Deck } from "../model/deck";
 import { store } from "../redux/store";
 import PrimaryFrame from "./components/PrimaryFrame";
 import LogObserver from "./components/LogObserver";
-import "../assets/tailwind.css"
+import "../assets/tailwind.css";
 import "jqueryui";
-
+import { OpponentDeck } from "../model/opponentDeck";
 
 /**
  * ContentProps are the global values passed from the content script at the time
@@ -15,15 +15,13 @@ import "jqueryui";
 export type ContentProps = {
   playerName: string;
   opponentName: string;
-  decks: Map<string, Deck>;
-  gameLog: string; //game log
+  decks: Map<string, Deck | OpponentDeck>;
+  gameLog: string;
 };
 
 /**
  * The root component that is rendered to the client DOM.
  * Props are the values passed from the content script.
- * @param param0 
- * @returns 
  */
 const DomRoot: FunctionComponent<ContentProps> = ({
   playerName,

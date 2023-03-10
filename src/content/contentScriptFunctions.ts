@@ -1,4 +1,5 @@
 import { Deck } from "../model/deck";
+import { OpponentDeck } from "../model/opponentDeck";
 /**
  * Checks for presence of game-log element in the DOM.
  * Purpose: Control flow of content script.
@@ -222,14 +223,14 @@ const createPlayerDecks = (
   opponentName: string,
   opponentNick: string,
   kingdom: Array<string>
-): Map<string, Deck> => {
-  let deckMap: Map<string, Deck> = new Map();
-  [playerName, opponentName].forEach((player, idx) => {
-    deckMap.set(
-      player,
-      new Deck(player, [playerNick, opponentNick][idx], kingdom)
-    );
-  });
+): Map<string, Deck | OpponentDeck> => {
+  let deckMap: Map<string, Deck | OpponentDeck> = new Map();
+
+  deckMap.set(playerName, new Deck(playerName, playerNick, kingdom));
+  deckMap.set(
+    opponentName,
+    new OpponentDeck(opponentName, opponentNick, kingdom)
+  );
   return deckMap;
 };
 

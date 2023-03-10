@@ -385,14 +385,18 @@ export const getRowColor = (cardName: string): string => {
   const victoryClass: string = "text-green-300";
   const treasureClass: string = "text-[#F4FF00]";
   const curseClass: string = "text-purple-400";
+  const reactionClass: string = "text-[#6eccff]";
   const victories: string[] = ["Estate", "Duchy", "Province", "Gardens"];
   const treasures: string[] = ["Copper", "Silver", "Gold"];
+
   if (treasures.indexOf(cardName) > -1) {
     color = treasureClass;
   } else if (victories.indexOf(cardName) > -1) {
     color = victoryClass;
   } else if (cardName === "Curse") {
     color = curseClass;
+  } else if (cardName === "Moat") {
+    color = reactionClass;
   } else color = actionClass;
   return color;
 };

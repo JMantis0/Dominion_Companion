@@ -1,8 +1,8 @@
 export interface StoreDeck {
   entireDeck: Array<string>;
   playerName: string;
-  abbrvName: string;
-  currentVP: number | string;
+  playerNick: string;
+  currentVP: number;
   kingdom: Array<string>;
   library: Array<string>;
   graveyard: Array<string>;
@@ -11,5 +11,8 @@ export interface StoreDeck {
   trash: Array<string>;
   lastEntryProcessed: string;
   logArchive: Array<string>;
-  DOMLog: Array<string>;
+  setAside: Array<string>;
+  waitToShuffle: boolean;
+  waitToDrawLibraryLook: boolean;
+  treasurePopped: boolean;
 }

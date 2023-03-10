@@ -5,9 +5,10 @@ import {
   getGameLog,
   getUndispatchedLogs,
 } from "../contentScriptFunctions";
-import { setPlayerDeck } from "../../redux/contentSlice";
+import { setOpponentDeck, setPlayerDeck } from "../../redux/contentSlice";
 import { useDispatch } from "react-redux";
 import { ContentProps } from "../DomRoot";
+import { OpponentDeck } from "../../model/opponentDeck";
 
 /**
  * Sets up a MutationObserver on the ".game-log" element in the Dominion Client DOM, and
@@ -17,13 +18,14 @@ import { ContentProps } from "../DomRoot";
  */
 const LogObserver: FunctionComponent<ContentProps> = ({
   playerName,
+  opponentName,
   decks: d,
   gameLog: g,
 }) => {
   const dispatch = useDispatch();
   let logsProcessed: string;
   let gameLog: string = g;
-  let decks: Map<string, Deck> = d;
+  let decks: Map<string, Deck | OpponentDeck> = d;
 
   /**
    * Mutation observer function for the Mutation Observer to use
@@ -61,6 +63,12 @@ const LogObserver: FunctionComponent<ContentProps> = ({
               dispatch(
                 setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
               );
+              decks.get(opponentName)?.update(newLogsToDispatch);
+              dispatch(
+                setOpponentDeck(
+                  JSON.parse(JSON.stringify(decks.get(opponentName)))
+                )
+              );
               logsProcessed = gameLog;
             }
           }
@@ -85,6 +93,11 @@ const LogObserver: FunctionComponent<ContentProps> = ({
       .slice();
     decks.get(playerName)?.update(newLogsToDispatch);
     dispatch(setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName)))));
+    decks.get(opponentName)?.update(newLogsToDispatch);
+    dispatch(
+      setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
+    );
+
     logsProcessed = gameLog;
     return () => {
       mo.disconnect();

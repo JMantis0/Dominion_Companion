@@ -1,16 +1,19 @@
 export class EmptyDeck {
-  entireDeck = [];
-  playerName = "";
-  abbrvName = "";
-  currentVP = "";
-  kingdom = [];
-  library = [];
-  graveyard = [];
-  inPlay = [];
-  hand = [];
-  trash = [];
-  lastEntryProcessed = "";
-  logArchive = [];
-  DOMLog = [];
+  entireDeck: Array<string> = [];
+  playerName: string = "";
+  playerNick: string = "";
+  currentVP: number = 3;
+  kingdom: Array<string> = [];
+  library: Array<string> = [];
+  graveyard: Array<string> = [];
+  inPlay: Array<string> = [];
+  hand: Array<string> = [];
+  trash: Array<string> = [];
+  lastEntryProcessed: string = "";
+  logArchive: Array<string> = [];
+  setAside: Array<string> = [];
+  waitToShuffle: boolean = false;
+  waitToDrawLibraryLook: boolean = false;
+  treasurePopped: boolean = false;
   constructor() {}
 }

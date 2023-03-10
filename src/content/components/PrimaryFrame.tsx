@@ -10,13 +10,15 @@ import InPlayZoneViewer from "./InPlayZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import OpponentViewer from "./OpponentViewer";
 
 const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Turn 1");
+  const od = useSelector((state: RootState) => state.content.opponentDeck);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const [tabs, setTabs] = useState<
-    "Deck" | "Game" | "Discard" | "Trash" | "Hand" | "inPlay"
-  >("Game");
+  const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
+    "Deck"
+  );
   useEffect(() => {
     $("#primaryFrame").draggable().resizable({ handles: "all" });
   }, []);
@@ -43,7 +45,7 @@ const PrimaryFrame = () => {
         className="bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]"
       >
         <div className="mt-[-44px] text-white grid grid-cols-12">
-          <div className={`col-span-4 whitespace-nowrap`}>{currentTurn}</div>{" "}
+          <div className={`col-span-3 whitespace-nowrap`}>{currentTurn}</div>{" "}
           <div className={`cols-span-4 whitespace-nowrap`}>
             <button
               onClick={() => {
@@ -51,27 +53,34 @@ const PrimaryFrame = () => {
               }}
               className="border-2 whitespace-nowrap"
             >
-              c.log deck
+              c.log pdeck
             </button>
           </div>
           <div className="cols-span-3"></div>
-          <div className="cols-span-1">
-            <img src="../..assets.domx.jpg" />
+          <div className="cols-span-3">
+            <button
+              onClick={() => {
+                console.log(od);
+              }}
+              className="border-2 whitespace-nowrap"
+            >
+              c.log odeck
+            </button>
           </div>
         </div>
         <main className="text-white grid grid-cols-12 mb-[10px] border-t-2">
-          <div className="col-span-4">
+          <div className="col-span-6">
             <button
               className={`h-full text-xs whitespace-nowrap w-full ${
-                tabs === "Game" ? "text-lime-500" : "border-b-2"
+                tabs === "Deck" ? "text-lime-500" : "border-b-2"
               }`}
               onClick={handleTabChange}
-              name="Game"
+              name="Deck"
             >
-              Game {pd.library.length}
+              Deck {pd.library.length}
             </button>
           </div>
-          <div className="col-span-4">
+          <div className="col-span-6">
             <button
               className={`h-full text-xs whitespace-nowrap w-full border-l-2 ${
                 tabs === "Discard" ? "text-lime-500" : "border-b-2"
@@ -80,17 +89,6 @@ const PrimaryFrame = () => {
               name="Discard"
             >
               Discard {pd.graveyard.length}
-            </button>
-          </div>
-          <div className="col-span-4">
-            <button
-              className={`h-full text-xs whitespace-nowrap w-full border-l-2 ${
-                tabs === "Deck" ? "text-lime-500" : "border-b-2"
-              }`}
-              onClick={handleTabChange}
-              name="Deck"
-            >
-              Deck {pd.entireDeck.length}
             </button>
           </div>
         </main>
@@ -111,40 +109,27 @@ const PrimaryFrame = () => {
           )}
         >
           <div className="p-1 mr-2">
-            {tabs === "Game" && <SortableViewer />}
+            {tabs === "Deck" && <SortableViewer />}
             {tabs === "Discard" && <DiscardZoneViewer />}
-            {tabs === "Deck" && <CategoryViewer />}
-            {tabs === "Hand" && <HandZoneViewer />}
-            {tabs === "inPlay" && <InPlayZoneViewer />}
+            {tabs === "Opponent" && <OpponentViewer />}
             {tabs === "Trash" && <TrashZoneViewer />}
           </div>
         </Scrollbars>
         <div
           className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
         >
-          <div className="col-span-4">
+          <div className="col-span-6">
             <button
               className={`h-full text-xs whitespace-nowrap w-full ${
-                tabs === "Hand" ? "text-lime-500" : "border-t-2"
+                tabs === "Opponent" ? "text-lime-500" : "border-t-2"
               }`}
               onClick={handleTabChange}
-              name="Hand"
+              name="Opponent"
             >
-              Hand {pd.hand.length}
+              Opponent {od.entireDeck.length}
             </button>
           </div>
-          <div className="col-span-4">
-            <button
-              className={`h-full text-xs whitespace-nowrap w-full border-l-2 ${
-                tabs === "inPlay" ? "text-lime-500" : "border-t-2"
-              }`}
-              onClick={handleTabChange}
-              name="inPlay"
-            >
-              In Play {pd.inPlay.length}
-            </button>
-          </div>
-          <div className="col-span-4">
+          <div className="col-span-6">
             <button
               className={`h-full text-xs whitespace-nowrap w-full border-l-2 ${
                 tabs === "Trash" ? "text-lime-500" : "border-t-2"

@@ -15,6 +15,7 @@ import {
 } from "./contentScriptFunctions";
 
 import DomRoot from "./DomRoot";
+import { OpponentDeck } from "../model/opponentDeck";
 
 /**
  * Content global variable - Stores the value of the player name.
@@ -98,7 +99,7 @@ let gameLog: string;
  * Use - The decks track the game state for players, and in the context of the content script, the update() method is
  * invoked on these Deck objects.
  */
-let decks: Map<string, Deck> = new Map();
+let decks: Map<string, Deck | OpponentDeck> = new Map();
 
 /**
  * Content global variable - Holds the values of the Deck objects.  The playerName and opponentName are used as the
@@ -106,7 +107,7 @@ let decks: Map<string, Deck> = new Map();
  * Use - The decks track the game state for players, and in the context of the content script, the update() method is
  * invoked on these Deck objects.
  */
-let clientDecks: Map<string, Deck> = new Map();
+let clientDecks: Map<string, Deck | OpponentDeck> = new Map();
 
 /**
  * Content global variable - Holds the strings that define the cards available in the current game.
@@ -292,7 +293,8 @@ const initIntervalFunction = () => {
     domViewRoot = createRoot(domViewContainer);
     console.log("Checking the globals just before rendering root");
     console.log("gameLog", gameLog);
-    console.log("logsProcessed", logsProcessed);
+    console.log("decks", decks);
+    console.log("clientDecks", clientDecks);
     domViewRoot.render(
       <DomRoot
         gameLog={gameLog}
