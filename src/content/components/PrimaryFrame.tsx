@@ -4,9 +4,6 @@ import "jquery-ui-bundle/jquery-ui.css";
 import SortableViewer from "./SortableViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer";
 import { Scrollbars } from "react-custom-scrollbars-2";
-import CategoryViewer from "./CategoryViewer";
-import HandZoneViewer from "./HandZoneViewer";
-import InPlayZoneViewer from "./InPlayZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -19,14 +16,27 @@ const PrimaryFrame = () => {
   const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
     "Deck"
   );
+  const [pinnedTab, setPinnedTab] = useState<
+    "Deck" | "Discard" | "Trash" | "Opponent"
+  >("Deck");
+
   useEffect(() => {
     $("#primaryFrame").draggable().resizable({ handles: "all" });
   }, []);
 
-  const handleTabChange = (e: BaseSyntheticEvent) => {
-    console.log(e.target.name);
+  const handleTabClick = (e: BaseSyntheticEvent) => {
     const tabName = e.target.name;
     setTabs(tabName);
+    setPinnedTab(tabName);
+  };
+
+  const handleMouseEnter = (e: BaseSyntheticEvent) => {
+    const tabName = e.target.name;
+    setTabs(tabName);
+  };
+
+  const handleMouseLeave = () => {
+    setTabs(pinnedTab);
   };
 
   useEffect(() => {
@@ -44,57 +54,60 @@ const PrimaryFrame = () => {
         id="primaryFrame"
         className="bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]"
       >
-        <div className="mt-[-44px] text-white grid grid-cols-12">
-          <div className={`col-span-3 whitespace-nowrap`}>{currentTurn}</div>{" "}
-          <div className={`cols-span-4 whitespace-nowrap`}>
+        <div className="text-xs mt-[-44px] text-white grid grid-cols-12">
+          <div
+            className={`h-full w-full align-center col-span-4 whitespace-nowrap`}
+          >
+            {currentTurn}
+          </div>
+          <div className={`col-span-4 whitespace-nowrap`}>
             <button
+              className="align-center w-full h-full border-2 whitespace-nowrap"
               onClick={() => {
                 console.log(pd);
               }}
-              className="border-2 whitespace-nowrap"
             >
               c.log pdeck
             </button>
           </div>
-          <div className="cols-span-3"></div>
-          <div className="cols-span-3">
+          <div className="col-span-4">
             <button
+              className="w-full h-full border-2 whitespace-nowrap"
               onClick={() => {
                 console.log(od);
               }}
-              className="border-2 whitespace-nowrap"
             >
               c.log odeck
             </button>
           </div>
         </div>
+
         <main className="text-white grid grid-cols-12 mb-[10px] border-t-2">
-          <div className="col-span-6">
-            <button
-              className={`h-full text-xs whitespace-nowrap w-full ${
-                tabs === "Deck" ? "text-lime-500" : "border-b-2"
-              }`}
-              onClick={handleTabChange}
-              name="Deck"
-            >
-              Deck {pd.library.length}
-            </button>
-          </div>
-          <div className="col-span-6">
-            <button
-              className={`h-full text-xs whitespace-nowrap w-full border-l-2 ${
-                tabs === "Discard" ? "text-lime-500" : "border-b-2"
-              }`}
-              onClick={handleTabChange}
-              name="Discard"
-            >
-              Discard {pd.graveyard.length}
-            </button>
-          </div>
+          <button
+            className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full ${
+              tabs === "Deck" ? null : "border-b-2"
+            } ${pinnedTab === "Deck" ? "text-lime-500" : null}`}
+            onClick={handleTabClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            name="Deck"
+          >
+            Deck {pd.library.length}
+          </button>
+          <button
+            className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
+              tabs === "Discard" ? null : "border-b-2"
+            } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
+            onClick={handleTabClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            name="Discard"
+          >
+            Discard {pd.graveyard.length}
+          </button>
         </main>
         <Scrollbars
           autoHide={false}
-          thumbMinSize={30}
           renderThumbVertical={({ style, ...props }) => (
             <main
               {...props}
@@ -118,28 +131,28 @@ const PrimaryFrame = () => {
         <div
           className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
         >
-          <div className="col-span-6">
-            <button
-              className={`h-full text-xs whitespace-nowrap w-full ${
-                tabs === "Opponent" ? "text-lime-500" : "border-t-2"
-              }`}
-              onClick={handleTabChange}
-              name="Opponent"
-            >
-              Opponent {od.entireDeck.length}
-            </button>
-          </div>
-          <div className="col-span-6">
-            <button
-              className={`h-full text-xs whitespace-nowrap w-full border-l-2 ${
-                tabs === "Trash" ? "text-lime-500" : "border-t-2"
-              }`}
-              onClick={handleTabChange}
-              name="Trash"
-            >
-              Trash {pd.trash.length}
-            </button>
-          </div>
+          <button
+            className={`col-span-6  h-full text-xs whitespace-nowrap w-full ${
+              tabs === "Opponent" ? null : "border-t-2"
+            } ${pinnedTab === "Opponent" ? "text-lime-500" : null}`}
+            onClick={handleTabClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            name="Opponent"
+          >
+            Opponent {od.entireDeck.length}
+          </button>
+          <button
+            className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
+              tabs === "Trash" ? null : "border-t-2"
+            } ${pinnedTab === "Trash" ? "text-lime-500" : null}`}
+            onClick={handleTabClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            name="Trash"
+          >
+            Trash {pd.trash.length}
+          </button>
         </div>
       </div>
     </React.Fragment>
