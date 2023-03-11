@@ -15,6 +15,10 @@ export interface ContentState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   sortButtonState: SortButtonState;
+  discardSortState: SortButtonState;
+  opponentSortState: SortButtonState;
+  opponentTrashSortState: SortButtonState;
+  trashSortState: SortButtonState;
   viewerHidden: boolean;
 }
 
@@ -24,6 +28,22 @@ const initialState: ContentState = {
   sortButtonState: {
     category: "probability",
     sort: "ascending",
+  },
+  discardSortState: {
+    category: "card",
+    sort: "descending",
+  },
+  opponentSortState: {
+    category: "card",
+    sort: "descending",
+  },
+  opponentTrashSortState: {
+    category: "card",
+    sort: "descending",
+  },
+  trashSortState: {
+    category: "card",
+    sort: "descending",
   },
   viewerHidden: true,
 };
@@ -40,10 +60,23 @@ export const contentSlice = createSlice({
     },
     setSortedButtonsState: (state, action: PayloadAction<SortButtonState>) => {
       state.sortButtonState = action.payload;
-      console.log("SortButtonState reducer");
+    },
+    setDiscardSortState: (state, action: PayloadAction<SortButtonState>) => {
+      state.discardSortState = action.payload;
+    },
+    setOpponentSortState: (state, action: PayloadAction<SortButtonState>) => {
+      state.opponentSortState = action.payload;
+    },
+    setOpponentTrashSortState: (
+      state,
+      action: PayloadAction<SortButtonState>
+    ) => {
+      state.opponentTrashSortState = action.payload;
+    },
+    setTrashSortState: (state, action: PayloadAction<SortButtonState>) => {
+      state.trashSortState = action.payload;
     },
     setViewerHidden: (state, action: PayloadAction<boolean>) => {
-      console.log("viewerHiddenReducer.  Payload is: ", action.payload);
       state.viewerHidden = action.payload;
     },
   },
@@ -54,6 +87,10 @@ export const {
   setOpponentDeck,
   setSortedButtonsState,
   setViewerHidden,
+  setDiscardSortState,
+  setOpponentSortState,
+  setOpponentTrashSortState,
+  setTrashSortState,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
