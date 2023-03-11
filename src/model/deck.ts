@@ -829,7 +829,10 @@ export class Deck {
         } else {
         }
       } catch (e) {
-        console.info("There was an error: ", getErrorMessage(e));
+        
+        console.group("There was an error: ", getErrorMessage(e));
+        console.log(this.logArchive)
+        console.groupEnd();
       }
       console.groupEnd();
     }
