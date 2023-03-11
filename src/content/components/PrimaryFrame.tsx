@@ -5,14 +5,17 @@ import SortableViewer from "./SortableViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import TrashZoneViewer from "./TrashZoneViewer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import OpponentViewer from "./OpponentViewer";
+import { setViewerHidden } from "../../redux/contentSlice";
 
 const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Turn 1");
   const od = useSelector((state: RootState) => state.content.opponentDeck);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
+  const hidden = useSelector((state: RootState) => state.content.viewerHidden);
+  const dispatch = useDispatch();
   const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
     "Deck"
   );
@@ -20,9 +23,27 @@ const PrimaryFrame = () => {
     "Deck" | "Discard" | "Trash" | "Opponent"
   >("Deck");
 
-  useEffect(() => {
-    $("#primaryFrame").draggable().resizable({ handles: "all" });
-  }, []);
+  const chromeMessageListener = (
+    request: { command: string },
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: { response: string }) => void
+  ) => {
+    console.log(
+      sender.tab
+        ? "from a content script:" + sender.tab.url
+        : "from the extension"
+    );
+    console.log("request:", request);
+    let response: { response: string } = { response: "" };
+    if (request.command === "appendDomRoot") {
+      dispatch(setViewerHidden(false));
+      response.response = "DomRoot Rendered.";
+    } else if (request.command === "removeDomRoot") {
+      dispatch(setViewerHidden(true));
+      response.response = "DomRoot removed.";
+    }
+    sendResponse(response);
+  };
 
   const handleTabClick = (e: BaseSyntheticEvent) => {
     const tabName = e.target.name;
@@ -40,6 +61,17 @@ const PrimaryFrame = () => {
   };
 
   useEffect(() => {
+    chrome.runtime.onMessage.addListener(chromeMessageListener);
+    return () => {
+      chrome.runtime.onMessage.removeListener(chromeMessageListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    $("#primaryFrame").draggable().resizable({ handles: "all" });
+  }, []);
+
+  useEffect(() => {
     for (let i = pd.logArchive.length - 1; i >= 0; i--) {
       if (pd.logArchive[i].match("Turn ") !== null) {
         setCurrentTurn(pd.logArchive[i].slice(0, 10).trim());
@@ -52,7 +84,9 @@ const PrimaryFrame = () => {
     <React.Fragment>
       <div
         id="primaryFrame"
-        className="bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]"
+        className={`${
+          hidden ? "hidden" : ""
+        } bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
       >
         <div className="text-xs mt-[-44px] text-white grid grid-cols-12">
           <div
@@ -126,6 +160,13 @@ const PrimaryFrame = () => {
             {tabs === "Discard" && <DiscardZoneViewer />}
             {tabs === "Opponent" && <OpponentViewer />}
             {tabs === "Trash" && <TrashZoneViewer />}
+            <button
+              onClick={() => {
+                console.log("hidden is", hidden);
+              }}
+            >
+              log hidden
+            </button>
           </div>
         </Scrollbars>
         <div
