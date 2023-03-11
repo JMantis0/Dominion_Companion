@@ -189,6 +189,39 @@ export const resetGame = () => {
 };
 
 /**
+ * Attaches the DomRoot React component to the client DOM.
+ */
+const attachDomRoot = (): void => {
+  domViewContainer = document.createElement("div");
+  domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
+  domViewContainer.setAttribute("id", "domViewContainer");
+  domViewRoot = createRoot(domViewContainer);
+  console.log("Checking the globals just before rendering root");
+  console.log("gameLog", gameLog);
+  console.log("decks", decks);
+  console.log("clientDecks", clientDecks);
+  domViewRoot.render(
+    <DomRoot
+      gameLog={gameLog}
+      playerName={playerName}
+      opponentName={opponentName}
+      decks={clientDecks}
+    />
+  );
+  alreadyRendered = true;
+  document.body.appendChild(domViewContainer);
+};
+
+/**
+ * Removes the DomRoot React component from the client DOM
+ */
+const removeDomRoot = (): void => {
+  domViewContainer.remove();
+  domViewRoot.unmount();
+  alreadyRendered = false;
+};
+
+/**
  * Primary function of the content script
  * Use - Periodically checks the client DOM for the presence of the elements that
  * are required to initialize the content script global variables, one at a time.
@@ -284,28 +317,41 @@ const initIntervalFunction = () => {
     clearInterval(initInterval);
     resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     if (alreadyRendered) {
-      domViewContainer.remove();
-      domViewRoot.unmount();
+      removeDomRoot();
     }
-    domViewContainer = document.createElement("div");
-    domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
-    domViewContainer.setAttribute("id", "domViewContainer");
-    domViewRoot = createRoot(domViewContainer);
-    console.log("Checking the globals just before rendering root");
-    console.log("gameLog", gameLog);
-    console.log("decks", decks);
-    console.log("clientDecks", clientDecks);
-    domViewRoot.render(
-      <DomRoot
-        gameLog={gameLog}
-        playerName={playerName}
-        opponentName={opponentName}
-        decks={clientDecks}
-      />
-    );
-    alreadyRendered = true;
-    document.body.appendChild(domViewContainer);
+    attachDomRoot();
   }
 };
+
+// const addListeners = (): void => {
+//   chrome.runtime.onMessage.addListener(function (
+//     request,
+//     sender,
+//     sendResponse
+//   ) {
+//     console.log(
+//       sender.tab
+//         ? "from a content script:" + sender.tab.url
+//         : "from the extension"
+//     );
+//     let response: { response: string } = { response: "" };
+//     if (request.command === "appendDomRoot") {
+//       if (alreadyRendered) {
+//         response.response = "Request Invalid.  DomRoot already rendered.";
+//       } else {
+//         attachDomRoot();
+//         response.response = "DomRoot Rendered.";
+//       }
+//     } else if (request.command === "removeDomRoot") {
+//       if (!alreadyRendered) {
+//         response.response = "Request Invalid.  DomRoot already removed.";
+//       } else {
+//         removeDomRoot();
+//         response.response = "DomRoot removed.";
+//       }
+//     }
+//     sendResponse(response);
+//   });
+// };
 
 let initInterval = setInterval(initIntervalFunction, 1000);

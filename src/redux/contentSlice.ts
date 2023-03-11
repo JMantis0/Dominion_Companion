@@ -15,6 +15,7 @@ export interface ContentState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   sortButtonState: SortButtonState;
+  viewerHidden: boolean;
 }
 
 const initialState: ContentState = {
@@ -24,6 +25,7 @@ const initialState: ContentState = {
     category: "probability",
     sort: "ascending",
   },
+  viewerHidden: true,
 };
 
 export const contentSlice = createSlice({
@@ -40,10 +42,18 @@ export const contentSlice = createSlice({
       state.sortButtonState = action.payload;
       console.log("SortButtonState reducer");
     },
+    setViewerHidden: (state, action: PayloadAction<boolean>) => {
+      console.log("viewerHiddenReducer.  Payload is: ", action.payload);
+      state.viewerHidden = action.payload;
+    },
   },
 });
 
-export const { setPlayerDeck, setOpponentDeck, setSortedButtonsState } =
-  contentSlice.actions;
+export const {
+  setPlayerDeck,
+  setOpponentDeck,
+  setSortedButtonsState,
+  setViewerHidden,
+} = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
