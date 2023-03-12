@@ -11,6 +11,8 @@ export interface SortButtonState {
   sort: "ascending" | "descending";
 }
 
+
+
 export interface ContentState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
