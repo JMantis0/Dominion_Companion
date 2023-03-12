@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
@@ -14,7 +14,6 @@ import SortViewHeader from "./SortViewHeader";
 import ViewFooter from "./ViewFooter";
 
 const SortableViewer = () => {
-  const firstRender = useRef(true);
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
@@ -35,22 +34,7 @@ const SortableViewer = () => {
       pd
     );
     setLibraryMap(sortedCombinedMap);
-  }, [pd]);
-
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    setLibraryMap(
-      sortTheView(
-        sortButtonState.category,
-        libraryMap,
-        sortButtonState.sort,
-        pd
-      )
-    );
-  }, [sortButtonState]);
+  }, [pd, sortButtonState]);
 
   return (
     <div className="outer-shell">

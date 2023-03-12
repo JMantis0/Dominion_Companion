@@ -106,14 +106,15 @@ const LogObserver: FunctionComponent<ContentProps> = ({
 
   return (
     <div>
-      {/* <button
+      <button
         onClick={() => {
           console.log("gameLog", gameLog.split("\n"));
           console.log("logsProcessed", logsProcessed.split("\n"));
+          console.log(decks);
         }}
       >
         show gameLog /logsProcessed
-      </button> */}
+      </button>
     </div>
   );
 };

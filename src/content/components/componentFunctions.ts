@@ -368,7 +368,75 @@ export const sortTheView = (
       }
       break;
     default: {
-      throw new Error("Invalid sort category");
+      throw new Error("Invalid sort category " + sortParam);
+    }
+  }
+  return sortedMap;
+};
+
+/**
+ * Sort function for ZoneViewer components.  Simpler than the SortableViewer Sort function
+ * because Zone viewers do not have columns for probability or library.
+ */
+export const sortZoneView = (
+  sortParam: "card" | "zone" | "probability" | "owned",
+  unsortedMap: Map<string, number>,
+  sortType: "ascending" | "descending"
+): Map<string, number> => {
+  const mapCopy = new Map(unsortedMap);
+  const sortedMap: Map<string, number> = new Map();
+
+  switch (sortParam) {
+    case "card":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            let result: number;
+            const card1 = entryA[0];
+            const card2 = entryB[0];
+
+            if (sortType === "ascending") {
+              if (card1 > card2) {
+                result = -1;
+              } else if (card1 < card2) {
+                result = 1;
+              } else result = 0;
+            } else {
+              if (card1 < card2) {
+                result = -1;
+              } else if (card1 < card2) {
+                result = 1;
+              } else result = 0;
+            }
+
+            return result;
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    case "zone":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            const cardAmount1 = entryA[1];
+            const cardAmount2 = entryB[1];
+            if (sortType === "ascending") {
+              return cardAmount2 - cardAmount1;
+            } else {
+              return cardAmount1 - cardAmount2;
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    default: {
+      throw new Error("Invalid sort category " + sortParam);
     }
   }
   return sortedMap;
