@@ -126,18 +126,18 @@ const PrimaryFrame = () => {
             onMouseLeave={handleMouseLeave}
             name="Deck"
           >
-            Deck {pd.library.length}
+            Deck {pd.library.length} / {pd.entireDeck.length}
           </button>
           <button
             className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
-              tabs === "Discard" ? null : "border-b-2"
-            } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
+              tabs === "Opponent" ? null : "border-b-2"
+            } ${pinnedTab === "Opponent" ? "text-lime-500" : null}`}
             onClick={handleTabClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            name="Discard"
+            name="Opponent"
           >
-            Discard {pd.graveyard.length}
+            Opponent {od.entireDeck.length}
           </button>
         </main>
         <Scrollbars
@@ -174,14 +174,14 @@ const PrimaryFrame = () => {
         >
           <button
             className={`col-span-6  h-full text-xs whitespace-nowrap w-full ${
-              tabs === "Opponent" ? null : "border-t-2"
-            } ${pinnedTab === "Opponent" ? "text-lime-500" : null}`}
+              tabs === "Discard" ? null : "border-t-2"
+            } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
             onClick={handleTabClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            name="Opponent"
+            name="Discard"
           >
-            Opponent {od.entireDeck.length}
+            Discard {pd.graveyard.length}
           </button>
           <button
             className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${

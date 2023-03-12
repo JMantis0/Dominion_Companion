@@ -97,13 +97,11 @@ const LogObserver: FunctionComponent<ContentProps> = ({
     dispatch(
       setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
     );
-
     logsProcessed = gameLog;
     return () => {
       mo.disconnect();
     };
   }, []);
-
   return (
     <div>
       <button
@@ -118,5 +116,4 @@ const LogObserver: FunctionComponent<ContentProps> = ({
     </div>
   );
 };
-
 export default LogObserver;

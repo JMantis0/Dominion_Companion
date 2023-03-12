@@ -15,7 +15,6 @@ import {
   setTrashSortState,
   SortButtonState,
 } from "../../redux/contentSlice";
-
 library.add(faSortUp, faSortDown, faSort);
 
 type SortButtonProps = {
@@ -36,7 +35,6 @@ type SortButtonProps = {
    */
   reduxState: SortButtonState;
 };
-
 const SortButton: FunctionComponent<SortButtonProps> = ({
   title,
   category,
@@ -47,14 +45,11 @@ const SortButton: FunctionComponent<SortButtonProps> = ({
     "ascending"
   );
   sortState;
-
   const dispatch = useDispatch();
-
   useEffect(() => {
     setSortState("ascending");
     return () => {};
   }, []);
-
   const handleClick = () => {
     let sortToDispatch: "ascending" | "descending";
     if (reduxState.category !== category) {
@@ -71,7 +66,6 @@ const SortButton: FunctionComponent<SortButtonProps> = ({
     );
     setSortState(sortToDispatch);
   };
-
   return (
     <div>
       <button
@@ -104,5 +98,4 @@ const SortButton: FunctionComponent<SortButtonProps> = ({
     </div>
   );
 };
-
 export default SortButton;

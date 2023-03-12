@@ -7,7 +7,6 @@ type CardRowProps = {
   cardName: string;
   color: string;
 };
-
 const FullListCardRow: FunctionComponent<CardRowProps> = ({
   cardAmount,
   libraryAmount,
