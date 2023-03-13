@@ -77,9 +77,12 @@ const LogObserver: FunctionComponent<ContentProps> = ({
     }
   };
 
-  const updateAfterUndoOrRewind = () => {
-    
-  }
+  /**
+   * ToDo - create function that automatically sets the deck to the rewound/undone state
+   */
+  // const updateAfterUndoOrRewind = () => {
+
+  // }
 
   /**
    * After the LogObserver component renders, a MutationObserver object is created, and is

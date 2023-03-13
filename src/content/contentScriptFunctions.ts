@@ -156,7 +156,6 @@ const getPlayerNameAbbreviations = (
   return [playerNick, opponentNick];
 };
 
-
 /**
  * Checks to see if the game is rated or unrated.
  * @param firstGameLogLine - First log entry of the game log.
@@ -175,12 +174,11 @@ const getRatedGameBoolean = (firstGameLogLine: string): boolean => {
   return ratedGame;
 };
 
-
 /**
  * Gets the player ratings for rated games and returns them.
- * @param playerName 
- * @param opponentName 
- * @param gameLog 
+ * @param playerName
+ * @param opponentName
+ * @param gameLog
  * @returns - An array of the player ratings.
  * To do - make it work for multiple opponents.
  */
@@ -244,7 +242,6 @@ const getKingdom = (): Array<string> => {
     "Estate",
     "Copper",
     "Curse",
-    "card", // used for tracking opponent decks.
   ].forEach((card) => {
     cards.push(card);
   });
@@ -268,25 +265,33 @@ const getKingdom = (): Array<string> => {
 const createPlayerDecks = (
   gameTitle: string,
   ratedGame: boolean,
-  rating: string,
   playerName: string,
   playerNick: string,
+  playerRating: string,
   opponentName: string,
   opponentNick: string,
+  opponentRating: string,
   kingdom: Array<string>
 ): Map<string, Deck | OpponentDeck> => {
   let deckMap: Map<string, Deck | OpponentDeck> = new Map();
 
   deckMap.set(
     playerName,
-    new Deck(gameTitle, ratedGame, rating, playerName, playerNick, kingdom)
+    new Deck(
+      gameTitle,
+      ratedGame,
+      playerRating,
+      playerName,
+      playerNick,
+      kingdom
+    )
   );
   deckMap.set(
     opponentName,
     new OpponentDeck(
       gameTitle,
       ratedGame,
-      rating,
+      opponentRating,
       opponentName,
       opponentNick,
       kingdom

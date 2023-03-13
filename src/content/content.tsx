@@ -13,6 +13,7 @@ import {
   getKingdom,
   createPlayerDecks,
   getRatedGameBoolean,
+  getPlayerRatings,
 } from "./contentScriptFunctions";
 
 import DomRoot from "./DomRoot";
@@ -98,6 +99,9 @@ let gameLog: string;
  * Use - Deck constructor invocation.
  */
 let ratedGame: boolean;
+
+let playerRating: string = "";
+let opponentRating: string = "";
 
 /**
  * DEPRECATED - originally used for the Options portion of the extension, which is being replaced by the content section.
@@ -256,7 +260,11 @@ const initIntervalFunction = () => {
         playerName
       );
       if (ratedGame) {
-        //get player ratings here
+        [playerRating, opponentRating] = getPlayerRatings(
+          playerName,
+          opponentName,
+          gameLog
+        );
       }
       playersInitialized = true;
     }
@@ -271,18 +279,24 @@ const initIntervalFunction = () => {
     if (playersInitialized && kingdomInitialized) {
       decks = createPlayerDecks(
         gameLog.split("\n")[0],
+        ratedGame,
         playerName,
         playerNick,
+        playerRating,
         opponentName,
         opponentNick,
+        opponentRating,
         kingdom
       );
       clientDecks = createPlayerDecks(
         gameLog.split("\n")[0],
+        ratedGame,
         playerName,
         playerNick,
+        playerRating,
         opponentName,
         opponentNick,
+        opponentRating,
         kingdom
       );
       playerDeckInitialized = true;

@@ -37,6 +37,22 @@ export class OpponentDeck {
       this.entireDeck.push("Copper");
     }
   }
+
+  setGameTitle(title: string) {
+    this.gameTitle = title;
+  }
+  getGameTitle() {
+    return this.gameTitle;
+  }
+  
+  setRatedGame(ratedGame: boolean) {
+    this.ratedGame = ratedGame;
+  }
+
+  getRatedGame() {
+    return this.ratedGame;
+  }
+
   setPlayerName(name: string) {
     this.playerName = name;
   }
@@ -49,6 +65,15 @@ export class OpponentDeck {
   getPlayerNick() {
     return this.playerNick;
   }
+
+  setRating(rating: string) {
+    this.rating = rating;
+  }
+
+  getRating() {
+    return this.rating;
+  }
+
   setCurrentVP(vp: number) {
     this.currentVP = vp;
   }
