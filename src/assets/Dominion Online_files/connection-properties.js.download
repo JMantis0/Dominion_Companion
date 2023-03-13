@@ -1,0 +1,25 @@
+var REMOTE_HOST = 'metaserver-new.dominion-online.com';
+var TEST_HOST = 'test-metaserver.dominion-online.com';
+var LOCAL_HOST = 'localhost';
+var DEV_IP = '192.168.178.31';
+var LOW_PORT = 4245;
+var MIDDLE_PORT = 4250;
+var HIGH_PORT = 4255;
+
+function getMetaHost() {
+    if (isDebug) return LOCAL_HOST;
+    return REMOTE_HOST;
+}
+
+function shouldUseSecureWebsockets() {
+    return true;
+}
+
+function getMetaPort() {
+    if (isDebug) return LOW_PORT;
+    return 443;
+}
+
+function getGamePort() {
+    return getMetaPort() - 2;
+}

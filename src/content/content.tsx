@@ -12,6 +12,7 @@ import {
   isKingdomElementPresent,
   getKingdom,
   createPlayerDecks,
+  getRatedGameBoolean,
 } from "./contentScriptFunctions";
 
 import DomRoot from "./DomRoot";
@@ -93,6 +94,12 @@ let logsProcessed: string;
 let gameLog: string;
 
 /**
+ * Content global variable - Holds the value of whether or not the current game is rated.
+ * Use - Deck constructor invocation.
+ */
+let ratedGame: boolean;
+
+/**
  * DEPRECATED - originally used for the Options portion of the extension, which is being replaced by the content section.
  * Content global variable - Holds the values of the Deck objects.  The playerName and opponentName are used as the
  * keys for the corresponding Deck objects
@@ -171,6 +178,7 @@ export const resetGame = () => {
   logInitialized = false;
   kingdomInitialized = false;
   playerDeckInitialized = false;
+  logsProcessed;
   logsProcessed = "";
   gameLog = "";
   playerName = "";
@@ -226,13 +234,14 @@ const removeDomRoot = (): void => {
  * Use - Periodically checks the client DOM for the presence of the elements that
  * are required to initialize the content script global variables, one at a time.
  * Once they are initialized, the initInterval is cleared, the resetInterval is set,
- * the Deck objects initial update() invocation occur, and finally the React root is
+ * and finally the React root is
  * appended to the client DOM.
  */
 const initIntervalFunction = () => {
   if (!logInitialized) {
     if (isGameLogPresent()) {
       gameLog = getGameLog();
+      ratedGame = getRatedGameBoolean(gameLog.split("\n")[0]);
       logInitialized = true;
     }
   }
@@ -246,6 +255,9 @@ const initIntervalFunction = () => {
         gameLog,
         playerName
       );
+      if (ratedGame) {
+        //get player ratings here
+      }
       playersInitialized = true;
     }
   }
@@ -258,6 +270,7 @@ const initIntervalFunction = () => {
   if (!playerDeckInitialized) {
     if (playersInitialized && kingdomInitialized) {
       decks = createPlayerDecks(
+        gameLog.split("\n")[0],
         playerName,
         playerNick,
         opponentName,
@@ -265,6 +278,7 @@ const initIntervalFunction = () => {
         kingdom
       );
       clientDecks = createPlayerDecks(
+        gameLog.split("\n")[0],
         playerName,
         playerNick,
         opponentName,
@@ -291,29 +305,6 @@ const initIntervalFunction = () => {
           resetGame();
         })
     );
-    myDiv.append(
-      $("<button>")
-        .attr("id", "newLogsButton")
-        .text("Console Log Globals")
-        .on("click", () => {
-          console.log("logInitialized: ", logInitialized);
-          console.log("kingdomInitialized: ", kingdomInitialized);
-          console.log("playersInitialized: ", playersInitialized);
-          console.log("playerDeckInitialized: ", playerDeckInitialized);
-          console.group("LogsProcessed Array");
-          if (logsProcessed !== undefined)
-            console.log("logsProcessed: ", logsProcessed.split("\n"));
-          console.groupEnd();
-          console.group("gameLog Array");
-          if (gameLog !== undefined)
-            console.log("gameLog: ", gameLog.split("\n"));
-          console.groupEnd();
-          console.log("playerNames: ", playerName, opponentName);
-          console.log("playerAbbreviatedNames: ", playerNick, opponentNick);
-          console.log("decks: ", decks);
-          console.log("kingdom: ", kingdom);
-        })
-    );
     clearInterval(initInterval);
     resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     if (alreadyRendered) {
@@ -322,36 +313,5 @@ const initIntervalFunction = () => {
     attachDomRoot();
   }
 };
-
-// const addListeners = (): void => {
-//   chrome.runtime.onMessage.addListener(function (
-//     request,
-//     sender,
-//     sendResponse
-//   ) {
-//     console.log(
-//       sender.tab
-//         ? "from a content script:" + sender.tab.url
-//         : "from the extension"
-//     );
-//     let response: { response: string } = { response: "" };
-//     if (request.command === "appendDomRoot") {
-//       if (alreadyRendered) {
-//         response.response = "Request Invalid.  DomRoot already rendered.";
-//       } else {
-//         attachDomRoot();
-//         response.response = "DomRoot Rendered.";
-//       }
-//     } else if (request.command === "removeDomRoot") {
-//       if (!alreadyRendered) {
-//         response.response = "Request Invalid.  DomRoot already removed.";
-//       } else {
-//         removeDomRoot();
-//         response.response = "DomRoot removed.";
-//       }
-//     }
-//     sendResponse(response);
-//   });
-// };
 
 let initInterval = setInterval(initIntervalFunction, 1000);

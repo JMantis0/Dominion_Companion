@@ -6,6 +6,9 @@ import { getErrorMessage } from "../content/components/componentFunctions";
  * player's Deck state.
  */
 export class Deck {
+  gameTitle: string;
+  ratedGame: boolean;
+  rating: string;
   entireDeck: Array<string> = [];
   playerName: string = "";
   playerNick: string = "";
@@ -23,7 +26,17 @@ export class Deck {
   waitToDrawLibraryLook: boolean = false;
   treasurePopped: boolean = false;
 
-  constructor(playerName: string, playerNick: string, kingdom: Array<string>) {
+  constructor(
+    gameTitle: string,
+    ratedGame: boolean,
+    rating: string,
+    playerName: string,
+    playerNick: string,
+    kingdom: Array<string>
+  ) {
+    this.gameTitle = gameTitle;
+    this.ratedGame = ratedGame;
+    this.rating = rating;
     this.playerName = playerName;
     this.kingdom = kingdom;
     this.playerNick = playerNick;
@@ -622,7 +635,7 @@ export class Deck {
   }
 
   /**
-   * 
+   *
    */
   setAsideWithLibrary(card: string) {
     const index = this.library.indexOf(card);
@@ -829,9 +842,8 @@ export class Deck {
         } else {
         }
       } catch (e) {
-        
         console.group("There was an error: ", getErrorMessage(e));
-        console.log(this.logArchive)
+        console.log(this.logArchive);
         console.groupEnd();
       }
       console.groupEnd();

@@ -77,6 +77,10 @@ const LogObserver: FunctionComponent<ContentProps> = ({
     }
   };
 
+  const updateAfterUndoOrRewind = () => {
+    
+  }
+
   /**
    * After the LogObserver component renders, a MutationObserver object is created, and is
    * set to observe the ".game-log" element from the client DOM, and an ini

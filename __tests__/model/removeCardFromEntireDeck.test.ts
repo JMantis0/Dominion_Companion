@@ -5,7 +5,12 @@ describe("Function removeCardFromEntireDeck()", () => {
   let tDeck: Deck;
   let tEntireDeck: string[];
   beforeEach(() => {
-    tDeck = new Deck("tName", "tNick", ["Ace", "Heart", "Club", "Spade"]);
+    tDeck = new Deck("tTitle", "tName", "tNick", [
+      "Ace",
+      "Heart",
+      "Club",
+      "Spade",
+    ]);
     tEntireDeck = ["Ace", "Heart"];
     tDeck.setEntireDeck(tEntireDeck);
   });

@@ -156,6 +156,53 @@ const getPlayerNameAbbreviations = (
   return [playerNick, opponentNick];
 };
 
+
+/**
+ * Checks to see if the game is rated or unrated.
+ * @param firstGameLogLine - First log entry of the game log.
+ * @returns - Boolean for whether the game is rated or unrated.
+ */
+const getRatedGameBoolean = (firstGameLogLine: string): boolean => {
+  let ratedGame: boolean;
+  if (firstGameLogLine.match(" rated.") !== null) {
+    ratedGame = true;
+  } else if (firstGameLogLine.match(" unrated.") !== null) {
+    ratedGame = false;
+  } else {
+    console.log("throwing error");
+    throw new Error("Invalid firstGameLogLine " + firstGameLogLine);
+  }
+  return ratedGame;
+};
+
+
+/**
+ * Gets the player ratings for rated games and returns them.
+ * @param playerName 
+ * @param opponentName 
+ * @param gameLog 
+ * @returns - An array of the player ratings.
+ * To do - make it work for multiple opponents.
+ */
+const getPlayerRatings = (
+  playerName: string,
+  opponentName: string,
+  gameLog: string
+): string[] => {
+  let playerRating: string = "Rating Not Found";
+  let opponentRating: string = "Rating Not Found";
+  let logArray = gameLog.split("\n");
+  for (let i = 0; i < logArray.length; i++) {
+    const entry = logArray[i];
+    if (entry.match(playerName + ": ") !== null) {
+      playerRating = entry.substring(entry.lastIndexOf(" ") + 1);
+    } else if (entry.match(opponentName + ": ") !== null) {
+      opponentRating = entry.substring(entry.lastIndexOf(" ") + 1);
+    }
+  }
+
+  return [playerRating, opponentRating];
+};
 /**
  * Checks for presence of kingdom-viewer-group element in the dom.
  * Purpose: Control flow for content script.
@@ -217,7 +264,11 @@ const getKingdom = (): Array<string> => {
  * @param kingdom - The array of kingdom cards.
  * @returns Map object that contains both the player deck and opponent deck.
  */
+
 const createPlayerDecks = (
+  gameTitle: string,
+  ratedGame: boolean,
+  rating: string,
   playerName: string,
   playerNick: string,
   opponentName: string,
@@ -226,10 +277,20 @@ const createPlayerDecks = (
 ): Map<string, Deck | OpponentDeck> => {
   let deckMap: Map<string, Deck | OpponentDeck> = new Map();
 
-  deckMap.set(playerName, new Deck(playerName, playerNick, kingdom));
+  deckMap.set(
+    playerName,
+    new Deck(gameTitle, ratedGame, rating, playerName, playerNick, kingdom)
+  );
   deckMap.set(
     opponentName,
-    new OpponentDeck(opponentName, opponentNick, kingdom)
+    new OpponentDeck(
+      gameTitle,
+      ratedGame,
+      rating,
+      opponentName,
+      opponentNick,
+      kingdom
+    )
   );
   return deckMap;
 };
@@ -406,6 +467,8 @@ export {
   getHeroPlayerInfoElement,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerNameAbbreviations,
+  getRatedGameBoolean,
+  getPlayerRatings,
   isKingdomElementPresent,
   getKingdom,
   createPlayerDecks,

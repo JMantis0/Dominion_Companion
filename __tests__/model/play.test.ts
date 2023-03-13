@@ -7,7 +7,7 @@ describe("Function play()", () => {
   let testInPlay: string[];
 
   beforeEach(() => {
-    testDeck = new Deck("testName", "testNick", [
+    testDeck = new Deck("tTitle", "testName", "testNick", [
       "Ace",
       "Heart",
       "Club",

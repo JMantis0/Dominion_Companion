@@ -3,6 +3,9 @@
  * player's Deck state.
  */
 export class OpponentDeck {
+  gameTitle: string;
+  ratedGame: boolean;
+  rating: string;
   entireDeck: Array<string> = [];
   playerName: string = "";
   playerNick: string = "";
@@ -13,7 +16,17 @@ export class OpponentDeck {
   logArchive: Array<string> = [];
   treasurePopped: boolean = false;
 
-  constructor(playerName: string, playerNick: string, kingdom: Array<string>) {
+  constructor(
+    gameTitle: string,
+    ratedGame: boolean,
+    rating: string,
+    playerName: string,
+    playerNick: string,
+    kingdom: Array<string>
+  ) {
+    this.gameTitle = gameTitle;
+    this.ratedGame = ratedGame;
+    this.rating = rating;
     this.playerName = playerName;
     this.kingdom = kingdom;
     this.playerNick = playerNick;

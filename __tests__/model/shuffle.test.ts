@@ -5,7 +5,12 @@ describe("Function shuffle()", () => {
   describe("randomized the order of the library array field", () => {
     let tDeck: Deck;
     beforeEach(() => {
-      tDeck = new Deck("tName", "tNick", ["Ace", "Club", "Club", "Heart"]);
+      tDeck = new Deck("tTitle", "tName", "tNick", [
+        "Ace",
+        "Club",
+        "Club",
+        "Heart",
+      ]);
       let tLib = [
         "Ace",
         "Club",

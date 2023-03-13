@@ -5,7 +5,7 @@ describe("Function playFromDiscard()", () => {
   let tDeck: Deck;
   let tDiscard: string[];
   beforeEach(() => {
-    tDeck = new Deck("tN", "tNik", ["Ace", "Club", "Club", "Heart"]);
+    tDeck = new Deck("tTitle", "tN", "tNik", ["Ace", "Club", "Club", "Heart"]);
     tDiscard = ["Ace", "Club", "Club", "Heart"];
     tDeck.setGraveyard(tDiscard);
   });
