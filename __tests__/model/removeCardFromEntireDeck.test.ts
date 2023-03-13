@@ -1,16 +1,12 @@
 import { it, beforeEach, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
+import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function removeCardFromEntireDeck()", () => {
   let tDeck: Deck;
   let tEntireDeck: string[];
   beforeEach(() => {
-    tDeck = new Deck("tTitle", "tName", "tNick", [
-      "Ace",
-      "Heart",
-      "Club",
-      "Spade",
-    ]);
+    tDeck = createRandomDeck();
     tEntireDeck = ["Ace", "Heart"];
     tDeck.setEntireDeck(tEntireDeck);
   });

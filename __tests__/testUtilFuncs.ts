@@ -1,4 +1,5 @@
 import { Deck } from "../src/model/deck";
+import { OpponentDeck } from "../src/model/opponentDeck";
 
 export const getCountsFromArray = (
   deckListArray: Array<string>
@@ -23,7 +24,7 @@ export const getCountsFromArray = (
  */
 export const createRandomDeck = (): Deck => {
   const rKingdom: string[] = createRandomKingdom();
-  const rDeck = new Deck("rName", "rNick", rKingdom);
+  const rDeck = new Deck("rTitle", false, "", "rName", "rNick", rKingdom);
 
   let rLib = createRandomFieldArray(rKingdom);
   const initLib = rDeck.getLibrary();
@@ -39,6 +40,19 @@ export const createRandomDeck = (): Deck => {
   rDeck.setHand(rHand);
 
   const rEntireDeck = rLib.concat(rGy).concat(rInPlay).concat(rHand);
+  rDeck.setEntireDeck(rEntireDeck);
+
+  const rTrash = createRandomFieldArray(rKingdom);
+  rDeck.setTrash(rTrash);
+
+  return rDeck;
+};
+
+export const createRandomOpponentDeck = (): OpponentDeck => {
+  const rKingdom: string[] = createRandomKingdom();
+  const rDeck = new Deck("rTitle", false, "", "rName", "rNick", rKingdom);
+
+  const rEntireDeck = createRandomFieldArray(rKingdom);
   rDeck.setEntireDeck(rEntireDeck);
 
   const rTrash = createRandomFieldArray(rKingdom);

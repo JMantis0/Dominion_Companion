@@ -1,11 +1,12 @@
 import { expect, it, describe, beforeEach } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
+import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function topDeckFromGraveyard()", () => {
   let tDeck: Deck;
   let tDiscard: string[];
   beforeEach(() => {
-    tDeck = new Deck("tTitle", "tN", "tNik", ["Ace", "Club", "Club", "Heart"]);
+    tDeck = createRandomDeck();
     tDiscard = ["Ace", "Club", "Club", "Heart"];
     tDeck.setGraveyard(tDiscard);
   });

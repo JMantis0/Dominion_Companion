@@ -1,35 +1,81 @@
-import { expect, describe, it } from "@jest/globals";
+import { expect, describe, it, beforeEach } from "@jest/globals";
 import { createPlayerDecks } from "../../src/content/contentScriptFunctions";
 import { Deck } from "../../src/model/deck";
+import { OpponentDeck } from "../../src/model/opponentDeck";
+import { createRandomKingdom } from "../testUtilFuncs";
 
 describe("Function createPlayerDecks", () => {
-  describe("when given playerNames, abbreviated names, and kingdom arrays", () => {
-    it("should return a Map<string,Deck> objects with a deck for each player", () => {
-      const opponentName = "OpponentName";
-      const playerName = "PlayerName";
-      const playerNick = "playerNick";
-      const opponentNick = "oppNick";
+  let od: OpponentDeck;
+  let pd: Deck;
+  let gameTitle: string;
+  let ratedGame: boolean;
+  let playerName: string;
+  let playerNick: string;
+  let playerRating: string;
+  let opponentName: string;
+  let opponentNick: string;
+  let opponentRating: string;
+  let fakeKingdom: string[];
 
-      const fakeKingdom = ["card1", "card2", "card3"];
-
-      const testMap: Map<string, Deck> = new Map();
-      testMap.set(playerName, new Deck(playerName, playerNick, fakeKingdom));
-      testMap.set(
-        opponentName,
-        new Deck(opponentName, opponentNick, fakeKingdom)
+  const testMap: Map<string, Deck | OpponentDeck> = new Map();
+  describe("when given a game title, ratedGame, playerName, playerNick, playerRating, opponentName, opponentNick, opponentRating, and kingdom arrays", () => {
+    beforeEach(() => {
+      gameTitle = "Random Title";
+      ratedGame = false;
+      fakeKingdom = createRandomKingdom();
+      playerName = "PlayerName";
+      playerNick = "PlayerNick";
+      playerRating = "";
+      pd = new Deck(
+        gameTitle,
+        ratedGame,
+        playerRating,
+        playerName,
+        playerNick,
+        fakeKingdom
       );
-
-      expect(
-        JSON.stringify(
-          createPlayerDecks(
-            playerName,
-            playerNick,
-            opponentName,
-            opponentNick,
-            fakeKingdom
-          )
-        )
-      ).toStrictEqual(JSON.stringify(testMap));
+      opponentName = "OpponentName";
+      opponentNick = "OpponentNick";
+      opponentRating = "";
+      od = new OpponentDeck(
+        gameTitle,
+        ratedGame,
+        opponentRating,
+        opponentName,
+        opponentNick,
+        fakeKingdom
+      );
+      testMap.set(playerName, pd);
+      testMap.set(opponentName, od);
+    });
+    it("should return a Map<string,Deck|OpponentDeck> objects with a deck for each player", () => {
+      let decksFromFunction = createPlayerDecks(
+        gameTitle,
+        false, //ratedGame value set as false by createRandomDeck
+        playerName,
+        playerNick,
+        playerRating,
+        opponentName,
+        opponentNick,
+        opponentRating,
+        fakeKingdom
+      );
+      const stringifiedPlayerDeck = JSON.stringify(testMap.get(playerName));
+      const stringifiedMapOpponentDeck = JSON.stringify(
+        testMap.get(opponentName)
+      );
+      const stringifiedPlayerDeckFromFunc = JSON.stringify(
+        decksFromFunction.get(playerName)
+      );
+      const stringifiedMapOpponentDeckFromFunc = JSON.stringify(
+        decksFromFunction.get(opponentName)
+      );
+      expect(stringifiedMapOpponentDeck).toStrictEqual(
+        stringifiedMapOpponentDeckFromFunc
+      );
+      expect(stringifiedPlayerDeck).toStrictEqual(
+        stringifiedPlayerDeckFromFunc
+      );
     });
   });
 });
