@@ -1,4 +1,9 @@
 export interface StoreDeck {
+  gameTitle: string;
+  gameTurn: number;
+  gameResult: string;
+  ratedGame: boolean;
+  rating: string;
   entireDeck: Array<string>;
   playerName: string;
   playerNick: string;

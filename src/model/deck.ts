@@ -7,6 +7,8 @@ import { getErrorMessage } from "../content/components/componentFunctions";
  */
 export class Deck {
   gameTitle: string;
+  gameTurn: number;
+  gameResult: string;
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string> = [];
@@ -35,6 +37,8 @@ export class Deck {
     kingdom: Array<string>
   ) {
     this.gameTitle = gameTitle;
+    this.gameTurn = 0;
+    this.gameResult = "Unfinished";
     this.ratedGame = ratedGame;
     this.rating = rating;
     this.playerName = playerName;
@@ -55,6 +59,22 @@ export class Deck {
   }
   getGameTitle() {
     return this.gameTitle;
+  }
+
+  setGameTurn(turn: number) {
+    this.gameTurn = turn;
+  }
+
+  getGameTurn() {
+    return this.gameTurn;
+  }
+
+  setGameResult(result: string) {
+    this.gameResult = result;
+  }
+
+  getGameResult() {
+    return this.gameResult;
   }
 
   setRatedGame(ratedGame: boolean) {
@@ -149,6 +169,25 @@ export class Deck {
 
   setSetAside(setAsideCards: string[]) {
     this.setAside = setAsideCards;
+  }
+
+  updateVP() {
+    this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
+      switch (currentValue) {
+        case "Gardens":
+          return Math.floor(this.entireDeck.length / 10);
+        case "Estate":
+          return 1 + accumulatedVP;
+        case "Duchy":
+          return 3 + accumulatedVP;
+        case "Province":
+          return 6 + accumulatedVP;
+        case "Curse":
+          return accumulatedVP - 1;
+        default:
+          return 0 + accumulatedVP;
+      }
+    }, 0);
   }
 
   update(log: Array<string>) {
@@ -372,6 +411,8 @@ export class Deck {
       if (line !== "Between Turns") {
         this.logArchive.push(line);
       }
+      this.updateVP();
+      if (this.checkForTurnLine(line)) this.incrementTurn();
       console.groupEnd();
     });
   }
@@ -709,12 +750,8 @@ export class Deck {
       this.entireDeck.length < 5 &&
       drawCount === this.entireDeck.length
     ) {
-      console.log(
-        "Special cleanup needed, less than 5 draws because less than 5 cards owned."
-      );
       needCleanUp = true;
     }
-    console.log("Checking for cleanup.  DrawCount = ", drawCount);
     return needCleanUp;
   };
 
@@ -812,13 +849,24 @@ export class Deck {
    * @returns - Boolean for whether the current line play activity is triggered by a Vassal.
    */
   checkForVassalPlay() {
+    /*
+    Log text alone does not provide sufficient context to
+    resolve ambiguity for whether a play that takes place immediately after a Vassal play is
+    being played from the hand, or if it is being played from discard (triggered by the Vassal).
+    To resolve this ambiguity we look to the style property of the log-line elements: padding-left.
+    If a play is triggered by a vassal, the value of the padding-left property of the related log-line element 
+    is equal to the value of the padding-left property of the previous log-line element.  If the play is not 
+    triggered by the Vassal, but is coming from the hand, the padding-left property of the previous line will
+    be less than the current line.
+    */
     console.log("Check for vassal play");
     let vassalPlay: boolean = false;
+    let vassalPlayInLogs: boolean = false;
     const len = this.logArchive.length;
     if (len > 3) {
-      vassalPlay = this.getMostRecentPlay(this.logArchive) === "Vassal";
+      vassalPlayInLogs = this.getMostRecentPlay(this.logArchive) === "Vassal";
     }
-    if (vassalPlay) {
+    if (vassalPlayInLogs) {
       try {
         let logScrollElement = getLogScrollContainerLogLines();
         let currentLinePaddingNumber: number;
@@ -864,14 +912,14 @@ export class Deck {
         );
         if (currentLinePaddingNumber < previousLinePaddingNumber) {
           vassalPlay = false;
-        } else {
+        } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
+          vassalPlay = true;
         }
       } catch (e) {
         console.group("There was an error: ", getErrorMessage(e));
         console.log(this.logArchive);
         console.groupEnd();
       }
-      console.groupEnd();
     }
     return vassalPlay;
   }
@@ -1326,5 +1374,21 @@ export class Deck {
       }
     });
     return [cards, cardAmounts];
+  }
+
+  incrementTurn() {
+    this.gameTurn++;
+    console.log("turn: ", this.gameTurn);
+  }
+
+  checkForTurnLine(line: string): boolean {
+    let turnLine: boolean;
+    if (
+      line.match(this.playerName) !== null &&
+      line.match(/Turn \d* -/) !== null
+    )
+      turnLine = true;
+    else turnLine = false;
+    return turnLine;
   }
 }

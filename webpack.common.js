@@ -10,6 +10,7 @@ module.exports = {
 
   entry: {
     popup: path.resolve("./src/popup/index.tsx"),
+    options: path.resolve("./src/options/index.tsx"),
     content: path.resolve("./src/content/content.tsx"),
   },
   module: {

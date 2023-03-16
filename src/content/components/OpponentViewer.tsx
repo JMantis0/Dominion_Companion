@@ -12,7 +12,7 @@ const OpponentViewer = () => {
   return (
     <React.Fragment>
       <div className={`text-xs text-white`}>
-        {od.playerName}'s Deck: {od.entireDeck.length} cards
+        {od.playerName}'s Deck: {od.entireDeck.length} cards.
       </div>
       <ZoneViewer
         sortButtonState={opponentSortState}

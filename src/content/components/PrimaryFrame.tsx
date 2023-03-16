@@ -11,10 +11,13 @@ import OpponentViewer from "./OpponentViewer";
 import { setViewerHidden } from "../../redux/contentSlice";
 
 const PrimaryFrame = () => {
-  const [currentTurn, setCurrentTurn] = useState("Turn 1");
+  const [currentTurn, setCurrentTurn] = useState("Starting");
   const od = useSelector((state: RootState) => state.content.opponentDeck);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const hidden = useSelector((state: RootState) => state.content.viewerHidden);
+  const activeStatus = useSelector(
+    (state: RootState) => state.content.gameActiveStatus
+  );
   const dispatch = useDispatch();
   const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
     "Deck"
@@ -73,12 +76,19 @@ const PrimaryFrame = () => {
 
   useEffect(() => {
     for (let i = pd.logArchive.length - 1; i >= 0; i--) {
-      if (pd.logArchive[i].match("Turn ") !== null) {
-        setCurrentTurn(pd.logArchive[i].slice(0, 10).trim());
+      if (
+        pd.logArchive[i].match("Turn ") !== null ||
+        od.logArchive[i].match("Turn ") !== null
+      ) {
+        setCurrentTurn("Turn - " + od.logArchive[i].match(/\b\d\d*\b/)![0]);
         break;
       }
     }
   }, [pd, tabs]);
+
+  useEffect(() => {
+    setCurrentTurn("Starting");
+  }, [pd.gameTitle]);
 
   return (
     <React.Fragment>
@@ -86,33 +96,18 @@ const PrimaryFrame = () => {
         id="primaryFrame"
         className={`${
           hidden ? "hidden" : ""
-        } bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+        } backdrop-blur-sm bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
       >
-        <div className="text-xs mt-[-44px] text-white grid grid-cols-12">
+        <div className="text-xs mt-[-41px] text-white grid grid-cols-12">
+          <div
+            className={`h-full w-full align-center col-span-7 whitespace-nowrap`}
+          >
+            {pd.gameTitle}
+          </div>
           <div
             className={`h-full w-full align-center col-span-4 whitespace-nowrap`}
           >
-            {currentTurn}
-          </div>
-          <div className={`col-span-4 whitespace-nowrap`}>
-            <button
-              className="align-center w-full h-full border-2 whitespace-nowrap"
-              onClick={() => {
-                console.log(pd);
-              }}
-            >
-              c.log pdeck
-            </button>
-          </div>
-          <div className="col-span-4">
-            <button
-              className="w-full h-full border-2 whitespace-nowrap"
-              onClick={() => {
-                console.log(od);
-              }}
-            >
-              c.log odeck
-            </button>
+            {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
           </div>
         </div>
 
@@ -126,7 +121,7 @@ const PrimaryFrame = () => {
             onMouseLeave={handleMouseLeave}
             name="Deck"
           >
-            Deck {pd.library.length} / {pd.entireDeck.length}
+            Deck
           </button>
           <button
             className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
@@ -137,38 +132,60 @@ const PrimaryFrame = () => {
             onMouseLeave={handleMouseLeave}
             name="Opponent"
           >
-            Opponent {od.entireDeck.length}
+            Opponent
           </button>
         </main>
-        <Scrollbars
-          autoHide={false}
-          renderThumbVertical={({ style, ...props }) => (
-            <main
-              {...props}
-              style={{
-                ...style,
-                backgroundColor: "#e9e9e9",
-                width: "3px",
-                opacity: ".75",
-                height: "30px",
-              }}
-            />
-          )}
-        >
-          <div className="p-1 mr-2">
-            {tabs === "Deck" && <SortableViewer />}
-            {tabs === "Discard" && <DiscardZoneViewer />}
-            {tabs === "Opponent" && <OpponentViewer />}
-            {tabs === "Trash" && <TrashZoneViewer />}
-            <button
-              onClick={() => {
-                console.log("hidden is", hidden);
-              }}
-            >
-              log hidden
-            </button>
-          </div>
-        </Scrollbars>
+        {activeStatus ? (
+          <Scrollbars
+            autoHide={false}
+            renderThumbVertical={({ style, ...props }) => (
+              <main
+                {...props}
+                style={{
+                  ...style,
+                  backgroundColor: "#e9e9e9",
+                  width: "3px",
+                  opacity: ".75",
+                  height: "30px",
+                }}
+              />
+            )}
+          >
+            <div className="p-1 mr-2">
+              {tabs === "Deck" && <SortableViewer />}
+              {tabs === "Discard" && <DiscardZoneViewer />}
+              {tabs === "Opponent" && <OpponentViewer />}
+              {tabs === "Trash" && <TrashZoneViewer />}
+              <button
+                onClick={() => {
+                  console.log("hidden is", hidden);
+                }}
+              >
+                log hidden
+              </button>
+            </div>
+            <div className="text-xs text-white grid grid-cols-12">
+              <button
+                className="col-span-6 align-center w-full h-full border-2 whitespace-nowrap"
+                onClick={() => {
+                  console.log(pd);
+                }}
+              >
+                c.log pDeck
+              </button>
+              <button
+                className="col-span-6 w-full h-full border-2 whitespace-nowrap"
+                onClick={() => {
+                  console.log(od);
+                }}
+              >
+                c.log oDeck
+              </button>
+            </div>
+          </Scrollbars>
+        ) : (
+          <div className="text-white">No active game.</div>
+        )}
         <div
           className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
         >
@@ -194,6 +211,7 @@ const PrimaryFrame = () => {
           >
             Trash {pd.trash.length}
           </button>
+          
         </div>
       </div>
     </React.Fragment>

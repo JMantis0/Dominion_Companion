@@ -1,5 +1,6 @@
 export class EmptyDeck {
   entireDeck: Array<string> = [];
+  gamerTurn: number = 0;
   playerName: string = "";
   playerNick: string = "";
   currentVP: number = 3;

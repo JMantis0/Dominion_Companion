@@ -4,6 +4,8 @@
  */
 export class OpponentDeck {
   gameTitle: string;
+  gameTurn: number;
+  gameResult: string;
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string> = [];
@@ -25,6 +27,8 @@ export class OpponentDeck {
     kingdom: Array<string>
   ) {
     this.gameTitle = gameTitle;
+    this.gameTurn = 0;
+    this.gameResult = "Unfinished"
     this.ratedGame = ratedGame;
     this.rating = rating;
     this.playerName = playerName;
@@ -43,6 +47,22 @@ export class OpponentDeck {
   }
   getGameTitle() {
     return this.gameTitle;
+  }
+
+  setGameTurn(turn: number) {
+    this.gameTurn = turn;
+  }
+
+  getGameTurn() {
+    return this.gameTurn;
+  }
+
+  setGameResult(result: string) {
+    this.gameResult = result;
+  }
+
+  getGameResult() {
+    return this.gameResult;
   }
   
   setRatedGame(ratedGame: boolean) {
@@ -105,6 +125,25 @@ export class OpponentDeck {
 
   setEntireDeck(deck: Array<string>) {
     this.entireDeck = deck;
+  }
+
+  updateVP() {
+    this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
+      switch (currentValue) {
+        case "Gardens":
+          return Math.floor(this.entireDeck.length / 10);
+        case "Estate":
+          return 1 + accumulatedVP;
+        case "Duchy":
+          return 3 + accumulatedVP;
+        case "Province":
+          return 6 + accumulatedVP;
+        case "Curse":
+          return accumulatedVP - 1;
+        default:
+          return 0 + accumulatedVP;
+      }
+    }, 0);
   }
 
   update(log: Array<string>) {
@@ -174,6 +213,8 @@ export class OpponentDeck {
       if (line !== "Between Turns") {
         this.logArchive.push(line);
       }
+      this.updateVP();
+      if (this.checkForTurnLine(line)) this.incrementTurn();
       console.groupEnd();
     });
   }
@@ -461,5 +502,21 @@ export class OpponentDeck {
       }
     });
     return [cards, cardAmounts];
+  }
+
+  incrementTurn() {
+    this.gameTurn++;
+    console.log("turn: ", this.gameTurn);
+  }
+
+  checkForTurnLine(line: string): boolean {
+    let turnLine: boolean;
+    if (
+      line.match(this.playerName) !== null &&
+      line.match(/Turn \d* -/) !== null
+    )
+      turnLine = true;
+    else turnLine = false;
+    return turnLine;
   }
 }

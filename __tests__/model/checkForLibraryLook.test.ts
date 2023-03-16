@@ -67,15 +67,4 @@ describe("Function checkForLibraryLook()", () => {
       expect(rDeck.checkForLibraryLook(line)).toBeFalsy();
     });
   });
-  describe("when the current line contains the substring ' looks at ', but the logArchive does not contain an entry that contains the substring ' plays a '", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = ["Line1", "Line2", "Line3", "Line4"];
-      line = "G looks at 2 Coppers.";
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should throw error", () => {
-      expect(() => rDeck.checkForLibraryLook(line)).toThrow(Error);
-    });
-  });
 });

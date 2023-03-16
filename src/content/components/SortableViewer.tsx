@@ -38,6 +38,9 @@ const SortableViewer = () => {
 
   return (
     <div className="outer-shell">
+      <div className={`text-xs text-white`}>
+        {pd.playerName}'s Deck: {pd.entireDeck.length} cards.
+      </div>
       <SortViewHeader />
       {Array.from(libraryMap.keys()).map((card, idx) => {
         return (

@@ -5,28 +5,28 @@ import { createRandomDeck } from "../testUtilFuncs";
 describe("Function checkForBanditDiscard()", () => {
   let rDeck: Deck;
   let logArchive: string[];
-  describe("when the log entry at index 1 less than the logArchive length contains the substring ' trashes ', and the logArchive entry just before that contains the substring ' reveals '", () => {
+
+  describe("when the most recent play in the game log is a Bandit play", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
-      logArchive = ["rNick reveals a Silver and a Province."];
+      logArchive = [
+        "oNick plays a Bandit.",
+        "rNick reveals a Silver and a Province.",
+      ];
       rDeck.setLogArchive(logArchive);
     });
     it("should return true", () => {
       expect(rDeck.checkForBanditDiscard()).toBeTruthy();
     });
   });
-
-  describe("when he log entry at index 1 less that the logArchive length contains the substring ' reveals '", () => {
+  describe("when the most recent play in the game log is not a Bandit play", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
-      logArchive = [
-        "rNick reveals a Silver and a Province.",
-        "rNick trashes a Silver",
-      ];
+      logArchive = ["pNick plays a Vassal.", "pNick discards a Library"];
       rDeck.setLogArchive(logArchive);
     });
-    it("should return true", () => {
-      expect(rDeck.checkForBanditDiscard()).toBeTruthy();
+    it("should return false", () => {
+      expect(rDeck.checkForBanditDiscard()).toBeFalsy();
     });
   });
 });

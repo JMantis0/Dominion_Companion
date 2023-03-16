@@ -11,8 +11,6 @@ export interface SortButtonState {
   sort: "ascending" | "descending";
 }
 
-
-
 export interface ContentState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
@@ -22,6 +20,7 @@ export interface ContentState {
   opponentTrashSortState: SortButtonState;
   trashSortState: SortButtonState;
   viewerHidden: boolean;
+  gameActiveStatus: boolean;
 }
 
 const initialState: ContentState = {
@@ -47,7 +46,8 @@ const initialState: ContentState = {
     category: "card",
     sort: "descending",
   },
-  viewerHidden: true,
+  viewerHidden: false,
+  gameActiveStatus: false,
 };
 
 export const contentSlice = createSlice({
@@ -81,6 +81,9 @@ export const contentSlice = createSlice({
     setViewerHidden: (state, action: PayloadAction<boolean>) => {
       state.viewerHidden = action.payload;
     },
+    setGameActiveStatus: (state, action: PayloadAction<boolean>) => {
+      state.gameActiveStatus = action.payload;
+    },
   },
 });
 
@@ -93,6 +96,7 @@ export const {
   setOpponentSortState,
   setOpponentTrashSortState,
   setTrashSortState,
+  setGameActiveStatus,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;

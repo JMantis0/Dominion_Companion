@@ -42,21 +42,20 @@ const Popup = () => {
 
   return (
     <React.Fragment>
-      <div className="h-screen">Popup</div>
-      <button onClick={handleToggleOn}>Click To ADD Viewer</button>
-      <button onClick={handleToggleOff}>Click To Remove Viewer</button>
-      <button
-        onClick={async () => {
-          const [tab] = await chrome.tabs.query({
-            active: true,
-            lastFocusedWindow: true,
-          });
-          console.log(tab);
-        }}
-      >
-        Log current tab
+    <div className="grid grid-cols-12 grid-rows-4 gap-4 w-[200px] h-[300px] border-2">
+      <h2 className={`col-span-12 text-center m-auto`}>Dom-View</h2>
+      <div className="col-span-2"></div>
+      <button className={`col-span-8 border-2`} onClick={handleToggleOn}>
+        ON
       </button>
-    </React.Fragment>
+      <div className="col-span-2"></div>
+      <div className="col-span-2"></div>
+      <button className={`border-2 col-span-8`} onClick={handleToggleOff}>
+        OFF
+      </button>
+      <div className="col-span-2"></div>
+    </div>
+  </React.Fragment>
   );
 };
 

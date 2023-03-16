@@ -1,3 +1,5 @@
+import { Deck } from "../../model/deck";
+import { OpponentDeck } from "../../model/opponentDeck";
 import { StoreDeck } from "../../model/storeDeck";
 
 export type ErrorWithMessage = {
@@ -467,4 +469,53 @@ export const getRowColor = (cardName: string): string => {
     color = reactionClass;
   } else color = actionClass;
   return color;
+};
+
+/**
+ * Gets the winner and loser of the game.
+ * @param decks - the Map of participating decks.
+ * @param playerName
+ * @param opponentName
+ * @param gameEndReason
+ * @returns String array [victor, defeated]
+ */
+export const getResult = (
+  decks: Map<string, Deck | OpponentDeck>,
+  playerName: string,
+  opponentName: string,
+  gameEndReason: string
+): string[] => {
+  let victor: string;
+  let defeated: string;
+  if (gameEndReason === `${playerName} has resigned.`) {
+    victor = opponentName;
+    defeated = playerName;
+  } else if (gameEndReason === `${opponentName} has resigned.`) {
+    victor = playerName;
+    defeated = opponentName;
+  } else if (
+    decks.get(opponentName)!.currentVP < decks.get(playerName)!.currentVP
+  ) {
+    victor = playerName;
+    defeated = opponentName;
+  } else if (
+    decks.get(opponentName)!.currentVP > decks.get(playerName)!.currentVP
+  ) {
+    victor = opponentName;
+    defeated = playerName;
+  } else if (
+    decks.get(opponentName)!.gameTurn > decks.get(playerName)!.gameTurn
+  ) {
+    victor = playerName;
+    defeated = opponentName;
+  } else if (
+    decks.get(opponentName)!.gameTurn < decks.get(playerName)!.gameTurn
+  ) {
+    victor = opponentName;
+    defeated = playerName;
+  } else {
+    victor = "None: tie";
+    defeated = "None: tie";
+  }
+  return [victor, defeated];
 };

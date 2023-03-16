@@ -14,18 +14,17 @@
     "default_title": "Dominion Utility",
     "default_popup": "popup.html"
   },
-
   "chrome_url_overrides": {
     "newtab": "newTab.html"
   },
+  "options_page": "options.html",
   "content_scripts": [
     {
       "js": [
         "content.js"
       ],
       "matches": [
-        "*://*.dominion.games/*",
-        "https://*.google.com/*"
+        "*://*.dominion.games/*"
       ]
     }
   ],

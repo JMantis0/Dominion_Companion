@@ -163,12 +163,11 @@ const getPlayerNameAbbreviations = (
  */
 const getRatedGameBoolean = (firstGameLogLine: string): boolean => {
   let ratedGame: boolean;
-  if (firstGameLogLine.match(" rated.") !== null) {
+  if (firstGameLogLine.match(/ rated\./) !== null) {
     ratedGame = true;
-  } else if (firstGameLogLine.match(" unrated.") !== null) {
+  } else if (firstGameLogLine.match(/ unrated\./) !== null) {
     ratedGame = false;
   } else {
-    console.log("throwing error");
     throw new Error("Invalid firstGameLogLine " + firstGameLogLine);
   }
   return ratedGame;
@@ -234,17 +233,11 @@ const getKingdom = (): Array<string> => {
   } catch (e) {
     throw new Error(`Error in getKingdom`);
   }
-  [
-    "Province",
-    "Gold",
-    "Duchy",
-    "Silver",
-    "Estate",
-    "Copper",
-    "Curse",
-  ].forEach((card) => {
-    cards.push(card);
-  });
+  ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
+    (card) => {
+      cards.push(card);
+    }
+  );
   kingdom = cards;
   return kingdom;
 };

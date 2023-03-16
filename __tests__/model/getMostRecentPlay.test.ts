@@ -39,32 +39,12 @@ describe("Function getMostRecentPlay()", () => {
       expect(rDeck.getMostRecentPlay(logArch2)).toStrictEqual("Sentry");
     });
   });
-  describe("when given a logArchive that contains no entries with the substring ' plays a '", () => {
+
+  describe("when given an empty logArchive", () => {
     beforeEach(() => {
       rDeck = createRandomDeck();
-      logArch = [
-        "G discards a Village.",
-        "G draws a Smithy.",
-        "G gets +2 Actions.",
-        "G discards a Village.",
-        "G draws a Silver.",
-        "G gets +2 Actions.",
-        "G discards a Smithy.",
-        "G draws a Silver, a Cellar, and a Sentry.",
-        "G discards a Sentry.",
-        "G gets +1 Action.",
-        "G discards a Cellar.",
-        "G gets +1 Action.",
-        "G discards 2 Estates.",
-      ];
+      logArch = [];
     });
-    it("should throw an error", () => {
-      expect(() => rDeck.getMostRecentPlay(logArch)).toThrow(Error);
-    });
-  });
-  describe("when given an empty logArchive", () => {
-    rDeck = createRandomDeck();
-    logArch = [];
     it("should throw an error", () => {
       expect(() => rDeck.getMostRecentPlay(logArch)).toThrow(Error);
     });

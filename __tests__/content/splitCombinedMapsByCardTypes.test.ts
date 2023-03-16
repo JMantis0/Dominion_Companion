@@ -7,7 +7,7 @@ import {
 } from "../../src/content/components/componentFunctions";
 import { getCountsFromArray } from "../testUtilFuncs";
 
-describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
+describe("Function splitCombinedMapsByCardTypes()", () => {
   let expectedMap: SplitMaps;
   let combinedMap: Map<string, CardCounts>;
   let libList: string[];
@@ -41,6 +41,8 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
         "Vassal",
         "Vassal",
         "Vassal",
+        "Curse",
+        "Curse",
       ];
 
       libList = [
@@ -52,6 +54,7 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
         "Estate",
         "Vassal",
         "Vassal",
+        "Curse",
       ];
       combinedMap = combineDeckListMapAndZoneListMap(
         getCountsFromArray(entireList),
@@ -61,13 +64,14 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
       vMap = new Map();
       tMap = new Map();
       aMap = new Map();
+      cMap = new Map();
       // construct expected object
       vMap.set("Estate", { zoneCount: 1, entireDeckCount: 3 });
       aMap.set("Vassal", { zoneCount: 2, entireDeckCount: 3 });
       tMap.set("Copper", { zoneCount: 2, entireDeckCount: 5 });
       tMap.set("Silver", { zoneCount: 2, entireDeckCount: 5 });
       tMap.set("Gold", { zoneCount: 1, entireDeckCount: 5 });
-
+      cMap.set("Curse", { zoneCount: 1, entireDeckCount: 2 });
       expectedMap = {
         treasures: tMap,
         victories: vMap,
@@ -75,7 +79,7 @@ describe("Function getTreasureMapAndActionMapFromCombinedMap()", () => {
         curses: cMap,
       };
     });
-    it("should return a SplitMaps object with three maps, one with only treasure keys, another with only action keys, and one with only victory keys", () => {
+    it("should return a SplitMaps object with four maps, one with only treasure keys, another with only action keys, and one with only victory keys", () => {
       expect(splitCombinedMapsByCardTypes(combinedMap)).toStrictEqual(
         expectedMap
       );
