@@ -41,9 +41,9 @@ const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const od = useSelector((state: RootState) => state.content.opponentDeck);
-  const activeStatus = useSelector(
-    (state: RootState) => state.content.gameActiveStatus
-  );
+  // const activeStatus = useSelector(
+  //   (state: RootState) => state.content.gameActiveStatus
+  // );
   /**
    * Content global variable - Stores the value of the player name.
    * Use - invoking Deck object constructor
@@ -125,11 +125,18 @@ const Observer: FunctionComponent = () => {
    */
   let ratedGame: boolean;
 
+  /**
+   * Rating of the player of the player deck
+   */
   let playerRating: string = "";
+
+  /**
+   * Rating of the player of opponent deck.
+   */
   let opponentRating: string = "";
 
   /**
-   * DEPRECATED - originally used for the Options portion of the extension, which is being replaced by the content section.
+   *
    * Content global variable - Holds the values of the Deck objects.  The playerName and opponentName are used as the
    * keys for the corresponding Deck objects
    * Use - The decks track the game state for players, and in the context of the content script, the update() method is
@@ -143,6 +150,9 @@ const Observer: FunctionComponent = () => {
    */
   let kingdom: Array<string> = [];
 
+  /**
+   * Interval used to detect
+   */
   let initInterval: NodeJS.Timer;
 
   /**
@@ -234,7 +244,6 @@ const Observer: FunctionComponent = () => {
                 )
               );
               logsProcessed = gameLog;
-              saveGameData(gameLog, decks);
             }
           }
         }
@@ -242,9 +251,10 @@ const Observer: FunctionComponent = () => {
     }
   };
 
-  const gameEndObserverFunc: MutationCallback = async (
-    mutationList: MutationRecord[]
-  ) => {
+  /**
+   * At the end of a game, determines the results of the game, and updates the
+   */
+  const gameEndObserverFunc: MutationCallback = () => {
     const timeOutElements = document
       .getElementsByTagName("game-ended-notification")[0]
       .getElementsByClassName("timeout");
@@ -253,11 +263,7 @@ const Observer: FunctionComponent = () => {
     if (timeOutElements[1] !== undefined) {
       gameEndReason = (timeOutElements[1] as HTMLElement).innerText;
     }
-    console.log("Game end message: ", gameEndMessage);
-    console.log("Game end reason: ", gameEndReason);
-
     if (gameEndMessage === "The game has ended.") {
-      // let result = getResult(decks, playerName, opponentName);
       let [victor, defeated] = getResult(
         decks,
         playerName,
@@ -267,25 +273,20 @@ const Observer: FunctionComponent = () => {
       if (victor === playerName) {
         decks.get(playerName)!.setGameResult("Victory");
         decks.get(opponentName)!.setGameResult("Defeat");
-      } else if (victor === opponentName) {
+      } else if (defeated === playerName) {
         decks.get(opponentName)!.setGameResult("Victory");
         decks.get(playerName)!.setGameResult("Defeat");
       } else {
         decks.get(playerName)!.setGameResult("Tie");
         decks.get(opponentName)!.setGameResult("Tie");
       }
-
       dispatch(
         setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
       );
       dispatch(
         setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
       );
-      console.log("Trigger save");
-      console.log("Victorious: ", victor);
-      console.log("Defeated:", defeated);
-      console.log("od", od);
-      await saveGameData(gameLog, decks);
+      saveGameData(gameLog, decks);
     }
   };
 
@@ -362,7 +363,6 @@ const Observer: FunctionComponent = () => {
 
     const resetCheckIntervalFunction = () => {
       if (!isGameLogPresent()) {
-        // dispatch(setGameActiveStatus(false));
         clearInterval(resetInterval);
         initInterval = setInterval(initIntervalFunction, 1000);
       }
@@ -433,19 +433,25 @@ const Observer: FunctionComponent = () => {
   /**
    * ToDo - create function that automatically sets the deck to the rewound/undone state
    */
-  // const updateAfterUndoOrRewind = () => {
 
+  // const updateAfterUndoOrRewind = () =>
   // }
 
   /**
-   * After the Observer component renders, a MutationObserver object is created, and is
-   * set to observe the ".game-log" element from the client DOM, and an ini
+   * Callback function used for the 'beforeunload' event listener.
+   * Added on render, removed on unmount.
+   * @param event - The BeforeUnloadEvent
    */
+  const saveBeforeUnload = (event: BeforeUnloadEvent) => {
+    saveGameData(gameLog, decks);
+  };
 
   useEffect(() => {
+    addEventListener("beforeunload", saveBeforeUnload);
     initInterval = setInterval(initIntervalFunction, 1000);
     return () => {
       clearInterval(initInterval);
+      removeEventListener("beforeunload", saveBeforeUnload);
     };
   }, []);
 

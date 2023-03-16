@@ -29,7 +29,7 @@ const PrimaryFrame = () => {
   const chromeMessageListener = (
     request: { command: string },
     sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: { response: string }) => void
+    sendResponse: (response?: { message: string }) => void
   ) => {
     console.log(
       sender.tab
@@ -37,13 +37,16 @@ const PrimaryFrame = () => {
         : "from the extension"
     );
     console.log("request:", request);
-    let response: { response: string } = { response: "" };
+    let response: { message: string } = { message: "" };
     if (request.command === "appendDomRoot") {
       dispatch(setViewerHidden(false));
-      response.response = "DomRoot Rendered.";
+      response.message = "Successfully turned on.";
     } else if (request.command === "removeDomRoot") {
       dispatch(setViewerHidden(true));
-      response.response = "DomRoot removed.";
+      response.message = "Successfully turned off.";
+    } else if (request.command === "sendHiddenState") {
+      console.log("Popup is requesting the hidden state, which is: ", hidden);
+      response.message = hidden ? "Hidden state is ON" : "Hidden state is OFF";
     }
     sendResponse(response);
   };
@@ -68,21 +71,20 @@ const PrimaryFrame = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(chromeMessageListener);
     };
-  }, []);
+    // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
+    // Without this dependency, the event listener will have stale values for the 'hidden' variable
+  }, [hidden]);
 
   useEffect(() => {
     $("#primaryFrame").draggable().resizable({ handles: "all" });
   }, []);
 
   useEffect(() => {
-    for (let i = pd.logArchive.length - 1; i >= 0; i--) {
-      if (
-        pd.logArchive[i].match("Turn ") !== null ||
-        od.logArchive[i].match("Turn ") !== null
-      ) {
-        setCurrentTurn("Turn - " + od.logArchive[i].match(/\b\d\d*\b/)![0]);
-        break;
-      }
+    if (pd.gameTurn > 0 || od.gameTurn > 0) {
+      let turn: string;
+      turn =
+        "Turn - " + (pd.gameTurn <= od.gameTurn ? od.gameTurn : pd.gameTurn);
+      setCurrentTurn(turn);
     }
   }, [pd, tabs]);
 
@@ -211,7 +213,6 @@ const PrimaryFrame = () => {
           >
             Trash {pd.trash.length}
           </button>
-          
         </div>
       </div>
     </React.Fragment>

@@ -21,6 +21,7 @@ export interface ContentState {
   trashSortState: SortButtonState;
   viewerHidden: boolean;
   gameActiveStatus: boolean;
+  savedGames: any;
 }
 
 const initialState: ContentState = {
@@ -46,8 +47,9 @@ const initialState: ContentState = {
     category: "card",
     sort: "descending",
   },
-  viewerHidden: false,
+  viewerHidden: true,
   gameActiveStatus: false,
+  savedGames: "",
 };
 
 export const contentSlice = createSlice({
@@ -79,10 +81,15 @@ export const contentSlice = createSlice({
       state.trashSortState = action.payload;
     },
     setViewerHidden: (state, action: PayloadAction<boolean>) => {
+      console.log("Setting status to ", action.payload);
       state.viewerHidden = action.payload;
     },
     setGameActiveStatus: (state, action: PayloadAction<boolean>) => {
       state.gameActiveStatus = action.payload;
+    },
+    setSavedGames: (state, action: PayloadAction<any>) => {
+      console.log("Setting saved games");
+      state.savedGames = action.payload;
     },
   },
 });

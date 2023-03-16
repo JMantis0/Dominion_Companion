@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect
+  // , useState 
+} from "react";
 
 const options = () => {
-  const [chromeStorage, setChromeStorage] = useState();
+  // const [chromeStorage, setChromeStorage] = useState();
   useEffect(() => {
     chrome.storage.local.get(null, (items: any) => {
       console.log(items);
