@@ -24,6 +24,13 @@ export interface ContentState {
   savedGames: any;
 }
 
+export interface SavedGame {
+  logArchive: string;
+  playerDeck: StoreDeck;
+  opponentDeck: OpponentStoreDeck;
+  dateTime: string;
+}
+
 const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
@@ -104,6 +111,7 @@ export const {
   setOpponentTrashSortState,
   setTrashSortState,
   setGameActiveStatus,
+  setSavedGames,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;

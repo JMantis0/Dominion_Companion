@@ -1,5 +1,7 @@
 import React, { useState, useEffect, FunctionComponent } from "react";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
+import { OpponentStoreDeck } from "../../model/opponentStoreDeck";
+import { StoreDeck } from "../../model/storeDeck";
 import {
   setDiscardSortState,
   setOpponentSortState,
@@ -8,7 +10,6 @@ import {
   setTrashSortState,
   SortButtonState,
 } from "../../redux/contentSlice";
-import { RootState } from "../../redux/store";
 import {
   getCountsFromArray,
   getRowColor,
@@ -17,6 +18,7 @@ import {
 import ZoneCardRow from "./ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader";
 type ZoneViewerProps = {
+  deck: StoreDeck | OpponentStoreDeck;
   zone: string[];
   title: string;
   sortButtonState: SortButtonState;
@@ -27,9 +29,15 @@ type ZoneViewerProps = {
     | typeof setOpponentTrashSortState
     | typeof setTrashSortState;
 };
-const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({ zone, title, sortButtonState, sortDispatchFunc }) => {
+const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
+  deck,
+  zone,
+  title,
+  sortButtonState,
+  sortDispatchFunc,
+}) => {
   const [map, setMap] = useState<Map<string, number>>(new Map());
-  const pd = useSelector((state: RootState) => state.content.playerDeck);
+  // const pd = useSelector((state: RootState) => state.content.playerDeck);
   useEffect(() => {
     const unsortedMap = getCountsFromArray(zone);
     const sortedMap = sortZoneView(
@@ -38,7 +46,7 @@ const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({ zone, title, sortButto
       sortButtonState.sort
     );
     setMap(sortedMap);
-  }, [pd, sortButtonState]);
+  }, [deck, sortButtonState]);
   return (
     <div className="text-xs outer-shell">
       <ZoneViewHeader

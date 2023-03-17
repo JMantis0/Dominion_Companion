@@ -19,13 +19,13 @@ import {
   setOpponentDeck,
   setPlayerDeck,
   setGameActiveStatus,
+  setSavedGames,
+  SavedGame,
 } from "../../redux/contentSlice";
 import { useDispatch } from "react-redux";
 import { OpponentDeck } from "../../model/opponentDeck";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { StoreDeck } from "../../model/storeDeck";
-import { OpponentStoreDeck } from "../../model/opponentStoreDeck";
 import { EmptyOpponentDeck } from "../../model/emptyOpponentDeck";
 import { EmptyDeck } from "../../model/emptyDeck";
 import { getResult } from "./componentFunctions";
@@ -407,20 +407,39 @@ const Observer: FunctionComponent = () => {
     gameLog: string,
     decks: Map<string, Deck | OpponentDeck>
   ) => {
-    const value: {
-      logArchive: string;
-      playerDeck: StoreDeck;
-      opponentDeck: OpponentStoreDeck;
-      dateTime: string;
-    } = {
+    console.log("decks", decks);
+    const savedGame: SavedGame = {
       logArchive: gameLog,
       playerDeck: JSON.parse(JSON.stringify(decks.get(playerName))),
       opponentDeck: JSON.parse(JSON.stringify(decks.get(opponentName))),
       dateTime: new Date().toString(),
     };
-    const title = value.playerDeck.gameTitle;
-    chrome.storage.local.set({
-      [title]: value,
+    console.log("savedGames", savedGame);
+    const title: string = savedGame.playerDeck.gameTitle;
+    // await chrome.storage.local.set({ ["gameKeys"]: ["GameNone"] });
+    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
+      console.log("result of get", result);
+
+      let gameKeys = result.gameKeys;
+      if (gameKeys === undefined) {
+        gameKeys = [];
+        gameKeys.push(title);
+      } else if (!gameKeys.includes(title)) {
+        gameKeys.push(title);
+      }
+      chrome.storage.local.set({ gameKeys: gameKeys });
+      chrome.storage.local.set({
+        [title]: savedGame,
+      });
+      chrome.storage.local.get([...gameKeys]).then((result) => {
+        console.log("should be every game saved in storage", result);
+        console.log(
+          "should be every game saved in storage",
+          JSON.stringify(result)
+        );
+        console.log("should be every game saved in storage");
+        dispatch(setSavedGames(result));
+      });
     });
   };
 
@@ -442,7 +461,7 @@ const Observer: FunctionComponent = () => {
    * Added on render, removed on unmount.
    * @param event - The BeforeUnloadEvent
    */
-  const saveBeforeUnload = (event: BeforeUnloadEvent) => {
+  const saveBeforeUnload = () => {
     saveGameData(gameLog, decks);
   };
 

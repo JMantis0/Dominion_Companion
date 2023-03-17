@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import OpponentViewer from "./OpponentViewer";
 import { setViewerHidden } from "../../redux/contentSlice";
+import SavedGameViewer from "./SavedGameViewer";
 
 const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Starting");
@@ -19,11 +20,11 @@ const PrimaryFrame = () => {
     (state: RootState) => state.content.gameActiveStatus
   );
   const dispatch = useDispatch();
-  const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
-    "Deck"
-  );
+  const [tabs, setTabs] = useState<
+    "Deck" | "Discard" | "Trash" | "Opponent" | "History"
+  >("Deck");
   const [pinnedTab, setPinnedTab] = useState<
-    "Deck" | "Discard" | "Trash" | "Opponent"
+    "Deck" | "Discard" | "Trash" | "Opponent" | "History"
   >("Deck");
 
   const chromeMessageListener = (
@@ -158,6 +159,7 @@ const PrimaryFrame = () => {
               {tabs === "Discard" && <DiscardZoneViewer />}
               {tabs === "Opponent" && <OpponentViewer />}
               {tabs === "Trash" && <TrashZoneViewer />}
+              {tabs === "History" && <SavedGameViewer />}
               <button
                 onClick={() => {
                   console.log("hidden is", hidden);
@@ -192,7 +194,7 @@ const PrimaryFrame = () => {
           className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
         >
           <button
-            className={`col-span-6  h-full text-xs whitespace-nowrap w-full ${
+            className={`col-span-4  h-full text-xs whitespace-nowrap w-full ${
               tabs === "Discard" ? null : "border-t-2"
             } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
             onClick={handleTabClick}
@@ -203,7 +205,7 @@ const PrimaryFrame = () => {
             Discard {pd.graveyard.length}
           </button>
           <button
-            className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
+            className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
               tabs === "Trash" ? null : "border-t-2"
             } ${pinnedTab === "Trash" ? "text-lime-500" : null}`}
             onClick={handleTabClick}
@@ -212,6 +214,17 @@ const PrimaryFrame = () => {
             name="Trash"
           >
             Trash {pd.trash.length}
+          </button>
+          <button
+            className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
+              tabs === "History" ? null : "border-t-2"
+            } ${pinnedTab === "History" ? "text-lime-500" : null}`}
+            onClick={handleTabClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            name="History"
+          >
+            History
           </button>
         </div>
       </div>

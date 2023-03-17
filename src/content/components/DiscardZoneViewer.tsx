@@ -5,6 +5,7 @@ import { RootState } from "../../redux/store";
 import ZoneViewer from "./ZoneViewer";
 
 const DiscardZoneViewer = () => {
+  const pd = useSelector((state: RootState) => state.content.playerDeck);
   const discardZone = useSelector(
     (state: RootState) => state.content.playerDeck.graveyard
   );
@@ -13,6 +14,7 @@ const DiscardZoneViewer = () => {
   );
   return (
     <ZoneViewer
+      deck={pd}
       zone={discardZone}
       title="Discard Pile"
       sortButtonState={dzSortState}

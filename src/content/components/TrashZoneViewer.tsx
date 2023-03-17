@@ -21,6 +21,7 @@ const TrashZoneViewer = () => {
     <div className="text-xs outer-shell">
       <div className={`text-white`}>{pd.playerName}'s trash:</div>
       <ZoneViewer
+        deck={pd}
         sortButtonState={trashSortState}
         sortDispatchFunc={setTrashSortState}
         title={`Trash`}
@@ -28,6 +29,7 @@ const TrashZoneViewer = () => {
       />
       <div className={`text-white`}>{od.playerName}'s trash:</div>
       <ZoneViewer
+        deck={od}
         sortButtonState={opponentTrashSortState}
         sortDispatchFunc={setOpponentTrashSortState}
         title={`Trash`}
