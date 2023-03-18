@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import contentReducer from "./contentSlice";
+import optionsReducer from "./optionsSlice";
 
 export const store = configureStore({
   reducer: {
-    content: contentReducer
+    content: contentReducer,
+    options: optionsReducer,
   },
 });
 

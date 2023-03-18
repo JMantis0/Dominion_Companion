@@ -413,6 +413,7 @@ const Observer: FunctionComponent = () => {
       playerDeck: JSON.parse(JSON.stringify(decks.get(playerName))),
       opponentDeck: JSON.parse(JSON.stringify(decks.get(opponentName))),
       dateTime: new Date().toString(),
+      logHtml: document.getElementsByClassName("game-log")[0].innerHTML,
     };
     console.log("savedGames", savedGame);
     const title: string = savedGame.playerDeck.gameTitle;

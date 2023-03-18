@@ -29,6 +29,7 @@ export interface SavedGame {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   dateTime: string;
+  logHtml: string;
 }
 
 const initialState: ContentState = {
@@ -54,7 +55,7 @@ const initialState: ContentState = {
     category: "card",
     sort: "descending",
   },
-  viewerHidden: true,
+  viewerHidden: false,
   gameActiveStatus: false,
   savedGames: "",
 };
