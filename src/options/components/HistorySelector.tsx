@@ -89,103 +89,108 @@ const HistorySelector = () => {
 
   return (
     <React.Fragment>
-      <div>Update Worked4</div>
-      <div className={`text-white bg-black/[.85]`}>
-        <table className={`text-xs border-2 grid grid-cols-12 `}>
-          <tbody className={`col-span-12`}>
-            <tr className="grid grid-cols-12">
-              <th className="text-black col-span-4">
-                <input
-                  value={opponentInputState}
-                  placeholder="Filter Opponent"
-                  onChange={handleOpponentInputChange}
-                />
-              </th>
-              <th className="text-black col-span-4">
-                <input
-                  value={resultInputState}
-                  placeholder="Filter Result"
-                  onChange={handleResultInputChange}
-                />
-              </th>
-              <th className="text-black col-span-4">
-                <input
-                  value={dateTimeInputState}
-                  placeholder="Filter DateTime"
-                  onChange={handleDateTimeInputChange}
-                />
-              </th>
-            </tr>
+      <div className={`grid grid-cols-12  text-white bg-black/[.85]`}>
+        <div id="left-container" className={`col-span-6 p-8`}>
+          <table className={`text-xs border-2 grid grid-cols-12 `}>
+            <tbody className={`col-span-12`}>
+              <tr className="grid grid-cols-12">
+                <th className="text-black col-span-4">
+                  <input
+                    value={opponentInputState}
+                    placeholder="Filter Opponent"
+                    onChange={handleOpponentInputChange}
+                  />
+                </th>
+                <th className="text-black col-span-4">
+                  <input
+                    value={resultInputState}
+                    placeholder="Filter Result"
+                    onChange={handleResultInputChange}
+                  />
+                </th>
+                <th className="text-black col-span-4">
+                  <input
+                    value={dateTimeInputState}
+                    placeholder="Filter DateTime"
+                    onChange={handleDateTimeInputChange}
+                  />
+                </th>
+              </tr>
 
-            <tr className="grid grid-cols-12">
-              <th className={`col-span-4 text-xs border-2 text-white`}>
-                Opponent
-              </th>
-              <th className={`col-span-4 text-xs border-2 text-white`}>
-                Result
-              </th>
-              <th className={`col-span-4 text-xs border-2 text-white`}>Date</th>
-            </tr>
-            {gameKeys[0] !== undefined ? (
-              Object.getOwnPropertyNames(savedGames)
-                .filter((savedGame: string) => {
-                  let game: SavedGame = savedGames[savedGame];
-                  return game.opponentDeck.playerName.match(
-                    new RegExp(opponentInputState)
-                  );
-                })
-                .filter((savedGame: string) => {
-                  let game: SavedGame = savedGames[savedGame];
-                  return game.playerDeck.gameResult.match(
-                    new RegExp(resultInputState)
-                  );
-                })
-                .filter((savedGame: string) => {
-                  let game: SavedGame = savedGames[savedGame];
-                  return game.dateTime.match(new RegExp(dateTimeInputState));
-                })
-                .map((savedGameTitle: string, idx) => {
-                  const savedGame: SavedGame = savedGames[savedGameTitle];
-                  return (
-                    <React.Fragment>
-                      <tr
-                        onClick={(e: BaseSyntheticEvent) => {
-                          handleRecordClick(e, savedGame.logHtml);
-                          console.log(logHtmlState);
-                        }}
-                        className="grid grid-cols-12"
-                        key={idx}
-                      >
-                        <td
-                          className={`col-span-3 text-xs border-2 text-white`}
+              <tr className="grid grid-cols-12">
+                <th className={`col-span-4 text-xs border-2 text-white`}>
+                  Opponent
+                </th>
+                <th className={`col-span-4 text-xs border-2 text-white`}>
+                  Result
+                </th>
+                <th className={`col-span-4 text-xs border-2 text-white`}>
+                  Date
+                </th>
+              </tr>
+              {gameKeys[0] !== undefined ? (
+                Object.getOwnPropertyNames(savedGames)
+                  .filter((savedGame: string) => {
+                    let game: SavedGame = savedGames[savedGame];
+                    return game.opponentDeck.playerName.match(
+                      new RegExp(opponentInputState)
+                    );
+                  })
+                  .filter((savedGame: string) => {
+                    let game: SavedGame = savedGames[savedGame];
+                    return game.playerDeck.gameResult.match(
+                      new RegExp(resultInputState)
+                    );
+                  })
+                  .filter((savedGame: string) => {
+                    let game: SavedGame = savedGames[savedGame];
+                    return game.dateTime.match(new RegExp(dateTimeInputState));
+                  })
+                  .map((savedGameTitle: string, idx) => {
+                    const savedGame: SavedGame = savedGames[savedGameTitle];
+                    return (
+                      <React.Fragment>
+                        <tr
+                          onClick={(e: BaseSyntheticEvent) => {
+                            handleRecordClick(e, savedGame.logHtml);
+                            console.log(logHtmlState);
+                          }}
+                          className="grid grid-cols-12"
+                          key={idx}
                         >
-                          {savedGameTitle}
-                        </td>
-                        <td
-                          className={`col-span-3 text-xs border-2 text-white`}
-                        >
-                          {savedGame.opponentDeck.playerName}
-                        </td>
-                        <td
-                          className={`col-span-3 text-xs border-2 text-white`}
-                        >
-                          {savedGame.playerDeck.gameResult}
-                        </td>
-                        <td
-                          className={`col-span-3 text-xs border-2 text-white`}
-                        >
-                          {savedGame.dateTime}
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  );
-                })
-            ) : (
-              <td>no saved games</td>
-            )}
-          </tbody>
-        </table>
-        <LogViewer logHtml={logHtmlState} />
+                          <td
+                            className={`col-span-3 text-xs border-2 text-white`}
+                          >
+                            {savedGameTitle}
+                          </td>
+                          <td
+                            className={`col-span-3 text-xs border-2 text-white`}
+                          >
+                            {savedGame.opponentDeck.playerName}
+                          </td>
+                          <td
+                            className={`col-span-3 text-xs border-2 text-white`}
+                          >
+                            {savedGame.playerDeck.gameResult}
+                          </td>
+                          <td
+                            className={`col-span-3 text-xs border-2 text-white`}
+                          >
+                            {savedGame.dateTime}
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })
+              ) : (
+                <td>no saved games</td>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div id="right-container" className={`col-span-6 p-8`}>
+          <LogViewer logHtml={logHtmlState} />
+        </div>
       </div>
     </React.Fragment>
   );

@@ -22,7 +22,7 @@ const options = () => {
   return (
     <React.Fragment>
       <Provider store={store}>
-        <SavedGameViewer />
+          <SavedGameViewer />
       </Provider>
     </React.Fragment>
   );
