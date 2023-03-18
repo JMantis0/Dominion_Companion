@@ -124,7 +124,7 @@ const PrimaryFrame = () => {
             onMouseLeave={handleMouseLeave}
             name="Deck"
           >
-            Deck
+            Deck {pd.entireDeck.length}
           </button>
           <button
             className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
@@ -135,7 +135,7 @@ const PrimaryFrame = () => {
             onMouseLeave={handleMouseLeave}
             name="Opponent"
           >
-            Opponent
+            Opponent {od.entireDeck.length}
           </button>
         </main>
         {activeStatus ? (
