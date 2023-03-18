@@ -4,11 +4,12 @@ import { useSelector } from "react-redux";
 import { SavedGame, setSavedGames } from "../../redux/contentSlice";
 import { RootState } from "../../redux/store";
 import LogViewer from "./LogViewer";
+import SavedGameRow from "./SavedGameRow";
 
 const HistorySelector = () => {
   const dispatch = useDispatch();
   const [gameKeys, setGameKeys] = useState<string[]>([]);
-  const [logHtmlState, setLogHtmlState] = useState<string>("");
+  const html = useSelector((state: RootState) => state.options.logHtml);
   const savedGames = useSelector(
     (state: RootState) => state.content.savedGames
   );
@@ -77,11 +78,6 @@ const HistorySelector = () => {
     });
   };
 
-  const handleRecordClick = (e: BaseSyntheticEvent, html: string) => {
-    console.log("handleRecordClick Event", e);
-    setLogHtmlState(html);
-  };
-
   useEffect(() => {
     console.log("savedGames updated", savedGames);
     console.log("gameKeys updated", gameKeys);
@@ -148,39 +144,7 @@ const HistorySelector = () => {
                   })
                   .map((savedGameTitle: string, idx) => {
                     const savedGame: SavedGame = savedGames[savedGameTitle];
-                    return (
-                      <React.Fragment>
-                        <tr
-                          onClick={(e: BaseSyntheticEvent) => {
-                            handleRecordClick(e, savedGame.logHtml);
-                            console.log(logHtmlState);
-                          }}
-                          className="grid grid-cols-12"
-                          key={idx}
-                        >
-                          <td
-                            className={`col-span-3 text-xs border-2 text-white`}
-                          >
-                            {savedGameTitle}
-                          </td>
-                          <td
-                            className={`col-span-3 text-xs border-2 text-white`}
-                          >
-                            {savedGame.opponentDeck.playerName}
-                          </td>
-                          <td
-                            className={`col-span-3 text-xs border-2 text-white`}
-                          >
-                            {savedGame.playerDeck.gameResult}
-                          </td>
-                          <td
-                            className={`col-span-3 text-xs border-2 text-white`}
-                          >
-                            {savedGame.dateTime}
-                          </td>
-                        </tr>
-                      </React.Fragment>
-                    );
+                    return <SavedGameRow savedGame={savedGame} idx={idx} />;
                   })
               ) : (
                 <td>no saved games</td>
@@ -189,7 +153,7 @@ const HistorySelector = () => {
           </table>
         </div>
         <div id="right-container" className={`col-span-6 p-8`}>
-          <LogViewer logHtml={logHtmlState} />
+          <LogViewer logHtml={html} />
         </div>
       </div>
     </React.Fragment>
