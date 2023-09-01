@@ -1,7 +1,7 @@
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import React, { FunctionComponent } from "react";
-import { SortButtonState } from "../../redux/contentSlice";
-import SortButton from "./SortButton";
+import { SortButtonState } from "../../../../../../../redux/contentSlice";
+import SortButton from "../../SortButton/SortButton";
 
 type ZoneViewHeaderProps = {
   dispatchFunc:

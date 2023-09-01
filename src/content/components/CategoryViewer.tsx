@@ -9,8 +9,8 @@ import {
   SplitMaps,
   sortTheView,
   getRowColor,
-} from "./componentFunctions";
-import ZoneCardRow from "./ZoneCardRow";
+} from "./PrimaryFrame/components/componentFunctions";
+import ZoneCardRow from "./PrimaryFrame/components/components/ZoneViewer/components/ZoneCardRow";
 
 const CategoryViewer = () => {
   const firstRender = useRef(true);

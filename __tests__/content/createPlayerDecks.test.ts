@@ -1,5 +1,5 @@
 import { expect, describe, it, beforeEach } from "@jest/globals";
-import { createPlayerDecks } from "../../src/content/contentScriptFunctions";
+import { createPlayerDecks } from "../../src/content/components/Observer/observerFunctions";
 import { Deck } from "../../src/model/deck";
 import { OpponentDeck } from "../../src/model/opponentDeck";
 import { createRandomKingdom } from "../testUtilFuncs";

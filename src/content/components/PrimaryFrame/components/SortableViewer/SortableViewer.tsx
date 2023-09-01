@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../../../../redux/store";
 import {
   CardCounts,
   combineDeckListMapAndZoneListMap,
@@ -8,10 +8,10 @@ import {
   calculateDrawProbability,
   sortTheView,
   getRowColor,
-} from "./componentFunctions";
-import FullListCardRow from "./FullListCardRow";
-import SortViewHeader from "./SortViewHeader";
-import ViewFooter from "./ViewFooter";
+} from "../componentFunctions";
+import FullListCardRow from "./components/FullListCardRow/FullListCardRow";
+import SortViewHeader from "./components/SortViewHeader/SortViewHeader";
+import ViewFooter from "./components/ViewFooter/ViewFooter";
 
 const SortableViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(

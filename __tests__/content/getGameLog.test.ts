@@ -4,7 +4,7 @@
 
 import { beforeAll } from "@jest/globals";
 import { expect,  describe, it } from "@jest/globals";
-import { getGameLog } from "../../src/content/contentScriptFunctions";
+import { getGameLog } from "../../src/content/components/Observer/observerFunctions";
 
 describe("Function getGameLog()", () => {
   describe("with game-log element in dom", () => {

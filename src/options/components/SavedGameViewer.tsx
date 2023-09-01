@@ -11,9 +11,6 @@ const SavedGameViewer = () => {
 
   return (
     <React.Fragment>
-      <div className={`text-white`}>SavedGameViewer</div>
-
-      <div className={`text-white`}>Games Played</div>
       <HistorySelector />
     </React.Fragment>
   );

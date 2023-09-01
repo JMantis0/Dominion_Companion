@@ -14,7 +14,7 @@ import {
   setSortedButtonsState,
   setTrashSortState,
   SortButtonState,
-} from "../../redux/contentSlice";
+} from "../../../../../../redux/contentSlice";
 library.add(faSortUp, faSortDown, faSort);
 
 type SortButtonProps = {

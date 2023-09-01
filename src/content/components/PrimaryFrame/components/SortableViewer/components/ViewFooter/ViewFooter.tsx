@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../../../../../../redux/store";
 
 const ViewFooter = () => {
   const pd = useSelector((state: RootState) => state.content.playerDeck);

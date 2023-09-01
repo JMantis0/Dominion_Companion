@@ -1,7 +1,7 @@
 import React, { BaseSyntheticEvent, useState } from "react";
 import { useSelector } from "react-redux";
-import { SavedGame } from "../../redux/contentSlice";
-import { RootState } from "../../redux/store";
+import { SavedGame } from "../../../../../../../redux/contentSlice";
+import { RootState } from "../../../../../../../redux/store";
 
 const HistorySelector = () => {
   const savedGames = useSelector(

@@ -6,6 +6,8 @@ import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 
 export interface OptionsState {
   savedGames: any;
+  logHtml: string;
+  gameKeys: string[];
 }
 
 export interface SavedGame {
@@ -13,13 +15,16 @@ export interface SavedGame {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   dateTime: string;
+  logHtml: string;
 }
 
 const initialState: OptionsState = {
   savedGames: [],
+  logHtml: "",
+  gameKeys: [],
 };
 
-export const contentSlice = createSlice({
+export const optionsSlice = createSlice({
   name: "options",
   initialState,
   reducers: {
@@ -27,9 +32,15 @@ export const contentSlice = createSlice({
       console.log("Setting saved games");
       state.savedGames = action.payload;
     },
+    setLogHtml: (state, action: PayloadAction<string>) => {
+      state.logHtml = action.payload;
+    },
+    setGameKeys: (state, action: PayloadAction<string[]>) => {
+      state.gameKeys = action.payload;
+    },
   },
 });
 
-export const { setSavedGames } = contentSlice.actions;
+export const { setSavedGames, setLogHtml, setGameKeys } = optionsSlice.actions;
 export const selectContent = (state: RootState) => state.options;
-export default contentSlice.reducer;
+export default optionsSlice.reducer;
