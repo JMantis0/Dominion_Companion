@@ -1,6 +1,6 @@
-import { Deck } from "../../model/deck";
-import { OpponentDeck } from "../../model/opponentDeck";
-import { StoreDeck } from "../../model/storeDeck";
+import { Deck } from "../../../../model/deck";
+import { OpponentDeck } from "../../../../model/opponentDeck";
+import { StoreDeck } from "../../../../model/storeDeck";
 
 export type ErrorWithMessage = {
   message: string;

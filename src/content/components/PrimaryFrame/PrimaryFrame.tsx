@@ -1,15 +1,15 @@
 import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
-import SortableViewer from "./SortableViewer";
-import DiscardZoneViewer from "./DiscardZoneViewer";
 import { Scrollbars } from "react-custom-scrollbars-2";
-import TrashZoneViewer from "./TrashZoneViewer";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import OpponentViewer from "./OpponentViewer";
-import { setViewerHidden } from "../../redux/contentSlice";
-import SavedGameViewer from "./SavedGameViewer";
+import { RootState } from "../../../redux/store";
+import { setViewerHidden } from "../../../redux/contentSlice";
+import SortableViewer from "./components/SortableViewer/SortableViewer";
+import DiscardZoneViewer from "./components/DiscardZoneViewer/DiscardZoneViewer";
+import TrashZoneViewer from "./components/TrashZoneViewer/TrashZoneViewer";
+import OpponentViewer from "./components/OpponentViewer/OpponentViewer";
+import SavedGameViewer from "./components/SavedGameViewer/SavedGameViewer";
 
 const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Starting");
@@ -48,6 +48,8 @@ const PrimaryFrame = () => {
     } else if (request.command === "sendHiddenState") {
       console.log("Popup is requesting the hidden state, which is: ", hidden);
       response.message = hidden ? "Hidden state is ON" : "Hidden state is OFF";
+    } else {
+      response.message = "Invalid Request";
     }
     sendResponse(response);
   };
@@ -183,7 +185,7 @@ const PrimaryFrame = () => {
                   console.log(od);
                 }}
               >
-                c.log oDeck
+                c.log oDeck (Test)
               </button>
             </div>
           </Scrollbars>

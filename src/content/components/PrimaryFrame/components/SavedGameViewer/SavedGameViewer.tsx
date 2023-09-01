@@ -1,7 +1,7 @@
 import React from "react";
 // import { useSelector } from "react-redux";
 // import { RootState } from "../../redux/store";
-import HistorySelector from "./HistorySelector";
+import HistorySelector from "./components/HistorySelector/HistorySelector";
 // import ZoneViewer from "./ZoneViewer";
 
 const SavedGameViewer = () => {

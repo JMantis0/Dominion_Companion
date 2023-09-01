@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FunctionComponent } from "react";
 // import { useSelector } from "react-redux";
-import { OpponentStoreDeck } from "../../model/opponentStoreDeck";
-import { StoreDeck } from "../../model/storeDeck";
+import { OpponentStoreDeck } from "../../../../../../model/opponentStoreDeck";
+import { StoreDeck } from "../../../../../../model/storeDeck";
 import {
   setDiscardSortState,
   setOpponentSortState,
@@ -9,14 +9,15 @@ import {
   setSortedButtonsState,
   setTrashSortState,
   SortButtonState,
-} from "../../redux/contentSlice";
+} from "../../../../../../redux/contentSlice";
 import {
   getCountsFromArray,
   getRowColor,
   sortZoneView,
-} from "./componentFunctions";
-import ZoneCardRow from "./ZoneCardRow";
-import ZoneViewHeader from "./ZoneViewHeader";
+} from "../../componentFunctions";
+import ZoneCardRow from "./components/ZoneCardRow";
+import ZoneViewHeader from "./components/ZoneViewHeader";
+
 type ZoneViewerProps = {
   deck: StoreDeck | OpponentStoreDeck;
   zone: string[];

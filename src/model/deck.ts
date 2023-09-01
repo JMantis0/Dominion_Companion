@@ -1,5 +1,5 @@
-import { getLogScrollContainerLogLines } from "../content/contentScriptFunctions";
-import { getErrorMessage } from "../content/components/componentFunctions";
+import { getLogScrollContainerLogLines } from "../content/components/Observer/observerFunctions";
+import { getErrorMessage } from "../content/components/PrimaryFrame/components/componentFunctions";
 
 /**
  * Class for a Deck object used to track a
@@ -869,6 +869,31 @@ export class Deck {
     if (vassalPlayInLogs) {
       try {
         let logScrollElement = getLogScrollContainerLogLines();
+        console.log("The logScrollElement is: ", logScrollElement);
+        console.log(
+          "The logScrollElement has length of: ",
+          logScrollElement.length
+        );
+
+        let logScrollElementInnerText: Array<string> = [];
+        for (let i = 0; i < logScrollElement.length; i++) {
+          logScrollElementInnerText.push(logScrollElement[i].innerText);
+        }
+
+        console.log(
+          "The logSCrollElementInnerText is: ",
+          logScrollElementInnerText
+        );
+        console.log(
+          "The logScrollElementInnerText has length: ",
+          logScrollElementInnerText.length
+        );
+
+        console.log("The logArchive is: ", this.logArchive);
+        console.log(
+          "The logArchive has a length of : ",
+          this.logArchive.length
+        );
         let currentLinePaddingNumber: number;
         let currentLinePaddingPercentage: string;
         currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
@@ -902,12 +927,13 @@ export class Deck {
           throw new Error(
             "Previous line paddingLeft property does not end with %"
           );
+          console.log("Length is : ", len)
         console.log(
           `Padding for line current line ${logScrollElement[len].innerText}`,
           currentLinePaddingNumber
         );
         console.log(
-          `Padding for line previous line ${logScrollElement[len].innerText}`,
+          `Padding for line previous line ${logScrollElement[len - 1].innerText}`,
           previousLinePaddingNumber
         );
         if (currentLinePaddingNumber < previousLinePaddingNumber) {

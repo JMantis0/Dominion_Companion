@@ -1,17 +1,21 @@
 import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { SavedGame, setSavedGames } from "../../redux/contentSlice";
+import {
+  setGameKeys,
+  SavedGame,
+  setSavedGames,
+} from "../../redux/optionsSlice";
 import { RootState } from "../../redux/store";
 import LogViewer from "./LogViewer";
 import SavedGameRow from "./SavedGameRow";
 
 const HistorySelector = () => {
   const dispatch = useDispatch();
-  const [gameKeys, setGameKeys] = useState<string[]>([]);
+  const gameKeys = useSelector((state: RootState) => state.options.gameKeys);
   const html = useSelector((state: RootState) => state.options.logHtml);
   const savedGames = useSelector(
-    (state: RootState) => state.content.savedGames
+    (state: RootState) => state.options.savedGames
   );
   const [opponentInputState, setOpponentInputState] = useState<string>("");
   const [resultInputState, setResultInputState] = useState<string>("");
@@ -37,18 +41,12 @@ const HistorySelector = () => {
       },
       namespace: "sync" | "local" | "managed" | "session"
     ) => {
-      for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-        console.log(
-          `Storage key "${key}" in namespace "${namespace}" changed.`,
-          `Old value was "${oldValue}", new value is "${newValue}".`
-        );
-      }
       console.log("storageListener triggering getSavedGames()");
-
+      namespace;
+      changes;
       getSavedGames();
     };
     getSavedGames();
-
     chrome.storage.onChanged.addListener(storageListenerFunc);
     return () => {
       chrome.storage.onChanged.removeListener(storageListenerFunc);
@@ -60,21 +58,16 @@ const HistorySelector = () => {
       console.log("result of get", result);
 
       let gameKeys = result.gameKeys;
-      if (gameKeys !== undefined && gameKeys[0] !== undefined) {
-        await chrome.storage.local.get([...gameKeys]).then((result) => {
-          console.log("should be every game saved in storage", result);
-          console.log(
-            "should be every game saved in storage",
-            JSON.stringify(result)
-          );
-          console.log("should be every game saved in storage");
-          dispatch(setSavedGames(result));
-        });
-
-        setGameKeys(gameKeys);
-      } else {
-        console.log("no game keys in storage");
-      }
+      await chrome.storage.local.get([...gameKeys]).then((result) => {
+        console.log("should be every game saved in storage", result);
+        console.log(
+          "should be every game saved in storage",
+          JSON.stringify(result)
+        );
+        console.log("should be every game saved in storage");
+        dispatch(setGameKeys(gameKeys));
+        dispatch(setSavedGames(result));
+      });
     });
   };
 
@@ -142,12 +135,16 @@ const HistorySelector = () => {
                     let game: SavedGame = savedGames[savedGame];
                     return game.dateTime.match(new RegExp(dateTimeInputState));
                   })
-                  .map((savedGameTitle: string, idx) => {
+                  .map((savedGameTitle: string, idx: number) => {
                     const savedGame: SavedGame = savedGames[savedGameTitle];
-                    return <SavedGameRow savedGame={savedGame} idx={idx} />;
+                    return (
+                      <SavedGameRow key={idx} savedGame={savedGame} idx={idx} />
+                    );
                   })
               ) : (
-                <td>no saved games</td>
+                <tr key={-1}>
+                  <td>no saved games</td>
+                </tr>
               )}
             </tbody>
           </table>

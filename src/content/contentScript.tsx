@@ -24,11 +24,7 @@ const attachDomRoot = (): void => {
   domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
   domViewContainer.setAttribute("id", "domViewContainer");
   domViewRoot = createRoot(domViewContainer);
-  domViewRoot.render(
-    <DomRoot
-
-    />
-  );
+  domViewRoot.render(<DomRoot />);
   document.body.appendChild(domViewContainer);
 };
 
@@ -42,17 +38,17 @@ const removeDomRoot = (): void => {
 
 const initIntervalFunction = () => {
   const sessionId = window.localStorage.getItem("sessionId");
-  const resetCheckIntervalFunction2 = () => {
+  const resetCheckIntervalFunction = () => {
     if (sessionId === null || sessionId === "") {
+      clearInterval(resetInterval);
       removeDomRoot();
       initInterval = setInterval(initIntervalFunction, 1000);
-      clearInterval(resetInterval);
     }
   };
   if (sessionId !== null && sessionId !== "") {
-    attachDomRoot();
     clearInterval(initInterval);
-    resetInterval = setInterval(resetCheckIntervalFunction2, 1000);
+    attachDomRoot();
+    resetInterval = setInterval(resetCheckIntervalFunction, 1000);
   }
 };
 

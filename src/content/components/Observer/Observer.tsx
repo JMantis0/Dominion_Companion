@@ -1,8 +1,9 @@
 import React, { FunctionComponent, useEffect } from "react";
-import { Deck } from "../../model/deck";
+import { Deck } from "../../../model/deck";
 import {
   areNewLogsToSend,
   arePlayerInfoElementsPresent,
+  baseKingdomCardCheck,
   createPlayerDecks,
   getGameLog,
   getKingdom,
@@ -14,21 +15,21 @@ import {
   getUndispatchedLogs,
   isGameLogPresent,
   isKingdomElementPresent,
-} from "../contentScriptFunctions";
+} from "./observerFunctions";
 import {
   setOpponentDeck,
   setPlayerDeck,
   setGameActiveStatus,
   setSavedGames,
   SavedGame,
-} from "../../redux/contentSlice";
+} from "../../../redux/contentSlice";
 import { useDispatch } from "react-redux";
-import { OpponentDeck } from "../../model/opponentDeck";
+import { OpponentDeck } from "../../../model/opponentDeck";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { EmptyOpponentDeck } from "../../model/emptyOpponentDeck";
-import { EmptyDeck } from "../../model/emptyDeck";
-import { getResult } from "./componentFunctions";
+import { RootState } from "../../../redux/store";
+import { EmptyOpponentDeck } from "../../../model/emptyOpponentDeck";
+import { EmptyDeck } from "../../../model/emptyDeck";
+import { getResult } from "../PrimaryFrame/components/componentFunctions";
 import $ from "jquery";
 
 /**
@@ -151,6 +152,10 @@ const Observer: FunctionComponent = () => {
   let kingdom: Array<string> = [];
 
   /**
+   * Boolean to hold whether the kingdom is the base set or not.
+   */
+  let baseOnly: boolean;
+  /**
    * Interval used to detect
    */
   let initInterval: NodeJS.Timer;
@@ -162,7 +167,7 @@ const Observer: FunctionComponent = () => {
    */
   let resetInterval: NodeJS.Timer;
 
-  let mo: MutationObserver;
+  let gameLogObserver: MutationObserver;
   let gameEndObserver: MutationObserver;
 
   /**
@@ -182,7 +187,8 @@ const Observer: FunctionComponent = () => {
     opponentName = "";
     decks = new Map();
     kingdom = [];
-    if (mo !== undefined) mo.disconnect();
+    baseOnly = true;
+    if (gameLogObserver !== undefined) gameLogObserver.disconnect();
     if (gameEndObserver !== undefined) gameEndObserver.disconnect();
   };
 
@@ -325,6 +331,7 @@ const Observer: FunctionComponent = () => {
           gameLog,
           playerName
         );
+        playersInitialized = true;
         if (ratedGame) {
           [playerRating, opponentRating] = getPlayerRatings(
             playerName,
@@ -332,12 +339,15 @@ const Observer: FunctionComponent = () => {
             gameLog
           );
         }
-        playersInitialized = true;
       }
     }
     if (!kingdomInitialized) {
       if (isKingdomElementPresent()) {
         kingdom = getKingdom();
+        baseOnly = baseKingdomCardCheck(kingdom);
+        if(!baseOnly) {
+          console.error("Game is not intended for cards outside of the Base Set")
+        }
         kingdomInitialized = true;
       }
     }
@@ -371,10 +381,10 @@ const Observer: FunctionComponent = () => {
     if (initialized()) {
       resetDeckState();
       dispatch(setGameActiveStatus(true));
-      mo = new MutationObserver(logObserverFunc);
+      gameLogObserver = new MutationObserver(logObserverFunc);
       gameEndObserver = new MutationObserver(gameEndObserverFunc);
       const gameLogElement = document.getElementsByClassName("game-log")[0];
-      mo.observe(gameLogElement, {
+      gameLogObserver.observe(gameLogElement, {
         childList: true,
         subtree: true,
       });
@@ -417,7 +427,6 @@ const Observer: FunctionComponent = () => {
     };
     console.log("savedGames", savedGame);
     const title: string = savedGame.playerDeck.gameTitle;
-    // await chrome.storage.local.set({ ["gameKeys"]: ["GameNone"] });
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
       console.log("result of get", result);
 
@@ -428,8 +437,8 @@ const Observer: FunctionComponent = () => {
       } else if (!gameKeys.includes(title)) {
         gameKeys.push(title);
       }
-      chrome.storage.local.set({ gameKeys: gameKeys });
-      chrome.storage.local.set({
+      await chrome.storage.local.set({ gameKeys: gameKeys });
+      await chrome.storage.local.set({
         [title]: savedGame,
       });
       chrome.storage.local.get([...gameKeys]).then((result) => {
@@ -471,12 +480,13 @@ const Observer: FunctionComponent = () => {
     initInterval = setInterval(initIntervalFunction, 1000);
     return () => {
       clearInterval(initInterval);
+      clearInterval(resetInterval);
       removeEventListener("beforeunload", saveBeforeUnload);
     };
   }, []);
 
   return (
-    <div className="top-[50%]">
+    <div className="top-[50%] hidden">
       <button
         className="top-[50%] whitespace-nowrap ml-[200px]"
         onClick={() => {

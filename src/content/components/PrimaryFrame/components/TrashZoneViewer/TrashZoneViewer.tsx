@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import {
   setOpponentTrashSortState,
   setTrashSortState,
-} from "../../redux/contentSlice";
-import { RootState } from "../../redux/store";
-import ZoneViewer from "./ZoneViewer";
+} from "../../../../../redux/contentSlice";
+import { RootState } from "../../../../../redux/store";
+import ZoneViewer from "../components/ZoneViewer/ZoneViewer";
 
 const TrashZoneViewer = () => {
   const pd = useSelector((state: RootState) => state.content.playerDeck);

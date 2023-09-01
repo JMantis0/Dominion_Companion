@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { setOpponentSortState } from "../../redux/contentSlice";
-import { RootState } from "../../redux/store";
-import ZoneViewer from "./ZoneViewer";
+import { setOpponentSortState } from "../../../../../redux/contentSlice";
+import { RootState } from "../../../../../redux/store";
+import ZoneViewer from "../components/ZoneViewer/ZoneViewer";
 
 const OpponentViewer = () => {
   const od = useSelector((state: RootState) => state.content.opponentDeck);

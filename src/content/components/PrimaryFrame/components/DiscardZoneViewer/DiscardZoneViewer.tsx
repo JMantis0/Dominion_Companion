@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { setDiscardSortState } from "../../redux/contentSlice";
-import { RootState } from "../../redux/store";
-import ZoneViewer from "./ZoneViewer";
+import { setDiscardSortState } from "../../../../../redux/contentSlice";
+import { RootState } from "../../../../../redux/store";
+import ZoneViewer from "../components/ZoneViewer/ZoneViewer";
 
 const DiscardZoneViewer = () => {
   const pd = useSelector((state: RootState) => state.content.playerDeck);

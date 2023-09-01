@@ -1,5 +1,5 @@
-import { Deck } from "../model/deck";
-import { OpponentDeck } from "../model/opponentDeck";
+import { Deck } from "../../../model/deck";
+import { OpponentDeck } from "../../../model/opponentDeck";
 /**
  * Checks for presence of game-log element in the DOM.
  * Purpose: Control flow of content script.
@@ -457,6 +457,54 @@ const isLogEntryBuyWithoutGain = (logLine: string): boolean => {
   return isBuyWithoutGain;
 };
 
+const baseKingdomCardCheck = (kingdom: string[]): boolean => {
+  let baseOnly: boolean = true;
+
+  const baseCards = [
+    "Cellar",
+    "Chapel",
+    "Moat",
+    "Harbinger",
+    "Merchant",
+    "Vassal",
+    "Village",
+    "Workshop",
+    "Bureaucrat",
+    "Gardens",
+    "Militia",
+    "Moneylender",
+    "Poacher",
+    "Remodel",
+    "Smithy",
+    "Throne Room",
+    "Bandit",
+    "Council Room",
+    "Festival",
+    "Laboratory",
+    "Library",
+    "Market",
+    "Mine",
+    "Sentry",
+    "Witch",
+    "Artisan",
+    "Copper",
+    "Silver",
+    "Gold",
+    "Province",
+    "Duchy",
+    "Estate",
+    "Curse",
+  ];
+
+  for (let i = 0; i < kingdom.length; i++) {
+    if (!baseCards.includes(kingdom[i])) {
+      baseOnly = false;
+    }
+  }
+
+  return baseOnly;
+};
+
 export {
   isGameLogPresent,
   getGameLog,
@@ -477,4 +525,5 @@ export {
   sendToFront,
   getLogScrollContainerLogLines,
   isLogEntryBuyWithoutGain,
+  baseKingdomCardCheck,
 };

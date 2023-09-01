@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { setSortedButtonsState } from "../../redux/contentSlice";
-import { RootState } from "../../redux/store";
-import SortButton from "./SortButton";
+import { setSortedButtonsState } from "../../../../../../../redux/contentSlice";
+import { RootState } from "../../../../../../../redux/store";
+import SortButton from "../../../components/SortButton/SortButton";
 
 const SortViewHeader = () => {
   const sortButtonState = useSelector(

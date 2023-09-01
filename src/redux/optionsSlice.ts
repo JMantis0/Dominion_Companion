@@ -7,6 +7,7 @@ import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 export interface OptionsState {
   savedGames: any;
   logHtml: string;
+  gameKeys: string[];
 }
 
 export interface SavedGame {
@@ -20,6 +21,7 @@ export interface SavedGame {
 const initialState: OptionsState = {
   savedGames: [],
   logHtml: "",
+  gameKeys: [],
 };
 
 export const optionsSlice = createSlice({
@@ -33,9 +35,12 @@ export const optionsSlice = createSlice({
     setLogHtml: (state, action: PayloadAction<string>) => {
       state.logHtml = action.payload;
     },
+    setGameKeys: (state, action: PayloadAction<string[]>) => {
+      state.gameKeys = action.payload;
+    },
   },
 });
 
-export const { setSavedGames, setLogHtml } = optionsSlice.actions;
+export const { setSavedGames, setLogHtml, setGameKeys } = optionsSlice.actions;
 export const selectContent = (state: RootState) => state.options;
 export default optionsSlice.reducer;
