@@ -103,6 +103,15 @@ const Observer: FunctionComponent = () => {
   let playerDeckInitialized: boolean = false;
 
   /**
+   * Content global variable
+   * use = Control flow for content script.
+   * False value means the savedGames redux state has not been updated to include the
+   * games that are saved in chrome storage.
+   * True value means the redux state for savedGames is updated.
+   */
+  // let savedGamesStateInitialized: boolean = false;
+
+  /**
    * Content global variable - Holds the value of which logs have already been sent to the Deck objects.
    * Use - Control flow for the content script.
    * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
@@ -180,6 +189,7 @@ const Observer: FunctionComponent = () => {
     logInitialized = false;
     kingdomInitialized = false;
     playerDeckInitialized = false;
+    // savedGamesStateInitialized = false;
     logsProcessed;
     logsProcessed = "";
     gameLog = "";
@@ -303,6 +313,29 @@ const Observer: FunctionComponent = () => {
     dispatch(setPlayerDeck(JSON.parse(JSON.stringify(new EmptyDeck()))));
   };
 
+  const setSavedGamesState = () => {
+    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
+      console.log("result of get", result);
+
+      let gameKeys = result.gameKeys;
+      if (gameKeys === undefined) {
+        console.log("No games keys in storage... No saved games in storage");
+      } else {
+        chrome.storage.local.get([...gameKeys]).then((result) => {
+          console.log("should be every game saved in storage", result);
+          console.log(
+            "should be every game saved in storage",
+            JSON.stringify(result)
+          );
+          console.log("should be every game saved in storage");
+          dispatch(setSavedGames(result));
+        });
+      }
+    });
+  };
+
+  setSavedGamesState();
+
   /**
    * Primary function of the content script
    * Use - Periodically checks the client DOM for the presence of the elements that
@@ -314,6 +347,7 @@ const Observer: FunctionComponent = () => {
 
   const initIntervalFunction = () => {
     resetGame();
+
     if (!logInitialized) {
       if (isGameLogPresent()) {
         gameLog = getGameLog();
@@ -345,8 +379,10 @@ const Observer: FunctionComponent = () => {
       if (isKingdomElementPresent()) {
         kingdom = getKingdom();
         baseOnly = baseKingdomCardCheck(kingdom);
-        if(!baseOnly) {
-          console.error("Game is not intended for cards outside of the Base Set")
+        if (!baseOnly) {
+          console.error(
+            "Game is not intended for cards outside of the Base Set"
+          );
         }
         kingdomInitialized = true;
       }

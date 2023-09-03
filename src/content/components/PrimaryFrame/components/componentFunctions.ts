@@ -2,6 +2,27 @@ import { Deck } from "../../../../model/deck";
 import { OpponentDeck } from "../../../../model/opponentDeck";
 import { StoreDeck } from "../../../../model/storeDeck";
 
+/**
+ * Custom object literal type.  One property holds value for the total amount of cards
+ * owned.  The other property holds the value for the amount of that card in a specific
+ * zone.
+ */
+export type CardCounts = {
+  entireDeckCount: number;
+  zoneCount: number;
+};
+
+/**
+ * Custom object literal type, an object with 4 properties, each a Map<string,CardCounts object,
+ * one for each card type: Treasure, Action, Victory, Curse
+ */
+export type SplitMaps = {
+  treasures: Map<string, CardCounts> | undefined;
+  actions: Map<string, CardCounts> | undefined;
+  victories: Map<string, CardCounts> | undefined;
+  curses: Map<string, CardCounts> | undefined;
+};
+
 export type ErrorWithMessage = {
   message: string;
 };
@@ -11,9 +32,7 @@ export type ErrorWithMessage = {
  * @param error  An error
  * @returns
  */
-export const isErrorWithMessage = (
-  error: unknown
-): error is ErrorWithMessage => {
+const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
   return (
     typeof error === "object" &&
     error !== null &&
@@ -28,7 +47,7 @@ export const isErrorWithMessage = (
  * @param maybeError - The object that may be an error and may or may not have an error message.
  * @returns - An error with an error message property and value.
  */
-export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
+const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
   if (isErrorWithMessage(maybeError)) return maybeError;
   try {
     return new Error(JSON.stringify(maybeError));
@@ -41,7 +60,7 @@ export const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
  * A helper function that gets an error message from an error, and if it doesn't have an error message,
  * assigns one based on the error itself.
  */
-export const getErrorMessage = (error: unknown) => {
+const getErrorMessage = (error: unknown) => {
   return toErrorWithMessage(error).message;
 };
 
@@ -56,7 +75,7 @@ export const getErrorMessage = (error: unknown) => {
  * @param discLength - The total amount of cards in the discard pile.
  * @returns A string expressing the probability as a percentage.
  */
-export const calculateDrawProbability = (
+const calculateDrawProbability = (
   libAmount: number,
   libLength: number,
   discAmount: number,
@@ -84,7 +103,7 @@ export const calculateDrawProbability = (
  * @param deckListArray - An array of potentially non-unique strings
  * @returns - A Map<string, number> with the counts of strings occurring in the array.
  */
-export const getCountsFromArray = (
+const getCountsFromArray = (
   deckListArray: Array<string>
 ): Map<string, number> => {
   const cardCountsMap = new Map<string, number>();
@@ -99,16 +118,6 @@ export const getCountsFromArray = (
 };
 
 /**
- * Custom object literal type.  One property holds value for the total amount of cards
- * owned.  The other property holds the value for the amount of that card in a specific
- * zone.
- */
-export type CardCounts = {
-  entireDeckCount: number;
-  zoneCount: number;
-};
-
-/**
  * Function takes takes two Map<string, number> objects and combines them into one Map<string,cardCounts
  * object, representing the total amount of each card owned by the player and the amount of each card in
  * a given zone.
@@ -117,7 +126,7 @@ export type CardCounts = {
  * @param zoneListMap - A Map<string,number> of the counts of each card in a player's specific zone
  * @returns - a Map<string,CardCounts> object
  */
-export const combineDeckListMapAndZoneListMap = (
+const combineDeckListMapAndZoneListMap = (
   deckListMap: Map<string, number>,
   zoneListMap: Map<string, number>
 ): Map<string, CardCounts> => {
@@ -143,22 +152,11 @@ export const combineDeckListMapAndZoneListMap = (
 };
 
 /**
- * Custom object literal type, an object with 4 properties, each a Map<string,CardCounts object,
- * one for each card type: Treasure, Action, Victory, Curse
- */
-export type SplitMaps = {
-  treasures: Map<string, CardCounts> | undefined;
-  actions: Map<string, CardCounts> | undefined;
-  victories: Map<string, CardCounts> | undefined;
-  curses: Map<string, CardCounts> | undefined;
-};
-
-/**
  * Function takes a Map<string,CardCounts> and splits it into 3 maps, separated by the 4 card types.
  * @param combinedMap - A Map<string,CardCounts>
  * @returns - And object literal with 4 properties, the values of which are Map<string,CardCounts> for each card type.
  */
-export const splitCombinedMapsByCardTypes = (
+const splitCombinedMapsByCardTypes = (
   combinedMap: Map<string, CardCounts>
 ): SplitMaps => {
   let tMap: Map<string, CardCounts> = new Map();
@@ -193,7 +191,7 @@ export const splitCombinedMapsByCardTypes = (
  * as an initial state by the CategoryViewer
  * @returns An empty split maps object
  */
-export const createEmptySplitMapsObject = (): SplitMaps => {
+const createEmptySplitMapsObject = (): SplitMaps => {
   let aMap: Map<string, CardCounts> = new Map();
   let tMap: Map<string, CardCounts> = new Map();
   let vMap: Map<string, CardCounts> = new Map();
@@ -216,7 +214,7 @@ export const createEmptySplitMapsObject = (): SplitMaps => {
  * @param unsortedMap
  * @returns
  */
-export const sortByAmountInZone = (
+const sortByAmountInZone = (
   sortParam: string,
   unsortedMap: Map<string, CardCounts>
 ): Map<string, CardCounts> => {
@@ -248,7 +246,7 @@ export const sortByAmountInZone = (
  * @param pd - the player deck
  * @returns
  */
-export const sortTheView = (
+const sortTheView = (
   sortParam: "card" | "owned" | "zone" | "probability",
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
@@ -380,7 +378,7 @@ export const sortTheView = (
  * Sort function for ZoneViewer components.  Simpler than the SortableViewer Sort function
  * because Zone viewers do not have columns for probability or library.
  */
-export const sortZoneView = (
+const sortZoneView = (
   sortParam: "card" | "zone" | "probability" | "owned",
   unsortedMap: Map<string, number>,
   sortType: "ascending" | "descending"
@@ -449,7 +447,7 @@ export const sortZoneView = (
  * @param cardName - The card name
  * @returns - Utility class for the color of the row.
  */
-export const getRowColor = (cardName: string): string => {
+const getRowColor = (cardName: string): string => {
   let color;
   const actionClass: string = "text-[#fff5c7]";
   const victoryClass: string = "text-green-300";
@@ -479,7 +477,7 @@ export const getRowColor = (cardName: string): string => {
  * @param gameEndReason
  * @returns String array [victor, defeated]
  */
-export const getResult = (
+ const getResult = (
   decks: Map<string, Deck | OpponentDeck>,
   playerName: string,
   opponentName: string,
@@ -518,4 +516,20 @@ export const getResult = (
     defeated = "None: tie";
   }
   return [victor, defeated];
+};
+
+export {
+  isErrorWithMessage,
+  toErrorWithMessage,
+  getErrorMessage,
+  calculateDrawProbability,
+  getCountsFromArray,
+  combineDeckListMapAndZoneListMap,
+  splitCombinedMapsByCardTypes,
+  createEmptySplitMapsObject,
+  sortByAmountInZone,
+  sortTheView,
+  sortZoneView,
+  getRowColor,
+  getResult,
 };

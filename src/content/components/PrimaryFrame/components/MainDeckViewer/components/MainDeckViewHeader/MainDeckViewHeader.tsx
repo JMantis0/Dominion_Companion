@@ -4,7 +4,7 @@ import { setSortedButtonsState } from "../../../../../../../redux/contentSlice";
 import { RootState } from "../../../../../../../redux/store";
 import SortButton from "../../../components/SortButton/SortButton";
 
-const SortViewHeader = () => {
+const MainDeckViewHeader = () => {
   const sortButtonState = useSelector(
     (state: RootState) => state.content.sortButtonState
   );
@@ -49,4 +49,4 @@ const SortViewHeader = () => {
   );
 };
 
-export default SortViewHeader;
+export default MainDeckViewHeader;

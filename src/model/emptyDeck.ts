@@ -1,6 +1,10 @@
 export class EmptyDeck {
+  gameTitle: string = "";
+  gameTurn: number = NaN;
+  gameResult: string = "";
+  ratedGame: boolean = false;
+  rating: string = "";
   entireDeck: Array<string> = [];
-  gamerTurn: number = 0;
   playerName: string = "";
   playerNick: string = "";
   currentVP: number = 3;

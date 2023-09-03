@@ -5,7 +5,7 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { setViewerHidden } from "../../../redux/contentSlice";
-import SortableViewer from "./components/SortableViewer/SortableViewer";
+import SortableViewer from "./components/MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./components/DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./components/TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./components/OpponentViewer/OpponentViewer";
@@ -140,7 +140,7 @@ const PrimaryFrame = () => {
             Opponent {od.entireDeck.length}
           </button>
         </main>
-        {activeStatus ? (
+        {activeStatus || tabs === "History" ? (
           <Scrollbars
             autoHide={false}
             renderThumbVertical={({ style, ...props }) => (
@@ -162,7 +162,7 @@ const PrimaryFrame = () => {
               {tabs === "Opponent" && <OpponentViewer />}
               {tabs === "Trash" && <TrashZoneViewer />}
               {tabs === "History" && <SavedGameViewer />}
-              <button
+              {/* <button
                 onClick={() => {
                   console.log("hidden is", hidden);
                 }}
@@ -186,7 +186,7 @@ const PrimaryFrame = () => {
                 }}
               >
                 c.log oDeck (Test)
-              </button>
+              </button> */}
             </div>
           </Scrollbars>
         ) : (

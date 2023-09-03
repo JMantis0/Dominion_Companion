@@ -10,10 +10,10 @@ import {
   getRowColor,
 } from "../componentFunctions";
 import FullListCardRow from "./components/FullListCardRow/FullListCardRow";
-import SortViewHeader from "./components/SortViewHeader/SortViewHeader";
+import SortViewHeader from "./components/MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./components/ViewFooter/ViewFooter";
 
-const SortableViewer = () => {
+const MainDeckViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
@@ -64,4 +64,4 @@ const SortableViewer = () => {
   );
 };
 
-export default SortableViewer;
+export default MainDeckViewer;

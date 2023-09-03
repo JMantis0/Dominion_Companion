@@ -57,7 +57,15 @@ const initialState: ContentState = {
   },
   viewerHidden: false,
   gameActiveStatus: false,
-  savedGames: "",
+  savedGames: {
+    none: {
+      logArchive: "none",
+      playerDeck: new EmptyDeck(),
+      opponentDeck: new EmptyOpponentDeck(),
+      dateTime: "none",
+      logHtml: "none",
+    },
+  },
 };
 
 export const contentSlice = createSlice({
