@@ -42,6 +42,25 @@ const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const od = useSelector((state: RootState) => state.content.opponentDeck);
+  useEffect(() => {
+    setSavedGamesState();
+    const storageListenerFunc = (
+      changes: {
+        [key: string]: chrome.storage.StorageChange;
+      },
+      namespace: "sync" | "local" | "managed" | "session"
+    ) => {
+      console.log("storageListener triggering getSavedGames()");
+      namespace;
+      changes;
+      setSavedGamesState();
+    };
+    
+    chrome.storage.onChanged.addListener(storageListenerFunc);
+    return () => {
+      chrome.storage.onChanged.removeListener(storageListenerFunc);
+    };
+  }, []);
   // const activeStatus = useSelector(
   //   (state: RootState) => state.content.gameActiveStatus
   // );
@@ -314,6 +333,7 @@ const Observer: FunctionComponent = () => {
   };
 
   const setSavedGamesState = () => {
+    console.log("setsSavedGameState()")
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
       console.log("result of get", result);
 
@@ -322,19 +342,11 @@ const Observer: FunctionComponent = () => {
         console.log("No games keys in storage... No saved games in storage");
       } else {
         chrome.storage.local.get([...gameKeys]).then((result) => {
-          console.log("should be every game saved in storage", result);
-          console.log(
-            "should be every game saved in storage",
-            JSON.stringify(result)
-          );
-          console.log("should be every game saved in storage");
           dispatch(setSavedGames(result));
         });
       }
     });
   };
-
-  setSavedGamesState();
 
   /**
    * Primary function of the content script
@@ -478,12 +490,6 @@ const Observer: FunctionComponent = () => {
         [title]: savedGame,
       });
       chrome.storage.local.get([...gameKeys]).then((result) => {
-        console.log("should be every game saved in storage", result);
-        console.log(
-          "should be every game saved in storage",
-          JSON.stringify(result)
-        );
-        console.log("should be every game saved in storage");
         dispatch(setSavedGames(result));
       });
     });

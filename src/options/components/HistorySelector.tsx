@@ -107,14 +107,23 @@ const HistorySelector = () => {
               </tr>
 
               <tr className="grid grid-cols-12">
-                <th className={`col-span-4 text-xs border-2 text-white`}>
+                <th className={`col-span-2 text-xs border-2 text-white`}>
+                  Game #
+                </th>
+                <th className={`col-span-2 text-xs border-2 text-white`}>
+                  Player (You)
+                </th>
+                <th className={`col-span-2 text-xs border-2 text-white`}>
                   Opponent
                 </th>
-                <th className={`col-span-4 text-xs border-2 text-white`}>
+                <th className={`col-span-1 text-xs border-2 text-white`}>
                   Result
                 </th>
-                <th className={`col-span-4 text-xs border-2 text-white`}>
+                <th className={`col-span-3 text-xs border-2 text-white`}>
                   Date
+                </th>
+                <th className={`col-span-1 text-xs border-2 text-white`}>
+                  Delete
                 </th>
               </tr>
               {gameKeys[0] !== undefined ? (

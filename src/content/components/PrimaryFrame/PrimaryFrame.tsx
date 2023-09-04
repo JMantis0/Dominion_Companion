@@ -221,9 +221,12 @@ const PrimaryFrame = () => {
             className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
               tabs === "History" ? null : "border-t-2"
             } ${pinnedTab === "History" ? "text-lime-500" : null}`}
-            onClick={handleTabClick}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onClick={() => {
+              console.log("Open options page.");
+              chrome.runtime.sendMessage({ action: "openOptionsPage" });
+            }}
+            // onMouseEnter={handleMouseEnter}
+            // onMouseLeave={handleMouseLeave}
             name="History"
           >
             History

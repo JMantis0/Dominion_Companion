@@ -12,6 +12,7 @@ module.exports = {
     popup: path.resolve("./src/popup/index.tsx"),
     options: path.resolve("./src/options/index.tsx"),
     contentScript: path.resolve("./src/content/contentScript.tsx"),
+    background: path.resolve("./src/background/service-worker.tsx"),
   },
   module: {
     rules: [

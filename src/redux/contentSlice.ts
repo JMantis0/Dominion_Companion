@@ -60,8 +60,8 @@ const initialState: ContentState = {
   savedGames: {
     none: {
       logArchive: "none",
-      playerDeck: new EmptyDeck(),
-      opponentDeck: new EmptyOpponentDeck(),
+      playerDeck: JSON.stringify(new EmptyDeck()),
+      opponentDeck: JSON.stringify(new EmptyOpponentDeck()),
       dateTime: "none",
       logHtml: "none",
     },

@@ -45,13 +45,18 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
         className="grid grid-cols-12"
         key={idx}
       >
-        <td className={`col-span-3 text-xs border-2 text-white`}>
-          {savedGame.playerDeck.gameTitle}
-        </td>
-        <td className={`col-span-3 text-xs border-2 text-white`}>
-          {savedGame.opponentDeck.playerName}
+        <td className={`col-span-2 text-xs border-2 text-white`}>
+          <div>{savedGame.playerDeck.gameTitle}</div>
         </td>
         <td className={`col-span-2 text-xs border-2 text-white`}>
+          <div>{savedGame.playerDeck.playerName}</div>
+          <div>Rating: {savedGame.playerDeck.rating}</div>
+        </td>
+        <td className={`col-span-2 text-xs border-2 text-white`}>
+          <div>{savedGame.opponentDeck.playerName}</div>
+          <div>Rating: {savedGame.opponentDeck.rating}</div>
+        </td>
+        <td className={`col-span-1 text-xs border-2 text-white`}>
           {savedGame.playerDeck.gameResult}
         </td>
         <td className={`col-span-3 text-xs border-2 text-white`}>
