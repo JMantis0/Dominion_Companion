@@ -305,11 +305,22 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   let areNewLogs: boolean;
   const procArr = logsProcessed.split("\n").slice();
   const gLogArr = gameLog.split("\n").slice();
+  // remove premoves
+  if (gLogArr[gLogArr.length - 1].match("Premoves") !== null) {
+    gLogArr.pop();
+  }
+
   const lastGameLogEntry = gLogArr.slice().pop();
+
   if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
     areNewLogs = false;
   } else if (procArr.length > gLogArr.length) {
     areNewLogs = true;
+
+    console.log("procArr");
+    console.log(procArr);
+    console.log("gLogArr");
+    console.log(gLogArr);
     throw new Error("Processed logs Larger than game log");
   } else if (procArr.length < gLogArr.length) {
     areNewLogs = true;
@@ -364,6 +375,7 @@ const getUndispatchedLogs = (
   logsDispatched: string,
   gameLog: string
 ): string => {
+  console.log("Getting undispatched logs");
   let undispatchedLogs: string;
   let dispatchedArr: string[];
   if (logsDispatched !== "" && logsDispatched !== undefined) {
@@ -372,7 +384,12 @@ const getUndispatchedLogs = (
     dispatchedArr = [];
   }
   const gameLogArr = gameLog.split("\n").slice();
+  if (gameLogArr[gameLogArr.length - 1].match("Premoves") !== null) {
+    gameLogArr.pop();
+  }
   if (dispatchedArr.length > gameLogArr.length) {
+    console.log("dispatchedArr", dispatchedArr);
+    console.log("gameLogArr", gameLogArr);
     throw new Error("More dispatched logs than game logs");
   } else if (dispatchedArr.length < gameLogArr.length) {
     const numberOfUndispatchedLines = gameLogArr.length - dispatchedArr.length;
@@ -387,6 +404,7 @@ const getUndispatchedLogs = (
       undispatchedLogs = lastGameLogLine;
     }
   }
+  console.log("undispatchedLogs", undispatchedLogs);
   return undispatchedLogs!;
 };
 

@@ -125,6 +125,14 @@ const Popup = () => {
         </button>
         <div className="col-span-2"></div>
       </div>
+      <button
+        onClick={() => {
+          console.log("Open options page.");
+          chrome.runtime.sendMessage({ action: "openOptionsPage" });
+        }}
+      >
+        History
+      </button>
     </React.Fragment>
   );
 };

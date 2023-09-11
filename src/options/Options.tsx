@@ -1,15 +1,16 @@
-import React, {
-  // , useState
-} from "react";
+import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { store } from "../redux/store";
-import SavedGameViewer from "./components/SavedGameViewer";
+import HistoryViewer from "./components/HistoryViewer/HistoryViewer";
 
 const options = () => {
+  useEffect(() => {
+    document.title = "Dominion Game History";
+  });
   return (
     <React.Fragment>
       <Provider store={store}>
-          <SavedGameViewer />
+        <HistoryViewer />
       </Provider>
     </React.Fragment>
   );

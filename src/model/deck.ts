@@ -175,7 +175,7 @@ export class Deck {
     this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
       switch (currentValue) {
         case "Gardens":
-          return Math.floor(this.entireDeck.length / 10);
+          return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
         case "Estate":
           return 1 + accumulatedVP;
         case "Duchy":
@@ -405,10 +405,10 @@ export class Deck {
         }
       }
 
-      this.lastEntryProcessed = line;
+      if (line.match("Premoves") === null) this.lastEntryProcessed = line;
 
       //update the log archive
-      if (line !== "Between Turns") {
+      if (line !== "Between Turns" && line.substring(0, 8) !== "Premoves") {
         this.logArchive.push(line);
       }
       this.updateVP();
@@ -927,13 +927,15 @@ export class Deck {
           throw new Error(
             "Previous line paddingLeft property does not end with %"
           );
-          console.log("Length is : ", len)
+        console.log("Length is : ", len);
         console.log(
           `Padding for line current line ${logScrollElement[len].innerText}`,
           currentLinePaddingNumber
         );
         console.log(
-          `Padding for line previous line ${logScrollElement[len - 1].innerText}`,
+          `Padding for line previous line ${
+            logScrollElement[len - 1].innerText
+          }`,
           previousLinePaddingNumber
         );
         if (currentLinePaddingNumber < previousLinePaddingNumber) {

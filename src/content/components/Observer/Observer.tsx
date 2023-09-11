@@ -55,7 +55,7 @@ const Observer: FunctionComponent = () => {
       changes;
       setSavedGamesState();
     };
-    
+
     chrome.storage.onChanged.addListener(storageListenerFunc);
     return () => {
       chrome.storage.onChanged.removeListener(storageListenerFunc);
@@ -208,7 +208,6 @@ const Observer: FunctionComponent = () => {
     logInitialized = false;
     kingdomInitialized = false;
     playerDeckInitialized = false;
-    // savedGamesStateInitialized = false;
     logsProcessed;
     logsProcessed = "";
     gameLog = "";
@@ -251,12 +250,13 @@ const Observer: FunctionComponent = () => {
   const logObserverFunc: MutationCallback = (
     mutationList: MutationRecord[]
   ) => {
+
     for (const mutation of mutationList) {
       if (mutation.type === "childList") {
         const addedNodes = mutation.addedNodes;
         if (addedNodes.length > 0) {
           const lastAddedNode: HTMLElement = addedNodes[
-            addedNodes.length - 1
+            addedNodes.length - 1 
           ] as HTMLElement;
           const lastAddedNodeText = lastAddedNode.innerText;
           if (lastAddedNodeText.length > 0) {
@@ -278,6 +278,10 @@ const Observer: FunctionComponent = () => {
                   JSON.parse(JSON.stringify(decks.get(opponentName)))
                 )
               );
+              // remove premoves
+              if(gameLog.split("\n")[gameLog.split("\n").length-1].match("Premoves")!==null) {
+                gameLog = gameLog.split("\n").slice(0,-1).join("\n")
+              }
               logsProcessed = gameLog;
             }
           }
@@ -333,7 +337,7 @@ const Observer: FunctionComponent = () => {
   };
 
   const setSavedGamesState = () => {
-    console.log("setsSavedGameState()")
+    console.log("setsSavedGameState()");
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
       console.log("result of get", result);
 
@@ -528,7 +532,7 @@ const Observer: FunctionComponent = () => {
   }, []);
 
   return (
-    <div className="top-[50%] hidden">
+    <div className="top-[50%]">
       <button
         className="top-[50%] whitespace-nowrap ml-[200px]"
         onClick={() => {

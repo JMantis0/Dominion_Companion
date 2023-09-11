@@ -5,7 +5,7 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { setViewerHidden } from "../../../redux/contentSlice";
-import SortableViewer from "./components/MainDeckViewer/MainDeckViewer";
+import MainDeckViewer from "./components/MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./components/DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./components/TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./components/OpponentViewer/OpponentViewer";
@@ -101,7 +101,7 @@ const PrimaryFrame = () => {
         id="primaryFrame"
         className={`${
           hidden ? "hidden" : ""
-        } backdrop-blur-sm bg-black/[.85] w-[200px] h-[200px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+        } backdrop-blur-sm bg-black/[.85] w-[200px] h-[400px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
       >
         <div className="text-xs mt-[-41px] text-white grid grid-cols-12">
           <div
@@ -127,6 +127,8 @@ const PrimaryFrame = () => {
             name="Deck"
           >
             Deck {pd.entireDeck.length}
+            <br></br>
+            VP: {pd.currentVP}
           </button>
           <button
             className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
@@ -138,6 +140,8 @@ const PrimaryFrame = () => {
             name="Opponent"
           >
             Opponent {od.entireDeck.length}
+            <br></br>
+            VP: {od.currentVP}
           </button>
         </main>
         {activeStatus || tabs === "History" ? (
@@ -157,12 +161,12 @@ const PrimaryFrame = () => {
             )}
           >
             <div className="p-1 mr-2">
-              {tabs === "Deck" && <SortableViewer />}
+              {tabs === "Deck" && <MainDeckViewer />}
               {tabs === "Discard" && <DiscardZoneViewer />}
               {tabs === "Opponent" && <OpponentViewer />}
               {tabs === "Trash" && <TrashZoneViewer />}
               {tabs === "History" && <SavedGameViewer />}
-              {/* <button
+              <button
                 onClick={() => {
                   console.log("hidden is", hidden);
                 }}
@@ -186,7 +190,7 @@ const PrimaryFrame = () => {
                 }}
               >
                 c.log oDeck (Test)
-              </button> */}
+              </button>
             </div>
           </Scrollbars>
         ) : (

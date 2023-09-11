@@ -1,6 +1,7 @@
 export interface OpponentStoreDeck {
   gameTitle: string;
   gameTurn: number;
+  gameResult: "Victory" | "Defeat" | "Tie" | "Unfinished";
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string>;

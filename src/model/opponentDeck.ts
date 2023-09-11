@@ -28,7 +28,7 @@ export class OpponentDeck {
   ) {
     this.gameTitle = gameTitle;
     this.gameTurn = 0;
-    this.gameResult = "Unfinished"
+    this.gameResult = "Unfinished";
     this.ratedGame = ratedGame;
     this.rating = rating;
     this.playerName = playerName;
@@ -64,7 +64,7 @@ export class OpponentDeck {
   getGameResult() {
     return this.gameResult;
   }
-  
+
   setRatedGame(ratedGame: boolean) {
     this.ratedGame = ratedGame;
   }
@@ -131,7 +131,7 @@ export class OpponentDeck {
     this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
       switch (currentValue) {
         case "Gardens":
-          return Math.floor(this.entireDeck.length / 10);
+          return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
         case "Estate":
           return 1 + accumulatedVP;
         case "Duchy":
@@ -207,10 +207,10 @@ export class OpponentDeck {
         }
       }
 
-      this.lastEntryProcessed = line;
+      if (line.match("Premoves") === null) this.lastEntryProcessed = line;
 
       //update the log archive
-      if (line !== "Between Turns") {
+      if (line !== "Between Turns" && line.substring(0, 8) !== "Premoves") {
         this.logArchive.push(line);
       }
       this.updateVP();

@@ -1,7 +1,7 @@
 export interface StoreDeck {
   gameTitle: string;
   gameTurn: number;
-  gameResult: string;
+  gameResult: "Victory" | "Defeat" | "Tie" | "Unfinished";
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string>;

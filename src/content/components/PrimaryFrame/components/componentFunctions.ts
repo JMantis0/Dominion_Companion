@@ -375,6 +375,92 @@ const sortTheView = (
 };
 
 /**
+ * Returns a sorted map.  Sorts by the sortParam and sortType.
+ * @param sortParam - The category to sort on.
+ * @param unsortedMap - The unsorted map.
+ * @param sortType - Ascending or Descending.
+ * @param pd - the player deck
+ * @returns
+ */
+const sortTheHistoryDeckView = (
+  sortParam: "card" | "owned" | "zone" | "probability",
+  unsortedMap: Map<string, CardCounts>,
+  sortType: "ascending" | "descending",
+): Map<string, CardCounts> => {
+  const mapCopy = new Map(unsortedMap);
+  const sortedMap: Map<string, CardCounts> = new Map();
+  switch (sortParam) {
+    // add cases for card, deckAmount, ownedAmount
+    case "card":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            let result: number;
+            const card1 = entryA[0];
+            const card2 = entryB[0];
+
+            if (sortType === "ascending") {
+              if (card1 > card2) {
+                result = -1;
+              } else if (card1 < card2) {
+                result = 1;
+              } else result = 0;
+            } else {
+              if (card1 < card2) {
+                result = -1;
+              } else if (card1 < card2) {
+                result = 1;
+              } else result = 0;
+            }
+
+            return result;
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    case "owned":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            if (sortType === "ascending") {
+              return entryB[1].entireDeckCount - entryA[1].entireDeckCount;
+            } else {
+              return entryA[1].entireDeckCount - entryB[1].entireDeckCount;
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    case "zone":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            if (sortType === "ascending") {
+              return entryB[1].zoneCount - entryA[1].zoneCount;
+            } else {
+              return entryA[1].zoneCount - entryB[1].zoneCount;
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
+    default: {
+      throw new Error("Invalid sort category " + sortParam);
+    }
+  }
+  return sortedMap;
+};
+
+/**
  * Sort function for ZoneViewer components.  Simpler than the SortableViewer Sort function
  * because Zone viewers do not have columns for probability or library.
  */
@@ -529,6 +615,7 @@ export {
   createEmptySplitMapsObject,
   sortByAmountInZone,
   sortTheView,
+  sortTheHistoryDeckView,
   sortZoneView,
   getRowColor,
   getResult,
