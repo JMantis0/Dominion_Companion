@@ -316,11 +316,6 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
     areNewLogs = false;
   } else if (procArr.length > gLogArr.length) {
     areNewLogs = true;
-
-    console.log("procArr");
-    console.log(procArr);
-    console.log("gLogArr");
-    console.log(gLogArr);
     throw new Error("Processed logs Larger than game log");
   } else if (procArr.length < gLogArr.length) {
     areNewLogs = true;
@@ -388,8 +383,6 @@ const getUndispatchedLogs = (
     gameLogArr.pop();
   }
   if (dispatchedArr.length > gameLogArr.length) {
-    console.log("dispatchedArr", dispatchedArr);
-    console.log("gameLogArr", gameLogArr);
     throw new Error("More dispatched logs than game logs");
   } else if (dispatchedArr.length < gameLogArr.length) {
     const numberOfUndispatchedLines = gameLogArr.length - dispatchedArr.length;
@@ -404,7 +397,6 @@ const getUndispatchedLogs = (
       undispatchedLogs = lastGameLogLine;
     }
   }
-  console.log("undispatchedLogs", undispatchedLogs);
   return undispatchedLogs!;
 };
 
