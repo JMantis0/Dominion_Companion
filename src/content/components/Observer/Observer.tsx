@@ -400,6 +400,7 @@ const Observer: FunctionComponent = () => {
       if (isKingdomElementPresent()) {
         kingdom = getKingdom();
         dispatch(setBaseOnly(baseKingdomCardCheck(kingdom)));
+        console.log("Line after baseOnly dispatch. baseOnly is :", baseOnly);
         if (!baseOnly) {
           console.error(
             "Game is not intended for cards outside of the Base Set"
@@ -437,34 +438,36 @@ const Observer: FunctionComponent = () => {
 
     if (initialized()) {
       resetDeckState();
-      dispatch(setGameActiveStatus(true));
-      gameLogObserver = new MutationObserver(logObserverFunc);
-      gameEndObserver = new MutationObserver(gameEndObserverFunc);
-      const gameLogElement = document.getElementsByClassName("game-log")[0];
-      gameLogObserver.observe(gameLogElement, {
-        childList: true,
-        subtree: true,
-      });
-      const gameEndElement = document.getElementsByTagName(
-        "game-ended-notification"
-      )[0];
-      gameEndObserver.observe(gameEndElement, {
-        childList: true,
-        subtree: true,
-      });
-      const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog) // Initial dispatch
-        .split("\n")
-        .slice();
-      decks.get(playerName)?.update(newLogsToDispatch);
-      dispatch(
-        setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
-      );
-      decks.get(opponentName)?.update(newLogsToDispatch);
-      dispatch(
-        setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
-      );
-      logsProcessed = gameLog;
-      saveGameData(gameLog, decks);
+      if (baseOnly) {
+        dispatch(setGameActiveStatus(true));
+        gameLogObserver = new MutationObserver(logObserverFunc);
+        gameEndObserver = new MutationObserver(gameEndObserverFunc);
+        const gameLogElement = document.getElementsByClassName("game-log")[0];
+        gameLogObserver.observe(gameLogElement, {
+          childList: true,
+          subtree: true,
+        });
+        const gameEndElement = document.getElementsByTagName(
+          "game-ended-notification"
+        )[0];
+        gameEndObserver.observe(gameEndElement, {
+          childList: true,
+          subtree: true,
+        });
+        const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog) // Initial dispatch
+          .split("\n")
+          .slice();
+        decks.get(playerName)?.update(newLogsToDispatch);
+        dispatch(
+          setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
+        );
+        decks.get(opponentName)?.update(newLogsToDispatch);
+        dispatch(
+          setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
+        );
+        logsProcessed = gameLog;
+        saveGameData(gameLog, decks);
+      }
       clearInterval(initInterval);
       resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     }

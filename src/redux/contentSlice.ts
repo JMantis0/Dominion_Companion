@@ -110,6 +110,7 @@ export const contentSlice = createSlice({
       state.savedGames = action.payload;
     },
     setBaseOnly: (state, action: PayloadAction<boolean>) => {
+      console.log("Inside reducer.  New value is: ", action);
       state.baseOnly = action.payload;
     },
   },
@@ -126,7 +127,7 @@ export const {
   setTrashSortState,
   setGameActiveStatus,
   setSavedGames,
-  setBaseOnly
+  setBaseOnly,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
