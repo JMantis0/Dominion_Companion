@@ -154,6 +154,8 @@ let decks: Map<string, Deck | OpponentDeck> = new Map();
  */
 let kingdom: Array<string> = [];
 
+let baseOnly: boolean;
+
 /**
  * Interval used to detect
  */
@@ -176,7 +178,9 @@ const Observer: FunctionComponent = () => {
   /**
    * Boolean to hold whether the kingdom is the base set or not.
    */
-  const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
+  const baseOnlyRedux = useSelector(
+    (state: RootState) => state.content.baseOnly
+  );
   // useEffect(() => {
   //   setSavedGamesState();
   //   const storageListenerFunc = (
@@ -399,7 +403,8 @@ const Observer: FunctionComponent = () => {
     if (!kingdomInitialized) {
       if (isKingdomElementPresent()) {
         kingdom = getKingdom();
-        dispatch(setBaseOnly(baseKingdomCardCheck(kingdom)));
+        baseOnly = baseKingdomCardCheck(kingdom);
+        dispatch(setBaseOnly(baseOnly));
         console.log("Line after baseOnly dispatch. baseOnly is :", baseOnly);
         if (!baseOnly) {
           console.error(
