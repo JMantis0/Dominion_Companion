@@ -15,6 +15,7 @@ const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Starting");
   const od = useSelector((state: RootState) => state.content.opponentDeck);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
+  const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
   const hidden = useSelector((state: RootState) => state.content.viewerHidden);
   const activeStatus = useSelector(
     (state: RootState) => state.content.gameActiveStatus
