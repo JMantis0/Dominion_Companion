@@ -97,15 +97,6 @@ let playersInitialized: boolean = false;
 let playerDeckInitialized: boolean = false;
 
 /**
- * Content global variable
- * use = Control flow for content script.
- * False value means the savedGames redux state has not been updated to include the
- * games that are saved in chrome storage.
- * True value means the redux state for savedGames is updated.
- */
-// let savedGamesStateInitialized: boolean = false;
-
-/**
  * Content global variable - Holds the value of which logs have already been sent to the Deck objects.
  * Use - Control flow for the content script.
  * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
@@ -154,6 +145,14 @@ let decks: Map<string, Deck | OpponentDeck> = new Map();
  */
 let kingdom: Array<string> = [];
 
+
+/**
+ * Content global variable - The current version of the extension does not support games that include
+ * cards outside of the base set.  This variable will hold the value of true if the current kingdom is base set only.
+ * It will hold false if the kingdom contains non-base cards.  The variable is used to disable extension features
+ * if unsupported cards are detected.
+ * Use - invoking Deck object constructor
+ */
 let baseOnly: boolean;
 
 /**
@@ -178,9 +177,9 @@ const Observer: FunctionComponent = () => {
   /**
    * Boolean to hold whether the kingdom is the base set or not.
    */
-  const baseOnlyRedux = useSelector(
-    (state: RootState) => state.content.baseOnly
-  );
+  // const baseOnlyRedux = useSelector(
+  //   (state: RootState) => state.content.baseOnly
+  // );
   // useEffect(() => {
   //   setSavedGamesState();
   //   const storageListenerFunc = (
@@ -221,6 +220,7 @@ const Observer: FunctionComponent = () => {
     opponentName = "";
     decks = new Map();
     kingdom = [];
+    baseOnly = true;
     dispatch(setBaseOnly(true));
     if (gameLogObserver !== undefined) gameLogObserver.disconnect();
     if (gameEndObserver !== undefined) gameEndObserver.disconnect();

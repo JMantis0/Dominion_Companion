@@ -110,7 +110,6 @@ export const contentSlice = createSlice({
       state.savedGames = action.payload;
     },
     setBaseOnly: (state, action: PayloadAction<boolean>) => {
-      console.log("Inside reducer.  New value is: ", action);
       state.baseOnly = action.payload;
     },
   },
