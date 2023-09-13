@@ -33,12 +33,7 @@ const PrimaryFrame = () => {
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: { message: string }) => void
   ) => {
-    console.log(
-      sender.tab
-        ? "from a content script:" + sender.tab.url
-        : "from the extension"
-    );
-    console.log("request:", request);
+    sender;
     let response: { message: string } = { message: "" };
     if (request.command === "appendDomRoot") {
       dispatch(setViewerHidden(false));
@@ -47,7 +42,6 @@ const PrimaryFrame = () => {
       dispatch(setViewerHidden(true));
       response.message = "Successfully turned off.";
     } else if (request.command === "sendHiddenState") {
-      console.log("Popup is requesting the hidden state, which is: ", hidden);
       response.message = hidden ? "Hidden state is ON" : "Hidden state is OFF";
     } else {
       response.message = "Invalid Request";
@@ -225,7 +219,6 @@ const PrimaryFrame = () => {
                   tabs === "History" ? null : "border-t-2"
                 } ${pinnedTab === "History" ? "text-lime-500" : null}`}
                 onClick={() => {
-                  console.log("Open options page.");
                   chrome.runtime.sendMessage({ action: "openOptionsPage" });
                 }}
                 // onMouseEnter={handleMouseEnter}

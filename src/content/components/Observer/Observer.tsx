@@ -145,7 +145,6 @@ let decks: Map<string, Deck | OpponentDeck> = new Map();
  */
 let kingdom: Array<string> = [];
 
-
 /**
  * Content global variable - The current version of the extension does not support games that include
  * cards outside of the base set.  This variable will hold the value of true if the current kingdom is base set only.
@@ -174,34 +173,6 @@ const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const od = useSelector((state: RootState) => state.content.opponentDeck);
-  /**
-   * Boolean to hold whether the kingdom is the base set or not.
-   */
-  // const baseOnlyRedux = useSelector(
-  //   (state: RootState) => state.content.baseOnly
-  // );
-  // useEffect(() => {
-  //   setSavedGamesState();
-  //   const storageListenerFunc = (
-  //     changes: {
-  //       [key: string]: chrome.storage.StorageChange;
-  //     },
-  //     namespace: "sync" | "local" | "managed" | "session"
-  //   ) => {
-  //     console.log("storageListener triggering getSavedGames()");
-  //     namespace;
-  //     changes;
-  //     setSavedGamesState();
-  //   };
-
-  //   chrome.storage.onChanged.addListener(storageListenerFunc);
-  //   return () => {
-  //     chrome.storage.onChanged.removeListener(storageListenerFunc);
-  //   };
-  // }, []);
-  // const activeStatus = useSelector(
-  //   (state: RootState) => state.content.gameActiveStatus
-  // );
 
   /**
    * Reset function.
@@ -345,22 +316,6 @@ const Observer: FunctionComponent = () => {
     dispatch(setPlayerDeck(JSON.parse(JSON.stringify(new EmptyDeck()))));
   };
 
-  // const setSavedGamesState = () => {
-  //   console.log("setsSavedGameState()");
-  //   chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-  //     console.log("result of get", result);
-
-  //     let gameKeys = result.gameKeys;
-  //     if (gameKeys === undefined) {
-  //       console.log("No games keys in storage... No saved games in storage");
-  //     } else {
-  //       chrome.storage.local.get([...gameKeys]).then((result) => {
-  //         dispatch(setSavedGames(result));
-  //       });
-  //     }
-  //   });
-  // };
-
   /**
    * Primary function of the content script
    * Use - Periodically checks the client DOM for the presence of the elements that
@@ -372,7 +327,6 @@ const Observer: FunctionComponent = () => {
 
   const initIntervalFunction = () => {
     resetGame();
-
     if (!logInitialized) {
       if (isGameLogPresent()) {
         gameLog = getGameLog();
@@ -405,7 +359,6 @@ const Observer: FunctionComponent = () => {
         kingdom = getKingdom();
         baseOnly = baseKingdomCardCheck(kingdom);
         dispatch(setBaseOnly(baseOnly));
-        console.log("Line after baseOnly dispatch. baseOnly is :", baseOnly);
         if (!baseOnly) {
           console.error(
             "Game is not intended for cards outside of the Base Set"
@@ -429,7 +382,6 @@ const Observer: FunctionComponent = () => {
           opponentRating,
           kingdom
         );
-
         playerDeckInitialized = true;
       }
     }
@@ -482,7 +434,6 @@ const Observer: FunctionComponent = () => {
     gameLog: string,
     decks: Map<string, Deck | OpponentDeck>
   ) => {
-    console.log("decks", decks);
     const savedGame: SavedGame = {
       logArchive: gameLog,
       playerDeck: JSON.parse(JSON.stringify(decks.get(playerName))),
@@ -490,11 +441,8 @@ const Observer: FunctionComponent = () => {
       dateTime: new Date().toString(),
       logHtml: document.getElementsByClassName("game-log")[0].innerHTML,
     };
-    console.log("savedGames", savedGame);
     const title: string = savedGame.playerDeck.gameTitle;
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      console.log("result of get", result);
-
       let gameKeys = result.gameKeys;
       if (gameKeys === undefined) {
         gameKeys = [];
@@ -513,17 +461,19 @@ const Observer: FunctionComponent = () => {
   };
 
   const showSavedData = () => {
-    chrome.storage.local.get([]).then((result) => {
-      console.log("Value currently is ", result);
+    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
+      console.log("gameKeys: ", result);
+
+      let gameKeys = result.gameKeys;
+      await chrome.storage.local.get([...gameKeys]).then((result) => {
+        console.log("History Records: ", result);
+      });
     });
   };
 
   /**
    * ToDo - create function that automatically sets the deck to the rewound/undone state
    */
-
-  // const updateAfterUndoOrRewind = () =>
-  // }
 
   /**
    * Callback function used for the 'beforeunload' event listener.

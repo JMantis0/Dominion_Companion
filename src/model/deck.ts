@@ -27,6 +27,7 @@ export class Deck {
   waitToShuffle: boolean = false;
   waitToDrawLibraryLook: boolean = false;
   treasurePopped: boolean = false;
+  debug: boolean = true;
 
   constructor(
     gameTitle: string,
@@ -171,6 +172,14 @@ export class Deck {
     this.setAside = setAsideCards;
   }
 
+  getDebug() {
+    return this.debug;
+  }
+
+  setDebug(bool: boolean) {
+    this.debug = bool;
+  }
+
   updateVP() {
     this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
       switch (currentValue) {
@@ -211,7 +220,7 @@ export class Deck {
           this.shuffleGraveYardIntoLibrary();
           this.waitToShuffle = false;
         }
-        console.group(line);
+        if (this.debug) console.group(line);
         let act = "";
         let cards: Array<string> = [];
         let numberOfCards: Array<number> = [];
@@ -236,7 +245,7 @@ export class Deck {
         }
         if (this.waitToDrawLibraryLook) {
           this.waitToDrawLibraryLook = false;
-          console.log("changing waitToDraw to false");
+          if (this.debug) console.log("changing waitToDraw to false");
         }
 
         switch (act) {
@@ -268,10 +277,11 @@ export class Deck {
                       if (lastLineBuy) {
                         // keep the logArchive from accumulating duplicates.
                         const dupRemoved = this.logArchive.pop();
-                        console.info(
-                          "removing a duplicate entry: ",
-                          dupRemoved
-                        );
+                        if (this.debug)
+                          console.info(
+                            "removing a duplicate entry: ",
+                            dupRemoved
+                          );
                       }
                     }
                     this.gain(cards[i]);
@@ -380,11 +390,11 @@ export class Deck {
                   "Silver",
                   "Gold",
                 ];
-                console.log("It's a library look");
+                if (this.debug) console.log("It's a library look");
                 if (cardsToDrawNow.includes(cards[0])) {
                   this.draw(cards[0]);
                 } else {
-                  console.log("waitToDraw changing to true;");
+                  if (this.debug) console.log("waitToDraw changing to true;");
                   this.waitToDrawLibraryLook = true;
                 }
               }
@@ -413,7 +423,7 @@ export class Deck {
       }
       this.updateVP();
       if (this.checkForTurnLine(line)) this.incrementTurn();
-      console.groupEnd();
+      if (this.debug) console.groupEnd();
     });
   }
 
@@ -426,7 +436,7 @@ export class Deck {
   draw(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.info(`Drawing ${card} from library into hand.`);
+      if (this.debug) console.info(`Drawing ${card} from library into hand.`);
       this.hand.push(card);
       this.library.splice(index, 1);
     } else {
@@ -442,7 +452,7 @@ export class Deck {
   play(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.info(`Playing ${card} from hand into play.`);
+      if (this.debug) console.info(`Playing ${card} from hand into play.`);
       this.inPlay.push(card);
       this.hand.splice(index, 1);
     } else {
@@ -478,7 +488,7 @@ export class Deck {
    * Might be obsolete.  Shuffling is a superficiality.
    */
   shuffle() {
-    console.info("Shuffling library into a random order.");
+    if (this.debug) console.info("Shuffling library into a random order.");
     let currentIndex = this.library.length,
       randomIndex;
 
@@ -506,7 +516,7 @@ export class Deck {
   topDeckFromGraveyard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
-      console.info(`Top decking ${card} from discard pile.`);
+      if (this.debug) console.info(`Top decking ${card} from discard pile.`);
       this.library.push(card);
       this.graveyard.splice(index, 1);
     } else {
@@ -524,7 +534,8 @@ export class Deck {
   playFromDiscard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index > -1) {
-      console.info(`Playing ${card} from discard pile into play.`);
+      if (this.debug)
+        console.info(`Playing ${card} from discard pile into play.`);
       this.inPlay.push(card);
       this.graveyard.splice(index, 1);
     } else {
@@ -540,9 +551,10 @@ export class Deck {
   shuffleGraveYardIntoLibrary() {
     let i = this.graveyard.length - 1;
     for (i; i >= 0; i--) {
-      console.info(
-        `Shuffling ${this.graveyard[i]} from discard pile into library`
-      );
+      if (this.debug)
+        console.info(
+          `Shuffling ${this.graveyard[i]} from discard pile into library`
+        );
       this.library.push(this.graveyard[i]);
       this.graveyard.splice(i, 1);
     }
@@ -555,22 +567,24 @@ export class Deck {
    * from the hand and/or inPlay arrays and added to the graveyard array.
    */
   cleanup() {
-    console.group("Cleaning up:");
+    if (this.debug) console.group("Cleaning up:");
     let i = this.inPlay.length - 1;
     let j = this.hand.length - 1;
     for (i; i >= 0; i--) {
-      console.info(
-        `Moving ${this.inPlay[i]} from in play into into discard pile.`
-      );
+      if (this.debug)
+        console.info(
+          `Moving ${this.inPlay[i]} from in play into into discard pile.`
+        );
       this.graveyard.push(this.inPlay[i]);
       this.inPlay.splice(i, 1);
     }
     for (j; j >= 0; j--) {
-      console.info(`Moving ${this.hand[j]} from hand into discard pile.`);
+      if (this.debug)
+        console.info(`Moving ${this.hand[j]} from hand into discard pile.`);
       this.graveyard.push(this.hand[j]);
       this.hand.splice(j, 1);
     }
-    console.groupEnd();
+    if (this.debug) console.groupEnd();
   }
 
   /**
@@ -578,7 +592,7 @@ export class Deck {
    * @param card = The given card.
    */
   gain(card: string) {
-    console.info(`Gaining ${card} into discard pile.`);
+    if (this.debug) console.info(`Gaining ${card} into discard pile.`);
     this.graveyard.push(card);
   }
 
@@ -587,7 +601,7 @@ export class Deck {
    * @param card - The given card.
    */
   gainIntoHand(card: string) {
-    console.info(`Gaining ${card} into hand.`);
+    if (this.debug) console.info(`Gaining ${card} into hand.`);
     this.hand.push(card);
   }
 
@@ -596,7 +610,7 @@ export class Deck {
    * @param card
    */
   gainIntoDeck(card: string) {
-    console.info(`Gaining ${card} into deck.`);
+    if (this.debug) console.info(`Gaining ${card} into deck.`);
     this.library.push(card);
   }
 
@@ -609,7 +623,8 @@ export class Deck {
   topDeckCardFromHand(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.info(`Top decking ${this.hand[index]} from hand.`);
+      if (this.debug)
+        console.info(`Top decking ${this.hand[index]} from hand.`);
       this.library.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
@@ -626,9 +641,10 @@ export class Deck {
   discard(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.info(
-        `Discarding ${this.hand[index]} from hand into discard pile.`
-      );
+      if (this.debug)
+        console.info(
+          `Discarding ${this.hand[index]} from hand into discard pile.`
+        );
       this.graveyard.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
@@ -645,9 +661,10 @@ export class Deck {
   discardFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.info(
-        `Discarding ${this.library[index]} from library into discard pile.`
-      );
+      if (this.debug)
+        console.info(
+          `Discarding ${this.library[index]} from library into discard pile.`
+        );
       this.graveyard.push(this.library[index]);
       this.library.splice(index, 1);
     } else {
@@ -658,7 +675,7 @@ export class Deck {
   discardFromSetAside(card: string) {
     const index = this.setAside.indexOf(card);
     if (index > -1) {
-      console.log(`Discarding ${card} from setAside`);
+      if (this.debug) console.log(`Discarding ${card} from setAside`);
       this.graveyard.push(card);
       this.setAside.splice(index, 1);
     } else {
@@ -675,7 +692,7 @@ export class Deck {
   trashFromHand(card: string) {
     const index = this.hand.indexOf(card);
     if (index > -1) {
-      console.info(`Trashing ${this.hand[index]} from hand.`);
+      if (this.debug) console.info(`Trashing ${this.hand[index]} from hand.`);
       this.trash.push(this.hand[index]);
       this.hand.splice(index, 1);
     } else {
@@ -692,7 +709,8 @@ export class Deck {
   trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.info(`Trashing ${this.library[index]} from library.`);
+      if (this.debug)
+        console.info(`Trashing ${this.library[index]} from library.`);
       this.trash.push(this.library[index]);
       this.library.splice(index, 1);
     } else {
@@ -706,7 +724,7 @@ export class Deck {
   setAsideWithLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      console.info(`Setting aside a ${card} with Library`);
+      if (this.debug) console.info(`Setting aside a ${card} with Library`);
       this.setAside.push(card);
       this.library.splice(index, 1);
     } else {
@@ -859,7 +877,7 @@ export class Deck {
     triggered by the Vassal, but is coming from the hand, the padding-left property of the previous line will
     be less than the current line.
     */
-    console.log("Check for vassal play");
+    if (this.debug) console.log("Check for vassal play");
     let vassalPlay: boolean = false;
     let vassalPlayInLogs: boolean = false;
     const len = this.logArchive.length;
@@ -869,31 +887,36 @@ export class Deck {
     if (vassalPlayInLogs) {
       try {
         let logScrollElement = getLogScrollContainerLogLines();
-        console.log("The logScrollElement is: ", logScrollElement);
-        console.log(
-          "The logScrollElement has length of: ",
-          logScrollElement.length
-        );
+        if (this.debug)
+          console.log("The logScrollElement is: ", logScrollElement);
+        if (this.debug)
+          console.log(
+            "The logScrollElement has length of: ",
+            logScrollElement.length
+          );
 
         let logScrollElementInnerText: Array<string> = [];
         for (let i = 0; i < logScrollElement.length; i++) {
           logScrollElementInnerText.push(logScrollElement[i].innerText);
         }
 
-        console.log(
-          "The logSCrollElementInnerText is: ",
-          logScrollElementInnerText
-        );
-        console.log(
-          "The logScrollElementInnerText has length: ",
-          logScrollElementInnerText.length
-        );
+        if (this.debug)
+          console.log(
+            "The logSCrollElementInnerText is: ",
+            logScrollElementInnerText
+          );
+        if (this.debug)
+          console.log(
+            "The logScrollElementInnerText has length: ",
+            logScrollElementInnerText.length
+          );
 
-        console.log("The logArchive is: ", this.logArchive);
-        console.log(
-          "The logArchive has a length of : ",
-          this.logArchive.length
-        );
+        if (this.debug) console.log("The logArchive is: ", this.logArchive);
+        if (this.debug)
+          console.log(
+            "The logArchive has a length of : ",
+            this.logArchive.length
+          );
         let currentLinePaddingNumber: number;
         let currentLinePaddingPercentage: string;
         currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
@@ -927,26 +950,29 @@ export class Deck {
           throw new Error(
             "Previous line paddingLeft property does not end with %"
           );
-        console.log("Length is : ", len);
-        console.log(
-          `Padding for line current line ${logScrollElement[len].innerText}`,
-          currentLinePaddingNumber
-        );
-        console.log(
-          `Padding for line previous line ${
-            logScrollElement[len - 1].innerText
-          }`,
-          previousLinePaddingNumber
-        );
+        if (this.debug) console.log("Length is : ", len);
+        if (this.debug)
+          console.log(
+            `Padding for line current line ${logScrollElement[len].innerText}`,
+            currentLinePaddingNumber
+          );
+        if (this.debug)
+          console.log(
+            `Padding for line previous line ${
+              logScrollElement[len - 1].innerText
+            }`,
+            previousLinePaddingNumber
+          );
         if (currentLinePaddingNumber < previousLinePaddingNumber) {
           vassalPlay = false;
         } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
           vassalPlay = true;
         }
       } catch (e) {
-        console.group("There was an error: ", getErrorMessage(e));
-        console.log(this.logArchive);
-        console.groupEnd();
+        if (this.debug)
+          console.group("There was an error: ", getErrorMessage(e));
+        if (this.debug) console.log(this.logArchive);
+        if (this.debug) console.groupEnd();
       }
     }
     return vassalPlay;
@@ -1191,7 +1217,7 @@ export class Deck {
 
     const removed = this.logArchive.pop(); // keep duplicate entries out.
     this.treasurePopped = true;
-    console.info("popping log off", removed);
+    if (this.debug) console.info("popping log off", removed);
     return amountsToPlay;
   }
 
@@ -1237,7 +1263,7 @@ export class Deck {
       );
     }
     const removed = this.logArchive.pop();
-    console.info(`Popping off ${removed}`);
+    if (this.debug) console.info(`Popping off ${removed}`);
     amendedAmount = currCount - prevCount;
     return amendedAmount;
   }
@@ -1406,7 +1432,7 @@ export class Deck {
 
   incrementTurn() {
     this.gameTurn++;
-    console.log("turn: ", this.gameTurn);
+    if (this.debug) console.log("turn: ", this.gameTurn);
   }
 
   checkForTurnLine(line: string): boolean {

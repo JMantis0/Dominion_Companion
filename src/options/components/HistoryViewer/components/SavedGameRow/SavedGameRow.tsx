@@ -35,7 +35,7 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
   );
 
   const handleRecordClick = (e: BaseSyntheticEvent, html: string) => {
-    console.log("handleRecordClick Event", e);
+    e;
     dispatch(setSelectedRecord(idx));
     dispatch(setLogHtml(html));
     dispatch(setPlayerDeck(savedGame.playerDeck));
@@ -49,12 +49,8 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
     e.stopPropagation();
     const title = savedGame.playerDeck.gameTitle;
     chrome.storage.local.get(["gameKeys"]).then((result) => {
-      console.log("result.gameKeys", result.gameKeys);
       const keys = result.gameKeys;
       const indexToRemove = keys.indexOf(title);
-      console.log("Index to remove is", indexToRemove);
-      console.log("title is:", title);
-      console.log(`keys[${indexToRemove}] is: `, keys[indexToRemove]);
       keys.splice(indexToRemove, 1);
       chrome.storage.local.set({ gameKeys: keys });
       dispatch(setGameKeys(keys));

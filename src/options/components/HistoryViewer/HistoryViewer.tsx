@@ -27,7 +27,6 @@ const HistoryViewer = () => {
       },
       namespace: "sync" | "local" | "managed" | "session"
     ) => {
-      console.log("storageListener triggering getSavedGames()");
       namespace;
       changes;
       getSavedGames();
@@ -41,25 +40,13 @@ const HistoryViewer = () => {
 
   const getSavedGames = () => {
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      console.log("result of get", result);
-
       let gameKeys = result.gameKeys;
       await chrome.storage.local.get([...gameKeys]).then((result) => {
-        console.log("should be every game saved in storage", result);
-        console.log(
-          "should be every game saved in storage",
-          JSON.stringify(result)
-        );
         dispatch(setGameKeys(gameKeys));
         dispatch(setSavedGames(result));
       });
     });
   };
-
-  useEffect(() => {
-    console.log("savedGames updated", savedGames);
-    console.log("gameKeys updated", gameKeys);
-  }, [savedGames, gameKeys]);
 
   useEffect(() => {
     if (modalSwitch) {
