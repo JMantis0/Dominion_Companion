@@ -341,22 +341,6 @@ const isATreasurePlayLogEntry = (line: string): boolean => {
 };
 
 /**
- * Gets the last log entry from a log string and returns it.
- * Purpose: Control flow for updating Deck state.
- * @param logs - A log string.
- * @returns The last log entry of the log string.
- */
-const getLastLogEntryOf = (logs: string): string => {
-  let lastEntry: string;
-  const logArray = logs.slice().split("\n");
-  lastEntry = logArray.slice().pop()!;
-  if (!lastEntry) {
-    throw new Error("Empty Log");
-  }
-  return lastEntry;
-};
-
-/**
  * Compares the logs that have been processed with the current
  * game log.  Gets the logs that have not been processed and
  * returns them.
@@ -370,7 +354,6 @@ const getUndispatchedLogs = (
   logsDispatched: string,
   gameLog: string
 ): string => {
-  console.log("Getting undispatched logs");
   let undispatchedLogs: string;
   let dispatchedArr: string[];
   if (logsDispatched !== "" && logsDispatched !== undefined) {
@@ -398,40 +381,6 @@ const getUndispatchedLogs = (
     }
   }
   return undispatchedLogs!;
-};
-
-/**
- * Sends a Deck object to the Chrome runtime, to be picked up by
- * the DataInterface component.  Player name is used to determine
- * whether the deck should be sent as a player deck or opponent deck.
- * Purpose: To update the Deck state in the Options component's redux store.
- * @param deck - An updated Deck object.
- * @param playerName - The global variable for the player name.
- */
-const sendToFront = (deck: Deck, playerName: string) => {
-  if (deck.playerName === playerName) {
-    (async () => {
-      try {
-        const response = await chrome.runtime.sendMessage({
-          playerDeck: JSON.stringify(deck),
-        });
-        console.log(response);
-      } catch (e) {
-        console.log("Can't send to front: ", e);
-      }
-    })();
-  } else {
-    (async () => {
-      try {
-        const response = await chrome.runtime.sendMessage({
-          opponentDeck: JSON.stringify(deck),
-        });
-        console.log(response);
-      } catch (e) {
-        console.log("Can't send to front: ", e);
-      }
-    })();
-  }
 };
 
 /**
@@ -530,9 +479,7 @@ export {
   createPlayerDecks,
   areNewLogsToSend,
   isATreasurePlayLogEntry,
-  getLastLogEntryOf,
   getUndispatchedLogs,
-  sendToFront,
   getLogScrollContainerLogLines,
   isLogEntryBuyWithoutGain,
   baseKingdomCardCheck,

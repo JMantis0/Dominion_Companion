@@ -17,6 +17,7 @@ export class OpponentDeck {
   lastEntryProcessed: string = "";
   logArchive: Array<string> = [];
   treasurePopped: boolean = false;
+  debug: boolean = true;
 
   constructor(
     gameTitle: string,
@@ -161,7 +162,7 @@ export class OpponentDeck {
       else {
         //Clean up before shuffling if needed.
 
-        console.group(line);
+        if(this.debug) console.group(line);
         let act = "";
         let cards: Array<string> = [];
         let numberOfCards: Array<number> = [];
@@ -215,7 +216,7 @@ export class OpponentDeck {
       }
       this.updateVP();
       if (this.checkForTurnLine(line)) this.incrementTurn();
-      console.groupEnd();
+      if(this.debug) console.groupEnd();
     });
   }
 
@@ -224,7 +225,7 @@ export class OpponentDeck {
    * @param card - The The given card.
    */
   addCardToEntireDeck(card: string) {
-    console.log(`pushing ${card} to ${this.playerName}'s deck`);
+    if(this.debug) console.log(`pushing ${card} to ${this.playerName}'s deck`);
     this.entireDeck.push(card);
   }
 
@@ -238,7 +239,7 @@ export class OpponentDeck {
     const index = this.entireDeck.indexOf(card);
     if (index > -1) {
       this.entireDeck.splice(index, 1);
-      console.log(`Removing ${card} from ${this.playerName}'s deck`);
+      if(this.debug) console.log(`Removing ${card} from ${this.playerName}'s deck`);
     } else {
       throw new Error(`No ${card} in the deck list`);
     }
@@ -353,7 +354,7 @@ export class OpponentDeck {
 
     const removed = this.logArchive.pop(); // keep duplicate entries out.
     this.treasurePopped = true;
-    console.info("popping log off", removed);
+    if(this.debug) console.info("popping log off", removed);
     return amountsToPlay;
   }
 
@@ -399,7 +400,7 @@ export class OpponentDeck {
       );
     }
     const removed = this.logArchive.pop();
-    console.info(`Popping off ${removed}`);
+    if(this.debug) console.info(`Popping off ${removed}`);
     amendedAmount = currCount - prevCount;
     return amendedAmount;
   }
@@ -506,7 +507,7 @@ export class OpponentDeck {
 
   incrementTurn() {
     this.gameTurn++;
-    console.log("turn: ", this.gameTurn);
+    if(this.debug) console.log("turn: ", this.gameTurn);
   }
 
   checkForTurnLine(line: string): boolean {

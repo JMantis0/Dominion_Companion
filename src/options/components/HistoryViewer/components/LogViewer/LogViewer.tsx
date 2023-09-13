@@ -8,16 +8,14 @@ const LogViewer: FunctionComponent = ({}) => {
     const parsedHtml = html
       .replace(/<div class="log-line-block"/g, "<span")
       .replace(/<\/span><\/div>/g, "</span></span>");
-    console.log(parsedHtml);
     return {
       __html: parsedHtml,
     };
   };
 
+  // logDiv ref and following useEffect resets the scroll bar of the Log back to the top when a new log is rendered.
   const logDiv = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    console.log("LogHTML changed");
     logDiv.current!.scrollTop = 0;
   }, [logHtml]);
 

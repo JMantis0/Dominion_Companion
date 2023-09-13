@@ -22,6 +22,7 @@ import {
   setGameActiveStatus,
   setSavedGames,
   SavedGame,
+  setBaseOnly,
 } from "../../../redux/contentSlice";
 import { useDispatch } from "react-redux";
 import { OpponentDeck } from "../../../model/opponentDeck";
@@ -38,165 +39,140 @@ import $ from "jquery";
  * @param param0
  * @returns
  */
+/**
+ * Content global variable - Stores the value of the player name.
+ * Use - invoking Deck object constructor
+ */
+let playerName: string = "";
+
+/**
+ * Content global variable - Stores the value of the player's abbreviated name used in the client ".game-log" element.
+ * Use - invoking Deck object constructor
+ */
+let playerNick: string = "";
+
+/**
+ * Content global variable - Stores the value of the opponent name.
+ * Use - invoking Deck object constructor
+ */
+let opponentName: string = "";
+
+/**
+ * Content global variable - Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
+ * Use - invoking Deck object constructor
+ */
+let opponentNick: string = "";
+
+/**
+ * Content global variable -
+ * Use - Control flow for the content script.
+ * False value means the 'gameLog' global is not yet initialized.
+ * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
+ */
+let logInitialized: boolean = false;
+
+/**
+ * Content global variable -
+ * Use - Control flow for the content script.
+ * False value means the 'kingdom' global is not yet initialized.
+ * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
+ */
+let kingdomInitialized: boolean = false;
+
+/**
+ * Content global variable -
+ * Use - Control flow for the content script.
+ * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' globals are not initialized.
+ * True value means they each hold the appropriate string collected from the elements in the client DOM.
+ */
+let playersInitialized: boolean = false;
+
+/**
+ * Content global variable -
+ * Use - Control flow for the content script.
+ * False value means the Deck objects that will be used to track the game state are not yet created.
+ * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
+ * object has been assigned to the value of the 'opponentDeck' global variable.
+ */
+let playerDeckInitialized: boolean = false;
+
+/**
+ * Content global variable - Holds the value of which logs have already been sent to the Deck objects.
+ * Use - Control flow for the content script.
+ * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
+ * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
+ * processed by the Decks.
+ */
+let logsProcessed: string = "";
+
+/**
+ * Content global variable - Holds the value of the ".game-log" innerText from the client DOM.
+ * Use 1 - When new content is detected in the client ".game-log" element, this variable is updated to contain the value
+ * that element's innerText.
+ * Use 2 - Control flow for the content script: the value of this variable is compared to the 'logsProcessed' global
+ * to determine which logs to use when invoke the Deck object's update() method.
+ */
+let gameLog: string = "";
+
+/**
+ * Content global variable - Holds the value of whether or not the current game is rated.
+ * Use - Deck constructor invocation.
+ */
+let ratedGame: boolean = true;
+
+/**
+ * Rating of the player of the player deck
+ */
+let playerRating: string = "";
+
+/**
+ * Rating of the player of opponent deck.
+ */
+let opponentRating: string = "";
+
+/**
+ *
+ * Content global variable - Holds the values of the Deck objects.  The playerName and opponentName are used as the
+ * keys for the corresponding Deck objects
+ * Use - The decks track the game state for players, and in the context of the content script, the update() method is
+ * invoked on these Deck objects.
+ */
+let decks: Map<string, Deck | OpponentDeck> = new Map();
+
+/**
+ * Content global variable - Holds the strings that define the cards available in the current game.
+ * Use - invoking Deck object constructor
+ */
+let kingdom: Array<string> = [];
+
+/**
+ * Content global variable - The current version of the extension does not support games that include
+ * cards outside of the base set.  This variable will hold the value of true if the current kingdom is base set only.
+ * It will hold false if the kingdom contains non-base cards.  The variable is used to disable extension features
+ * if unsupported cards are detected.
+ * Use - invoking Deck object constructor
+ */
+let baseOnly: boolean;
+
+/**
+ * Interval used to detect
+ */
+let initInterval: NodeJS.Timer;
+
+/**
+ * Content global variable -
+ * Use - When a game is active, used to set an interval to periodically check if the game is still active,
+ * and if the game is not active, executes a game reset.
+ */
+let resetInterval: NodeJS.Timer;
+
+let gameLogObserver: MutationObserver;
+let gameEndObserver: MutationObserver;
+
 const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const od = useSelector((state: RootState) => state.content.opponentDeck);
-  useEffect(() => {
-    setSavedGamesState();
-    const storageListenerFunc = (
-      changes: {
-        [key: string]: chrome.storage.StorageChange;
-      },
-      namespace: "sync" | "local" | "managed" | "session"
-    ) => {
-      console.log("storageListener triggering getSavedGames()");
-      namespace;
-      changes;
-      setSavedGamesState();
-    };
-
-    chrome.storage.onChanged.addListener(storageListenerFunc);
-    return () => {
-      chrome.storage.onChanged.removeListener(storageListenerFunc);
-    };
-  }, []);
-  // const activeStatus = useSelector(
-  //   (state: RootState) => state.content.gameActiveStatus
-  // );
-  /**
-   * Content global variable - Stores the value of the player name.
-   * Use - invoking Deck object constructor
-   */
-  let playerName: string = "";
-
-  /**
-   * Content global variable - Stores the value of the player's abbreviated name used in the client ".game-log" element.
-   * Use - invoking Deck object constructor
-   */
-  let playerNick: string = "";
-
-  /**
-   * Content global variable - Stores the value of the opponent name.
-   * Use - invoking Deck object constructor
-   */
-  let opponentName: string = "";
-
-  /**
-   * Content global variable - Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
-   * Use - invoking Deck object constructor
-   */
-  let opponentNick: string = "";
-
-  /**
-   * Content global variable -
-   * Use - Control flow for the content script.
-   * False value means the 'gameLog' global is not yet initialized.
-   * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
-   */
-  let logInitialized: boolean = false;
-
-  /**
-   * Content global variable -
-   * Use - Control flow for the content script.
-   * False value means the 'kingdom' global is not yet initialized.
-   * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
-   */
-  let kingdomInitialized: boolean = false;
-
-  /**
-   * Content global variable -
-   * Use - Control flow for the content script.
-   * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' globals are not initialized.
-   * True value means they each hold the appropriate string collected from the elements in the client DOM.
-   */
-  let playersInitialized: boolean = false;
-
-  /**
-   * Content global variable -
-   * Use - Control flow for the content script.
-   * False value means the Deck objects that will be used to track the game state are not yet created.
-   * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
-   * object has been assigned to the value of the 'opponentDeck' global variable.
-   */
-  let playerDeckInitialized: boolean = false;
-
-  /**
-   * Content global variable
-   * use = Control flow for content script.
-   * False value means the savedGames redux state has not been updated to include the
-   * games that are saved in chrome storage.
-   * True value means the redux state for savedGames is updated.
-   */
-  // let savedGamesStateInitialized: boolean = false;
-
-  /**
-   * Content global variable - Holds the value of which logs have already been sent to the Deck objects.
-   * Use - Control flow for the content script.
-   * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
-   * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
-   * processed by the Decks.
-   */
-  let logsProcessed: string;
-
-  /**
-   * Content global variable - Holds the value of the ".game-log" innerText from the client DOM.
-   * Use 1 - When new content is detected in the client ".game-log" element, this variable is updated to contain the value
-   * that element's innerText.
-   * Use 2 - Control flow for the content script: the value of this variable is compared to the 'logsProcessed' global
-   * to determine which logs to use when invoke the Deck object's update() method.
-   */
-  let gameLog: string;
-
-  /**
-   * Content global variable - Holds the value of whether or not the current game is rated.
-   * Use - Deck constructor invocation.
-   */
-  let ratedGame: boolean;
-
-  /**
-   * Rating of the player of the player deck
-   */
-  let playerRating: string = "";
-
-  /**
-   * Rating of the player of opponent deck.
-   */
-  let opponentRating: string = "";
-
-  /**
-   *
-   * Content global variable - Holds the values of the Deck objects.  The playerName and opponentName are used as the
-   * keys for the corresponding Deck objects
-   * Use - The decks track the game state for players, and in the context of the content script, the update() method is
-   * invoked on these Deck objects.
-   */
-  let decks: Map<string, Deck | OpponentDeck> = new Map();
-
-  /**
-   * Content global variable - Holds the strings that define the cards available in the current game.
-   * Use - invoking Deck object constructor
-   */
-  let kingdom: Array<string> = [];
-
-  /**
-   * Boolean to hold whether the kingdom is the base set or not.
-   */
-  let baseOnly: boolean;
-  /**
-   * Interval used to detect
-   */
-  let initInterval: NodeJS.Timer;
-
-  /**
-   * Content global variable -
-   * Use - When a game is active, used to set an interval to periodically check if the game is still active,
-   * and if the game is not active, executes a game reset.
-   */
-  let resetInterval: NodeJS.Timer;
-
-  let gameLogObserver: MutationObserver;
-  let gameEndObserver: MutationObserver;
 
   /**
    * Reset function.
@@ -216,6 +192,7 @@ const Observer: FunctionComponent = () => {
     decks = new Map();
     kingdom = [];
     baseOnly = true;
+    dispatch(setBaseOnly(true));
     if (gameLogObserver !== undefined) gameLogObserver.disconnect();
     if (gameEndObserver !== undefined) gameEndObserver.disconnect();
   };
@@ -250,13 +227,12 @@ const Observer: FunctionComponent = () => {
   const logObserverFunc: MutationCallback = (
     mutationList: MutationRecord[]
   ) => {
-
     for (const mutation of mutationList) {
       if (mutation.type === "childList") {
         const addedNodes = mutation.addedNodes;
         if (addedNodes.length > 0) {
           const lastAddedNode: HTMLElement = addedNodes[
-            addedNodes.length - 1 
+            addedNodes.length - 1
           ] as HTMLElement;
           const lastAddedNodeText = lastAddedNode.innerText;
           if (lastAddedNodeText.length > 0) {
@@ -279,8 +255,12 @@ const Observer: FunctionComponent = () => {
                 )
               );
               // remove premoves
-              if(gameLog.split("\n")[gameLog.split("\n").length-1].match("Premoves")!==null) {
-                gameLog = gameLog.split("\n").slice(0,-1).join("\n")
+              if (
+                gameLog
+                  .split("\n")
+                  [gameLog.split("\n").length - 1].match("Premoves") !== null
+              ) {
+                gameLog = gameLog.split("\n").slice(0, -1).join("\n");
               }
               logsProcessed = gameLog;
             }
@@ -336,22 +316,6 @@ const Observer: FunctionComponent = () => {
     dispatch(setPlayerDeck(JSON.parse(JSON.stringify(new EmptyDeck()))));
   };
 
-  const setSavedGamesState = () => {
-    console.log("setsSavedGameState()");
-    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      console.log("result of get", result);
-
-      let gameKeys = result.gameKeys;
-      if (gameKeys === undefined) {
-        console.log("No games keys in storage... No saved games in storage");
-      } else {
-        chrome.storage.local.get([...gameKeys]).then((result) => {
-          dispatch(setSavedGames(result));
-        });
-      }
-    });
-  };
-
   /**
    * Primary function of the content script
    * Use - Periodically checks the client DOM for the presence of the elements that
@@ -363,7 +327,6 @@ const Observer: FunctionComponent = () => {
 
   const initIntervalFunction = () => {
     resetGame();
-
     if (!logInitialized) {
       if (isGameLogPresent()) {
         gameLog = getGameLog();
@@ -395,6 +358,7 @@ const Observer: FunctionComponent = () => {
       if (isKingdomElementPresent()) {
         kingdom = getKingdom();
         baseOnly = baseKingdomCardCheck(kingdom);
+        dispatch(setBaseOnly(baseOnly));
         if (!baseOnly) {
           console.error(
             "Game is not intended for cards outside of the Base Set"
@@ -418,7 +382,6 @@ const Observer: FunctionComponent = () => {
           opponentRating,
           kingdom
         );
-
         playerDeckInitialized = true;
       }
     }
@@ -432,34 +395,36 @@ const Observer: FunctionComponent = () => {
 
     if (initialized()) {
       resetDeckState();
-      dispatch(setGameActiveStatus(true));
-      gameLogObserver = new MutationObserver(logObserverFunc);
-      gameEndObserver = new MutationObserver(gameEndObserverFunc);
-      const gameLogElement = document.getElementsByClassName("game-log")[0];
-      gameLogObserver.observe(gameLogElement, {
-        childList: true,
-        subtree: true,
-      });
-      const gameEndElement = document.getElementsByTagName(
-        "game-ended-notification"
-      )[0];
-      gameEndObserver.observe(gameEndElement, {
-        childList: true,
-        subtree: true,
-      });
-      const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog) // Initial dispatch
-        .split("\n")
-        .slice();
-      decks.get(playerName)?.update(newLogsToDispatch);
-      dispatch(
-        setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
-      );
-      decks.get(opponentName)?.update(newLogsToDispatch);
-      dispatch(
-        setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
-      );
-      logsProcessed = gameLog;
-      saveGameData(gameLog, decks);
+      if (baseOnly) {
+        dispatch(setGameActiveStatus(true));
+        gameLogObserver = new MutationObserver(logObserverFunc);
+        gameEndObserver = new MutationObserver(gameEndObserverFunc);
+        const gameLogElement = document.getElementsByClassName("game-log")[0];
+        gameLogObserver.observe(gameLogElement, {
+          childList: true,
+          subtree: true,
+        });
+        const gameEndElement = document.getElementsByTagName(
+          "game-ended-notification"
+        )[0];
+        gameEndObserver.observe(gameEndElement, {
+          childList: true,
+          subtree: true,
+        });
+        const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog) // Initial dispatch
+          .split("\n")
+          .slice();
+        decks.get(playerName)?.update(newLogsToDispatch);
+        dispatch(
+          setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
+        );
+        decks.get(opponentName)?.update(newLogsToDispatch);
+        dispatch(
+          setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
+        );
+        logsProcessed = gameLog;
+        saveGameData(gameLog, decks);
+      }
       clearInterval(initInterval);
       resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     }
@@ -469,7 +434,6 @@ const Observer: FunctionComponent = () => {
     gameLog: string,
     decks: Map<string, Deck | OpponentDeck>
   ) => {
-    console.log("decks", decks);
     const savedGame: SavedGame = {
       logArchive: gameLog,
       playerDeck: JSON.parse(JSON.stringify(decks.get(playerName))),
@@ -477,11 +441,8 @@ const Observer: FunctionComponent = () => {
       dateTime: new Date().toString(),
       logHtml: document.getElementsByClassName("game-log")[0].innerHTML,
     };
-    console.log("savedGames", savedGame);
     const title: string = savedGame.playerDeck.gameTitle;
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      console.log("result of get", result);
-
       let gameKeys = result.gameKeys;
       if (gameKeys === undefined) {
         gameKeys = [];
@@ -500,17 +461,19 @@ const Observer: FunctionComponent = () => {
   };
 
   const showSavedData = () => {
-    chrome.storage.local.get([]).then((result) => {
-      console.log("Value currently is ", result);
+    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
+      console.log("gameKeys: ", result);
+
+      let gameKeys = result.gameKeys;
+      await chrome.storage.local.get([...gameKeys]).then((result) => {
+        console.log("History Records: ", result);
+      });
     });
   };
 
   /**
    * ToDo - create function that automatically sets the deck to the rewound/undone state
    */
-
-  // const updateAfterUndoOrRewind = () =>
-  // }
 
   /**
    * Callback function used for the 'beforeunload' event listener.

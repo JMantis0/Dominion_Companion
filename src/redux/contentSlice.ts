@@ -22,6 +22,7 @@ export interface ContentState {
   viewerHidden: boolean;
   gameActiveStatus: boolean;
   savedGames: any;
+  baseOnly: boolean;
 }
 
 export interface SavedGame {
@@ -66,6 +67,7 @@ const initialState: ContentState = {
       logHtml: "none",
     },
   },
+  baseOnly: true,
 };
 
 export const contentSlice = createSlice({
@@ -97,15 +99,16 @@ export const contentSlice = createSlice({
       state.trashSortState = action.payload;
     },
     setViewerHidden: (state, action: PayloadAction<boolean>) => {
-      console.log("Setting status to ", action.payload);
       state.viewerHidden = action.payload;
     },
     setGameActiveStatus: (state, action: PayloadAction<boolean>) => {
       state.gameActiveStatus = action.payload;
     },
     setSavedGames: (state, action: PayloadAction<any>) => {
-      console.log("Setting saved games");
       state.savedGames = action.payload;
+    },
+    setBaseOnly: (state, action: PayloadAction<boolean>) => {
+      state.baseOnly = action.payload;
     },
   },
 });
@@ -121,6 +124,7 @@ export const {
   setTrashSortState,
   setGameActiveStatus,
   setSavedGames,
+  setBaseOnly,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;

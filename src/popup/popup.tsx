@@ -6,7 +6,6 @@ const Popup = () => {
   );
 
   const handleToggleOn = () => {
-    console.log("Toggling ON");
     // Append the domRoot to client
     (async () => {
       let tab: chrome.tabs.Tab | undefined = undefined;
@@ -22,21 +21,16 @@ const Popup = () => {
         const response = await chrome.tabs.sendMessage(tab.id!, {
           command: "appendDomRoot",
         });
-        // do something with response here, not outside the function
-        console.log(response);
         if (response.message === "Successfully turned on.") {
           setToggleState("ON");
         } else {
           console.log("There was an error");
         }
-      } else {
-        console.log("Invalid tab selected");
       }
     })();
   };
 
   const handleToggleOff = () => {
-    console.log("Toggling OFF");
     // Remove domRoot from client
     (async () => {
       let tab: chrome.tabs.Tab | undefined = undefined;
@@ -52,21 +46,16 @@ const Popup = () => {
         const response = await chrome.tabs.sendMessage(tab.id!, {
           command: "removeDomRoot",
         });
-        // do something with response here, not outside the function
-        console.log(response);
         if (response.message === "Successfully turned off.") {
           setToggleState("OFF");
         } else {
           console.log("There was an error");
         }
-      } else {
-        console.log("Invalid tab selected");
       }
     })();
   };
 
   useEffect(() => {
-    console.log("UseEffect in the popup");
     (async () => {
       let tab: chrome.tabs.Tab | undefined = undefined;
       try {
@@ -81,8 +70,6 @@ const Popup = () => {
         const response = await chrome.tabs.sendMessage(tab.id!, {
           command: "sendHiddenState",
         });
-        // do something with response here, not outside the function
-        console.log(response);
         if (response.message === "Hidden state is ON") {
           setToggleState("OFF");
         } else if (response.message === "Hidden state is OFF") {
@@ -127,7 +114,6 @@ const Popup = () => {
       </div>
       <button
         onClick={() => {
-          console.log("Open options page.");
           chrome.runtime.sendMessage({ action: "openOptionsPage" });
         }}
       >
