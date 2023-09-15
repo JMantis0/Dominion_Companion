@@ -20,6 +20,7 @@ const PrimaryFrame = () => {
   const activeStatus = useSelector(
     (state: RootState) => state.content.gameActiveStatus
   );
+
   const dispatch = useDispatch();
   const [tabs, setTabs] = useState<
     "Deck" | "Discard" | "Trash" | "Opponent" | "History"
@@ -74,7 +75,16 @@ const PrimaryFrame = () => {
   }, [hidden]);
 
   useEffect(() => {
-    $("#primaryFrame").draggable().resizable({ handles: "all" });
+    $("#primaryFrame")
+      .draggable({
+        // optional callback:
+        // drag: function (event, ui) {},
+      })
+      .resizable({
+        handles: "all",
+        // optional callback
+        // resize: function (event, ui) {},
+      });
   }, []);
 
   useEffect(() => {
@@ -92,6 +102,15 @@ const PrimaryFrame = () => {
 
   return (
     <React.Fragment>
+      <button
+        className={"text-white mt-[-41px]"}
+        onClick={() => {
+          $("#primaryFrame").toggle("blind");
+          console.log("Click on Header");
+        }}
+      >
+        CollapseButton
+      </button>
       <div
         id="primaryFrame"
         className={`${
@@ -100,7 +119,10 @@ const PrimaryFrame = () => {
       >
         {activeStatus && baseOnly ? (
           <React.Fragment>
-            <div className="text-xs mt-[-41px] text-white grid grid-cols-12">
+            <div
+              className="text-xs mt-[-41px] text-white grid grid-cols-12"
+              id="header"
+            >
               <div
                 className={`h-full w-full align-center col-span-7 whitespace-nowrap`}
               >

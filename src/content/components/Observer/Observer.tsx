@@ -168,6 +168,7 @@ let resetInterval: NodeJS.Timer;
 
 let gameLogObserver: MutationObserver;
 let gameEndObserver: MutationObserver;
+let undoObserver: MutationObserver;
 
 const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -195,6 +196,7 @@ const Observer: FunctionComponent = () => {
     dispatch(setBaseOnly(true));
     if (gameLogObserver !== undefined) gameLogObserver.disconnect();
     if (gameEndObserver !== undefined) gameEndObserver.disconnect();
+    if (undoObserver !== undefined) undoObserver.disconnect();
   };
 
   /**
@@ -309,6 +311,48 @@ const Observer: FunctionComponent = () => {
     }
   };
 
+  /**
+   * Observes the log container element.  It is the parent element of game-log.  The function
+   * watches to see if it's child element game-log is removed and added in a single mutation list.
+   * If so, it means an undo or rewind has taken place, and the function clears the reset interval
+   * resets the init interval, effectively rewinding the extension.
+   *
+   * @param mutationList
+   */
+
+  const undoObserverFunc = (mutationList: MutationRecord[]) => {
+    let gameLogRemoved: boolean = false;
+    let gameLogAdded: boolean = false;
+    for (let j = 0; j < mutationList.length; j++) {
+      const mutation = mutationList[j];
+      if (mutation.removedNodes.length > 0) {
+        for (let i = 0; i < mutation.removedNodes.length; i++) {
+          let htmlNode = mutation.removedNodes[i].cloneNode() as HTMLElement;
+          if (htmlNode.className === "game-log") {
+            console.log(htmlNode);
+            gameLogRemoved = true;
+            break;
+          }
+        }
+      }
+      if (mutation.addedNodes.length > 0) {
+        for (let i = 0; i < mutation.addedNodes.length; i++) {
+          let htmlNode = mutation.addedNodes[i].cloneNode() as HTMLElement;
+          if (htmlNode.className === "game-log") {
+            gameLogAdded = true;
+            console.log(htmlNode);
+            break;
+          }
+        }
+      }
+      if (gameLogRemoved && gameLogAdded) break;
+    }
+    if (gameLogRemoved && gameLogAdded) {
+      clearInterval(resetInterval);
+      initInterval = setInterval(initIntervalFunction, 1000);
+    }
+  };
+
   const resetDeckState = () => {
     dispatch(
       setOpponentDeck(JSON.parse(JSON.stringify(new EmptyOpponentDeck())))
@@ -399,14 +443,20 @@ const Observer: FunctionComponent = () => {
         dispatch(setGameActiveStatus(true));
         gameLogObserver = new MutationObserver(logObserverFunc);
         gameEndObserver = new MutationObserver(gameEndObserverFunc);
+        undoObserver = new MutationObserver(undoObserverFunc);
         const gameLogElement = document.getElementsByClassName("game-log")[0];
+        const gameEndElement = document.getElementsByTagName(
+          "game-ended-notification"
+        )[0];
+        const logContainerElement =
+          document.getElementsByClassName("log-container")[0];
+        undoObserver.observe(logContainerElement, {
+          childList: true,
+        });
         gameLogObserver.observe(gameLogElement, {
           childList: true,
           subtree: true,
         });
-        const gameEndElement = document.getElementsByTagName(
-          "game-ended-notification"
-        )[0];
         gameEndObserver.observe(gameEndElement, {
           childList: true,
           subtree: true,
