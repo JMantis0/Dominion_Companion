@@ -385,7 +385,7 @@ const sortTheView = (
 const sortTheHistoryDeckView = (
   sortParam: "card" | "owned" | "zone" | "probability",
   unsortedMap: Map<string, CardCounts>,
-  sortType: "ascending" | "descending",
+  sortType: "ascending" | "descending"
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
@@ -563,7 +563,7 @@ const getRowColor = (cardName: string): string => {
  * @param gameEndReason
  * @returns String array [victor, defeated]
  */
- const getResult = (
+const getResult = (
   decks: Map<string, Deck | OpponentDeck>,
   playerName: string,
   opponentName: string,
@@ -604,6 +604,42 @@ const getRowColor = (cardName: string): string => {
   return [victor, defeated];
 };
 
+function product_Range(a: number, b: number): number {
+  var prd = a,
+    i = a;
+
+  while (i++ < b) {
+    prd *= i;
+  }
+  return prd;
+}
+
+function combinations(n: number, r: number): number {
+  if (n == r || r == 0) {
+    return 1;
+  } else {
+    r = r < n - r ? n - r : r;
+    return product_Range(r + 1, n) / product_Range(1, n - r);
+  }
+}
+
+const getHyperGeometricProbability = (
+  populationSize: number,
+  populationSuccesses: number,
+  sampleSize: number,
+  sampleSuccesses: number
+): number => {
+  let hyperGeometricProbability: number;
+  hyperGeometricProbability =
+    (combinations(populationSuccesses, sampleSuccesses) *
+      combinations(
+        populationSize - populationSuccesses,
+        sampleSize - sampleSuccesses
+      )) /
+    combinations(populationSize, sampleSize);
+  return hyperGeometricProbability;
+};
+
 export {
   isErrorWithMessage,
   toErrorWithMessage,
@@ -619,4 +655,5 @@ export {
   sortZoneView,
   getRowColor,
   getResult,
+  getHyperGeometricProbability,
 };

@@ -166,9 +166,13 @@ let initInterval: NodeJS.Timer;
  */
 let resetInterval: NodeJS.Timer;
 
+/**
+ * Mutation Observers detect changes in the DOM.
+ */
 let gameLogObserver: MutationObserver;
 let gameEndObserver: MutationObserver;
 let undoObserver: MutationObserver;
+
 
 const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -329,7 +333,6 @@ const Observer: FunctionComponent = () => {
         for (let i = 0; i < mutation.removedNodes.length; i++) {
           let htmlNode = mutation.removedNodes[i].cloneNode() as HTMLElement;
           if (htmlNode.className === "game-log") {
-            console.log(htmlNode);
             gameLogRemoved = true;
             break;
           }
@@ -340,7 +343,6 @@ const Observer: FunctionComponent = () => {
           let htmlNode = mutation.addedNodes[i].cloneNode() as HTMLElement;
           if (htmlNode.className === "game-log") {
             gameLogAdded = true;
-            console.log(htmlNode);
             break;
           }
         }
