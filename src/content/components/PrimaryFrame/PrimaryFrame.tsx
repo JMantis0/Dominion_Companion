@@ -10,6 +10,7 @@ import DiscardZoneViewer from "./components/DiscardZoneViewer/DiscardZoneViewer"
 import TrashZoneViewer from "./components/TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./components/OpponentViewer/OpponentViewer";
 import SavedGameViewer from "./components/SavedGameViewer/SavedGameViewer";
+import DrawProbabilityFrame from "../DrawProbabilityFrame/DrawProbabilityFrame";
 
 const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Starting");
@@ -210,6 +211,7 @@ const PrimaryFrame = () => {
                   c.log oDeck (Test)
                 </button>
               </div>
+              <DrawProbabilityFrame />
             </Scrollbars>
             <div
               className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}

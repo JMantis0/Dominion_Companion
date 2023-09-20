@@ -622,7 +622,6 @@ function combinations(n: number, r: number): number {
     return product_Range(r + 1, n) / product_Range(1, n - r);
   }
 }
-
 const getHyperGeometricProbability = (
   populationSize: number,
   populationSuccesses: number,
@@ -630,15 +629,164 @@ const getHyperGeometricProbability = (
   sampleSuccesses: number
 ): number => {
   let hyperGeometricProbability: number;
-  hyperGeometricProbability =
-    (combinations(populationSuccesses, sampleSuccesses) *
-      combinations(
-        populationSize - populationSuccesses,
-        sampleSize - sampleSuccesses
-      )) /
-    combinations(populationSize, sampleSize);
+
+  /**
+   * Hypergeometric formula has the following restrictions:
+   * 0 <= x <= n
+   * x <= k
+   * n - x <= N - k
+   *
+   * Probability for any set of parameter values outside these restrictions have a probability of 0
+   * The first 4 if/else below code in these restrictions.
+   */
+  if (!(0 <= sampleSuccesses)) {
+    hyperGeometricProbability = 0;
+    // throw new Error("Sample successes negative.")
+  } else if (!(sampleSuccesses <= sampleSize)) {
+    hyperGeometricProbability = 0;
+    // throw new Error("Sample successes exceeds sample size.")
+  } else if (!(sampleSuccesses <= populationSuccesses)) {
+    hyperGeometricProbability = 0;
+    // throw new Error("Sample successes exceeds population successes.")
+  } else if (
+    !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
+  ) {
+    hyperGeometricProbability = 0;
+    // throw new Error("Sample failures exceed population failures.")
+  } else {
+    hyperGeometricProbability =
+      (combinations(populationSuccesses, sampleSuccesses) *
+        combinations(
+          populationSize - populationSuccesses,
+          sampleSize - sampleSuccesses
+        )) /
+      combinations(populationSize, sampleSize);
+  }
   return hyperGeometricProbability;
 };
+
+const cumulativeHyperGeo = (
+  populationSize: number,
+  populationSuccesses: number,
+  sampleSize: number,
+  sampleSuccesses: number
+): number => {
+  let cumulativeProb: number = 0;
+
+  // console.log("Checking cumulativeHyperGeo Params values: ")
+  // console.log("populationSize", populationSize)
+  // console.log("populationSuccesses", populationSuccesses)
+  // console.log("sampleSize", sampleSize)
+  // console.log("sampleSuccesses", sampleSuccesses)
+  for (let i = sampleSuccesses; i <= sampleSize; i++) {
+    // console.log("******")
+    // console.log(getHyperGeometricProbability(populationSize,sampleSize,populationSuccesses,i))
+    // console.log("******")
+    try {
+      cumulativeProb += getHyperGeometricProbability(
+        populationSize,
+        sampleSize,
+        populationSuccesses,
+        i
+      );
+    } catch (e: any) {
+      console.log("There was an error: ", e.message);
+    }
+  }
+  return cumulativeProb;
+};
+
+const getProb = (
+  cardName: string,
+  library: string[],
+  graveyard: string[],
+  successCount: number,
+  drawCount: number
+): { hyperGeo: number; cumulative: number } => {
+  // console.log("getProb()");
+  let probability: number = 0;
+  let cumProb: number = 0;
+  // hyperGeometric values are set up here
+  const populationSize: number = library.length;
+  const populationSuccesses: number = getCountsFromArray(library).has(cardName)
+    ? getCountsFromArray(library).get(cardName)!
+    : 0;
+  const sampleSize: number = drawCount;
+  const sampleSuccesses = successCount;
+  if (library.length === 0 && graveyard.length === 0) {
+  } else if (sampleSize <= library.length) {
+    try {
+      probability = getHyperGeometricProbability(
+        populationSize,
+        populationSuccesses,
+        sampleSize,
+        sampleSuccesses
+      );
+      cumProb = cumulativeHyperGeo(
+        populationSize,
+        populationSuccesses,
+        sampleSize,
+        sampleSuccesses
+      );
+    } catch (e:any) {
+      console.log("There was an error:", e.message);
+    }
+    // cumProb = cumulativeHyperGeo()
+  } else if (sampleSize > library.length) {
+    // Here the whole library is drawn and the hypergeometric probability comes from what is in the graveyard.
+
+    const libraryProb = getHyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      library.length, // not using drawCount here.
+      sampleSuccesses
+    );
+    const libraryCumProb = cumulativeHyperGeo(
+      populationSize,
+      populationSuccesses,
+      library.length,
+      sampleSuccesses
+    );
+    // console.log("drawCount exceeds library size.  Looking into graveyard");
+    const gyPopulationSize:number = graveyard.length;
+    const gyPopulationSuccesses:number = getCountsFromArray(graveyard).has(cardName)
+      ? getCountsFromArray(graveyard)!.get(cardName)!
+      : 0;
+    const gySampleSize = sampleSize - populationSize;
+    const gySampleSuccesses =
+      sampleSuccesses -
+      populationSuccesses;
+    // // console.log(
+    //   "Draws greater than library length." +
+    //     ` N is now ${gyPopulationSize}. k is now ${gyPopulationSuccesses}. n is now ${gySampleSize}.  x is now ${gySampleSuccesses}`
+    // );
+    try {
+      if (libraryCumProb < 1) {
+        cumProb = cumulativeHyperGeo(gyPopulationSize, gyPopulationSuccesses, gySampleSize, gySampleSuccesses) + libraryCumProb;
+      } else if (libraryCumProb === 1) {
+        cumProb = 1;
+      }
+      probability = getHyperGeometricProbability(gyPopulationSize, gyPopulationSuccesses, gySampleSize, gySampleSuccesses);
+    } catch (e:any) {
+      console.log("There was an error:", e.message);
+    }
+  } else {
+    console.log("drawCount", drawCount);
+    console.log("library lengt", library.length);
+    throw new Error("invalid hypergeometric.");
+  }
+  return { hyperGeo: Math.round(probability*10000)/10000, cumulative: Math.round(cumProb*10000)/10000 };
+};
+
+const padLeft = (unpadded:string | number, length:number):string => {
+  if(typeof unpadded !== "string") {
+    unpadded = unpadded.toString()
+  }
+
+  const pad = " ".repeat(length - unpadded.length)
+
+  return pad + unpadded
+}
 
 export {
   isErrorWithMessage,
@@ -655,5 +803,5 @@ export {
   sortZoneView,
   getRowColor,
   getResult,
-  getHyperGeometricProbability,
+  getProb
 };
