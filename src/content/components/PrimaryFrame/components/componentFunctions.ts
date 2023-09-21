@@ -465,7 +465,7 @@ const sortTheHistoryDeckView = (
  * because Zone viewers do not have columns for probability or library.
  */
 const sortZoneView = (
-  sortParam: "card" | "zone" | "probability" | "owned",
+  sortParam: "card" | "zone" | "probability" | "owned" | "hyper1",
   unsortedMap: Map<string, number>,
   sortType: "ascending" | "descending"
 ): Map<string, number> => {
