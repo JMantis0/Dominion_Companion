@@ -7,7 +7,7 @@ import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 
 export interface SortButtonState {
-  category: "card" | "zone" | "owned" | "probability";
+  category: "card" | "zone" | "owned" | "probability" | "hyper1";
   sort: "ascending" | "descending";
 }
 
