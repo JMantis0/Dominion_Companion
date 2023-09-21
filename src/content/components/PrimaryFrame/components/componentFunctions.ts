@@ -247,7 +247,7 @@ const sortByAmountInZone = (
  * @returns
  */
 const sortTheView = (
-  sortParam: "card" | "owned" | "zone" | "probability",
+  sortParam: "card" | "owned" | "zone" | "probability" | "hyper1",
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
   pd: StoreDeck
@@ -465,7 +465,7 @@ const sortTheHistoryDeckView = (
  * because Zone viewers do not have columns for probability or library.
  */
 const sortZoneView = (
-  sortParam: "card" | "zone" | "probability" | "owned" | "hyper1",
+  sortParam: "card" | "zone" | "probability" | "owned",
   unsortedMap: Map<string, number>,
   sortType: "ascending" | "descending"
 ): Map<string, number> => {
@@ -728,7 +728,7 @@ const getProb = (
         sampleSize,
         sampleSuccesses
       );
-    } catch (e:any) {
+    } catch (e: any) {
       console.log("There was an error:", e.message);
     }
     // cumProb = cumulativeHyperGeo()
@@ -748,26 +748,37 @@ const getProb = (
       sampleSuccesses
     );
     // console.log("drawCount exceeds library size.  Looking into graveyard");
-    const gyPopulationSize:number = graveyard.length;
-    const gyPopulationSuccesses:number = getCountsFromArray(graveyard).has(cardName)
+    const gyPopulationSize: number = graveyard.length;
+    const gyPopulationSuccesses: number = getCountsFromArray(graveyard).has(
+      cardName
+    )
       ? getCountsFromArray(graveyard)!.get(cardName)!
       : 0;
     const gySampleSize = sampleSize - populationSize;
-    const gySampleSuccesses =
-      sampleSuccesses -
-      populationSuccesses;
+    const gySampleSuccesses = sampleSuccesses - populationSuccesses;
     // // console.log(
     //   "Draws greater than library length." +
     //     ` N is now ${gyPopulationSize}. k is now ${gyPopulationSuccesses}. n is now ${gySampleSize}.  x is now ${gySampleSuccesses}`
     // );
     try {
       if (libraryCumProb < 1) {
-        cumProb = cumulativeHyperGeo(gyPopulationSize, gyPopulationSuccesses, gySampleSize, gySampleSuccesses) + libraryCumProb;
+        cumProb =
+          cumulativeHyperGeo(
+            gyPopulationSize,
+            gyPopulationSuccesses,
+            gySampleSize,
+            gySampleSuccesses
+          ) + libraryCumProb;
       } else if (libraryCumProb === 1) {
         cumProb = 1;
       }
-      probability = getHyperGeometricProbability(gyPopulationSize, gyPopulationSuccesses, gySampleSize, gySampleSuccesses);
-    } catch (e:any) {
+      probability = getHyperGeometricProbability(
+        gyPopulationSize,
+        gyPopulationSuccesses,
+        gySampleSize,
+        gySampleSuccesses
+      );
+    } catch (e: any) {
       console.log("There was an error:", e.message);
     }
   } else {
@@ -775,18 +786,21 @@ const getProb = (
     console.log("library lengt", library.length);
     throw new Error("invalid hypergeometric.");
   }
-  return { hyperGeo: Math.round(probability*10000)/10000, cumulative: Math.round(cumProb*10000)/10000 };
+  return {
+    hyperGeo: Math.round(probability * 10000) / 10000,
+    cumulative: Math.round(cumProb * 10000) / 10000,
+  };
 };
 
-const padLeft = (unpadded:string | number, length:number):string => {
-  if(typeof unpadded !== "string") {
-    unpadded = unpadded.toString()
+const padLeft = (unpadded: string | number, length: number): string => {
+  if (typeof unpadded !== "string") {
+    unpadded = unpadded.toString();
   }
 
-  const pad = " ".repeat(length - unpadded.length)
+  const pad = " ".repeat(length - unpadded.length);
 
-  return pad + unpadded
-}
+  return pad + unpadded;
+};
 
 export {
   isErrorWithMessage,
@@ -803,5 +817,5 @@ export {
   sortZoneView,
   getRowColor,
   getResult,
-  getProb
+  getProb,
 };
