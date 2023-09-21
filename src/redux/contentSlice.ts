@@ -6,8 +6,10 @@ import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 
+export type SortCategories = "card" | "zone" | "owned" | "probability" | "hyper1"
+
 export interface SortButtonState {
-  category: "card" | "zone" | "owned" | "probability" | "hyper1";
+  category: SortCategories;
   sort: "ascending" | "descending";
 }
 

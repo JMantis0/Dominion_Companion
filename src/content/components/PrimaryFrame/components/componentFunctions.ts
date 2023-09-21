@@ -1,6 +1,7 @@
 import { Deck } from "../../../../model/deck";
 import { OpponentDeck } from "../../../../model/opponentDeck";
 import { StoreDeck } from "../../../../model/storeDeck";
+import { SortCategories } from "../../../../redux/contentSlice";
 
 /**
  * Custom object literal type.  One property holds value for the total amount of cards
@@ -247,7 +248,7 @@ const sortByAmountInZone = (
  * @returns
  */
 const sortTheView = (
-  sortParam: "card" | "owned" | "zone" | "probability" | "hyper1",
+  sortParam: SortCategories,
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
   pd: StoreDeck
@@ -465,7 +466,7 @@ const sortTheHistoryDeckView = (
  * because Zone viewers do not have columns for probability or library.
  */
 const sortZoneView = (
-  sortParam: "card" | "zone" | "probability" | "owned",
+  sortParam: SortCategories,
   unsortedMap: Map<string, number>,
   sortType: "ascending" | "descending"
 ): Map<string, number> => {
