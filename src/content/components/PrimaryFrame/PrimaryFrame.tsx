@@ -10,7 +10,6 @@ import DiscardZoneViewer from "./components/DiscardZoneViewer/DiscardZoneViewer"
 import TrashZoneViewer from "./components/TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./components/OpponentViewer/OpponentViewer";
 import SavedGameViewer from "./components/SavedGameViewer/SavedGameViewer";
-import DrawProbabilityFrame from "../DrawProbabilityFrame/DrawProbabilityFrame";
 
 const PrimaryFrame = () => {
   const [currentTurn, setCurrentTurn] = useState("Starting");
@@ -147,8 +146,8 @@ const PrimaryFrame = () => {
                 name="Deck"
               >
                 Deck {pd.entireDeck.length}
-                <br></br>
-                VP: {pd.currentVP}
+                {/* <br></br>
+                VP: {pd.currentVP} */}
               </button>
               <button
                 className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
@@ -160,8 +159,8 @@ const PrimaryFrame = () => {
                 name="Opponent"
               >
                 Opponent {od.entireDeck.length}
-                <br></br>
-                VP: {od.currentVP}
+                {/* <br></br>
+                VP: {od.currentVP} */}
               </button>
             </main>
             <Scrollbars
@@ -185,6 +184,7 @@ const PrimaryFrame = () => {
                 {tabs === "Opponent" && <OpponentViewer />}
                 {tabs === "Trash" && <TrashZoneViewer />}
                 {tabs === "History" && <SavedGameViewer />}
+                
                 <button
                   onClick={() => {
                     console.log("hidden is", hidden);
@@ -211,7 +211,6 @@ const PrimaryFrame = () => {
                   c.log oDeck (Test)
                 </button>
               </div>
-              <DrawProbabilityFrame />
             </Scrollbars>
             <div
               className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
