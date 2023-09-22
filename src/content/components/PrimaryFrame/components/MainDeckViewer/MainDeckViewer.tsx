@@ -8,6 +8,7 @@ import {
   calculateDrawProbability,
   sortTheView,
   getRowColor,
+  getProb,
 } from "../componentFunctions";
 import FullListCardRow from "./components/FullListCardRow/FullListCardRow";
 import SortViewHeader from "./components/MainDeckViewHeader/MainDeckViewHeader";
@@ -52,6 +53,7 @@ const MainDeckViewer = () => {
               getCountsFromArray(pd.graveyard).get(card)!,
               pd.graveyard.length
             )}
+            hyper5={getProb(card,pd.library,pd.graveyard,1,5).cumulative}
             color={getRowColor(card)}
             cardName={card}
             cardAmount={libraryMap.get(card)?.entireDeckCount!}

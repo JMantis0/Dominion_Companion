@@ -11,7 +11,7 @@ const MainDeckViewHeader = () => {
   return (
     <React.Fragment>
       <div className={"text-xs grid grid-cols-12"}>
-        <div className="col-span-5 whitespace-nowrap">
+        <div className="col-span-3 whitespace-nowrap">
           <SortButton
             title="Card"
             category="card"
@@ -40,6 +40,14 @@ const MainDeckViewHeader = () => {
           <SortButton
             title="Drw%"
             category="probability"
+            reducer={setSortedButtonsState}
+            reduxState={sortButtonState}
+          />
+        </div>
+        <div className="col-span-2 whitespace-nowrap">
+          <SortButton
+            title="Top5"
+            category="hyper5"
             reducer={setSortedButtonsState}
             reduxState={sortButtonState}
           />

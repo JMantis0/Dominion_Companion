@@ -14,12 +14,13 @@ import {
   setSortedButtonsState,
   setTrashSortState,
   SortButtonState,
+  SortCategories,
 } from "../../../../../../redux/contentSlice";
 library.add(faSortUp, faSortDown, faSort);
 
 type SortButtonProps = {
   title: string;
-  category: "card" | "zone" | "owned" | "probability";
+  category: SortCategories
   /**
    * A reducer from the content slice
    */

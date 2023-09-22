@@ -368,6 +368,25 @@ const sortTheView = (
           });
       }
       break;
+    case "hyper5":
+      {
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            const cardA =  entryA[0]
+            const cardB =  entryB[0]
+            if(sortType === "ascending") {
+              return getProb(cardB,pd.library,pd.graveyard,1,5).cumulative - getProb(cardA,pd.library,pd.graveyard,1,5).cumulative;
+            } else {
+              return getProb(cardA,pd.library,pd.graveyard,1,5).cumulative - getProb(cardB,pd.library,pd.graveyard,1,5).cumulative;
+            }
+
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+      }
+      break;
     default: {
       throw new Error("Invalid sort category " + sortParam);
     }
@@ -792,6 +811,8 @@ const getProb = (
     cumulative: Math.round(cumProb * 10000) / 10000,
   };
 };
+
+
 
 const padLeft = (unpadded: string | number, length: number): string => {
   if (typeof unpadded !== "string") {

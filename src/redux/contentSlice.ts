@@ -6,7 +6,7 @@ import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 
-export type SortCategories = "card" | "zone" | "owned" | "probability" | "hyper1"
+export type SortCategories = "card" | "zone" | "owned" | "probability" | "hyper5"
 
 export interface SortButtonState {
   category: SortCategories;
