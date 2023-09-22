@@ -12,7 +12,7 @@ import {
   stringifyProbability,
 } from "../componentFunctions";
 import FullListCardRow from "./components/FullListCardRow/FullListCardRow";
-import SortViewHeader from "./components/MainDeckViewHeader/MainDeckViewHeader";
+import MainDeckViewHeader from "./components/MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./components/ViewFooter/ViewFooter";
 
 const MainDeckViewer = () => {
@@ -23,6 +23,7 @@ const MainDeckViewer = () => {
   const sortButtonState = useSelector(
     (state: RootState) => state.content.sortButtonState
   );
+  const turn = useSelector((state:RootState) => state.content.turn)
 
   useEffect(() => {
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
@@ -33,7 +34,8 @@ const MainDeckViewer = () => {
       sortButtonState.category,
       unsortedCombinedMap,
       sortButtonState.sort,
-      pd
+      pd,
+      turn
     );
     setLibraryMap(sortedCombinedMap);
   }, [pd, sortButtonState]);
@@ -43,7 +45,7 @@ const MainDeckViewer = () => {
       <div className={`text-xs text-white`}>
         {pd.playerName}'s Deck: {pd.entireDeck.length} cards.
       </div>
-      <SortViewHeader />
+      <MainDeckViewHeader />
       {Array.from(libraryMap.keys()).map((card, idx) => {
         return (
           <FullListCardRow
@@ -54,7 +56,7 @@ const MainDeckViewer = () => {
               getCountsFromArray(pd.graveyard).get(card)!,
               pd.graveyard.length
             )}
-            hyper5={stringifyProbability(getProb(card,pd.library,pd.graveyard,1,5).cumulative)}
+            hyper5={stringifyProbability(getProb(pd,card,turn,1,5).cumulative)}
             color={getRowColor(card)}
             cardName={card}
             cardAmount={libraryMap.get(card)?.entireDeckCount!}

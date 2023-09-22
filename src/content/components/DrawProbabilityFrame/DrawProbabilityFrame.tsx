@@ -9,7 +9,7 @@ const DrawProbabilityFrame = () => {
     (state: RootState) => state.content.playerDeck
   );
   const [drawAmount, setDrawAmount] = useState<number>(1);
-  const [turnToggle, setTurnToggle] = useState<"This" | "Next">("This");
+  const [turnToggle, setTurnToggle] = useState<"Current" | "Next">("Current");
   const handleCardAmountChange = (e: BaseSyntheticEvent) => {
     console.log("cardAmountChange", e);
     setDrawAmount(e.target.value);
@@ -22,12 +22,12 @@ const DrawProbabilityFrame = () => {
         onChange={handleCardAmountChange}
       ></input>
       <button
-        className={`${turnToggle === "This" ? "bg-lime-400" : "bg-red-500"}`}
+        className={`${turnToggle === "Current" ? "bg-lime-400" : "bg-red-500"}`}
         onClick={() => {
-          setTurnToggle("This");
+          setTurnToggle("Current");
         }}
       >
-        This Turn
+        Current Turn
       </button>
       <button
         className={`${turnToggle === "Next" ? "bg-lime-400" : "bg-red-500"}`}
@@ -52,11 +52,7 @@ const DrawProbabilityFrame = () => {
                 key={idx}
                 card={card}
                 drawAmount={drawAmount}
-                library={playerDeck.library}
-                graveyard={playerDeck.graveyard}
-                hand={playerDeck.hand}
-                inPlay={playerDeck.inPlay}
-                setAside={playerDeck.setAside}
+                deck={playerDeck}
                 turn={turnToggle}
               />
             );

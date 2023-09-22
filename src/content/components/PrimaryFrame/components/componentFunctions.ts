@@ -251,7 +251,8 @@ const sortTheView = (
   sortParam: SortCategories,
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
-  pd: StoreDeck
+  pd: StoreDeck,
+  turn: "Current" | "Next"
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
@@ -267,10 +268,8 @@ const sortTheView = (
                 } else {
                   // If equal, sort by hyper geometric
                   return (
-                    getProb(entryB[0], pd.library, pd.graveyard, 1, 5)
-                      .cumulative -
-                    getProb(entryA[0], pd.library, pd.graveyard, 1, 5)
-                      .cumulative
+                    getProb(pd, entryB[0], turn, 1, 5).cumulative -
+                    getProb(pd, entryA[0], turn, 1, 5).cumulative
                   );
                 }
               } else {
@@ -278,10 +277,8 @@ const sortTheView = (
                   return entryA[1].zoneCount - entryB[1].zoneCount;
                 } else {
                   return (
-                    getProb(entryA[0], pd.library, pd.graveyard, 1, 5)
-                      .cumulative -
-                    getProb(entryB[0], pd.library, pd.graveyard, 1, 5)
-                      .cumulative
+                    getProb(pd, entryA[0], turn, 1, 5).cumulative -
+                    getProb(pd, entryB[0], turn, 1, 5).cumulative
                   );
                 }
               }
@@ -395,13 +392,13 @@ const sortTheView = (
             const cardB = entryB[0];
             if (sortType === "ascending") {
               return (
-                getProb(cardB, pd.library, pd.graveyard, 1, 5).cumulative -
-                getProb(cardA, pd.library, pd.graveyard, 1, 5).cumulative
+                getProb(pd, cardB, turn, 1, 5).cumulative -
+                getProb(pd, cardA, turn, 1, 5).cumulative
               );
             } else {
               return (
-                getProb(cardA, pd.library, pd.graveyard, 1, 5).cumulative -
-                getProb(cardB, pd.library, pd.graveyard, 1, 5).cumulative
+                getProb(pd, cardA, turn, 1, 5).cumulative -
+                getProb(pd, cardB, turn, 1, 5).cumulative
               );
             }
           })
@@ -741,93 +738,90 @@ const cumulativeHyperGeo = (
 };
 
 const getProb = (
+  deck: StoreDeck,
   cardName: string,
-  library: string[],
-  graveyard: string[],
+  turn: "Current" | "Next",
   successCount: number,
   drawCount: number
 ): { hyperGeo: number; cumulative: number } => {
-  // console.log("getProb()");
   let probability: number = 0;
   let cumProb: number = 0;
-  // hyperGeometric values are set up here
-  const populationSize: number = library.length;
-  const populationSuccesses: number = getCountsFromArray(library).has(cardName)
-    ? getCountsFromArray(library).get(cardName)!
+  let secondDrawPool: string[] =
+    turn === "Current"
+      ? deck.graveyard
+      : deck.graveyard.concat(deck.hand, deck.inPlay, deck.setAside);
+
+  const populationSize: number = deck.library.length;
+  const populationSuccesses: number = getCountsFromArray(deck.library).has(
+    cardName
+  )
+    ? getCountsFromArray(deck.library).get(cardName)!
     : 0;
   const sampleSize: number = drawCount;
   const sampleSuccesses = successCount;
-  if (library.length === 0 && graveyard.length === 0) {
-  } else if (sampleSize <= library.length) {
-    try {
-      probability = getHyperGeometricProbability(
-        populationSize,
-        populationSuccesses,
-        sampleSize,
-        sampleSuccesses
-      );
-      cumProb = cumulativeHyperGeo(
-        populationSize,
-        populationSuccesses,
-        sampleSize,
-        sampleSuccesses
-      );
-    } catch (e: any) {
-      console.log("There was an error:", e.message);
-    }
+  if (deck.library.length === 0 && secondDrawPool.length === 0) {
+  } else if (sampleSize <= deck.library.length) {
+    probability = getHyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      sampleSuccesses
+    );
+    cumProb = cumulativeHyperGeo(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      sampleSuccesses
+    );
     // cumProb = cumulativeHyperGeo()
-  } else if (sampleSize > library.length) {
-    // Here the whole library is drawn and the hypergeometric probability comes from what is in the graveyard.
+  } else if (sampleSize > deck.library.length) {
+    // Here the whole library is drawn and the hypergeometric probability comes from what is in the second draw pool.
 
     const libraryProb = getHyperGeometricProbability(
       populationSize,
       populationSuccesses,
-      library.length, // not using drawCount here.
+      deck.library.length, // not using drawCount here.
       sampleSuccesses
     );
     const libraryCumProb = cumulativeHyperGeo(
       populationSize,
       populationSuccesses,
-      library.length,
+      deck.library.length,
       sampleSuccesses
     );
-    // console.log("drawCount exceeds library size.  Looking into graveyard");
-    const gyPopulationSize: number = graveyard.length;
-    const gyPopulationSuccesses: number = getCountsFromArray(graveyard).has(
-      cardName
-    )
-      ? getCountsFromArray(graveyard)!.get(cardName)!
+    // console.log("drawCount exceeds library size.  Looking into second draw pool");
+    const secondPoolPopulationSize: number = secondDrawPool.length;
+    const secondPoolPopulationSuccesses: number = getCountsFromArray(
+      secondDrawPool
+    ).has(cardName)
+      ? getCountsFromArray(secondDrawPool)!.get(cardName)!
       : 0;
-    const gySampleSize = sampleSize - populationSize;
-    const gySampleSuccesses = sampleSuccesses - populationSuccesses;
+    const secondPoolSampleSize = sampleSize - populationSize;
+    const secondPoolSampleSuccesses = sampleSuccesses - populationSuccesses;
     // // console.log(
     //   "Draws greater than library length." +
-    //     ` N is now ${gyPopulationSize}. k is now ${gyPopulationSuccesses}. n is now ${gySampleSize}.  x is now ${gySampleSuccesses}`
+    //     ` N is now ${secondPoolPopulationSize}. k is now ${secondPoolPopulationSuccesses}. n is now ${secondPoolSampleSize}.  x is now ${secondPoolSampleSuccesses}`
     // );
-    try {
-      if (libraryCumProb < 1) {
-        cumProb =
-          cumulativeHyperGeo(
-            gyPopulationSize,
-            gyPopulationSuccesses,
-            gySampleSize,
-            gySampleSuccesses
-          ) + libraryCumProb;
-      } else if (libraryCumProb === 1) {
-        cumProb = 1;
-      }
-      probability = getHyperGeometricProbability(
-        gyPopulationSize,
-        gyPopulationSuccesses,
-        gySampleSize,
-        gySampleSuccesses
-      );
-    } catch (e: any) {
-      console.log("There was an error:", e.message);
+    if (libraryCumProb < 1) {
+      cumProb =
+        cumulativeHyperGeo(
+          secondPoolPopulationSize,
+          secondPoolPopulationSuccesses,
+          secondPoolSampleSize,
+          secondPoolSampleSuccesses
+        ) + libraryCumProb;
+    } else if (libraryCumProb === 1) {
+      cumProb = 1;
     }
+    probability = getHyperGeometricProbability(
+      secondPoolPopulationSize,
+      secondPoolPopulationSuccesses,
+      secondPoolSampleSize,
+      secondPoolSampleSuccesses
+    );
   } else {
     console.log("drawCount", drawCount);
-    console.log("library lengt", library.length);
+    console.log("library lengt", deck.library.length);
     throw new Error("invalid hypergeometric.");
   }
   return {

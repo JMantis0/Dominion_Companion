@@ -6,7 +6,12 @@ import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 
-export type SortCategories = "card" | "zone" | "owned" | "probability" | "hyper5"
+export type SortCategories =
+  | "card"
+  | "zone"
+  | "owned"
+  | "probability"
+  | "hyper5";
 
 export interface SortButtonState {
   category: SortCategories;
@@ -25,6 +30,7 @@ export interface ContentState {
   gameActiveStatus: boolean;
   savedGames: any;
   baseOnly: boolean;
+  turn: "Current" | "Next";
 }
 
 export interface SavedGame {
@@ -70,6 +76,7 @@ const initialState: ContentState = {
     },
   },
   baseOnly: true,
+  turn: "Current",
 };
 
 export const contentSlice = createSlice({
@@ -112,6 +119,9 @@ export const contentSlice = createSlice({
     setBaseOnly: (state, action: PayloadAction<boolean>) => {
       state.baseOnly = action.payload;
     },
+    setTurn: (state, action: PayloadAction<"Current" | "Next">) => {
+      state.turn = action.payload;
+    },
   },
 });
 
@@ -127,6 +137,7 @@ export const {
   setGameActiveStatus,
   setSavedGames,
   setBaseOnly,
+  setTurn,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
