@@ -4,7 +4,7 @@ type CardRowProps = {
   cardAmount: number;
   libraryAmount: number;
   drawProbability: string;
-  hyper5: number;
+  hyper5: string;
   cardName: string;
   color: string;
 };

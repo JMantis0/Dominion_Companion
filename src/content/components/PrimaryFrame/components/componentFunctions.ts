@@ -262,9 +262,28 @@ const sortTheView = (
           [...mapCopy.entries()]
             .sort((entryA, entryB) => {
               if (sortType === "ascending") {
-                return entryB[1].zoneCount - entryA[1].zoneCount;
+                if (entryB[1].zoneCount - entryA[1].zoneCount !== 0) {
+                  return entryB[1].zoneCount - entryA[1].zoneCount;
+                } else {
+                  // If equal, sort by hyper geometric
+                  return (
+                    getProb(entryB[0], pd.library, pd.graveyard, 1, 5)
+                      .cumulative -
+                    getProb(entryA[0], pd.library, pd.graveyard, 1, 5)
+                      .cumulative
+                  );
+                }
               } else {
-                return entryA[1].zoneCount - entryB[1].zoneCount;
+                if (entryA[1].zoneCount - entryB[1].zoneCount !== 0) {
+                  return entryA[1].zoneCount - entryB[1].zoneCount;
+                } else {
+                  return (
+                    getProb(entryA[0], pd.library, pd.graveyard, 1, 5)
+                      .cumulative -
+                    getProb(entryB[0], pd.library, pd.graveyard, 1, 5)
+                      .cumulative
+                  );
+                }
               }
             })
             .forEach((entry) => {
@@ -372,14 +391,19 @@ const sortTheView = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            const cardA =  entryA[0]
-            const cardB =  entryB[0]
-            if(sortType === "ascending") {
-              return getProb(cardB,pd.library,pd.graveyard,1,5).cumulative - getProb(cardA,pd.library,pd.graveyard,1,5).cumulative;
+            const cardA = entryA[0];
+            const cardB = entryB[0];
+            if (sortType === "ascending") {
+              return (
+                getProb(cardB, pd.library, pd.graveyard, 1, 5).cumulative -
+                getProb(cardA, pd.library, pd.graveyard, 1, 5).cumulative
+              );
             } else {
-              return getProb(cardA,pd.library,pd.graveyard,1,5).cumulative - getProb(cardB,pd.library,pd.graveyard,1,5).cumulative;
+              return (
+                getProb(cardA, pd.library, pd.graveyard, 1, 5).cumulative -
+                getProb(cardB, pd.library, pd.graveyard, 1, 5).cumulative
+              );
             }
-
           })
           .forEach((entry) => {
             const [card, cardCounts] = entry;
@@ -812,7 +836,9 @@ const getProb = (
   };
 };
 
-
+const stringifyProbability = (probabilityFloat: number): string => {
+  return (probabilityFloat * 100).toFixed(1) + "%";
+};
 
 const padLeft = (unpadded: string | number, length: number): string => {
   if (typeof unpadded !== "string") {
@@ -840,4 +866,5 @@ export {
   getRowColor,
   getResult,
   getProb,
+  stringifyProbability,
 };
