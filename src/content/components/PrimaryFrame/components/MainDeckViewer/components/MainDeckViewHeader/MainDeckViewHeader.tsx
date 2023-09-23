@@ -2,6 +2,7 @@ import React, { BaseSyntheticEvent, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   setSortedButtonsState,
+  setTopCardsLookAmount,
   setTurn,
 } from "../../../../../../../redux/contentSlice";
 import { RootState } from "../../../../../../../redux/store";
@@ -10,6 +11,9 @@ import { useDispatch } from "react-redux";
 
 const MainDeckViewHeader = () => {
   const dispatch = useDispatch();
+  const totalCards = useSelector(
+    (state: RootState) => state.content.playerDeck.entireDeck.length
+  );
   const sortButtonState = useSelector(
     (state: RootState) => state.content.sortButtonState
   );
@@ -17,6 +21,14 @@ const MainDeckViewHeader = () => {
   const [pinnedToggleButton, setPinnedToggleButton] = useState<
     "Current" | "Next"
   >("Current");
+  const topCardsLookAmount = useSelector(
+    (state: RootState) => state.content.topCardsLookAmount
+  );
+
+  const handleSelectChange = (e: BaseSyntheticEvent) => {
+    dispatch(setTopCardsLookAmount(e.target.value));
+  };
+
   const handleMouseEnterButton = (e: BaseSyntheticEvent) => {
     const buttonName = e.target.name;
     dispatch(setTurn(buttonName));
@@ -33,26 +45,49 @@ const MainDeckViewHeader = () => {
   return (
     <React.Fragment>
       <div className={"text-xs text-white grid grid-cols-12"}>
-        <div className={"col-span-7"}></div> 
-          <button
-            className={`border-x border-y whitespace-nowrap col-span-3 ${turn === "Current" ? "text-lime-500" : "text-white"}`}
-            name={"Current"}
-            onMouseEnter={handleMouseEnterButton}
-            onMouseLeave={handleMouseLeaveButton}
-            onClick={handleToggleButtonClick}
-          >
-            This Turn
-          </button>
-          <button
-            className={`border-x border-y whitespace-nowrap col-span-2 ${turn === "Next" ? "text-lime-500" : "text-white"}`}
-            name={"Next"}
-            onMouseEnter={handleMouseEnterButton}
-            onMouseLeave={handleMouseLeaveButton}
-            onClick={handleToggleButtonClick}
-          >
-            Next Turn
-          </button>
-        <div className="col-span-3 whitespace-nowrap">
+        <div className={"col-span-5"}></div>
+        <div className={"col-span-2"}>Draws:</div>
+        <select
+          className={"col-span-3 bg-inherit text-lime-500"}
+          onChange={handleSelectChange}
+          value={topCardsLookAmount}
+        >
+          {[...Array(totalCards).keys()].map((n) => {
+            return (
+              <option
+                className={`bg-black text-xs ${
+                  topCardsLookAmount !== n ? "text-white" : "text-lime-500"
+                } ${n === 0 ? "hidden" : ""}`}
+                value={n}
+              >
+                {n}
+              </option>
+            );
+          })}
+        </select>
+        {/* <button
+          className={`border-x border-y whitespace-nowrap col-span-3 ${
+            turn === "Current" ? "text-lime-500" : "text-white"
+          }`}
+          name={"Current"}
+          onMouseEnter={handleMouseEnterButton}
+          onMouseLeave={handleMouseLeaveButton}
+          onClick={handleToggleButtonClick}
+        >
+          This Turn
+        </button> */}
+        <button
+          className={`border-x border-y whitespace-nowrap col-span-2 ${
+            turn === "Next" ? "text-lime-500" : "text-white"
+          }`}
+          name={"Next"}
+          onMouseEnter={handleMouseEnterButton}
+          onMouseLeave={handleMouseLeaveButton}
+          onClick={handleToggleButtonClick}
+        >
+          Next Turn
+        </button>
+        <div className="col-span-5 whitespace-nowrap">
           <SortButton
             title="Card"
             category="card"
@@ -85,14 +120,14 @@ const MainDeckViewHeader = () => {
             reduxState={sortButtonState}
           />
         </div>
-        <div className="col-span-2 whitespace-nowrap">
+        {/* <div className="col-span-2 whitespace-nowrap">
           <SortButton
             title="Top5"
             category="hyper5"
             reducer={setSortedButtonsState}
             reduxState={sortButtonState}
           />
-        </div>
+        </div> */}
       </div>
     </React.Fragment>
   );

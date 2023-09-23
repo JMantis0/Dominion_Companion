@@ -547,7 +547,7 @@ const Observer: FunctionComponent = () => {
   }, []);
 
   return (
-    <div className="top-[50%]">
+    <div className="top-[50%] hidden">
       <button
         className="top-[50%] whitespace-nowrap ml-[200px]"
         onClick={() => {

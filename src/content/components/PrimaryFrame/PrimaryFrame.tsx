@@ -185,15 +185,15 @@ const PrimaryFrame = () => {
                 {tabs === "Trash" && <TrashZoneViewer />}
                 {tabs === "History" && <SavedGameViewer />}
                 
-                <button
+                {/* <button
                   onClick={() => {
                     console.log("hidden is", hidden);
                   }}
                 >
                   log hidden
-                </button>
+                </button> */}
               </div>
-              <div className="text-xs text-white grid grid-cols-12">
+              {/* <div className="text-xs text-white grid grid-cols-12">
                 <button
                   className="col-span-6 align-center w-full h-full border-2 whitespace-nowrap"
                   onClick={() => {
@@ -210,7 +210,7 @@ const PrimaryFrame = () => {
                 >
                   c.log oDeck (Test)
                 </button>
-              </div>
+              </div> */}
             </Scrollbars>
             <div
               className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
