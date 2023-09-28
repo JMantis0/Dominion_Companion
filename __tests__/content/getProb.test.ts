@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
-import { getProb } from "../../src/content/PrimaryFrame/componentFunctions";
 import { Deck } from "../../src/model/deck";
+import { getProb } from "../../src/content/PrimaryFrame/componentFunctions";
 
 describe("Function getProb()", () => {
   let lib: string[];
