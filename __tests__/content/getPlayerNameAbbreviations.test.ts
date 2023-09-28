@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { expect, describe, it } from "@jest/globals";
-import { getPlayerNameAbbreviations } from "../../src/content/components/Observer/observerFunctions";
+import { getPlayerNameAbbreviations } from "../../src/content/Observer/observerFunctions";
 
 describe("Function getPlayerNameAbbreviations() ", () => {
   describe("Given the playerNames with different first Letters and first few lines of game log", () => {

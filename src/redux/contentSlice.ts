@@ -13,6 +13,8 @@ export type SortCategories =
   | "probability"
   | "hyper5";
 
+export type GameResult = "Victory" | "Defeat" | "Tie" | "Unfinished";
+
 export interface SortButtonState {
   category: SortCategories;
   sort: "ascending" | "descending";

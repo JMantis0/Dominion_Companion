@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from "react";
 import { Provider } from "react-redux";
 import { store } from "../redux/store";
-import PrimaryFrame from "./components/PrimaryFrame/PrimaryFrame";
-import Observer from "./components/Observer/Observer";
+import PrimaryFrame from "./PrimaryFrame/PrimaryFrame";
+import Observer from "./Observer/Observer";
 import "../assets/tailwind.css";
 import "jqueryui";
 

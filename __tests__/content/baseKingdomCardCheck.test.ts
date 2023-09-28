@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, expect } from "@jest/globals";
-import { baseKingdomCardCheck } from "../../src/content/components/Observer/observerFunctions";
+import { baseKingdomCardCheck } from "../../src/content/Observer/observerFunctions";
 import { createRandomKingdom } from "../testUtilFuncs";
 
 describe("Function baseKingdomCardCheck.test.ts", () => {

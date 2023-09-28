@@ -1,5 +1,5 @@
 import { expect, describe, it } from "@jest/globals";
-import { isATreasurePlayLogEntry } from "../../src/content/components/Observer/observerFunctions";
+import { isATreasurePlayLogEntry } from "../../src/content/Observer/observerFunctions";
 
 describe("Function isATreasurePlayLogEntry()", () => {
   describe("given a log entry that is not a treasure play", () => {
