@@ -247,81 +247,57 @@ const sortByAmountInZone = (
  * @param pd - the player deck
  * @returns
  */
-const sortTheView = (
+const sortMainViewer = (
   sortParam: SortCategories,
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
   pd: StoreDeck,
+  topCardsLookAmount: number,
   turn: "Current" | "Next"
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
+  console.group(`sortMainViewer()`);
+  console.log("sortParam", sortParam);
+  console.log("unsortedMap:", unsortedMap);
+  console.log("sortType:", sortType);
+  console.log("pd:", pd);
+  console.log("turn:", turn);
   switch (sortParam) {
     case "probability":
       {
-        if (pd.library.length > 0) {
-          [...mapCopy.entries()]
-            .sort((entryA, entryB) => {
-              if (sortType === "ascending") {
-                if (entryB[1].zoneCount - entryA[1].zoneCount !== 0) {
-                  return entryB[1].zoneCount - entryA[1].zoneCount;
-                } else {
-                  // If equal, sort by hyper geometric
-                  return (
-                    getProb(pd, entryB[0], turn, 1, 5).cumulative -
-                    getProb(pd, entryA[0], turn, 1, 5).cumulative
-                  );
-                }
+        [...mapCopy.entries()]
+          .sort((entryA, entryB) => {
+            if (sortType === "ascending") {
+              if (entryB[1].zoneCount - entryA[1].zoneCount !== 0) {
+                return entryB[1].zoneCount - entryA[1].zoneCount;
               } else {
-                if (entryA[1].zoneCount - entryB[1].zoneCount !== 0) {
-                  return entryA[1].zoneCount - entryB[1].zoneCount;
-                } else {
-                  return (
-                    getProb(pd, entryA[0], turn, 1, 5).cumulative -
-                    getProb(pd, entryB[0], turn, 1, 5).cumulative
-                  );
-                }
+                // If equal, sort by hyper geometric
+                return (
+                  getProb(pd, entryB[0], turn, 1, topCardsLookAmount)
+                    .cumulative -
+                  getProb(pd, entryA[0], turn, 1, topCardsLookAmount).cumulative
+                );
               }
-            })
-            .forEach((entry) => {
-              const [card, cardCounts] = entry;
-              sortedMap.set(card, cardCounts);
-            });
-        } else {
-          // if the library is empty, calculate the next draw based on values from the discard pile
-          [...mapCopy.entries()]
-            .sort((entryA, entryB) => {
-              const entryAProb = parseFloat(
-                calculateDrawProbability(
-                  unsortedMap.get(entryA[0])?.zoneCount!,
-                  pd.library.length,
-                  getCountsFromArray(pd.graveyard).get(entryA[0])!,
-                  pd.graveyard.length
-                ).slice(0, -1)
-              );
-
-              const entryBProb = parseFloat(
-                calculateDrawProbability(
-                  unsortedMap.get(entryB[0])?.zoneCount!,
-                  pd.library.length,
-                  getCountsFromArray(pd.graveyard).get(entryB[0])!,
-                  pd.graveyard.length
-                ).slice(0, -1)
-              );
-              if (sortType === "ascending") {
-                return entryBProb - entryAProb;
+            } else {
+              if (entryA[1].zoneCount - entryB[1].zoneCount !== 0) {
+                return entryA[1].zoneCount - entryB[1].zoneCount;
               } else {
-                return entryAProb - entryBProb;
+                return (
+                  getProb(pd, entryA[0], turn, 1, topCardsLookAmount)
+                    .cumulative -
+                  getProb(pd, entryB[0], turn, 1, topCardsLookAmount).cumulative
+                );
               }
-            })
-            .forEach((entry) => {
-              const [card, cardCounts] = entry;
-              sortedMap.set(card, cardCounts);
-            });
-        }
+            }
+          })
+          .forEach((entry) => {
+            const [card, cardCounts] = entry;
+            sortedMap.set(card, cardCounts);
+          });
+        // }
       }
       break;
-    // add cases for card, deckAmount, ownedAmount
     case "card":
       {
         [...mapCopy.entries()]
@@ -384,34 +360,13 @@ const sortTheView = (
           });
       }
       break;
-    case "hyper5":
-      {
-        [...mapCopy.entries()]
-          .sort((entryA, entryB) => {
-            const cardA = entryA[0];
-            const cardB = entryB[0];
-            if (sortType === "ascending") {
-              return (
-                getProb(pd, cardB, turn, 1, 5).cumulative -
-                getProb(pd, cardA, turn, 1, 5).cumulative
-              );
-            } else {
-              return (
-                getProb(pd, cardA, turn, 1, 5).cumulative -
-                getProb(pd, cardB, turn, 1, 5).cumulative
-              );
-            }
-          })
-          .forEach((entry) => {
-            const [card, cardCounts] = entry;
-            sortedMap.set(card, cardCounts);
-          });
-      }
-      break;
+
     default: {
       throw new Error("Invalid sort category " + sortParam);
     }
   }
+  console.log("sortedMap", sortedMap);
+  console.groupEnd();
   return sortedMap;
 };
 
@@ -566,6 +521,7 @@ const sortZoneView = (
       throw new Error("Invalid sort category " + sortParam);
     }
   }
+
   return sortedMap;
 };
 
@@ -645,7 +601,7 @@ const getResult = (
   return [victor, defeated];
 };
 
-function product_Range(a: number, b: number): number {
+const product_Range = (a: number, b: number): number => {
   var prd = a,
     i = a;
 
@@ -653,16 +609,16 @@ function product_Range(a: number, b: number): number {
     prd *= i;
   }
   return prd;
-}
+};
 
-function combinations(n: number, r: number): number {
+const combinations = (n: number, r: number): number => {
   if (n == r || r == 0) {
     return 1;
   } else {
     r = r < n - r ? n - r : r;
     return product_Range(r + 1, n) / product_Range(1, n - r);
   }
-}
+};
 const getHyperGeometricProbability = (
   populationSize: number,
   populationSuccesses: number,
@@ -854,12 +810,11 @@ export {
   splitCombinedMapsByCardTypes,
   createEmptySplitMapsObject,
   sortByAmountInZone,
-  sortTheView,
+  sortMainViewer,
   sortTheHistoryDeckView,
   sortZoneView,
   getRowColor,
   getResult,
   getProb,
   stringifyProbability,
-  
 };
