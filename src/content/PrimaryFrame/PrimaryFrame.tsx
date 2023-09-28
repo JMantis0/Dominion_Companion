@@ -21,11 +21,11 @@ const PrimaryFrame = () => {
   );
 
   const dispatch = useDispatch();
-  const [tabs, setTabs] = useState<
-    "Deck" | "Discard" | "Trash" | "Opponent" 
-  >("Deck");
+  const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
+    "Deck"
+  );
   const [pinnedTab, setPinnedTab] = useState<
-    "Deck" | "Discard" | "Trash" | "Opponent" 
+    "Deck" | "Discard" | "Trash" | "Opponent"
   >("Deck");
 
   const chromeMessageListener = (
@@ -164,6 +164,13 @@ const PrimaryFrame = () => {
             </main>
             <Scrollbars
               autoHide={false}
+              renderTrackHorizontal={(props) => (
+                <div
+                  {...props}
+                  style={{ display: "none" }}
+                  className="track-horizontal"
+                />
+              )}
               renderThumbVertical={({ style, ...props }) => (
                 <main
                   {...props}
@@ -182,7 +189,7 @@ const PrimaryFrame = () => {
                 {tabs === "Discard" && <DiscardZoneViewer />}
                 {tabs === "Opponent" && <OpponentViewer />}
                 {tabs === "Trash" && <TrashZoneViewer />}
-                
+
                 {/* <button
                   onClick={() => {
                     console.log("hidden is", hidden);
