@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { getRatedGameBoolean } from "../../src/content/components/Observer/observerFunctions";
+import { getRatedGameBoolean } from "../../src/content/Observer/observerFunctions";
 
 describe("Function getRatedGameBoolean()", () => {
   describe("when the first log entry of the game log contains the substring ' rated.'", () => {

@@ -1,7 +1,9 @@
+import { GameResult } from "../redux/contentSlice";
+
 export interface StoreDeck {
   gameTitle: string;
   gameTurn: number;
-  gameResult: "Victory" | "Defeat" | "Tie" | "Unfinished";
+  gameResult: GameResult;
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string>;

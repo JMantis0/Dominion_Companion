@@ -3,7 +3,7 @@
  */
 import { beforeAll } from "@jest/globals";
 import { expect, describe, it } from "@jest/globals";
-import { getPlayerInfoElements } from "../../src/content/components/Observer/observerFunctions";
+import { getPlayerInfoElements } from "../../src/content/Observer/observerFunctions";
 
 describe("Function getPlayerInfoElements()", () => {
   describe("With player-info elements in the dom", () => {

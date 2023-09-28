@@ -13,6 +13,8 @@ export type SortCategories =
   | "probability"
   | "hyper5";
 
+export type GameResult = "Victory" | "Defeat" | "Tie" | "Unfinished";
+
 export interface SortButtonState {
   category: SortCategories;
   sort: "ascending" | "descending";
@@ -31,6 +33,7 @@ export interface ContentState {
   savedGames: any;
   baseOnly: boolean;
   turn: "Current" | "Next";
+  topCardsLookAmount: number;
 }
 
 export interface SavedGame {
@@ -77,6 +80,7 @@ const initialState: ContentState = {
   },
   baseOnly: true,
   turn: "Current",
+  topCardsLookAmount: 1,
 };
 
 export const contentSlice = createSlice({
@@ -122,6 +126,9 @@ export const contentSlice = createSlice({
     setTurn: (state, action: PayloadAction<"Current" | "Next">) => {
       state.turn = action.payload;
     },
+    setTopCardsLookAmount: (state, action: PayloadAction<number>) => {
+      state.topCardsLookAmount = action.payload;
+    },
   },
 });
 
@@ -138,6 +145,7 @@ export const {
   setSavedGames,
   setBaseOnly,
   setTurn,
+  setTopCardsLookAmount,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;

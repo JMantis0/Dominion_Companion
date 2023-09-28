@@ -3,7 +3,7 @@
  */
 
 import { expect, describe, it } from "@jest/globals";
-import { getHeroPlayerInfoElement } from "../../src/content/components/Observer/observerFunctions";
+import { getHeroPlayerInfoElement } from "../../src/content/Observer/observerFunctions";
 
 describe("Function getHeroPlayerInfoElement()", () => {
   describe("When given an HTMLCollectionOf<HTMLElement> of <player-info> elements", () => {

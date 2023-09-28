@@ -4,7 +4,7 @@
 
 import { beforeAll } from "@jest/globals";
 import { expect, describe, it } from "@jest/globals";
-import { isGameLogPresent } from "../../src/content/components/Observer/observerFunctions";
+import { isGameLogPresent } from "../../src/content/Observer/observerFunctions";
 
 describe("Function isGameLogPresent()", () => {
   let mockGameLogElement: HTMLElement;
