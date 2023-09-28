@@ -98,59 +98,60 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         <button
           id="select-button"
           className="w-full whitespace-nowrap grid grid-cols-12 border-y border-x"
-          onClick={(e: BaseSyntheticEvent) => {
+          onClick={() => {
             toggleSelect(selectOpen, setSelectOpen);
           }}
         >
-            <span className="col-span-7 pointer-events-none">Top</span>
-            <span className={"col-span-2 text-lime-500 pointer-events-none"}>
-              {topCardsLookAmount}
-            </span>
-
-            <span className="col-span-3 pointer-events-none">
-              <FontAwesomeIcon icon={"angle-down"} />
-            </span>
+          <span className="col-span-7 pointer-events-none">Top</span>
+          <span className={"col-span-2 text-lime-500 pointer-events-none"}>
+            {topCardsLookAmount}
+          </span>
+          <span className="col-span-3 pointer-events-none">
+            <FontAwesomeIcon icon={"angle-down"} />
+          </span>
         </button>
         <div
           id="option-container"
           className={`w-full absolute ${selectOpen ? "" : "hidden"} `}
         >
-          {[...Array<number>(totalCards).keys()].map((n: number) => {
-            return (
-              <button
-                className={`w-full text-xs bg-[#141414] hover:bg-[#1b1b1b] block ${
-                  topCardsLookAmount === n ? "text-lime-500" : "text-white"
-                } ${n === 0 ? "hidden" : ""}`}
-                onMouseEnter={(e: BaseSyntheticEvent) => {
-                  mouseEnterOption(
-                    parseInt(e.target.value),
-                    dispatch,
-                    setTopCardsLookAmount
-                  );
-                }}
-                onMouseLeave={() => {
-                  mouseLeaveOption(
-                    pinnedTopCardsLookAmount,
-                    dispatch,
-                    setTopCardsLookAmount
-                  );
-                }}
-                onClick={(e: BaseSyntheticEvent) => {
-                  optionClick(
-                    parseInt(e.target.value),
-                    dispatch,
-                    setTopCardsLookAmount,
-                    setPinnedTopCardsLookAmount,
-                    setSelectOpen
-                  );
-                }}
-                value={n}
-                key={n}
-              >
-                {n}
-              </button>
-            );
-          })}
+          {[...Array<number>(totalCards).keys()]
+            .map((n: number) => n + 1)
+            .map((n: number) => {
+              return (
+                <button
+                  className={`w-full text-xs bg-[#141414] hover:bg-[#1b1b1b] block ${
+                    topCardsLookAmount === n ? "text-lime-500" : "text-white"
+                  }`}
+                  onMouseEnter={(e: BaseSyntheticEvent) => {
+                    mouseEnterOption(
+                      parseInt(e.target.value),
+                      dispatch,
+                      setTopCardsLookAmount
+                    );
+                  }}
+                  onMouseLeave={() => {
+                    mouseLeaveOption(
+                      pinnedTopCardsLookAmount,
+                      dispatch,
+                      setTopCardsLookAmount
+                    );
+                  }}
+                  onClick={(e: BaseSyntheticEvent) => {
+                    optionClick(
+                      parseInt(e.target.value),
+                      dispatch,
+                      setTopCardsLookAmount,
+                      setPinnedTopCardsLookAmount,
+                      setSelectOpen
+                    );
+                  }}
+                  value={n}
+                  key={n}
+                >
+                  {n}
+                </button>
+              );
+            })}
         </div>
       </div>
     </React.Fragment>
