@@ -2,7 +2,6 @@ import React, { BaseSyntheticEvent, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   setSortedButtonsState,
-  setTopCardsLookAmount,
   setTurn,
 } from "../../../../redux/contentSlice";
 import { RootState } from "../../../../redux/store";
@@ -35,6 +34,29 @@ const MainDeckViewHeader = () => {
   return (
     <React.Fragment>
       <div className={"text-xs text-white grid grid-cols-12 "}>
+        <div className={"col-span-7"}></div>
+        <button
+          className={`border-x border-y whitespace-nowrap col-span-3 ${
+            turn === "Current" ? "text-lime-500" : "text-white"
+          }`}
+          name={"Current"}
+          onMouseEnter={handleMouseEnterButton}
+          onMouseLeave={handleMouseLeaveButton}
+          onClick={handleToggleButtonClick}
+        >
+          This Turn
+        </button>
+        <button
+          className={`border-x border-y whitespace-nowrap col-span-2 ${
+            turn === "Next" ? "text-lime-500" : "text-white"
+          }`}
+          name={"Next"}
+          onMouseEnter={handleMouseEnterButton}
+          onMouseLeave={handleMouseLeaveButton}
+          onClick={handleToggleButtonClick}
+        >
+          Next Turn
+        </button>
         <div className="col-span-3 whitespace-nowrap">
           <SortButton
             title="Card"
