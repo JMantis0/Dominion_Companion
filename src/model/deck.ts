@@ -1,14 +1,19 @@
-import { getLogScrollContainerLogLines } from "../content/components/Observer/observerFunctions";
-import { getErrorMessage } from "../content/components/PrimaryFrame/components/componentFunctions";
+import { getLogScrollContainerLogLines } from "../content/Observer/observerFunctions";
+import { getErrorMessage } from "../content/PrimaryFrame/componentFunctions";
+import { GameResult } from "../redux/contentSlice";
+import { StoreDeck } from "./storeDeck";
+
+
+
 
 /**
  * Class for a Deck object used to track a
  * player's Deck state.
  */
-export class Deck {
+export class Deck implements StoreDeck {
   gameTitle: string;
   gameTurn: number;
-  gameResult: string;
+  gameResult: "Victory" | "Defeat" | "Tie" | "Unfinished";
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string> = [];
@@ -70,7 +75,7 @@ export class Deck {
     return this.gameTurn;
   }
 
-  setGameResult(result: string) {
+  setGameResult(result: GameResult) {
     this.gameResult = result;
   }
 

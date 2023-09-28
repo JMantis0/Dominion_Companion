@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { store } from "../redux/store";
-import HistoryViewer from "./components/HistoryViewer/HistoryViewer";
+import HistoryViewer from "./HistoryViewer/HistoryViewer";
 
 const options = () => {
   useEffect(() => {
