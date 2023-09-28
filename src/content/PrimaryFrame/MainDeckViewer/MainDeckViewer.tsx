@@ -5,8 +5,7 @@ import {
   CardCounts,
   combineDeckListMapAndZoneListMap,
   getCountsFromArray,
-  calculateDrawProbability,
-  sortTheView,
+  sortMainViewer,
   getRowColor,
   getProb,
   stringifyProbability,
@@ -28,19 +27,21 @@ const MainDeckViewer = () => {
     (state: RootState) => state.content.topCardsLookAmount
   );
   useEffect(() => {
+    console.log("MainDeckViewerUseEffect")
     const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
       getCountsFromArray(pd.entireDeck),
       getCountsFromArray(pd.library)
     );
-    const sortedCombinedMap = sortTheView(
+    const sortedCombinedMap = sortMainViewer(
       sortButtonState.category,
       unsortedCombinedMap,
       sortButtonState.sort,
       pd,
+      topCardsLookAmount,
       turn
     );
     setLibraryMap(sortedCombinedMap);
-  }, [pd, sortButtonState]);
+  }, [pd, sortButtonState, turn,topCardsLookAmount]);
 
   return (
     <div className="outer-shell">
@@ -52,13 +53,7 @@ const MainDeckViewer = () => {
         return (
           <FullListCardRow
             key={idx}
-            drawProbability={calculateDrawProbability(
-              libraryMap.get(card)?.zoneCount!,
-              pd.library.length,
-              getCountsFromArray(pd.graveyard).get(card)!,
-              pd.graveyard.length
-            )}
-            hyper5={stringifyProbability(
+            drawProbability={stringifyProbability(
               getProb(pd, card, turn, 1, topCardsLookAmount).cumulative
             )}
             color={getRowColor(card)}
