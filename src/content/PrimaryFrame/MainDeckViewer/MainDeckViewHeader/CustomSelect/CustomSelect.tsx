@@ -60,6 +60,18 @@ const optionClick = (
   setSelectOpen(false);
 };
 
+const nonOptionClick = (
+  event: MouseEvent,
+  setSelectOpen: Dispatch<SetStateAction<boolean>>
+) => {
+  const element = event.target as HTMLElement;
+  const parent = element.parentElement;
+  const parentId = parent === null ? "null" : parent.id;
+  if (parentId !== "option-container" && element.id !== "select-button") {
+    setSelectOpen(false);
+  }
+};
+
 export type CustomSelectProps = {
   colSpan: number;
 };
@@ -78,17 +90,12 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
 
   // Event Listener added on render and removed on dismount handles the closing of the CustomSelect when a click outside of the options occurs.
   useEffect(() => {
-    const nonOptionClick = (e: MouseEvent) => {
-      const element = e.target as HTMLElement;
-      const parent = element.parentElement;
-      const parentId = parent === null ? "null" : parent.id;
-      if (parentId !== "option-container" && element.id !== "select-button") {
-        setSelectOpen(false);
-      }
+    const nonOptionClickListener = (event: MouseEvent) => {
+      nonOptionClick(event, setSelectOpen);
     };
-    document.addEventListener("click", nonOptionClick);
+    document.addEventListener("click", nonOptionClickListener);
     return () => {
-      document.removeEventListener("click", nonOptionClick);
+      document.removeEventListener("click", nonOptionClickListener);
     };
   });
 
