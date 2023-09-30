@@ -17,7 +17,7 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
   return (
     <React.Fragment>
       <main
-        className={`text-xs grid grid-cols-12 first:border last:border border-x even:border-y`}
+        className={`text-xs grid grid-cols-10 col-span-10 first:border last:border border-x even:border-y`}
       >
         <div className={`${color} col-span-3 pl-1 whitespace-nowrap`}>
           {cardName}
@@ -29,7 +29,7 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
           {drawProbability}
         </div>
 
-      </main>
+      </main> 
     </React.Fragment>
   );
 };

@@ -117,7 +117,7 @@ const PrimaryFrame = () => {
         id="primaryFrame"
         className={`${
           hidden ? "hidden" : ""
-        } backdrop-blur-sm bg-black/[.85] w-[200px] h-[400px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+        } backdrop-blur-sm bg-black/[.85] w-[250px] h-[400px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
       >
         {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
           <React.Fragment>
