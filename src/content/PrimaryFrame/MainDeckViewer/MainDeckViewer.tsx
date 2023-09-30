@@ -1,4 +1,9 @@
-import React, { useState, useEffect, BaseSyntheticEvent } from "react";
+import React, {
+  useState,
+  useEffect,
+  BaseSyntheticEvent,
+  Dispatch,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {
@@ -13,11 +18,53 @@ import {
 import FullListCardRow from "./FullListCardRow/FullListCardRow";
 import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
-import { setTurn } from "../../../redux/contentSlice";
+import {
+  setPinnedTurnToggleButton,
+  setTurnToggleButton,
+} from "../../../redux/contentSlice";
 import CustomSelect from "./MainDeckViewHeader/CustomSelect/CustomSelect";
+import { ActionCreatorWithPayload, AnyAction } from "@reduxjs/toolkit";
+import TurnButton from "./ViewFooter/TurnButton/TurnButton";
+
+const mouseLeaveTurnButton = (
+  pinnedTurnButton: "Current" | "Next",
+  dispatch: Dispatch<AnyAction>,
+  setTurn: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setTurnToggleButton"
+  >
+) => {
+  dispatch(setTurn(pinnedTurnButton));
+};
+
+const mouseEnterTurnButton = (
+  buttonName: "Current" | "Next",
+  dispatch: Dispatch<AnyAction>,
+  setTurnToggleButton: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setTurnToggleButton"
+  >
+) => {
+  dispatch(setTurnToggleButton(buttonName));
+};
+
+const turnToggleButtonClick = (
+  buttonName: "Current" | "Next",
+  dispatch: Dispatch<AnyAction>,
+  setPinnedTurnToggleButton: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setPinnedTurnToggleButton"
+  >,
+  setTurnToggleButton: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setTurnToggleButton"
+  >
+) => {
+  dispatch(setPinnedTurnToggleButton(buttonName));
+  dispatch(setTurnToggleButton(buttonName));
+};
 
 const MainDeckViewer = () => {
-  const dispatch = useDispatch();
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
@@ -25,25 +72,14 @@ const MainDeckViewer = () => {
   const sortButtonState = useSelector(
     (state: RootState) => state.content.sortButtonState
   );
-  const turn = useSelector((state: RootState) => state.content.turn);
+  const turnToggleButton = useSelector(
+    (state: RootState) => state.content.turnToggleButton
+  );
+ 
   const topCardsLookAmount = useSelector(
     (state: RootState) => state.content.topCardsLookAmount
   );
-  const [pinnedToggleButton, setPinnedToggleButton] = useState<
-    "Current" | "Next"
-  >("Current");
-  const handleMouseEnterButton = (e: BaseSyntheticEvent) => {
-    const buttonName = e.target.name;
-    dispatch(setTurn(buttonName));
-  };
-  const handleMouseLeaveButton = () => {
-    dispatch(setTurn(pinnedToggleButton));
-  };
-  const handleToggleButtonClick = (e: BaseSyntheticEvent) => {
-    const buttonName = e.target.name;
-    setPinnedToggleButton(buttonName);
-    dispatch(setTurn(buttonName));
-  };
+
 
   useEffect(() => {
     console.log("MainDeckViewerUseEffect");
@@ -57,10 +93,10 @@ const MainDeckViewer = () => {
       sortButtonState.sort,
       pd,
       topCardsLookAmount,
-      turn
+      turnToggleButton
     );
     setLibraryMap(sortedCombinedMap);
-  }, [pd, sortButtonState, turn, topCardsLookAmount]);
+  }, [pd, sortButtonState, turnToggleButton, topCardsLookAmount]);
 
   return (
     <div className="outer-shell">
@@ -75,7 +111,8 @@ const MainDeckViewer = () => {
               <FullListCardRow
                 key={idx}
                 drawProbability={stringifyProbability(
-                  getProb(pd, card, turn, 1, topCardsLookAmount).cumulative
+                  getProb(pd, card, turnToggleButton, 1, topCardsLookAmount)
+                    .cumulative
                 )}
                 color={getRowColor(card)}
                 cardName={card}
@@ -87,35 +124,9 @@ const MainDeckViewer = () => {
           <ViewFooter />;
         </div>
         <div className={"col-span-2"}>
-          <button
-            className={`w-full border-x border-y whitespace-nowrap col-span-3 text-xs ${
-              turn === "Current" ? "text-lime-500" : "text-white"
-            }`}
-            name={"Current"}
-            onMouseEnter={handleMouseEnterButton}
-            onMouseLeave={handleMouseLeaveButton}
-            onClick={handleToggleButtonClick}
-          >
-            <span className="pointer-events-none">This</span>
-            <br className="pointer-events-none"></br>
-            <span className="pointer-events-none">Turn</span>
-          </button>
-          <button
-            disabled={
-              pd.library.length >= 5 || topCardsLookAmount <= pd.library.length
-            }
-            className={`w-full border-x border-y whitespace-nowrap col-span-2 text-xs ${
-              turn === "Next" ? "text-lime-500" : "text-white"
-            }`}
-            name={"Next"}
-            onMouseEnter={handleMouseEnterButton}
-            onMouseLeave={handleMouseLeaveButton}
-            onClick={handleToggleButtonClick}
-          >
-            <span className="pointer-events-none">Next</span>
-            <br className="pointer-events-none"></br>
-            <span className="pointer-events-none">Turn</span>
-          </button>
+          <TurnButton buttonName="Current" />
+          <TurnButton buttonName="Next" />
+
           <CustomSelect colSpan={12} />
         </div>
       </div>

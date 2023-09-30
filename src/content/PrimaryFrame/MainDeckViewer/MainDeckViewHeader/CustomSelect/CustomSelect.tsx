@@ -2,9 +2,7 @@ import React, {
   BaseSyntheticEvent,
   Dispatch,
   FunctionComponent,
-  SetStateAction,
-  // useEffect,
-  useState,
+  UIEvent,
 } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
@@ -89,7 +87,9 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
     (state: RootState) => state.content.selectOpen
   );
   const totalCards = useSelector(
-    (state: RootState) => state.content.playerDeck.entireDeck.length
+    (state: RootState) =>
+      state.content.playerDeck.library.length +
+      state.content.playerDeck.graveyard.length
   );
   const topCardsLookAmount = useSelector(
     (state: RootState) => state.content.topCardsLookAmount
@@ -114,15 +114,16 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
       <div className={`col-span-${colSpan} relative`}>
         <button
           id="select-button"
-          className="w-full whitespace-nowrap grid grid-cols-12 border-y border-x text-white text-xs"
+          className="w-full whitespace-nowrap grid grid-cols-12 border-y border-x text-white text-xs hover:bg-[#383838]"
           onClick={() => {
             toggleSelect(selectOpen, dispatch, setSelectOpen);
           }}
         >
-          <span className="col-span-7 pointer-events-none">Top</span>
-          <br className="pointer-events-none"></br>
+          <span className="col-span-1"></span>{" "}
+          <span className="col-span-6 pointer-events-none">Top</span>
+          {/* <br className="pointer-events-none"></br> */}
           <span
-            className={`col-span-2 ${
+            className={`col-span-5 ${
               pinnedTopCardsLookAmount === topCardsLookAmount
                 ? "text-lime-500"
                 : "text-white"
@@ -130,7 +131,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           >
             {topCardsLookAmount}
           </span>
-          <span className="col-span-3 pointer-events-none">
+          <span className="col-span-12 pointer-events-none">
             {selectOpen ? (
               <FontAwesomeIcon icon={"angle-down"} />
             ) : (
@@ -139,9 +140,13 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           </span>
         </button>
         <Scrollbars
-          className="option-container"
+          className={`${selectOpen ? "border-x border-y" : ""}`}
           autoHide={false}
-          style={{ width: "100%", height: "100px" }}
+          style={{
+            width: "100%",
+            height: "100px",
+            border: selectOpen ? "1px solid white" : "none",
+          }}
           renderTrackHorizontal={(props) => (
             <div {...props} style={{ display: "none" }} />
           )}
@@ -152,16 +157,21 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
               style={{
                 ...style,
                 backgroundColor: "#e9e9e9",
-                width: "3px",
+                width: "90%",
                 opacity: ".75",
-                height: "30px",
+                height: "10px",
+                left: "20%",
               }}
             />
           )}
+          onScroll={(e: UIEvent) => {
+            const element = e.target as HTMLElement
+            console.log("strollTop:", element.scrollTop);
+          }}
         >
-          <div
+          <main
             id="option-container"
-            className={`w-full absolute ${selectOpen ? "" : "hidden"} `}
+            className={`w-[99%] h-[99%] absolute ${selectOpen ? "" : "hidden"}`}
           >
             {[...Array<number>(totalCards).keys()]
               .map((n: number) => n + 1)
@@ -169,7 +179,9 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                 return (
                   <button
                     className={`w-full text-xs bg-[#141414] hover:bg-[#383838] block ${
-                      pinnedTopCardsLookAmount === n ? "text-lime-500" : "text-white"
+                      pinnedTopCardsLookAmount === n
+                        ? "text-lime-500"
+                        : "text-white"
                     }`}
                     onMouseEnter={(e: BaseSyntheticEvent) => {
                       mouseEnterOption(
@@ -200,7 +212,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                   </button>
                 );
               })}
-          </div>
+          </main>
         </Scrollbars>
       </div>
     </React.Fragment>

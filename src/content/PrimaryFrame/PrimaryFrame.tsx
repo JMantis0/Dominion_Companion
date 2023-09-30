@@ -180,7 +180,7 @@ const PrimaryFrame = () => {
                   style={{
                     ...style,
                     backgroundColor: "#e9e9e9",
-                    width: "3px",
+                    width: "75%",
                     opacity: ".75",
                     height: "30px",
                   }}
@@ -224,7 +224,7 @@ const PrimaryFrame = () => {
               className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
             >
               <button
-                className={`col-span-4  h-full text-xs whitespace-nowrap w-full ${
+                className={`col-span-4 h-full text-xs whitespace-nowrap w-full ${
                   tabs === "Discard" ? null : "border-t-2"
                 } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
                 onClick={handleTabClick}
