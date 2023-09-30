@@ -2,3 +2,9 @@ node_modules
 dist
 coverage
 ignore
+index.tsx
+TestApp.tsx
+TestDomRoot.tsx
+TestObserver.tsx
+testUtilFuncs.ts
+public

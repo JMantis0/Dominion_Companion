@@ -71,7 +71,7 @@ const SortButton: FunctionComponent<SortButtonProps> = ({
     <div>
       <button
         onClick={handleClick}
-        className={`w-full border-y border-x   ${
+        className={`w-full border-y border-x hover:bg-[#383838] ${
           reduxState.category === category
             ? "outline-2 text-lime-500"
             : "text-white"

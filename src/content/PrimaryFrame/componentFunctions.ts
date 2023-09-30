@@ -257,12 +257,7 @@ const sortMainViewer = (
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
-  console.group(`sortMainViewer()`);
-  console.log("sortParam", sortParam);
-  console.log("unsortedMap:", unsortedMap);
-  console.log("sortType:", sortType);
-  console.log("pd:", pd);
-  console.log("turn:", turn);
+
   switch (sortParam) {
     case "probability":
       {
@@ -365,8 +360,6 @@ const sortMainViewer = (
       throw new Error("Invalid sort category " + sortParam);
     }
   }
-  console.log("sortedMap", sortedMap);
-  console.groupEnd();
   return sortedMap;
 };
 
@@ -670,15 +663,7 @@ const cumulativeHyperGeo = (
 ): number => {
   let cumulativeProb: number = 0;
 
-  // console.log("Checking cumulativeHyperGeo Params values: ")
-  // console.log("populationSize", populationSize)
-  // console.log("populationSuccesses", populationSuccesses)
-  // console.log("sampleSize", sampleSize)
-  // console.log("sampleSuccesses", sampleSuccesses)
   for (let i = sampleSuccesses; i <= sampleSize; i++) {
-    // console.log("******")
-    // console.log(getHyperGeometricProbability(populationSize,sampleSize,populationSuccesses,i))
-    // console.log("******")
     try {
       cumulativeProb += getHyperGeometricProbability(
         populationSize,
@@ -687,7 +672,7 @@ const cumulativeHyperGeo = (
         i
       );
     } catch (e: any) {
-      console.log("There was an error: ", e.message);
+      console.error("There was an error: ", e.message);
     }
   }
   return cumulativeProb;
@@ -729,23 +714,13 @@ const getProb = (
       sampleSize,
       sampleSuccesses
     );
-    // cumProb = cumulativeHyperGeo()
   } else if (sampleSize > deck.library.length) {
-    // Here the whole library is drawn and the hypergeometric probability comes from what is in the second draw pool.
-
-    // const libraryProb = getHyperGeometricProbability(
-    //   populationSize,
-    //   populationSuccesses,
-    //   deck.library.length, // not using drawCount here.
-    //   sampleSuccesses
-    // );
     const libraryCumProb = cumulativeHyperGeo(
       populationSize,
       populationSuccesses,
       deck.library.length,
       sampleSuccesses
     );
-    // console.log("drawCount exceeds library size.  Looking into second draw pool");
     const secondPoolPopulationSize: number = secondDrawPool.length;
     const secondPoolPopulationSuccesses: number = getCountsFromArray(
       secondDrawPool
@@ -754,10 +729,6 @@ const getProb = (
       : 0;
     const secondPoolSampleSize = sampleSize - populationSize;
     const secondPoolSampleSuccesses = sampleSuccesses - populationSuccesses;
-    // // console.log(
-    //   "Draws greater than library length." +
-    //     ` N is now ${secondPoolPopulationSize}. k is now ${secondPoolPopulationSuccesses}. n is now ${secondPoolSampleSize}.  x is now ${secondPoolSampleSuccesses}`
-    // );
     if (libraryCumProb < 1) {
       cumProb =
         cumulativeHyperGeo(
@@ -776,8 +747,8 @@ const getProb = (
       secondPoolSampleSuccesses
     );
   } else {
-    console.log("drawCount", drawCount);
-    console.log("library length", deck.library.length);
+    console.error("drawCount", drawCount);
+    console.error("library length", deck.library.length);
     throw new Error("invalid hypergeometric.");
   }
   return {
@@ -789,16 +760,6 @@ const getProb = (
 const stringifyProbability = (probabilityFloat: number): string => {
   return (probabilityFloat * 100).toFixed(1) + "%";
 };
-
-// const padLeft = (unpadded: string | number, length: number): string => {
-//   if (typeof unpadded !== "string") {
-//     unpadded = unpadded.toString();
-//   }
-
-//   const pad = " ".repeat(length - unpadded.length);
-
-//   return pad + unpadded;
-// };
 
 export {
   isErrorWithMessage,

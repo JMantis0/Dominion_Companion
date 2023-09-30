@@ -19,7 +19,14 @@ module.exports = {
       {
         use: "ts-loader",
         test: /\.tsx?$/,
-        exclude: /node_modules/,
+        exclude: [
+          /node_modules/,
+          path.resolve("./src/index.tsx"),
+          path.resolve("./src/TestApp.tsx"),
+          path.resolve("./src/TestObserver.tsx"),
+          path.resolve("./src/TestDomRoot.tsx"),
+          path.resolve("./src/testUtilFuncs.ts"),
+        ],
       },
       {
         test: /\.css$/i,

@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "watch": "webpack --watch --progress --config webpack.common.js",
+    "start": "react-scripts start",
     "build": "webpack --config webpack.common.js",
     "jest:all": "jest ./__tests__/content --all --runInBand",
     "jest:watch": "jest ./__tests__/content --watch --runInBand",
@@ -13,6 +14,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
+    "@babel/preset-typescript": "^7.23.0",
     "@jest/globals": "^29.4.2",
     "@redux-devtools/core": "^3.13.1",
     "@types/chrome": "^0.0.212",
@@ -33,6 +35,7 @@
     "jsdom": "^21.1.0",
     "postcss": "^8.1.0",
     "postcss-loader": "^7.0.2",
+    "react-scripts": "^5.0.1",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.2.4",
     "ts-jest": "^29.0.5",
@@ -60,5 +63,17 @@
     "react-redux": "^8.0.5",
     "redux": "^4.2.1",
     "ts-loader": "^9.4.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

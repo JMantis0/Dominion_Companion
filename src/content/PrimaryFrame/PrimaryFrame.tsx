@@ -1,3 +1,4 @@
+/*global chrome*/
 import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
@@ -65,9 +66,11 @@ const PrimaryFrame = () => {
   };
 
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(chromeMessageListener);
+    if (chrome.runtime !== undefined)
+      chrome.runtime.onMessage.addListener(chromeMessageListener);
     return () => {
-      chrome.runtime.onMessage.removeListener(chromeMessageListener);
+      if (chrome.runtime !== undefined)
+        chrome.runtime.onMessage.removeListener(chromeMessageListener);
     };
     // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
     // Without this dependency, the event listener will have stale values for the 'hidden' variable
@@ -114,9 +117,9 @@ const PrimaryFrame = () => {
         id="primaryFrame"
         className={`${
           hidden ? "hidden" : ""
-        } backdrop-blur-sm bg-black/[.85] w-[200px] h-[400px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+        } backdrop-blur-sm bg-black/[.85] w-[250px] h-[400px] overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
       >
-        {activeStatus && baseOnly ? (
+        {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
           <React.Fragment>
             <div
               className="text-xs mt-[-41px] text-white grid grid-cols-12"
@@ -177,7 +180,7 @@ const PrimaryFrame = () => {
                   style={{
                     ...style,
                     backgroundColor: "#e9e9e9",
-                    width: "3px",
+                    width: "75%",
                     opacity: ".75",
                     height: "30px",
                   }}
@@ -221,7 +224,7 @@ const PrimaryFrame = () => {
               className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
             >
               <button
-                className={`col-span-4  h-full text-xs whitespace-nowrap w-full ${
+                className={`col-span-4 h-full text-xs whitespace-nowrap w-full ${
                   tabs === "Discard" ? null : "border-t-2"
                 } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
                 onClick={handleTabClick}

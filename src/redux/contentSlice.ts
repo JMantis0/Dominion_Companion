@@ -32,8 +32,11 @@ export interface ContentState {
   gameActiveStatus: boolean;
   savedGames: any;
   baseOnly: boolean;
-  turn: "Current" | "Next";
+  turnToggleButton: "Current" | "Next";
+  pinnedTurnToggleButton: "Current" | "Next";
   topCardsLookAmount: number;
+  pinnedTopCardsLookAmount: number;
+  selectOpen: boolean;
 }
 
 export interface SavedGame {
@@ -79,8 +82,11 @@ const initialState: ContentState = {
     },
   },
   baseOnly: true,
-  turn: "Current",
+  turnToggleButton: "Current",
+  pinnedTurnToggleButton: "Current",
   topCardsLookAmount: 1,
+  pinnedTopCardsLookAmount: 1,
+  selectOpen: false,
 };
 
 export const contentSlice = createSlice({
@@ -123,11 +129,23 @@ export const contentSlice = createSlice({
     setBaseOnly: (state, action: PayloadAction<boolean>) => {
       state.baseOnly = action.payload;
     },
-    setTurn: (state, action: PayloadAction<"Current" | "Next">) => {
-      state.turn = action.payload;
+    setTurnToggleButton: (state, action: PayloadAction<"Current" | "Next">) => {
+      state.turnToggleButton = action.payload;
+    },
+    setPinnedTurnToggleButton: (
+      state,
+      action: PayloadAction<"Current" | "Next">
+    ) => {
+      state.pinnedTurnToggleButton = action.payload;
     },
     setTopCardsLookAmount: (state, action: PayloadAction<number>) => {
       state.topCardsLookAmount = action.payload;
+    },
+    setPinnedTopCardsLookAmount: (state, action: PayloadAction<number>) => {
+      state.pinnedTopCardsLookAmount = action.payload;
+    },
+    setSelectOpen: (state, action: PayloadAction<boolean>) => {
+      state.selectOpen = action.payload;
     },
   },
 });
@@ -144,8 +162,11 @@ export const {
   setGameActiveStatus,
   setSavedGames,
   setBaseOnly,
-  setTurn,
+  setTurnToggleButton,
+  setPinnedTurnToggleButton,
   setTopCardsLookAmount,
+  setPinnedTopCardsLookAmount,
+  setSelectOpen,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
