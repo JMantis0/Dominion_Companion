@@ -11,7 +11,11 @@ import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../../redux/store";
-import { setTopCardsLookAmount } from "../../../../../redux/contentSlice";
+import {
+  setPinnedTopCardsLookAmount,
+  setSelectOpen,
+  setTopCardsLookAmount,
+} from "../../../../../redux/contentSlice";
 import { AnyAction } from "redux";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import Scrollbars from "react-custom-scrollbars-2";
@@ -22,9 +26,10 @@ library.add(faAngleUp, faAngleDown);
 
 const toggleSelect = (
   selectState: boolean,
-  setSelectOpen: Dispatch<SetStateAction<boolean>>
+  dispatch: Dispatch<AnyAction>,
+  setSelectOpen: ActionCreatorWithPayload<boolean, "content/setSelectOpen">
 ) => {
-  setSelectOpen(!selectState);
+  dispatch(setSelectOpen(!selectState));
 };
 
 const mouseEnterOption = (
@@ -53,12 +58,13 @@ const optionClick = (
     number,
     "content/setTopCardsLookAmount"
   >,
-  setPinnedTopCardsLookAmount: Dispatch<SetStateAction<number>>,
-  // setSelectOpen: Dispatch<SetStateAction<boolean>>
+  setPinnedTopCardsLookAmount: ActionCreatorWithPayload<
+    number,
+    "content/setPinnedTopCardsLookAmount"
+  >
 ) => {
   dispatch(setTopCardsLookAmount(cardAmount));
-  setPinnedTopCardsLookAmount(cardAmount);
-  // setSelectOpen(false);
+  dispatch(setPinnedTopCardsLookAmount(cardAmount));
 };
 
 // const nonOptionClick = (
@@ -79,15 +85,18 @@ export type CustomSelectProps = {
 
 const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const dispatch: Dispatch<AnyAction> = useDispatch();
-  const [selectOpen, setSelectOpen] = useState<boolean>(false);
+  const selectOpen = useSelector(
+    (state: RootState) => state.content.selectOpen
+  );
   const totalCards = useSelector(
     (state: RootState) => state.content.playerDeck.entireDeck.length
   );
   const topCardsLookAmount = useSelector(
     (state: RootState) => state.content.topCardsLookAmount
   );
-  const [pinnedTopCardsLookAmount, setPinnedTopCardsLookAmount] =
-    useState<number>(topCardsLookAmount);
+  const pinnedTopCardsLookAmount = useSelector(
+    (state: RootState) => state.content.pinnedTopCardsLookAmount
+  );
 
   // Event Listener added on render and removed on dismount handles the closing of the CustomSelect when a click outside of the options occurs.
   // useEffect(() => {
@@ -107,12 +116,18 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           id="select-button"
           className="w-full whitespace-nowrap grid grid-cols-12 border-y border-x text-white text-xs"
           onClick={() => {
-            toggleSelect(selectOpen, setSelectOpen);
+            toggleSelect(selectOpen, dispatch, setSelectOpen);
           }}
         >
           <span className="col-span-7 pointer-events-none">Top</span>
           <br className="pointer-events-none"></br>
-          <span className={"col-span-2 text-lime-500 pointer-events-none"}>
+          <span
+            className={`col-span-2 ${
+              pinnedTopCardsLookAmount === topCardsLookAmount
+                ? "text-lime-500"
+                : "text-white"
+            }  pointer-events-none`}
+          >
             {topCardsLookAmount}
           </span>
           <span className="col-span-3 pointer-events-none">
@@ -128,10 +143,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           autoHide={false}
           style={{ width: "100%", height: "100px" }}
           renderTrackHorizontal={(props) => (
-            <div
-              {...props}
-              style={{ display: "none" }}
-            />
+            <div {...props} style={{ display: "none" }} />
           )}
           renderThumbVertical={({ style, ...props }) => (
             <main
@@ -156,8 +168,8 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
               .map((n: number) => {
                 return (
                   <button
-                    className={`w-full text-xs bg-[#141414] hover:bg-[#1b1b1b] block ${
-                      topCardsLookAmount === n ? "text-lime-500" : "text-white"
+                    className={`w-full text-xs bg-[#141414] hover:bg-[#383838] block ${
+                      pinnedTopCardsLookAmount === n ? "text-lime-500" : "text-white"
                     }`}
                     onMouseEnter={(e: BaseSyntheticEvent) => {
                       mouseEnterOption(
@@ -178,7 +190,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                         parseInt(e.target.value),
                         dispatch,
                         setTopCardsLookAmount,
-                        setPinnedTopCardsLookAmount,
+                        setPinnedTopCardsLookAmount
                       );
                     }}
                     value={n}

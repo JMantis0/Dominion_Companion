@@ -34,6 +34,8 @@ export interface ContentState {
   baseOnly: boolean;
   turn: "Current" | "Next";
   topCardsLookAmount: number;
+  pinnedTopCardsLookAmount: number;
+  selectOpen: boolean;
 }
 
 export interface SavedGame {
@@ -81,6 +83,8 @@ const initialState: ContentState = {
   baseOnly: true,
   turn: "Current",
   topCardsLookAmount: 1,
+  pinnedTopCardsLookAmount: 1,
+  selectOpen: false,
 };
 
 export const contentSlice = createSlice({
@@ -129,6 +133,12 @@ export const contentSlice = createSlice({
     setTopCardsLookAmount: (state, action: PayloadAction<number>) => {
       state.topCardsLookAmount = action.payload;
     },
+    setPinnedTopCardsLookAmount: (state, action: PayloadAction<number>) => {
+      state.pinnedTopCardsLookAmount = action.payload;
+    },
+    setSelectOpen: (state, action: PayloadAction<boolean>) => {
+      state.selectOpen = action.payload;
+    },
   },
 });
 
@@ -146,6 +156,8 @@ export const {
   setBaseOnly,
   setTurn,
   setTopCardsLookAmount,
+  setPinnedTopCardsLookAmount,
+  setSelectOpen,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
