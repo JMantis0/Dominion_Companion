@@ -104,7 +104,7 @@ const PrimaryFrame = () => {
 
   return (
     <React.Fragment>
-      <button
+      {/* <button
         className={"text-white mt-[-41px]"}
         onClick={() => {
           $("#primaryFrame").toggle("blind");
@@ -112,7 +112,7 @@ const PrimaryFrame = () => {
         }}
       >
         CollapseButton
-      </button>
+      </button> */}
       <div
         id="primaryFrame"
         className={`${
@@ -134,6 +134,19 @@ const PrimaryFrame = () => {
                 className={`h-full w-full align-center col-span-4 whitespace-nowrap`}
               >
                 {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
+              </div>
+              <div className="col-span-5 h-[29px]">
+                <div className="text-center text-white">{pd.playerName}</div>
+                {pd.ratedGame ? (
+                  <div className="text-[9px] relative -top-1 text-center text-white">( {pd.rating} )</div>
+                ) : null}
+              </div>
+              <div className="col-span-2 text-center text-white">vs.</div>
+              <div className="col-span-5 h-[29px]">
+                <div className=" text-center text-white">{od.playerName}</div>
+                {pd.ratedGame ? (
+                  <div className="text-[9px] relative -top-1 text-center text-white">( {od.rating} )</div>
+                ) : null}
               </div>
             </div>
 

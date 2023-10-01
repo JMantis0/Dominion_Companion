@@ -3,9 +3,6 @@ import { getErrorMessage } from "../content/PrimaryFrame/componentFunctions";
 import { GameResult } from "../redux/contentSlice";
 import { StoreDeck } from "./storeDeck";
 
-
-
-
 /**
  * Class for a Deck object used to track a
  * player's Deck state.
