@@ -3,6 +3,8 @@ import React, {
   Dispatch,
   FunctionComponent,
   UIEvent,
+  useEffect,
+  useRef,
 } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +14,7 @@ import { RootState } from "../../../../../redux/store";
 import {
   setPinnedTopCardsLookAmount,
   setSelectOpen,
+  setSelectScrollPosition,
   setTopCardsLookAmount,
 } from "../../../../../redux/contentSlice";
 import { AnyAction } from "redux";
@@ -65,6 +68,18 @@ const optionClick = (
   dispatch(setPinnedTopCardsLookAmount(cardAmount));
 };
 
+const onSelectScroll = (
+  scrollPosition: number,
+  dispatch: Dispatch<AnyAction>,
+  setSelectScrollPosition: ActionCreatorWithPayload<
+    number,
+    "content/setSelectScrollPosition"
+  >
+) => {
+  console.log(scrollPosition);
+  dispatch(setSelectScrollPosition(scrollPosition));
+};
+
 // const nonOptionClick = (
 //   event: MouseEvent,
 //   setSelectOpen: Dispatch<SetStateAction<boolean>>
@@ -97,17 +112,17 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const pinnedTopCardsLookAmount = useSelector(
     (state: RootState) => state.content.pinnedTopCardsLookAmount
   );
+  const selectScrollPosition = useSelector(
+    (state: RootState) => state.content.selectScrollPosition
+  );
+  const selectScrollRef = useRef<Scrollbars>(null);
 
-  // Event Listener added on render and removed on dismount handles the closing of the CustomSelect when a click outside of the options occurs.
-  // useEffect(() => {
-  //   const nonOptionClickListener = (event: MouseEvent) => {
-  //     nonOptionClick(event, setSelectOpen);
-  //   };
-  //   document.addEventListener("click", nonOptionClickListener);
-  //   return () => {
-  //     document.removeEventListener("click", nonOptionClickListener);
-  //   };
-  // });
+  // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
+  useEffect(() => {
+    if (selectScrollRef.current !== undefined && selectScrollRef.current) {
+      selectScrollRef.current!.scrollTop(selectScrollPosition);
+    }
+  }, []);
 
   return (
     <React.Fragment>
@@ -140,6 +155,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           </span>
         </button>
         <Scrollbars
+          ref={selectScrollRef}
           className={`${selectOpen ? "border-x border-y" : ""}`}
           autoHide={false}
           style={{
@@ -165,8 +181,13 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             />
           )}
           onScroll={(e: UIEvent) => {
-            const element = e.target as HTMLElement
-            console.log("strollTop:", element.scrollTop);
+            const element = e.target as HTMLElement;
+            const selectScrollPosition = element.scrollTop;
+            onSelectScroll(
+              selectScrollPosition,
+              dispatch,
+              setSelectScrollPosition
+            );
           }}
         >
           <main
