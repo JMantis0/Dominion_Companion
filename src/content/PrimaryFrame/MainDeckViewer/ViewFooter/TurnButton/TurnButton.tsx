@@ -1,9 +1,7 @@
-import React, {
-  BaseSyntheticEvent,
-  Dispatch,
-  FunctionComponent,
-  useEffect,
-} from "react";
+import React, { BaseSyntheticEvent, Dispatch, FunctionComponent } from "react";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../../redux/store";
 import { AnyAction } from "redux";
@@ -12,6 +10,8 @@ import {
   setPinnedTurnToggleButton,
   setTurnToggleButton,
 } from "../../../../../redux/contentSlice";
+
+library.add(faCircle);
 
 const mouseLeaveTurnButton = (
   pinnedTurnButton: "Current" | "Next",
@@ -52,7 +52,7 @@ const turnToggleButtonClick = (
 };
 
 type TurnButtonProps = {
-  buttonName: "This" | "Next" | "Current";
+  buttonName: "Next" | "Current";
 };
 
 const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
@@ -67,17 +67,9 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
     (state: RootState) => state.content.pinnedTurnToggleButton
   );
 
-  // if (buttonName === "Current") {
-  //   useEffect(() => {
-  //     if (libraryLength >= 5 || topCardsLookAmount <= libraryLength) {
-  //       dispatch(setTurnToggleButton("Current"));
-  //       dispatch(setPinnedTurnToggleButton("Current"));
-  //     }
-  //   }, [libraryLength, topCardsLookAmount]);
-  // }
   return (
     <button
-      className={`w-full h-[42px] border-x border-y whitespace-nowrap text-xs ${
+      className={`w-full h-[42px] border-x border-y whitespace-nowrap text-xs relative ${
         pinnedTurnToggleButton === buttonName ? "text-lime-500" : "text-white"
       }
         hover:bg-[#383838] ${
@@ -109,6 +101,16 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
         );
       }}
     >
+      {buttonName === "Next" &&
+      libraryLength < 5 &&
+      topCardsLookAmount > libraryLength ? (
+        <FontAwesomeIcon
+        className="absolute top-0 right-0"
+          icon="circle"
+          size="xs"
+          style={{ color: "#ff0000" }}
+        />
+      ) : null}
       <span className="pointer-events-none">
         {buttonName === "Current" ? "This" : "Next"}
       </span>
