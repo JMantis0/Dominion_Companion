@@ -1,5 +1,11 @@
 /*global chrome*/
-import React, { BaseSyntheticEvent, useEffect, useState } from "react";
+import React, {
+  BaseSyntheticEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
 import { Scrollbars } from "react-custom-scrollbars-2";
@@ -10,25 +16,16 @@ import MainDeckViewer from "./MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./OpponentViewer/OpponentViewer";
+import { AnyAction } from "redux";
+import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 
-const PrimaryFrame = () => {
-  const [currentTurn, setCurrentTurn] = useState("Starting");
-  const od = useSelector((state: RootState) => state.content.opponentDeck);
-  const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
-  const hidden = useSelector((state: RootState) => state.content.viewerHidden);
-  const activeStatus = useSelector(
-    (state: RootState) => state.content.gameActiveStatus
-  );
-
-  const dispatch = useDispatch();
-  const [tabs, setTabs] = useState<"Deck" | "Discard" | "Trash" | "Opponent">(
-    "Deck"
-  );
-  const [pinnedTab, setPinnedTab] = useState<
-    "Deck" | "Discard" | "Trash" | "Opponent"
-  >("Deck");
-
+export type PrimaryFrameTab = "Deck" | "Discard" | "Trash" | "Opponent";
+const chromeListenerUseEffectHandler = (
+  add: "Add" | "Remove",
+  hidden: boolean,
+  dispatch: Dispatch<AnyAction>,
+  setViewerHidden: ActionCreatorWithPayload<boolean, "content/setViewerHidden">
+) => {
   const chromeMessageListener = (
     request: { command: string },
     sender: chrome.runtime.MessageSender,
@@ -50,27 +47,59 @@ const PrimaryFrame = () => {
     sendResponse(response);
   };
 
-  const handleTabClick = (e: BaseSyntheticEvent) => {
-    const tabName = e.target.name;
-    setTabs(tabName);
-    setPinnedTab(tabName);
-  };
+  if (add === "Add") {
+    chrome.runtime.onMessage.addListener(chromeMessageListener);
+  } else if (add === "Remove") {
+    chrome.runtime.onMessage.removeListener(chromeMessageListener);
+  }
+};
 
-  const handleMouseEnter = (e: BaseSyntheticEvent) => {
-    const tabName = e.target.name;
-    setTabs(tabName);
-  };
+const primaryFrameTabClick = (
+  tabName: PrimaryFrameTab,
+  setTabs: Dispatch<SetStateAction<PrimaryFrameTab>>,
+  setPinnedTab: Dispatch<SetStateAction<PrimaryFrameTab>>
+) => {
+  setTabs(tabName);
+  setPinnedTab(tabName);
+};
 
-  const handleMouseLeave = () => {
-    setTabs(pinnedTab);
-  };
+const primaryFrameTabMouseEnter = (
+  tabName: PrimaryFrameTab,
+  setTabs: Dispatch<SetStateAction<PrimaryFrameTab>>
+) => {
+  setTabs(tabName);
+};
+
+const primaryFrameTabMouseLeave = (
+  pinnedTab: PrimaryFrameTab,
+  setTabs: Dispatch<SetStateAction<PrimaryFrameTab>>
+) => {
+  setTabs(pinnedTab);
+};
+const PrimaryFrame = () => {
+  const dispatch = useDispatch();
+  const [currentTurn, setCurrentTurn] = useState("Starting");
+  const od = useSelector((state: RootState) => state.content.opponentDeck);
+  const pd = useSelector((state: RootState) => state.content.playerDeck);
+  const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
+  const hidden = useSelector((state: RootState) => state.content.viewerHidden);
+  const activeStatus = useSelector(
+    (state: RootState) => state.content.gameActiveStatus
+  );
+  const [tabs, setTabs] = useState<PrimaryFrameTab>("Deck");
+  const [pinnedTab, setPinnedTab] = useState<PrimaryFrameTab>("Deck");
 
   useEffect(() => {
     if (chrome.runtime !== undefined)
-      chrome.runtime.onMessage.addListener(chromeMessageListener);
+      chromeListenerUseEffectHandler("Add", hidden, dispatch, setViewerHidden);
     return () => {
       if (chrome.runtime !== undefined)
-        chrome.runtime.onMessage.removeListener(chromeMessageListener);
+        chromeListenerUseEffectHandler(
+          "Remove",
+          hidden,
+          dispatch,
+          setViewerHidden
+        );
     };
     // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
     // Without this dependency, the event listener will have stale values for the 'hidden' variable
@@ -104,15 +133,6 @@ const PrimaryFrame = () => {
 
   return (
     <React.Fragment>
-      {/* <button
-        className={"text-white mt-[-41px]"}
-        onClick={() => {
-          $("#primaryFrame").toggle("blind");
-          console.log("Click on Header");
-        }}
-      >
-        CollapseButton
-      </button> */}
       <div
         id="primaryFrame"
         className={`${
@@ -138,14 +158,18 @@ const PrimaryFrame = () => {
               <div className="col-span-5 h-[29px]">
                 <div className="text-center text-white">{pd.playerName}</div>
                 {pd.ratedGame ? (
-                  <div className="text-[9px] relative -top-1 text-center text-white">( {pd.rating} )</div>
+                  <div className="text-[9px] relative -top-1 text-center text-white">
+                    ( {pd.rating} )
+                  </div>
                 ) : null}
               </div>
               <div className="col-span-2 text-center text-white">vs.</div>
               <div className="col-span-5 h-[29px]">
                 <div className=" text-center text-white">{od.playerName}</div>
                 {pd.ratedGame ? (
-                  <div className="text-[9px] relative -top-1 text-center text-white">( {od.rating} )</div>
+                  <div className="text-[9px] relative -top-1 text-center text-white">
+                    ( {od.rating} )
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -155,9 +179,17 @@ const PrimaryFrame = () => {
                 className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full ${
                   tabs === "Deck" ? null : "border-b-2"
                 } ${pinnedTab === "Deck" ? "text-lime-500" : null}`}
-                onClick={handleTabClick}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onClick={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabClick(tabName, setTabs, setPinnedTab);
+                }}
+                onMouseEnter={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabMouseEnter(tabName, setTabs);
+                }}
+                onMouseLeave={() => {
+                  primaryFrameTabMouseLeave(pinnedTab, setTabs);
+                }}
                 name="Deck"
               >
                 Deck {pd.entireDeck.length}
@@ -168,9 +200,17 @@ const PrimaryFrame = () => {
                 className={`col-span-6 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
                   tabs === "Opponent" ? null : "border-b-2"
                 } ${pinnedTab === "Opponent" ? "text-lime-500" : null}`}
-                onClick={handleTabClick}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onClick={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabClick(tabName, setTabs, setPinnedTab);
+                }}
+                onMouseEnter={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabMouseEnter(tabName, setTabs);
+                }}
+                onMouseLeave={() => {
+                  primaryFrameTabMouseLeave(pinnedTab, setTabs);
+                }}
                 name="Opponent"
               >
                 Opponent {od.entireDeck.length}
@@ -240,9 +280,17 @@ const PrimaryFrame = () => {
                 className={`col-span-4 h-full text-xs whitespace-nowrap w-full ${
                   tabs === "Discard" ? null : "border-t-2"
                 } ${pinnedTab === "Discard" ? "text-lime-500" : null}`}
-                onClick={handleTabClick}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onClick={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabClick(tabName, setTabs, setPinnedTab);
+                }}
+                onMouseEnter={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabMouseEnter(tabName, setTabs);
+                }}
+                onMouseLeave={() => {
+                  primaryFrameTabMouseLeave(pinnedTab, setTabs);
+                }}
                 name="Discard"
               >
                 Discard {pd.graveyard.length}
@@ -251,9 +299,17 @@ const PrimaryFrame = () => {
                 className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 ${
                   tabs === "Trash" ? null : "border-t-2"
                 } ${pinnedTab === "Trash" ? "text-lime-500" : null}`}
-                onClick={handleTabClick}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onClick={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabClick(tabName, setTabs, setPinnedTab);
+                }}
+                onMouseEnter={(e: BaseSyntheticEvent) => {
+                  const tabName = e.target.name;
+                  primaryFrameTabMouseEnter(tabName, setTabs);
+                }}
+                onMouseLeave={() => {
+                  primaryFrameTabMouseLeave(pinnedTab, setTabs);
+                }}
                 name="Trash"
               >
                 Trash {pd.trash.length}
