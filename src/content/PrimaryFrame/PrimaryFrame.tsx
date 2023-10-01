@@ -188,18 +188,18 @@ const PrimaryFrame = () => {
               )}
             >
               <div className="p-1 mr-2">
-                {tabs === "Deck" && <MainDeckViewer />}
-                {tabs === "Discard" && <DiscardZoneViewer />}
-                {tabs === "Opponent" && <OpponentViewer />}
-                {tabs === "Trash" && <TrashZoneViewer />}
-
-                {/* <button
-                  onClick={() => {
-                    console.log("hidden is", hidden);
-                  }}
-                >
-                  log hidden
-                </button> */}
+                <div className={tabs !== "Deck" ? "hidden" : ""}>
+                  <MainDeckViewer />
+                </div>
+                <div className={tabs !== "Discard" ? "hidden" : ""}>
+                  <DiscardZoneViewer />
+                </div>
+                <div className={tabs !== "Opponent" ? "hidden" : ""}>
+                  <OpponentViewer />
+                </div>
+                <div className={tabs !== "Trash" ? "hidden" : ""}>
+                  <TrashZoneViewer />
+                </div>
               </div>
               {/* <div className="text-xs text-white grid grid-cols-12">
                 <button
