@@ -37,6 +37,7 @@ export interface ContentState {
   topCardsLookAmount: number;
   pinnedTopCardsLookAmount: number;
   selectOpen: boolean;
+  selectScrollPosition: number;
 }
 
 export interface SavedGame {
@@ -87,6 +88,7 @@ const initialState: ContentState = {
   topCardsLookAmount: 1,
   pinnedTopCardsLookAmount: 1,
   selectOpen: false,
+  selectScrollPosition: 0,
 };
 
 export const contentSlice = createSlice({
@@ -147,6 +149,9 @@ export const contentSlice = createSlice({
     setSelectOpen: (state, action: PayloadAction<boolean>) => {
       state.selectOpen = action.payload;
     },
+    setSelectScrollPosition: (state, action: PayloadAction<number>) => {
+      state.selectScrollPosition = action.payload;
+    },
   },
 });
 
@@ -167,6 +172,7 @@ export const {
   setTopCardsLookAmount,
   setPinnedTopCardsLookAmount,
   setSelectOpen,
+  setSelectScrollPosition,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
