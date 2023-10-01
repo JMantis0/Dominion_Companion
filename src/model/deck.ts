@@ -1,6 +1,5 @@
-import { getLogScrollContainerLogLines } from "../content/Observer/observerFunctions";
-import { getErrorMessage } from "../content/PrimaryFrame/componentFunctions";
-import { GameResult } from "../redux/contentSlice";
+import { GameResult, getLogScrollContainerLogLines } from "../content/utils/utils";
+import { getErrorMessage } from "../content/utils/utils";
 import { StoreDeck } from "./storeDeck";
 
 /**

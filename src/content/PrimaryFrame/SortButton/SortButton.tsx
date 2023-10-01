@@ -13,14 +13,13 @@ import {
   setOpponentTrashSortState,
   setSortedButtonsState,
   setTrashSortState,
-  SortButtonState,
-  SortCategories,
 } from "../../../redux/contentSlice";
+import { SortButtonState, SortCategories } from "../../utils/utils";
 library.add(faSortUp, faSortDown, faSort);
 
 type SortButtonProps = {
   title: string;
-  category: SortCategories
+  category: SortCategories;
   /**
    * A reducer from the content slice
    */

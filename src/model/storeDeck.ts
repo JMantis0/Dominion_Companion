@@ -1,4 +1,5 @@
-import { GameResult } from "../redux/contentSlice";
+import { GameResult } from "../content/utils/utils";
+
 
 export interface StoreDeck {
   gameTitle: string;

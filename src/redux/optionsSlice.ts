@@ -5,11 +5,7 @@ import { StoreDeck } from "../model/storeDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
-
-export interface SortButtonState {
-  category: "card" | "zone" | "owned" | "probability";
-  sort: "ascending" | "descending";
-}
+import { SortButtonState } from "../content/utils/utils";
 
 export interface SavedGame {
   logArchive: string;

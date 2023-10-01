@@ -9,7 +9,7 @@ import {
   getRowColor,
   getProb,
   stringifyProbability,
-} from "../componentFunctions";
+} from "../../utils/utils";
 import FullListCardRow from "./FullListCardRow/FullListCardRow";
 import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";

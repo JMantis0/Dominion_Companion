@@ -8,13 +8,13 @@ import {
   setOpponentTrashSortState,
   setSortedButtonsState,
   setTrashSortState,
-  SortButtonState,
 } from "../../../redux/contentSlice";
 import {
+  SortButtonState,
   getCountsFromArray,
   getRowColor,
   sortZoneView,
-} from "../componentFunctions";
+} from "../../utils/utils";
 import ZoneCardRow from "./ZoneCardRow/ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader/ZoneViewHeader";
 

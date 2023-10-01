@@ -4,7 +4,7 @@
 
 import { beforeAll } from "@jest/globals";
 import { expect, describe, it } from "@jest/globals";
-import { getKingdom } from "../../src/content/Observer/observerFunctions";
+import { getKingdom } from "../../src/content/utils/utils";
 
 describe("Function getKingdom()", () => {
   describe("when element with class kingdom-viewer-group is present", () => {

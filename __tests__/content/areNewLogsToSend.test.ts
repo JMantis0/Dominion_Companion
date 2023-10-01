@@ -1,5 +1,5 @@
 import { expect, describe, it } from "@jest/globals";
-import { areNewLogsToSend } from "../../src/content/Observer/observerFunctions";
+import { areNewLogsToSend } from "../../src/content/utils/utils";
 
 describe("Function areNewLogsToSend()", () => {
   describe("when given identical logsProcessed and gameLog", () => {

@@ -4,7 +4,7 @@
 
 import { beforeAll } from "@jest/globals";
 import { expect, describe, it } from "@jest/globals";
-import { arePlayerInfoElementsPresent } from "../../src/content/Observer/observerFunctions";
+import { arePlayerInfoElementsPresent } from "../../src/content/utils/utils";
 
 describe("Function arePlayerInfoElementsPresent()", () => {
   // let mockPlayerInfoElementCollection: HTMLCollection;
