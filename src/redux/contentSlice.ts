@@ -5,20 +5,7 @@ import { StoreDeck } from "../model/storeDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
-
-export type SortCategories =
-  | "card"
-  | "zone"
-  | "owned"
-  | "probability"
-  | "hyper5";
-
-export type GameResult = "Victory" | "Defeat" | "Tie" | "Unfinished";
-
-export interface SortButtonState {
-  category: SortCategories;
-  sort: "ascending" | "descending";
-}
+import { PrimaryFrameTabType, SortButtonState } from "../utils/utils";
 
 export interface ContentState {
   playerDeck: StoreDeck;
@@ -32,20 +19,14 @@ export interface ContentState {
   gameActiveStatus: boolean;
   savedGames: any;
   baseOnly: boolean;
+  primaryFrameTab: PrimaryFrameTabType;
+  pinnedPrimaryFrameTab: PrimaryFrameTabType;
   turnToggleButton: "Current" | "Next";
   pinnedTurnToggleButton: "Current" | "Next";
   topCardsLookAmount: number;
   pinnedTopCardsLookAmount: number;
   selectOpen: boolean;
   selectScrollPosition: number;
-}
-
-export interface SavedGame {
-  logArchive: string;
-  playerDeck: StoreDeck;
-  opponentDeck: OpponentStoreDeck;
-  dateTime: string;
-  logHtml: string;
 }
 
 const initialState: ContentState = {
@@ -83,6 +64,8 @@ const initialState: ContentState = {
     },
   },
   baseOnly: true,
+  primaryFrameTab: "Deck",
+  pinnedPrimaryFrameTab: "Deck",
   turnToggleButton: "Current",
   pinnedTurnToggleButton: "Current",
   topCardsLookAmount: 1,
@@ -131,6 +114,15 @@ export const contentSlice = createSlice({
     setBaseOnly: (state, action: PayloadAction<boolean>) => {
       state.baseOnly = action.payload;
     },
+    setPrimaryFrameTab: (state, action: PayloadAction<PrimaryFrameTabType>) => {
+      state.primaryFrameTab = action.payload;
+    },
+    setPinnedPrimaryFrameTab: (
+      state,
+      action: PayloadAction<PrimaryFrameTabType>
+    ) => {
+      state.pinnedPrimaryFrameTab = action.payload;
+    },
     setTurnToggleButton: (state, action: PayloadAction<"Current" | "Next">) => {
       state.turnToggleButton = action.payload;
     },
@@ -166,6 +158,8 @@ export const {
   setTrashSortState,
   setGameActiveStatus,
   setSavedGames,
+  setPrimaryFrameTab,
+  setPinnedPrimaryFrameTab,
   setBaseOnly,
   setTurnToggleButton,
   setPinnedTurnToggleButton,

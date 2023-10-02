@@ -4,7 +4,7 @@
 
 
 import { expect, describe, it } from "@jest/globals";
-import { getPlayerAndOpponentNameByComparingElementPosition } from "../../src/content/Observer/observerFunctions";
+import { getPlayerAndOpponentNameByComparingElementPosition } from "../../src/utils/utils";
 
 describe("Function getPlayerAndOpponentNameByComparingElementPosition()", () => {
   describe("When given an HTMLCollectionOf<HTMLElement> of <player-info> elements", () => {

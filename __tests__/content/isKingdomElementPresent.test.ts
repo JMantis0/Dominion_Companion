@@ -4,7 +4,7 @@
 
 import { beforeAll } from "@jest/globals";
 import { expect, describe, it } from "@jest/globals";
-import { isKingdomElementPresent } from "../../src/content/Observer/observerFunctions";
+import { isKingdomElementPresent } from "../../src/utils/utils";
 
 describe("Function isKingdomElementPresent", () => {
   let kingdomElement: HTMLElement;

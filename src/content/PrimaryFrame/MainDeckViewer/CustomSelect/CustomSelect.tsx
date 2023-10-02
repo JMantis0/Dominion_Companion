@@ -1,6 +1,5 @@
 import React, {
   BaseSyntheticEvent,
-  Dispatch,
   FunctionComponent,
   UIEvent,
   useEffect,
@@ -10,87 +9,28 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../../../redux/store";
+import { RootState } from "../../../../redux/store";
 import {
   setPinnedTopCardsLookAmount,
   setSelectOpen,
   setSelectScrollPosition,
   setTopCardsLookAmount,
-} from "../../../../../redux/contentSlice";
-import { AnyAction } from "redux";
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+} from "../../../../redux/contentSlice";
+import { Dispatch, AnyAction } from "redux";
 import Scrollbars from "react-custom-scrollbars-2";
+import {
+  onMouseEnterOption,
+  onMouseLeaveOption,
+  onSelectScroll,
+  onOptionClick,
+  onToggleSelect,
+} from "../../../../utils/utils";
 library.add(faAngleUp, faAngleDown);
 // const selectedClass = "bg-[#1b1b1b] border-[#272727] text-[#dfdfdf]";
 // const unselectedClass =
 //   "hover:bg-[#1b1b1b] hover:border-[#272727] text-[#aaa] hover:text-[#dfdfdf]";
 
-const toggleSelect = (
-  selectState: boolean,
-  dispatch: Dispatch<AnyAction>,
-  setSelectOpen: ActionCreatorWithPayload<boolean, "content/setSelectOpen">
-) => {
-  dispatch(setSelectOpen(!selectState));
-};
 
-const mouseEnterOption = (
-  cardAmount: number,
-  dispatch: Dispatch<AnyAction>,
-  setTopCardsLookAmount: ActionCreatorWithPayload<
-    number,
-    "content/setTopCardsLookAmount"
-  >
-) => {
-  dispatch(setTopCardsLookAmount(cardAmount));
-};
-
-const mouseLeaveOption = (
-  pinnedCardAmount: number,
-  dispatch: Dispatch<AnyAction>,
-  setTopCardsLookAmount: ActionCreatorWithPayload<number, string>
-) => {
-  dispatch(setTopCardsLookAmount(pinnedCardAmount));
-};
-
-const optionClick = (
-  cardAmount: number,
-  dispatch: Dispatch<AnyAction>,
-  setTopCardsLookAmount: ActionCreatorWithPayload<
-    number,
-    "content/setTopCardsLookAmount"
-  >,
-  setPinnedTopCardsLookAmount: ActionCreatorWithPayload<
-    number,
-    "content/setPinnedTopCardsLookAmount"
-  >
-) => {
-  dispatch(setTopCardsLookAmount(cardAmount));
-  dispatch(setPinnedTopCardsLookAmount(cardAmount));
-};
-
-const onSelectScroll = (
-  scrollPosition: number,
-  dispatch: Dispatch<AnyAction>,
-  setSelectScrollPosition: ActionCreatorWithPayload<
-    number,
-    "content/setSelectScrollPosition"
-  >
-) => {
-  console.log(scrollPosition);
-  dispatch(setSelectScrollPosition(scrollPosition));
-};
-
-// const nonOptionClick = (
-//   event: MouseEvent,
-//   setSelectOpen: Dispatch<SetStateAction<boolean>>
-// ) => {
-//   const element = event.target as HTMLElement;
-//   const parent = element.parentElement;
-//   const parentId = parent === null ? "null" : parent.id;
-//   if (parentId !== "option-container" && element.id !== "select-button" && element.id !== "thumb-track") {
-//     setSelectOpen(false);
-//   }
-// };
 
 export type CustomSelectProps = {
   colSpan: number;
@@ -131,7 +71,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           id="select-button"
           className="w-full whitespace-nowrap grid grid-cols-12 border-y border-x text-white text-xs hover:bg-[#383838]"
           onClick={() => {
-            toggleSelect(selectOpen, dispatch, setSelectOpen);
+            onToggleSelect(selectOpen, dispatch, setSelectOpen);
           }}
         >
           <span className="col-span-1"></span>{" "}
@@ -205,21 +145,21 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                         : "text-white"
                     }`}
                     onMouseEnter={(e: BaseSyntheticEvent) => {
-                      mouseEnterOption(
+                      onMouseEnterOption(
                         parseInt(e.target.value),
                         dispatch,
                         setTopCardsLookAmount
                       );
                     }}
                     onMouseLeave={() => {
-                      mouseLeaveOption(
+                      onMouseLeaveOption(
                         pinnedTopCardsLookAmount,
                         dispatch,
                         setTopCardsLookAmount
                       );
                     }}
                     onClick={(e: BaseSyntheticEvent) => {
-                      optionClick(
+                      onOptionClick(
                         parseInt(e.target.value),
                         dispatch,
                         setTopCardsLookAmount,

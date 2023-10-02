@@ -3,7 +3,7 @@ import { getCountsFromArray } from "../testUtilFuncs";
 import {
   CardCounts,
   combineDeckListMapAndZoneListMap,
-} from "../../src/content/PrimaryFrame/componentFunctions";
+} from "../../src/utils/utils";
 
 describe("Function combineDeckListMapAndLibraryMap.test.ts", () => {
   let combinedMap: Map<string, CardCounts>;

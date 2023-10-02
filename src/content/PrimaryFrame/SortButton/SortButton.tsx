@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faSortUp,
@@ -8,71 +8,42 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch } from "react-redux";
 import {
-  setDiscardSortState,
-  setOpponentSortState,
-  setOpponentTrashSortState,
-  setSortedButtonsState,
-  setTrashSortState,
   SortButtonState,
-  SortCategories,
-} from "../../../redux/contentSlice";
+  SortCategory,
+  SortReducer,
+  onSortButtonClick,
+} from "../../../utils/utils";
+
 library.add(faSortUp, faSortDown, faSort);
 
 type SortButtonProps = {
   title: string;
-  category: SortCategories
+  category: SortCategory;
   /**
-   * A reducer from the content slice
+   * A reducer from the content slice.
    */
-  reducer:
-    | typeof setSortedButtonsState
-    | typeof setDiscardSortState
-    | typeof setOpponentSortState
-    | typeof setOpponentTrashSortState
-    | typeof setTrashSortState;
+  reducer: SortReducer;
   /**
-   * A portion of the redux state from the content slice, one of the SortedButton states
-   * passed from Viewer, to ViewHeader, to SortButton
+   * A portion of the redux state from the content slice, one of the SortedButton states.
    */
-  reduxState: SortButtonState;
+  currentSortState: SortButtonState;
 };
+
 const SortButton: FunctionComponent<SortButtonProps> = ({
   title,
   category,
   reducer,
-  reduxState,
+  currentSortState,
 }) => {
-  const [sortState, setSortState] = useState<"ascending" | "descending">(
-    "ascending"
-  );
-  sortState;
   const dispatch = useDispatch();
-  useEffect(() => {
-    setSortState("ascending");
-    return () => {};
-  }, []);
-  const handleClick = () => {
-    let sortToDispatch: "ascending" | "descending";
-    if (reduxState.category !== category) {
-      sortToDispatch = "ascending";
-    } else {
-      sortToDispatch =
-        reduxState.sort === "ascending" ? "descending" : "ascending";
-    }
-    dispatch(
-      reducer({
-        category: category,
-        sort: sortToDispatch,
-      })
-    );
-    setSortState(sortToDispatch);
-  };
   return (
     <div>
       <button
-        onClick={handleClick}
+        onClick={() => {
+          onSortButtonClick(category, currentSortState, dispatch, reducer);
+        }}
         className={`w-full border-y border-x hover:bg-[#383838] ${
-          reduxState.category === category
+          currentSortState.category === category
             ? "outline-2 text-lime-500"
             : "text-white"
         }`}
@@ -84,9 +55,9 @@ const SortButton: FunctionComponent<SortButtonProps> = ({
           <div className="col-span-4">
             {
               <React.Fragment>
-                {reduxState.category !== category ? (
+                {currentSortState.category !== category ? (
                   <FontAwesomeIcon icon={"sort"} />
-                ) : reduxState.sort === "ascending" ? (
+                ) : currentSortState.sort === "ascending" ? (
                   <FontAwesomeIcon icon={"sort-down"} />
                 ) : (
                   <FontAwesomeIcon icon={"sort-up"} />

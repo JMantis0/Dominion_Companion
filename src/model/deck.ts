@@ -1,10 +1,6 @@
-import { getLogScrollContainerLogLines } from "../content/Observer/observerFunctions";
-import { getErrorMessage } from "../content/PrimaryFrame/componentFunctions";
-import { GameResult } from "../redux/contentSlice";
+import { GameResult, getLogScrollContainerLogLines } from "../utils/utils";
+import { getErrorMessage } from "../utils/utils";
 import { StoreDeck } from "./storeDeck";
-
-
-
 
 /**
  * Class for a Deck object used to track a

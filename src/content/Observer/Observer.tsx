@@ -15,13 +15,13 @@ import {
   getUndispatchedLogs,
   isGameLogPresent,
   isKingdomElementPresent,
-} from "./observerFunctions";
+  SavedGame,
+} from "../../utils/utils";
 import {
   setOpponentDeck,
   setPlayerDeck,
   setGameActiveStatus,
   setSavedGames,
-  SavedGame,
   setBaseOnly,
 } from "../../redux/contentSlice";
 import { useDispatch } from "react-redux";
@@ -30,7 +30,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { EmptyOpponentDeck } from "../../model/emptyOpponentDeck";
 import { EmptyDeck } from "../../model/emptyDeck";
-import { getResult } from "../PrimaryFrame/componentFunctions";
+import { getResult } from "../../utils/utils";
 import $ from "jquery";
 
 /**
@@ -172,7 +172,6 @@ let resetInterval: NodeJS.Timer;
 let gameLogObserver: MutationObserver;
 let gameEndObserver: MutationObserver;
 let undoObserver: MutationObserver;
-
 
 const Observer: FunctionComponent = () => {
   const dispatch = useDispatch();

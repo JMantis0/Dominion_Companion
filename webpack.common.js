@@ -7,7 +7,6 @@ const autoprefixer = require("autoprefixer");
 module.exports = {
   mode: "development",
   devtool: "inline-source-map",
-
   entry: {
     popup: path.resolve("./src/popup/index.tsx"),
     options: path.resolve("./src/options/index.tsx"),
@@ -36,6 +35,19 @@ module.exports = {
             loader: "css-loader",
             options: {
               importLoaders: 1,
+              url: {
+                filter: (url, resourcePath) => {
+                  if (
+                    url.match(
+                      "chrome-extension://nmcfafjpmpnjchjdkogjbfolaidedgkf"
+                    ) !== null
+                  ) {
+                    return false;
+                  } else {
+                    return true;
+                  }
+                },
+              },
             },
           },
 
@@ -64,12 +76,12 @@ module.exports = {
           to: path.resolve("dist"),
         },
         {
-          from: path.resolve("node_modules/jquery-ui-bundle"),
+          from: path.resolve("node_modules/jquery-ui-bundle/images/ui-icons_ffffff_256x240.png"),
           to: path.resolve("dist"),
         },
       ],
     }),
-    ...getHtmlPlugins(["popup", "options", "newTab"]),
+    ...getHtmlPlugins(["popup", "options"]),
   ],
   resolve: {
     extensions: [".tsx", ".ts", ".js"],

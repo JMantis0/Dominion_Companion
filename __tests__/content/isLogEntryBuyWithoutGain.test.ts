@@ -1,5 +1,5 @@
 import { it, describe, beforeEach, expect } from "@jest/globals";
-import { isLogEntryBuyWithoutGain } from "../../src/content/Observer/observerFunctions";
+import { isLogEntryBuyWithoutGain } from "../../src/utils/utils";
 
 describe("Function isLogEntryBuyWithoutGain()", () => {
   let logEntry: string;

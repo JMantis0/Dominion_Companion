@@ -9,7 +9,7 @@ import {
   SplitMaps,
   sortTheHistoryDeckView,
   getRowColor,
-} from "../../../../content/PrimaryFrame/componentFunctions";
+} from "../../../../utils/utils";
 import { StoreDeck } from "../../../../model/storeDeck";
 import { OpponentStoreDeck } from "../../../../model/opponentStoreDeck";
 import NameAndResult from "./NameAndResult/NameAndResult";

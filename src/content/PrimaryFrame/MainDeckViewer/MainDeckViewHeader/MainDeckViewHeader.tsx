@@ -1,9 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { setSortedButtonsState} from "../../../../redux/contentSlice";
+import { setSortedButtonsState } from "../../../../redux/contentSlice";
 import { RootState } from "../../../../redux/store";
 import SortButton from "../../SortButton/SortButton";
-
 
 const MainDeckViewHeader = () => {
   const sortButtonState = useSelector(
@@ -18,7 +17,7 @@ const MainDeckViewHeader = () => {
             title="Card"
             category="card"
             reducer={setSortedButtonsState}
-            reduxState={sortButtonState}
+            currentSortState={sortButtonState}
           />
         </div>
         <div className="col-span-2 whitespace-nowrap">
@@ -26,7 +25,7 @@ const MainDeckViewHeader = () => {
             title="D #"
             category="zone"
             reducer={setSortedButtonsState}
-            reduxState={sortButtonState}
+            currentSortState={sortButtonState}
           />
         </div>
 
@@ -35,7 +34,7 @@ const MainDeckViewHeader = () => {
             title="T #"
             category="owned"
             reducer={setSortedButtonsState}
-            reduxState={sortButtonState}
+            currentSortState={sortButtonState}
           />
         </div>
         <div className="col-span-3 whitespace-nowrap">
@@ -43,7 +42,7 @@ const MainDeckViewHeader = () => {
             title="Drw%"
             category="probability"
             reducer={setSortedButtonsState}
-            reduxState={sortButtonState}
+            currentSortState={sortButtonState}
           />
         </div>
       </div>
