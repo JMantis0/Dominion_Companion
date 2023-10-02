@@ -5,10 +5,19 @@ import {
   SavedGame,
   setSavedGames,
   setModalSwitch,
+  SavedGames,
 } from "../../redux/optionsSlice";
 import { RootState } from "../../redux/store";
 import SavedGameRow from "./SavedGameRow/SavedGameRow";
 import HistoryModal from "./HistoryModal/HistoryModal";
+// import { AnyAction, Dispatch } from "redux";
+// import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+
+// const getSavedGames = (
+//   dispatch: Dispatch<AnyAction>,
+//   setGameKeys: ActionCreatorWithPayload<string[], "options/setGameKeys">,
+//   setSavedGames: ActionCreatorWithPayload<any, "options/setSavedGames">
+// ) => {};
 
 const HistoryViewer = () => {
   const dispatch = useDispatch();
@@ -42,8 +51,10 @@ const HistoryViewer = () => {
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
       let gameKeys = result.gameKeys;
       await chrome.storage.local.get([...gameKeys]).then((result) => {
+        const savedGames = result as SavedGames
+
         dispatch(setGameKeys(gameKeys));
-        dispatch(setSavedGames(result));
+        dispatch(setSavedGames(savedGames));
       });
     });
   };
