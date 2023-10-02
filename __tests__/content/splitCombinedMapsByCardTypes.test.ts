@@ -4,7 +4,7 @@ import {
   combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
   SplitMaps,
-} from "../../src/content/utils/utils";
+} from "../../src/utils/utils";
 import { getCountsFromArray } from "../testUtilFuncs";
 
 describe("Function splitCombinedMapsByCardTypes()", () => {

@@ -16,7 +16,7 @@ import {
   isGameLogPresent,
   isKingdomElementPresent,
   SavedGame,
-} from "../utils/utils";
+} from "../../utils/utils";
 import {
   setOpponentDeck,
   setPlayerDeck,
@@ -30,7 +30,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { EmptyOpponentDeck } from "../../model/emptyOpponentDeck";
 import { EmptyDeck } from "../../model/emptyDeck";
-import { getResult } from "../utils/utils";
+import { getResult } from "../../utils/utils";
 import $ from "jquery";
 
 /**

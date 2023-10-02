@@ -3,7 +3,7 @@
  */
 
 import { it, describe, expect, beforeEach, afterEach } from "@jest/globals";
-import { getLogScrollContainerLogLines } from "../../src/content/utils/utils";
+import { getLogScrollContainerLogLines } from "../../src/utils/utils";
 
 describe("Function getLogScrollContainerLogLines", () => {
   let logScrollContainer: HTMLElement;

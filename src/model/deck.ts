@@ -1,5 +1,5 @@
-import { GameResult, getLogScrollContainerLogLines } from "../content/utils/utils";
-import { getErrorMessage } from "../content/utils/utils";
+import { GameResult, getLogScrollContainerLogLines } from "../utils/utils";
+import { getErrorMessage } from "../utils/utils";
 import { StoreDeck } from "./storeDeck";
 
 /**

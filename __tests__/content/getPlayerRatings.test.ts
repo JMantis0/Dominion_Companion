@@ -1,5 +1,5 @@
 import { expect, describe, it, beforeEach } from "@jest/globals";
-import { getPlayerRatings } from "../../src/content/utils/utils";
+import { getPlayerRatings } from "../../src/utils/utils";
 
 describe("Function getPlayerRatings()", () => {
   let gameLog: string;

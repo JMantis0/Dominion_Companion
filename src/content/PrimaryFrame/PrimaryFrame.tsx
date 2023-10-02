@@ -1,5 +1,5 @@
 /*global chrome*/
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
 import { Scrollbars } from "react-custom-scrollbars-2";
@@ -10,11 +10,9 @@ import MainDeckViewer from "./MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./OpponentViewer/OpponentViewer";
-import PrimaryFrameTab from "./MainDeckViewer/PrimaryFrameTab/PrimaryFrameTab";
+import PrimaryFrameTab from "./PrimaryFrameTab/PrimaryFrameTab";
 import PrimaryFrameHeader from "./PrimaryFrameHeader/PrimaryFrameHeader";
-import { chromeListenerUseEffectHandler } from "../utils/utils";
-
-
+import { chromeListenerUseEffectHandler } from "../../utils/utils";
 
 const PrimaryFrame = () => {
   const dispatch = useDispatch();

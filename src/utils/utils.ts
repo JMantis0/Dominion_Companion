@@ -1,10 +1,20 @@
 import { AnyAction, Dispatch } from "redux";
-import { Deck } from "../../model/deck";
-import { OpponentDeck } from "../../model/opponentDeck";
-import { StoreDeck } from "../../model/storeDeck";
+import { Deck } from "../model/deck";
+import { OpponentDeck } from "../model/opponentDeck";
+import { StoreDeck } from "../model/storeDeck";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
-import { OpponentStoreDeck } from "../../model/opponentStoreDeck";
+import { OpponentStoreDeck } from "../model/opponentStoreDeck";
+import {
+  setDiscardSortState,
+  setOpponentSortState,
+  setOpponentTrashSortState,
+  setSortedButtonsState,
+  setTrashSortState,
+} from "../redux/contentSlice";
 
+/**
+ * Custom type for a SavedGame object literal interface.
+ */
 export interface SavedGame {
   logArchive: string;
   playerDeck: StoreDeck;
@@ -13,17 +23,31 @@ export interface SavedGame {
   logHtml: string;
 }
 
-export type SortCategories =
-  | "card"
-  | "zone"
-  | "owned"
-  | "probability"
-  | "hyper5";
+/**
+ * Custom Type for redux variable that holds the category to sort by.
+ */
+export type SortCategory = "card" | "zone" | "owned" | "probability";
 
+/**
+ *Custom type for the dispatch functions / reducers that change the redux sortButtonState.
+ */
+export type SortReducer =
+  | typeof setSortedButtonsState
+  | typeof setDiscardSortState
+  | typeof setOpponentSortState
+  | typeof setOpponentTrashSortState
+  | typeof setTrashSortState;
+
+/**
+ * Custom type for deck field gameResult.
+ */
 export type GameResult = "Victory" | "Defeat" | "Tie" | "Unfinished";
 
+/**
+ * Custom type for redux variable sortButtonState.
+ */
 export interface SortButtonState {
-  category: SortCategories;
+  category: SortCategory;
   sort: "ascending" | "descending";
 }
 
@@ -32,25 +56,29 @@ export interface SortButtonState {
  * owned.  The other property holds the value for the amount of that card in a specific
  * zone.
  */
-export type CardCounts = {
+export interface CardCounts {
   entireDeckCount: number;
   zoneCount: number;
-};
+}
 
 /**
  * Custom object literal type, an object with 4 properties, each a Map<string,CardCounts object,
  * one for each card type: Treasure, Action, Victory, Curse
  */
-export type SplitMaps = {
+export interface SplitMaps {
   treasures: Map<string, CardCounts> | undefined;
   actions: Map<string, CardCounts> | undefined;
   victories: Map<string, CardCounts> | undefined;
   curses: Map<string, CardCounts> | undefined;
-};
+}
 
-export type ErrorWithMessage = {
+/**
+ * Interface used for handling unknown objects that *might* be an error.
+ */
+export interface ErrorWithMessage {
   message: string;
-};
+}
+
 /**
  * Custom type for PrimaryFrameTab
  */
@@ -93,39 +121,40 @@ const getErrorMessage = (error: unknown) => {
   return toErrorWithMessage(error).message;
 };
 
-/**
- * Returns a string expressing the probability of the next draw being a certain card.  If
- * there are no cards in the library, it will calculate the probability from the cards in
- * the discard pile.
- * Purpose: Used by SortableViewer as a prop value for FullListCardRow.tsx
- * @param libAmount - The amount of that card in the deck.
- * @param libLength - The total amount of cards in the deck.
- * @param discAmount - The amount of that card in the discard pile.
- * @param discLength - The total amount of cards in the discard pile.
- * @returns A string expressing the probability as a percentage.
- */
-const calculateDrawProbability = (
-  libAmount: number,
-  libLength: number,
-  discAmount: number,
-  discLength: number
-): string => {
-  let probability: string;
-  if (libLength === 0) {
-    if (discAmount === undefined) {
-      probability = "0.0%";
-    } else {
-      probability =
-        ((discAmount / discLength) * 100).toFixed(1).toString() + "%";
-    }
-  } else {
-    probability = ((libAmount / libLength) * 100).toFixed(1).toString() + "%";
-  }
-  return probability;
-};
+// Deprecated
+// /**
+//  * Returns a string expressing the probability of the next draw being a certain card.  If
+//  * there are no cards in the library, it will calculate the probability from the cards in
+//  * the discard pile.
+//  * Purpose: Used by SortableViewer as a prop value for FullListCardRow.tsx
+//  * @param libAmount - The amount of that card in the deck.
+//  * @param libLength - The total amount of cards in the deck.
+//  * @param discAmount - The amount of that card in the discard pile.
+//  * @param discLength - The total amount of cards in the discard pile.
+//  * @returns A string expressing the probability as a percentage.
+//  */
+// const calculateDrawProbability = (
+//   libAmount: number,
+//   libLength: number,
+//   discAmount: number,
+//   discLength: number
+// ): string => {
+//   let probability: string;
+//   if (libLength === 0) {
+//     if (discAmount === undefined) {
+//       probability = "0.0%";
+//     } else {
+//       probability =
+//         ((discAmount / discLength) * 100).toFixed(1).toString() + "%";
+//     }
+//   } else {
+//     probability = ((libAmount / libLength) * 100).toFixed(1).toString() + "%";
+//   }
+//   return probability;
+// };
 
 /**
- * takes a given array of strings and creates a Map object that has a key for each unique
+ * Function takes a given array of strings and creates a Map object that has a key for each unique
  * string in the array.  The values for each key are the number of instances that string occurs
  * in the array.
  * Purpose: Used by all viewer components.
@@ -160,7 +189,6 @@ const combineDeckListMapAndZoneListMap = (
   zoneListMap: Map<string, number>
 ): Map<string, CardCounts> => {
   let newMap: Map<string, CardCounts> = new Map();
-
   Array.from(deckListMap.entries()).forEach((entry) => {
     let [card, deckAmount] = entry;
     let libCount: number;
@@ -169,12 +197,10 @@ const combineDeckListMapAndZoneListMap = (
     } else {
       libCount = 0;
     }
-
     let counts: CardCounts = {
       entireDeckCount: deckAmount,
       zoneCount: libCount,
     };
-
     newMap.set(card, counts);
   });
   return newMap;
@@ -198,7 +224,6 @@ const splitCombinedMapsByCardTypes = (
     victories: vMap,
     curses: cMap,
   };
-
   Array.from(combinedMap.entries()).forEach((entry) => {
     const [card, CardCounts] = entry;
     if (["Copper", "Silver", "Gold"].indexOf(card) >= 0) {
@@ -211,7 +236,6 @@ const splitCombinedMapsByCardTypes = (
       aMap.set(card, CardCounts);
     }
   });
-
   return splitMaps;
 };
 
@@ -237,46 +261,47 @@ const createEmptySplitMapsObject = (): SplitMaps => {
   return emptySplitMap;
 };
 
-/**
- * Deprecated, not currently being used
- * @param sortParam
- * @param unsortedMap
- * @returns
- */
-const sortByAmountInZone = (
-  sortParam: string,
-  unsortedMap: Map<string, CardCounts>
-): Map<string, CardCounts> => {
-  const mapCopy = new Map(unsortedMap);
-  const sortedMap: Map<string, CardCounts> = new Map();
-  switch (sortParam) {
-    case "probability":
-      {
-        [...mapCopy.entries()]
-          .sort((entryA, entryB) => {
-            return entryB[1].zoneCount - entryA[1].zoneCount;
-          })
-          .forEach((entry) => {
-            const [card, cardCounts] = entry;
-            sortedMap.set(card, cardCounts);
-          });
-      }
-      break;
-    default:
-  }
-  return sortedMap;
-};
+//  DEPRECATED
+// /**
+//  * Deprecated, not currently being used
+//  * @param sortParam
+//  * @param unsortedMap
+//  * @returns
+//  */
+// const sortByAmountInZone = (
+//   sortParam: string,
+//   unsortedMap: Map<string, CardCounts>
+// ): Map<string, CardCounts> => {
+//   const mapCopy = new Map(unsortedMap);
+//   const sortedMap: Map<string, CardCounts> = new Map();
+//   switch (sortParam) {
+//     case "probability":
+//       {
+//         [...mapCopy.entries()]
+//           .sort((entryA, entryB) => {
+//             return entryB[1].zoneCount - entryA[1].zoneCount;
+//           })
+//           .forEach((entry) => {
+//             const [card, cardCounts] = entry;
+//             sortedMap.set(card, cardCounts);
+//           });
+//       }
+//       break;
+//     default:
+//   }
+//   return sortedMap;
+// };
 
 /**
  * Returns a sorted map.  Sorts by the sortParam and sortType.
  * @param sortParam - The category to sort on.
  * @param unsortedMap - The unsorted map.
  * @param sortType - Ascending or Descending.
- * @param pd - the player deck
- * @returns
+ * @param pd - The player deck.
+ * @returns A sorted Map that is used by the MainDeckViewer component to render the view in sorted order.
  */
 const sortMainViewer = (
-  sortParam: SortCategories,
+  sortParam: SortCategory,
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
   pd: StoreDeck,
@@ -285,7 +310,6 @@ const sortMainViewer = (
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
-
   switch (sortParam) {
     case "probability":
       {
@@ -297,9 +321,20 @@ const sortMainViewer = (
               } else {
                 // If equal, sort by hyper geometric
                 return (
-                  getProb(pd, entryB[0], turn, 1, topCardsLookAmount)
-                    .cumulative -
-                  getProb(pd, entryA[0], turn, 1, topCardsLookAmount).cumulative
+                  getCumulativeHyperGeometricProbabilityForCard(
+                    pd,
+                    entryB[0],
+                    turn,
+                    1,
+                    topCardsLookAmount
+                  ).cumulative -
+                  getCumulativeHyperGeometricProbabilityForCard(
+                    pd,
+                    entryA[0],
+                    turn,
+                    1,
+                    topCardsLookAmount
+                  ).cumulative
                 );
               }
             } else {
@@ -307,9 +342,20 @@ const sortMainViewer = (
                 return entryA[1].zoneCount - entryB[1].zoneCount;
               } else {
                 return (
-                  getProb(pd, entryA[0], turn, 1, topCardsLookAmount)
-                    .cumulative -
-                  getProb(pd, entryB[0], turn, 1, topCardsLookAmount).cumulative
+                  getCumulativeHyperGeometricProbabilityForCard(
+                    pd,
+                    entryA[0],
+                    turn,
+                    1,
+                    topCardsLookAmount
+                  ).cumulative -
+                  getCumulativeHyperGeometricProbabilityForCard(
+                    pd,
+                    entryB[0],
+                    turn,
+                    1,
+                    topCardsLookAmount
+                  ).cumulative
                 );
               }
             }
@@ -318,7 +364,6 @@ const sortMainViewer = (
             const [card, cardCounts] = entry;
             sortedMap.set(card, cardCounts);
           });
-        // }
       }
       break;
     case "card":
@@ -328,7 +373,6 @@ const sortMainViewer = (
             let result: number;
             const card1 = entryA[0];
             const card2 = entryB[0];
-
             if (sortType === "ascending") {
               if (card1 > card2) {
                 result = -1;
@@ -342,7 +386,6 @@ const sortMainViewer = (
                 result = 1;
               } else result = 0;
             }
-
             return result;
           })
           .forEach((entry) => {
@@ -383,7 +426,6 @@ const sortMainViewer = (
           });
       }
       break;
-
     default: {
       throw new Error("Invalid sort category " + sortParam);
     }
@@ -397,7 +439,7 @@ const sortMainViewer = (
  * @param unsortedMap - The unsorted map.
  * @param sortType - Ascending or Descending.
  * @param pd - the player deck
- * @returns
+ * @returns - A sorted Map that is used by the HistoryDeckViewer component to render the view in a sorted order.
  */
 const sortTheHistoryDeckView = (
   sortParam: "card" | "owned" | "zone" | "probability",
@@ -415,7 +457,6 @@ const sortTheHistoryDeckView = (
             let result: number;
             const card1 = entryA[0];
             const card2 = entryB[0];
-
             if (sortType === "ascending") {
               if (card1 > card2) {
                 result = -1;
@@ -429,7 +470,6 @@ const sortTheHistoryDeckView = (
                 result = 1;
               } else result = 0;
             }
-
             return result;
           })
           .forEach((entry) => {
@@ -478,17 +518,20 @@ const sortTheHistoryDeckView = (
 };
 
 /**
- * Sort function for ZoneViewer components.  Simpler than the SortableViewer Sort function
- * because Zone viewers do not have columns for probability or library.
+ * Sort function for ZoneViewer components.  Returns a sorted map object
+ * @param sortParam - Category to sort by.
+ * @param unsortedMap - An unsorted map object.
+ * @param sortType - Ascending or Descending.
+ * @returns - A sorted Map object, sorted according to the parameters.  Used to Render
+ * the Zone VIew in a sorted order.
  */
 const sortZoneView = (
-  sortParam: SortCategories,
+  sortParam: SortCategory,
   unsortedMap: Map<string, number>,
   sortType: "ascending" | "descending"
 ): Map<string, number> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, number> = new Map();
-
   switch (sortParam) {
     case "card":
       {
@@ -497,7 +540,6 @@ const sortZoneView = (
             let result: number;
             const card1 = entryA[0];
             const card2 = entryB[0];
-
             if (sortType === "ascending") {
               if (card1 > card2) {
                 result = -1;
@@ -511,7 +553,6 @@ const sortZoneView = (
                 result = 1;
               } else result = 0;
             }
-
             return result;
           })
           .forEach((entry) => {
@@ -542,7 +583,6 @@ const sortZoneView = (
       throw new Error("Invalid sort category " + sortParam);
     }
   }
-
   return sortedMap;
 };
 
@@ -560,7 +600,6 @@ const getRowColor = (cardName: string): string => {
   const reactionClass: string = "text-[#6eccff]";
   const victories: string[] = ["Estate", "Duchy", "Province", "Gardens"];
   const treasures: string[] = ["Copper", "Silver", "Gold"];
-
   if (treasures.indexOf(cardName) > -1) {
     color = treasureClass;
   } else if (victories.indexOf(cardName) > -1) {
@@ -622,16 +661,27 @@ const getResult = (
   return [victor, defeated];
 };
 
+/**
+ * Helper function for combining combination operations.
+ * @param a
+ * @param b
+ * @returns
+ */
 const product_Range = (a: number, b: number): number => {
   var prd = a,
     i = a;
-
   while (i++ < b) {
     prd *= i;
   }
   return prd;
 };
 
+/**
+ * Function that calculates mathematical combinations
+ * @param n the number of elements in the set.
+ * @param r - the number or elements in a combination.
+ * @returns - The number of possible combinations.
+ */
 const combinations = (n: number, r: number): number => {
   if (n == r || r == 0) {
     return 1;
@@ -640,6 +690,15 @@ const combinations = (n: number, r: number): number => {
     return product_Range(r + 1, n) / product_Range(1, n - r);
   }
 };
+
+/**
+ * Classic function that returns the probability of getting a certain number of successes from a set of elements.
+ * @param populationSize  - Size of the population
+ * @param populationSuccesses - Number of successes in the population
+ * @param sampleSize - The sample size to be picked at random from the population
+ * @param sampleSuccesses - The number of successes in the sample.
+ * @returns - The probability that there will be  exactly the given number of successes in a sample.
+ */
 const getHyperGeometricProbability = (
   populationSize: number,
   populationSuccesses: number,
@@ -647,30 +706,24 @@ const getHyperGeometricProbability = (
   sampleSuccesses: number
 ): number => {
   let hyperGeometricProbability: number;
-
   /**
    * Hypergeometric formula has the following restrictions:
    * 0 <= x <= n
    * x <= k
    * n - x <= N - k
-   *
    * Probability for any set of parameter values outside these restrictions have a probability of 0
    * The first 4 if/else below code in these restrictions.
    */
   if (!(0 <= sampleSuccesses)) {
     hyperGeometricProbability = 0;
-    // throw new Error("Sample successes negative.")
   } else if (!(sampleSuccesses <= sampleSize)) {
     hyperGeometricProbability = 0;
-    // throw new Error("Sample successes exceeds sample size.")
   } else if (!(sampleSuccesses <= populationSuccesses)) {
     hyperGeometricProbability = 0;
-    // throw new Error("Sample successes exceeds population successes.")
   } else if (
     !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
   ) {
     hyperGeometricProbability = 0;
-    // throw new Error("Sample failures exceed population failures.")
   } else {
     hyperGeometricProbability =
       (combinations(populationSuccesses, sampleSuccesses) *
@@ -683,6 +736,15 @@ const getHyperGeometricProbability = (
   return hyperGeometricProbability;
 };
 
+/**
+ * Function returns the cumulative hypergeometric probability of a sample that contains the number
+ * of given success or more than the number of given successes.
+ * @param populationSize  - Size of the population
+ * @param populationSuccesses - Number of successes in the population
+ * @param sampleSize - The sample size to be picked at random from the population
+ * @param sampleSuccesses - The number of successes in the sample.
+ * @returns - The probability that there will be at least the given number of successes in a sample.
+ */
 const cumulativeHyperGeo = (
   populationSize: number,
   populationSuccesses: number,
@@ -690,23 +752,28 @@ const cumulativeHyperGeo = (
   sampleSuccesses: number
 ): number => {
   let cumulativeProb: number = 0;
-
   for (let i = sampleSuccesses; i <= sampleSize; i++) {
-    try {
-      cumulativeProb += getHyperGeometricProbability(
-        populationSize,
-        sampleSize,
-        populationSuccesses,
-        i
-      );
-    } catch (e: any) {
-      console.error("There was an error: ", e.message);
-    }
+    cumulativeProb += getHyperGeometricProbability(
+      populationSize,
+      sampleSize,
+      populationSuccesses,
+      i
+    );
   }
   return cumulativeProb;
 };
 
-const getProb = (
+/**
+ * Function returns the hypergeometric and cumulative hypergeometric probabilities that the given card will be drawn in the next
+ * given number of draws.
+ * @param deck - The player's StoreDeck.
+ * @param cardName - The card to get probabilities for.
+ * @param turn - The turn to calculate probabilities for (can be either this turn or next turn).
+ * @param successCount - The number of the given card to be in the drawn cards.
+ * @param drawCount - The given number of draws.
+ * @returns - An object literal with both the hypergeometric and the cumulative hypergeometric probabilities described above.
+ */
+const getCumulativeHyperGeometricProbabilityForCard = (
   deck: StoreDeck,
   cardName: string,
   turn: "Current" | "Next",
@@ -719,7 +786,6 @@ const getProb = (
     turn === "Current"
       ? deck.graveyard
       : deck.graveyard.concat(deck.hand, deck.inPlay, deck.setAside);
-
   const populationSize: number = deck.library.length;
   const populationSuccesses: number = getCountsFromArray(deck.library).has(
     cardName
@@ -785,6 +851,11 @@ const getProb = (
   };
 };
 
+/**
+ * Function that stringifies a numeric probability.
+ * @param probabilityFloat - Numeric probability
+ * @returns - Stringified probability rounded to 1 decimal place and with a %
+ */
 const stringifyProbability = (probabilityFloat: number): string => {
   return (probabilityFloat * 100).toFixed(1) + "%";
 };
@@ -838,34 +909,32 @@ const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
     document.getElementsByTagName(
       "player-info"
     ) as HTMLCollectionOf<HTMLElement>;
-
   return playerInfoElements;
 };
+// DEPRECATED
+// /**
+//  * Returns the <player-info> element for the player.
+//  * @param playerInfoElements - the collection of all <player-info> elements
+//  * @returns - The <player-info> element for the non-opponent player.
+//  */
+// const getHeroPlayerInfoElement = (
+//   playerInfoElements: HTMLCollectionOf<HTMLElement>
+// ): HTMLElement | undefined => {
+//   let heroPlayerInfoEl: HTMLElement;
+//   const transformElementMap: Map<number, HTMLElement> = new Map();
+//   for (let element of playerInfoElements) {
+//     const transform: string = element.style.transform;
+//     const yTransForm: number = parseFloat(
+//       transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
+//     );
+//     transformElementMap.set(yTransForm, element);
+//   }
+//   heroPlayerInfoEl = [...transformElementMap.entries()].reduce((prev, curr) => {
+//     return prev[0] > curr[0] ? prev : curr;
+//   })[1];
 
-/**
- * Returns the <player-info> element for the player.
- * @param playerInfoElements - the collection of all <player-info> elements
- * @returns - The <player-info> element for the non-opponent player.
- */
-const getHeroPlayerInfoElement = (
-  playerInfoElements: HTMLCollectionOf<HTMLElement>
-): HTMLElement | undefined => {
-  let heroPlayerInfoEl: HTMLElement;
-  const transformElementMap: Map<number, HTMLElement> = new Map();
-  for (let element of playerInfoElements) {
-    const transform: string = element.style.transform;
-    const yTransForm: number = parseFloat(
-      transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
-    );
-    transformElementMap.set(yTransForm, element);
-  }
-
-  heroPlayerInfoEl = [...transformElementMap.entries()].reduce((prev, curr) => {
-    return prev[0] > curr[0] ? prev : curr;
-  })[1];
-
-  return heroPlayerInfoEl;
-};
+//   return heroPlayerInfoEl;
+// };
 
 /**
  * Gets the <player-info-name> elements from the DOM, and compares their
@@ -899,9 +968,7 @@ const getPlayerAndOpponentNameByComparingElementPosition = (
   opponentName = [...nameTransformMap.entries()].reduce((prev, current) => {
     return prev[1] < current[1] ? prev : current;
   })[0];
-
   // similarly, we can assign the elements to reference variables...
-
   return [playerName, opponentName];
 };
 
@@ -923,9 +990,7 @@ const getPlayerNameAbbreviations = (
   const gameLogArr = gameLog.split("\n");
   let n1: string;
   let n2: string;
-
   let i: number = 0;
-
   for (i; i < gameLogArr.length; i++) {
     if (gameLogArr[i].match(" starts with ") !== null) {
       break;
@@ -933,7 +998,6 @@ const getPlayerNameAbbreviations = (
   }
   n1 = gameLogArr[i].split(" ")[0]; // n1 player is the player going first.
   n2 = gameLogArr[i + 2].split(" ")[0];
-
   if (playerName.substring(0, n1.length) == n1) {
     playerNick = n1;
     opponentNick = n2;
@@ -941,7 +1005,6 @@ const getPlayerNameAbbreviations = (
     playerNick = n2;
     opponentNick = n1;
   }
-
   return [playerNick, opponentNick];
 };
 
@@ -986,9 +1049,9 @@ const getPlayerRatings = (
       opponentRating = entry.substring(entry.lastIndexOf(" ") + 1);
     }
   }
-
   return [playerRating, opponentRating];
 };
+
 /**
  * Checks for presence of kingdom-viewer-group element in the dom.
  * Purpose: Control flow for content script.
@@ -1043,7 +1106,6 @@ const getKingdom = (): Array<string> => {
  * @param kingdom - The array of kingdom cards.
  * @returns Map object that contains both the player deck and opponent deck.
  */
-
 const createPlayerDecks = (
   gameTitle: string,
   ratedGame: boolean,
@@ -1056,7 +1118,6 @@ const createPlayerDecks = (
   kingdom: Array<string>
 ): Map<string, Deck | OpponentDeck> => {
   let deckMap: Map<string, Deck | OpponentDeck> = new Map();
-
   deckMap.set(
     playerName,
     new Deck(
@@ -1098,9 +1159,7 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   if (gLogArr[gLogArr.length - 1].match("Premoves") !== null) {
     gLogArr.pop();
   }
-
   const lastGameLogEntry = gLogArr.slice().pop();
-
   if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
     areNewLogs = false;
   } else if (procArr.length > gLogArr.length) {
@@ -1114,20 +1173,21 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   return areNewLogs;
 };
 
-/**
- * Checks to see if the line is special type of log that
- * requires extra processing.
- * Purpose: Control flow for content script.
- * @param line - The line being processed.
- * @returns Boolean for if the line is a treasure line.
- */
-const isATreasurePlayLogEntry = (line: string): boolean => {
-  let isATreasurePlay: boolean;
-  isATreasurePlay =
-    line.match(/Coppers?|Silvers?|Golds?/) !== null &&
-    line.match("plays") !== null;
-  return isATreasurePlay;
-};
+// DEPRECATED
+// /**
+//  * Checks to see if the line is special type of log that
+//  * requires extra processing.
+//  * Purpose: Control flow for content script.
+//  * @param line - The line being processed.
+//  * @returns Boolean for if the line is a treasure line.
+//  */
+// const isATreasurePlayLogEntry = (line: string): boolean => {
+//   let isATreasurePlay: boolean;
+//   isATreasurePlay =
+//     line.match(/Coppers?|Silvers?|Golds?/) !== null &&
+//     line.match("plays") !== null;
+//   return isATreasurePlay;
+// };
 
 /**
  * Compares the logs that have been processed with the current
@@ -1179,7 +1239,6 @@ const getUndispatchedLogs = (
 const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
   let scrollEl: Element;
   let logLineCollection: HTMLCollectionOf<HTMLElement>;
-
   scrollEl = document.getElementsByClassName("log-scroll-container")[0];
   if (scrollEl == undefined) throw new Error("Element is undefined");
   logLineCollection = scrollEl.getElementsByClassName(
@@ -1205,9 +1264,13 @@ const isLogEntryBuyWithoutGain = (logLine: string): boolean => {
   return isBuyWithoutGain;
 };
 
+/**
+ * Function takes the current kingdom and checks it for any cards that are not in the base set.
+ * @param kingdom - A kingdom from the client
+ * @returns - A boolean, false if the kingdom contains cards outside of the base set, true otherwise.
+ */
 const baseKingdomCardCheck = (kingdom: string[]): boolean => {
   let baseOnly: boolean = true;
-
   const baseCards = [
     "Cellar",
     "Chapel",
@@ -1243,16 +1306,23 @@ const baseKingdomCardCheck = (kingdom: string[]): boolean => {
     "Estate",
     "Curse",
   ];
-
   for (let i = 0; i < kingdom.length; i++) {
     if (!baseCards.includes(kingdom[i])) {
       baseOnly = false;
     }
   }
-
   return baseOnly;
 };
 
+/**
+ * Function that handles the adding and removing of an Chrome onMessage listener.  Used by the PrimaryFrame component to listen for
+ * messages from the Popup component that adds and removes the DomRoot from the client.
+ * The listener function
+ * @param add - String that determines whether the listener is to be removed or added.
+ * @param hidden - The current hidden state of the domRoot.
+ * @param dispatch - Redux reducer dispatcher.
+ * @param setViewerHidden - Reducer function that sets the 'hidden' redux state variable.
+ */
 const chromeListenerUseEffectHandler = (
   add: "Add" | "Remove",
   hidden: boolean,
@@ -1279,7 +1349,6 @@ const chromeListenerUseEffectHandler = (
     }
     sendResponse(response);
   };
-
   if (add === "Add") {
     chrome.runtime.onMessage.addListener(chromeMessageListener);
   } else if (add === "Remove") {
@@ -1287,7 +1356,15 @@ const chromeListenerUseEffectHandler = (
   }
 };
 
-const primaryFrameTabClick = (
+/**
+ * Function that is called on click events for a PrimaryFrameTab.  Sets the pinnedPrimaryFrameTab and primaryFrameTab to the
+ * name of the clicked tab.
+ * @param tabName - The 'name' attribute of the tab that was clicked.
+ * @param dispatch - Redux dispatcher.
+ * @param setPrimaryFrameTab - The contentSlice reducer that sets the primaryFrameTab.
+ * @param setPinnedPrimaryFrameTab - The contentSlice reducer that sets the pinnedPrimaryFrameTab.
+ */
+const onPrimaryFrameTabClick = (
   tabName: PrimaryFrameTabType,
   dispatch: Dispatch<AnyAction>,
   setPrimaryFrameTab: ActionCreatorWithPayload<
@@ -1303,7 +1380,14 @@ const primaryFrameTabClick = (
   dispatch(setPinnedPrimaryFrameTab(tabName));
 };
 
-const primaryFrameTabMouseEnter = (
+/**
+ * Function that is called by on mouseEnter events for a PrimaryFrameTab. Sets the primaryFrameTab to the name
+ * of the tab that the mouse is entering.
+ * @param tabName - The 'name' attribute of the tab that was clicked.
+ * @param dispatch - Redux dispatcher.
+ * @param setPrimaryFrameTab - The contentSlice reducer that sets the primaryFrameTab.
+ */
+const onPrimaryFrameTabMouseEnter = (
   tabName: PrimaryFrameTabType,
   dispatch: Dispatch<AnyAction>,
   setPrimaryFrameTab: ActionCreatorWithPayload<
@@ -1314,7 +1398,14 @@ const primaryFrameTabMouseEnter = (
   dispatch(setPrimaryFrameTab(tabName));
 };
 
-const primaryFrameTabMouseLeave = (
+/**
+ *  Function that is called by on mouseLeave events for a PrimaryFrameTab.  Sets the primaryFrameTab to the name
+ * of the pinnedPrimaryFrameTab when the mouse leaves.
+ * @param pinnedPrimaryFrameTab - The current pinnedPrimaryFrameTab value.
+ * @param dispatch - Redux dispatcher.
+ * @param setPrimaryFrameTab -- The contentSlice reducer that sets the primaryFrameTab.
+ */
+const onPrimaryFrameTabMouseLeave = (
   pinnedPrimaryFrameTab: PrimaryFrameTabType,
   dispatch: Dispatch<AnyAction>,
   setPrimaryFrameTab: ActionCreatorWithPayload<
@@ -1325,28 +1416,225 @@ const primaryFrameTabMouseLeave = (
   dispatch(setPrimaryFrameTab(pinnedPrimaryFrameTab));
 };
 
+/**
+ * Function that is called by click events on a CustomSelect component.
+ * @param selectState - The current select state.
+ * @param dispatch - Redux dispatcher.
+ * @param setSelectOpen - The contentSlice reducer that sets the selectOpen state.
+ */
+const onToggleSelect = (
+  selectState: boolean,
+  dispatch: Dispatch<AnyAction>,
+  setSelectOpen: ActionCreatorWithPayload<boolean, "content/setSelectOpen">
+) => {
+  dispatch(setSelectOpen(!selectState));
+};
+
+/**
+ * Function that is called by mouseEnter events on an option (it's actually a div) in the CustomSelect.
+ * Sets the topCardsLookAmount to the value of the 'option' that the mouse is entering.
+ * @param cardAmount - Value of the option that the mouse is entering.
+ * @param dispatch - Redux dispatcher.
+ * @param setTopCardsLookAmount - The contentSlice reduce that sets the topCardsLookAmount.
+ */
+const onMouseEnterOption = (
+  cardAmount: number,
+  dispatch: Dispatch<AnyAction>,
+  setTopCardsLookAmount: ActionCreatorWithPayload<
+    number,
+    "content/setTopCardsLookAmount"
+  >
+) => {
+  dispatch(setTopCardsLookAmount(cardAmount));
+};
+
+/**
+ * Function that is called by mouseLeave events on an 'option' (it's actually a div) in the CustomSelect.
+ * Sets the topCardsLookAmount back to the pinnedTopCardsLookAmount.
+ * @param pinnedCardAmount - The current pinnedTopCardsLookAmount.
+ * @param dispatch - Redux Dispatcher
+ * @param setTopCardsLookAmount - The contentSlice reducer that sets the topCardsLookAmount.
+ */
+const onMouseLeaveOption = (
+  pinnedCardAmount: number,
+  dispatch: Dispatch<AnyAction>,
+  setTopCardsLookAmount: ActionCreatorWithPayload<number, string>
+) => {
+  dispatch(setTopCardsLookAmount(pinnedCardAmount));
+};
+
+/**
+ * Function that is called by click events on an 'option' (it's actually a div) in the CustomSelect.
+ * Sets the topCardsLookAmount and the pinnedTopCardsLookAmount to the value of the option that is clicked.
+ * @param cardAmount - Value of the option being clicked.
+ * @param dispatch - Redux Dispatcher.
+ * @param setTopCardsLookAmount - The contentSlice reducer that sets the topCardsLookAmount.
+ * @param setPinnedTopCardsLookAmount - The contentSlice reducer that sets the pinnedTopCardsLookAmount
+ */
+const onOptionClick = (
+  cardAmount: number,
+  dispatch: Dispatch<AnyAction>,
+  setTopCardsLookAmount: ActionCreatorWithPayload<
+    number,
+    "content/setTopCardsLookAmount"
+  >,
+  setPinnedTopCardsLookAmount: ActionCreatorWithPayload<
+    number,
+    "content/setPinnedTopCardsLookAmount"
+  >
+) => {
+  dispatch(setTopCardsLookAmount(cardAmount));
+  dispatch(setPinnedTopCardsLookAmount(cardAmount));
+};
+
+// DEPRECATED
+// /**
+//  * Function that closes the CustomSelect when added to a click event listener for the document itself.  Deprecated after
+//  * it was decided to let the select stay open.
+//  * @param event
+//  * @param setSelectOpen
+//  */
+// const nonOptionClick = (
+//   event: MouseEvent,
+//   dispatch: Dispatch<AnyAction>,
+//   setSelectOpen: ActionCreatorWithPayload<boolean, "content/setSelectOpen">
+// ) => {
+//   const element = event.target as HTMLElement;
+//   const parent = element.parentElement;
+//   const parentId = parent === null ? "null" : parent.id;
+//   if (
+//     parentId !== "option-container" &&
+//     element.id !== "select-button" &&
+//     element.id !== "thumb-track"
+//   ) {
+//     dispatch(setSelectOpen(false));
+//   }
+// };
+
+/**
+ * Function that is called by scroll events in the ScrollBars Component.  Used by the CustomSelect to save the
+ * scroll position.
+ * @param scrollPosition - The scroll position.
+ * @param dispatch - Redux dispatcher.
+ * @param setSelectScrollPosition - The contentSlice reducer that sets the selectScrollPosition.
+ */
+const onSelectScroll = (
+  scrollPosition: number,
+  dispatch: Dispatch<AnyAction>,
+  setSelectScrollPosition: ActionCreatorWithPayload<
+    number,
+    "content/setSelectScrollPosition"
+  >
+) => {
+  dispatch(setSelectScrollPosition(scrollPosition));
+};
+
+/**
+ * Function that is called by mouseEnter events on a TurnButton.  Sets the
+ * @param buttonName
+ * @param dispatch
+ * @param setTurnToggleButton
+ */
+const onMouseEnterTurnButton = (
+  buttonName: "Current" | "Next",
+  dispatch: Dispatch<AnyAction>,
+  setTurnToggleButton: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setTurnToggleButton"
+  >
+) => {
+  dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Function that is called by mouseLeave events on a TurnButton.  Sets the turnToggleButton back to the pinnedTurnToggleButton value.
+ * @param pinnedTurnButton - The pinnedTurnToggleButton state.
+ * @param dispatch - Redux dispatcher.
+ * @param setTurn - The contentSlice reducer that sets the turnToggleButton state.
+ */
+const onMouseLeaveTurnButton = (
+  pinnedTurnToggleButton: "Current" | "Next",
+  dispatch: Dispatch<AnyAction>,
+  setTurn: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setTurnToggleButton"
+  >
+) => {
+  dispatch(setTurn(pinnedTurnToggleButton));
+};
+
+/**
+ * Function that is called by click events on a TurnButton.  Sets the pinnedTurnToggleButton value and the turnToggleButton
+ * value to the name of the button that is being clicked.
+ * @param buttonName - Name of the button being clicked.
+ * @param dispatch - Redux dispatcher
+ * @param setPinnedTurnToggleButton - The contentSlice reducer that sets the pinnedTurnToggleButton state.
+ * @param setTurnToggleButton - the contentSlice reducer that sets the turnToggleButton state.
+ */
+const onTurnToggleButtonClick = (
+  buttonName: "Current" | "Next",
+  dispatch: Dispatch<AnyAction>,
+  setPinnedTurnToggleButton: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setPinnedTurnToggleButton"
+  >,
+  setTurnToggleButton: ActionCreatorWithPayload<
+    "Current" | "Next",
+    "content/setTurnToggleButton"
+  >
+) => {
+  dispatch(setPinnedTurnToggleButton(buttonName));
+  dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Function that is called by click events on a SortButton.  Uses the given reducer to set the sortButtonState
+ * for that reducer according to the given sortCategory value.
+ * @param sortCategory - The category to sort by.
+ * @param currentSortButtonState - The current sortButtonState
+ * @param dispatch - Redux Dispatcher.
+ * @param sortReducer - A sort reducer from the contentSlice.
+ */
+const onSortButtonClick = (
+  sortCategory: SortCategory,
+  currentSortButtonState: SortButtonState,
+  dispatch: Dispatch<AnyAction>,
+  sortReducer: SortReducer
+) => {
+  let sortToDispatch: "ascending" | "descending";
+  if (currentSortButtonState.category !== sortCategory) {
+    sortToDispatch = "ascending";
+  } else {
+    sortToDispatch =
+      currentSortButtonState.sort === "ascending" ? "descending" : "ascending";
+  }
+  dispatch(
+    sortReducer({
+      category: sortCategory,
+      sort: sortToDispatch,
+    })
+  );
+};
+
 export {
   isErrorWithMessage,
   toErrorWithMessage,
   getErrorMessage,
-  calculateDrawProbability,
   getCountsFromArray,
   combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
   createEmptySplitMapsObject,
-  sortByAmountInZone,
   sortMainViewer,
   sortTheHistoryDeckView,
   sortZoneView,
   getRowColor,
   getResult,
-  getProb,
+  getCumulativeHyperGeometricProbabilityForCard,
   stringifyProbability,
   isGameLogPresent,
   getGameLog,
   arePlayerInfoElementsPresent,
   getPlayerInfoElements,
-  getHeroPlayerInfoElement,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerNameAbbreviations,
   getRatedGameBoolean,
@@ -1355,13 +1643,21 @@ export {
   getKingdom,
   createPlayerDecks,
   areNewLogsToSend,
-  isATreasurePlayLogEntry,
   getUndispatchedLogs,
   getLogScrollContainerLogLines,
   isLogEntryBuyWithoutGain,
   baseKingdomCardCheck,
   chromeListenerUseEffectHandler,
-  primaryFrameTabClick,
-  primaryFrameTabMouseEnter,
-  primaryFrameTabMouseLeave,
+  onPrimaryFrameTabClick,
+  onPrimaryFrameTabMouseEnter,
+  onPrimaryFrameTabMouseLeave,
+  onToggleSelect,
+  onMouseEnterOption,
+  onMouseLeaveOption,
+  onOptionClick,
+  onSelectScroll,
+  onMouseLeaveTurnButton,
+  onMouseEnterTurnButton,
+  onTurnToggleButtonClick,
+  onSortButtonClick,
 };

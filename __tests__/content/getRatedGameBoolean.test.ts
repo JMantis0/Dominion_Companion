@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { getRatedGameBoolean } from "../../src/content/utils/utils";
+import { getRatedGameBoolean } from "../../src/utils/utils";
 
 describe("Function getRatedGameBoolean()", () => {
   describe("when the first log entry of the game log contains the substring ' rated.'", () => {

@@ -7,14 +7,14 @@ import {
   getCountsFromArray,
   sortMainViewer,
   getRowColor,
-  getProb,
+  getCumulativeHyperGeometricProbabilityForCard,
   stringifyProbability,
-} from "../../utils/utils";
+} from "../../../utils/utils";
 import FullListCardRow from "./FullListCardRow/FullListCardRow";
 import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
-import CustomSelect from "./MainDeckViewHeader/CustomSelect/CustomSelect";
-import TurnButton from "./ViewFooter/TurnButton/TurnButton";
+import CustomSelect from "./CustomSelect/CustomSelect";
+import TurnButton from "./TurnButton/TurnButton";
 
 const MainDeckViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
@@ -60,8 +60,13 @@ const MainDeckViewer = () => {
               <FullListCardRow
                 key={idx}
                 drawProbability={stringifyProbability(
-                  getProb(pd, card, turnToggleButton, 1, topCardsLookAmount)
-                    .cumulative
+                  getCumulativeHyperGeometricProbabilityForCard(
+                    pd,
+                    card,
+                    turnToggleButton,
+                    1,
+                    topCardsLookAmount
+                  ).cumulative
                 )}
                 color={getRowColor(card)}
                 cardName={card}

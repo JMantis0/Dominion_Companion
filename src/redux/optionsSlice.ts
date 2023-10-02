@@ -5,7 +5,7 @@ import { StoreDeck } from "../model/storeDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
-import { SortButtonState } from "../content/utils/utils";
+import { SortButtonState } from "../utils/utils";
 
 export interface SavedGame {
   logArchive: string;

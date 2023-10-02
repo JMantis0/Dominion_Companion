@@ -3,18 +3,12 @@ import React, { useState, useEffect, FunctionComponent } from "react";
 import { OpponentStoreDeck } from "../../../model/opponentStoreDeck";
 import { StoreDeck } from "../../../model/storeDeck";
 import {
-  setDiscardSortState,
-  setOpponentSortState,
-  setOpponentTrashSortState,
-  setSortedButtonsState,
-  setTrashSortState,
-} from "../../../redux/contentSlice";
-import {
   SortButtonState,
+  SortReducer,
   getCountsFromArray,
   getRowColor,
   sortZoneView,
-} from "../../utils/utils";
+} from "../../../utils/utils";
 import ZoneCardRow from "./ZoneCardRow/ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader/ZoneViewHeader";
 
@@ -23,12 +17,7 @@ type ZoneViewerProps = {
   zone: string[];
   title: string;
   sortButtonState: SortButtonState;
-  sortDispatchFunc:
-    | typeof setSortedButtonsState
-    | typeof setDiscardSortState
-    | typeof setOpponentSortState
-    | typeof setOpponentTrashSortState
-    | typeof setTrashSortState;
+  sortDispatchFunc: SortReducer;
 };
 const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
   deck,
@@ -52,7 +41,7 @@ const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
     <div className="text-xs outer-shell">
       <ZoneViewHeader
         dispatchFunc={sortDispatchFunc}
-        reduxState={sortButtonState}
+        currentSortState={sortButtonState}
       />
       {zone.length !== undefined && zone.length !== 0 ? (
         Array.from(map.entries()).map((entry, idx) => {

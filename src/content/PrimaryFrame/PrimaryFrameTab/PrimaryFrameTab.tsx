@@ -1,15 +1,15 @@
 import React, { BaseSyntheticEvent, FunctionComponent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../../redux/store";
+import { RootState } from "../../../redux/store";
 import {
   setPinnedPrimaryFrameTab,
   setPrimaryFrameTab,
-} from "../../../../redux/contentSlice";
+} from "../../../redux/contentSlice";
 import {
   PrimaryFrameTabType,
-  primaryFrameTabClick,
-  primaryFrameTabMouseEnter,
-  primaryFrameTabMouseLeave,
+  onPrimaryFrameTabClick,
+  onPrimaryFrameTabMouseEnter,
+  onPrimaryFrameTabMouseLeave,
 } from "../../../utils/utils";
 
 type PrimaryFrameTabProps = {
@@ -41,7 +41,7 @@ const PrimaryFrameTab: FunctionComponent<PrimaryFrameTabProps> = ({
       } ${pinnedTab === title ? "text-lime-500" : null}`}
       onClick={(e: BaseSyntheticEvent) => {
         const tabName = e.target.name;
-        primaryFrameTabClick(
+        onPrimaryFrameTabClick(
           tabName,
           dispatch,
           setPrimaryFrameTab,
@@ -50,10 +50,10 @@ const PrimaryFrameTab: FunctionComponent<PrimaryFrameTabProps> = ({
       }}
       onMouseEnter={(e: BaseSyntheticEvent) => {
         const tabName = e.target.name;
-        primaryFrameTabMouseEnter(tabName, dispatch, setPrimaryFrameTab);
+        onPrimaryFrameTabMouseEnter(tabName, dispatch, setPrimaryFrameTab);
       }}
       onMouseLeave={() => {
-        primaryFrameTabMouseLeave(pinnedTab, dispatch, setPrimaryFrameTab);
+        onPrimaryFrameTabMouseLeave(pinnedTab, dispatch, setPrimaryFrameTab);
       }}
       name={title}
     >

@@ -1,55 +1,20 @@
-import React, { BaseSyntheticEvent, Dispatch, FunctionComponent } from "react";
+import React, { BaseSyntheticEvent, FunctionComponent } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../../../redux/store";
-import { AnyAction } from "redux";
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { RootState } from "../../../../redux/store";
 import {
   setPinnedTurnToggleButton,
   setTurnToggleButton,
-} from "../../../../../redux/contentSlice";
+} from "../../../../redux/contentSlice";
+import {
+  onMouseEnterTurnButton,
+  onMouseLeaveTurnButton,
+  onTurnToggleButtonClick,
+} from "../../../../utils/utils";
 
 library.add(faCircle);
-
-const mouseLeaveTurnButton = (
-  pinnedTurnButton: "Current" | "Next",
-  dispatch: Dispatch<AnyAction>,
-  setTurn: ActionCreatorWithPayload<
-    "Current" | "Next",
-    "content/setTurnToggleButton"
-  >
-) => {
-  dispatch(setTurn(pinnedTurnButton));
-};
-
-const mouseEnterTurnButton = (
-  buttonName: "Current" | "Next",
-  dispatch: Dispatch<AnyAction>,
-  setTurnToggleButton: ActionCreatorWithPayload<
-    "Current" | "Next",
-    "content/setTurnToggleButton"
-  >
-) => {
-  dispatch(setTurnToggleButton(buttonName));
-};
-
-const turnToggleButtonClick = (
-  buttonName: "Current" | "Next",
-  dispatch: Dispatch<AnyAction>,
-  setPinnedTurnToggleButton: ActionCreatorWithPayload<
-    "Current" | "Next",
-    "content/setPinnedTurnToggleButton"
-  >,
-  setTurnToggleButton: ActionCreatorWithPayload<
-    "Current" | "Next",
-    "content/setTurnToggleButton"
-  >
-) => {
-  dispatch(setPinnedTurnToggleButton(buttonName));
-  dispatch(setTurnToggleButton(buttonName));
-};
 
 type TurnButtonProps = {
   buttonName: "Next" | "Current";
@@ -82,10 +47,10 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
       name={buttonName}
       onMouseEnter={(e: BaseSyntheticEvent) => {
         const buttonName = e.target.name;
-        mouseEnterTurnButton(buttonName, dispatch, setTurnToggleButton);
+        onMouseEnterTurnButton(buttonName, dispatch, setTurnToggleButton);
       }}
       onMouseLeave={() => {
-        mouseLeaveTurnButton(
+        onMouseLeaveTurnButton(
           pinnedTurnToggleButton,
           dispatch,
           setTurnToggleButton
@@ -93,7 +58,7 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
       }}
       onClick={(e: BaseSyntheticEvent) => {
         const buttonName = e.target.name;
-        turnToggleButtonClick(
+        onTurnToggleButtonClick(
           buttonName,
           dispatch,
           setPinnedTurnToggleButton,
@@ -105,7 +70,7 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
       libraryLength < 5 &&
       topCardsLookAmount > libraryLength ? (
         <FontAwesomeIcon
-        className="absolute top-0 right-0"
+          className="absolute top-0 right-0"
           icon="circle"
           size="xs"
           style={{ color: "#ff0000" }}

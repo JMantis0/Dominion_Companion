@@ -1,4 +1,4 @@
-import { GameResult } from "../content/utils/utils";
+import { GameResult } from "../utils/utils";
 
 
 export interface StoreDeck {

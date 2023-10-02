@@ -1,23 +1,16 @@
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import React, { FunctionComponent } from "react";
 
 import SortButton from "../../SortButton/SortButton";
-import { SortButtonState } from "../../../utils/utils";
+import { SortButtonState, SortReducer } from "../../../../utils/utils";
 
 type ZoneViewHeaderProps = {
-  dispatchFunc:
-    | ActionCreatorWithPayload<SortButtonState, "content/setSortedButtonsState">
-    | ActionCreatorWithPayload<SortButtonState, "content/setDiscardSortState">
-    | ActionCreatorWithPayload<SortButtonState, "content/setOpponentSortState">
-    | ActionCreatorWithPayload<SortButtonState, "content/setOpponentTrashSortState">
-    | ActionCreatorWithPayload<SortButtonState, "content/setTrashSortState">;
-    
-  reduxState: SortButtonState;
+  dispatchFunc: SortReducer;
+  currentSortState: SortButtonState;
 };
 
 const ZoneViewHeader: FunctionComponent<ZoneViewHeaderProps> = ({
   dispatchFunc,
-  reduxState,
+  currentSortState,
 }) => {
   return (
     <React.Fragment>
@@ -27,7 +20,7 @@ const ZoneViewHeader: FunctionComponent<ZoneViewHeaderProps> = ({
             title="Card"
             category="card"
             reducer={dispatchFunc}
-            reduxState={reduxState}
+            currentSortState={currentSortState}
           />
         </div>
         <div className="col-span-5 whitespace-nowrap">
@@ -35,7 +28,7 @@ const ZoneViewHeader: FunctionComponent<ZoneViewHeaderProps> = ({
             title="Amount"
             category="zone"
             reducer={dispatchFunc}
-            reduxState={reduxState}
+            currentSortState={currentSortState}
           />
         </div>
       </div>

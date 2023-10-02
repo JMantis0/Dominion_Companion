@@ -5,7 +5,7 @@ import { StoreDeck } from "../model/storeDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
-import { PrimaryFrameTabType, SortButtonState } from "../content/utils/utils";
+import { PrimaryFrameTabType, SortButtonState } from "../utils/utils";
 
 export interface ContentState {
   playerDeck: StoreDeck;
