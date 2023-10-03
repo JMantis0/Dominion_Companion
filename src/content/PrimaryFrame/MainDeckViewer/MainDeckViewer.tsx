@@ -78,9 +78,9 @@ const MainDeckViewer = () => {
           <ViewFooter />;
         </div>
         <div className={"col-span-2"}>
+          <CustomSelect colSpan={12} />
           <TurnButton buttonName="Current" />
           <TurnButton buttonName="Next" />
-          <CustomSelect colSpan={12} />
         </div>
       </div>
     </div>

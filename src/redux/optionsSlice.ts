@@ -15,11 +15,15 @@ export interface SavedGame {
   logHtml: string;
 }
 
+export interface SavedGames {
+  [title: string]: SavedGame;
+}
+
 export interface OptionsState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   sortButtonState: SortButtonState;
-  savedGames: any;
+  savedGames: SavedGames;
   logHtml: string;
   gameKeys: string[];
   selectedRecord: number;
@@ -34,7 +38,7 @@ const initialState: OptionsState = {
     category: "owned",
     sort: "ascending",
   },
-  savedGames: [],
+  savedGames: {},
   logHtml: "",
   gameKeys: [],
   selectedRecord: -1,
@@ -52,7 +56,7 @@ export const optionsSlice = createSlice({
     setOpponentDeck: (state, action: PayloadAction<OpponentStoreDeck>) => {
       state.opponentDeck = action.payload;
     },
-    setSavedGames: (state, action: PayloadAction<any>) => {
+    setSavedGames: (state, action: PayloadAction<SavedGames>) => {
       console.log("Setting saved games");
       state.savedGames = action.payload;
     },

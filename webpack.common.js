@@ -35,19 +35,6 @@ module.exports = {
             loader: "css-loader",
             options: {
               importLoaders: 1,
-              url: {
-                filter: (url, resourcePath) => {
-                  if (
-                    url.match(
-                      "chrome-extension://nmcfafjpmpnjchjdkogjbfolaidedgkf"
-                    ) !== null
-                  ) {
-                    return false;
-                  } else {
-                    return true;
-                  }
-                },
-              },
             },
           },
 
@@ -76,7 +63,9 @@ module.exports = {
           to: path.resolve("dist"),
         },
         {
-          from: path.resolve("node_modules/jquery-ui-bundle/images/ui-icons_ffffff_256x240.png"),
+          from: path.resolve(
+            "node_modules/jquery-ui-bundle/images/ui-icons_ffffff_256x240.png"
+          ),
           to: path.resolve("dist"),
         },
       ],

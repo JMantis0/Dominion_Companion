@@ -1,6 +1,5 @@
 /*global chrome*/
 import React, { useEffect } from "react";
-import $ from "jquery";
 import "jquery-ui-bundle/jquery-ui.css";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,7 +11,8 @@ import TrashZoneViewer from "./TrashZoneViewer/TrashZoneViewer";
 import OpponentViewer from "./OpponentViewer/OpponentViewer";
 import PrimaryFrameTab from "./PrimaryFrameTab/PrimaryFrameTab";
 import PrimaryFrameHeader from "./PrimaryFrameHeader/PrimaryFrameHeader";
-import { chromeListenerUseEffectHandler } from "../../utils/utils";
+import { addResizableAndDraggableToPrimaryFrame, chromeListenerUseEffectHandler } from "../../utils/utils";
+
 
 const PrimaryFrame = () => {
   const dispatch = useDispatch();
@@ -26,7 +26,6 @@ const PrimaryFrame = () => {
   const primaryFrameTab = useSelector(
     (state: RootState) => state.content.primaryFrameTab
   );
-
   useEffect(() => {
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler("Add", hidden, dispatch, setViewerHidden);
@@ -42,18 +41,8 @@ const PrimaryFrame = () => {
     // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
     // Without this dependency, the event listener will have stale values for the 'hidden' variable
   }, [hidden]);
-
   useEffect(() => {
-    $("#primaryFrame")
-      .draggable({
-        // optional callback:
-        // drag: function (event, ui) {},
-      })
-      .resizable({
-        handles: "all",
-        // optional callback
-        // resize: function (event, ui) {},
-      });
+    addResizableAndDraggableToPrimaryFrame();
   }, []);
 
   return (

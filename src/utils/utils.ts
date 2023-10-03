@@ -11,6 +11,7 @@ import {
   setSortedButtonsState,
   setTrashSortState,
 } from "../redux/contentSlice";
+import $ from "jquery";
 
 /**
  * Custom type for a SavedGame object literal interface.
@@ -1616,6 +1617,36 @@ const onSortButtonClick = (
   );
 };
 
+/**
+ * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.  
+ * The fix for getting Resizable handle icons to appear in extension context is also here.
+ */
+const addResizableAndDraggableToPrimaryFrame = () => {
+  $("#primaryFrame")
+    .draggable({
+      // optional callback:
+      // drag: function (event, ui) {},
+    })
+    .resizable({
+      handles: "all",
+      // optional callback
+      // resize: function (event, ui) {},
+    });
+    
+    // Add the Resizable handle-icon
+  if (chrome.runtime !== null && chrome.runtime !== undefined) {
+    const resizableHandleElement = $(
+      ".ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
+    )[0];
+    resizableHandleElement.setAttribute(
+      "style",
+      "background-image: url(chrome-extension://" +
+        chrome.runtime.id +
+        "/ui-icons_ffffff_256x240.png) !important; z-index:90"
+    );
+  }
+};
+
 export {
   isErrorWithMessage,
   toErrorWithMessage,
@@ -1660,4 +1691,5 @@ export {
   onMouseEnterTurnButton,
   onTurnToggleButtonClick,
   onSortButtonClick,
+  addResizableAndDraggableToPrimaryFrame,
 };
