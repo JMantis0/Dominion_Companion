@@ -1618,7 +1618,7 @@ const onSortButtonClick = (
 };
 
 /**
- * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.  
+ * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.
  * The fix for getting Resizable handle icons to appear in extension context is also here.
  */
 const addResizableAndDraggableToPrimaryFrame = () => {
@@ -1628,12 +1628,12 @@ const addResizableAndDraggableToPrimaryFrame = () => {
       // drag: function (event, ui) {},
     })
     .resizable({
-      handles: "all",
+      handles: "n, e, s, w, ne, nw, se, sw",
       // optional callback
       // resize: function (event, ui) {},
     });
-    
-    // Add the Resizable handle-icon
+
+  // Add the Resizable handle-icon
   if (chrome.runtime !== null && chrome.runtime !== undefined) {
     const resizableHandleElement = $(
       ".ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"

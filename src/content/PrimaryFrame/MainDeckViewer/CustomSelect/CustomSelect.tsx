@@ -25,10 +25,8 @@ import {
   onOptionClick,
   onToggleSelect,
 } from "../../../../utils/utils";
+import $ from "jquery";
 library.add(faAngleUp, faAngleDown);
-// const selectedClass = "bg-[#1b1b1b] border-[#272727] text-[#dfdfdf]";
-// const unselectedClass =
-//   "hover:bg-[#1b1b1b] hover:border-[#272727] text-[#aaa] hover:text-[#dfdfdf]";
 
 export type CustomSelectProps = {
   colSpan: number;
@@ -59,6 +57,28 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   useEffect(() => {
     if (selectScrollRef.current !== undefined && selectScrollRef.current) {
       selectScrollRef.current!.scrollTop(selectScrollPosition);
+    }
+    $("#select-scrollbars").append($("#custom-handle"));
+    $("#select-scrollbars").resizable({
+      handles: { s: $("#custom-handle") },
+      // optional callback
+      // resize: function (event, ui) {},
+    });
+    const customHandle = document.getElementById("custom-handle");
+
+    if (
+      customHandle !== null &&
+      chrome.runtime !== null &&
+      chrome.runtime !== undefined
+    ) {
+      customHandle.setAttribute(
+        "style",
+        "background-image: url(chrome-extension://" +
+          chrome.runtime.id +
+          "/ui-icons_ffffff_256x240.png) !important; z-index:90;left:unset;"
+      );
+    } else {
+      console.log("chrome or custom handle not found");
     }
   }, []);
 
@@ -93,6 +113,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           </span>
         </button>
         <Scrollbars
+          id="select-scrollbars"
           ref={selectScrollRef}
           className={`${selectOpen ? "border-x border-y" : "hidden"}`}
           autoHide={false}
@@ -100,6 +121,9 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             width: "100%",
             height: "100px",
             border: selectOpen ? "1px solid white" : "none",
+          }}
+          renderView={({ style, ...props }) => {
+            return <div id="scrollbars-view" {...props} style={{ ...style }} />;
           }}
           renderTrackHorizontal={(props) => (
             <div {...props} style={{ display: "none" }} />
@@ -113,7 +137,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
               top: "2px",
               borderRadius: "3px",
             };
-            return <div id="vtrack" style={finalStyle} {...props} />;
+            return <div style={finalStyle} {...props} />;
           }}
           renderThumbVertical={({ style, ...props }) => (
             <main
@@ -139,10 +163,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             );
           }}
         >
-          <main
-            id="option-container"
-            className={`w-[99%] h-[99%] absolute`}
-          >
+          <main id="option-container" className={`w-[99%] h-[99%] absolute`}>
             {[...Array<number>(totalCards).keys()]
               .map((n: number) => n + 1)
               .map((n: number) => {
@@ -183,6 +204,13 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                 );
               })}
           </main>
+          <div
+            id="custom-handle"
+            // Order of the classes matters.  This gives the functionality of a south handle with
+            // the appearance and positioning of a southeast handle.
+            className="ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
+            style={{ zIndex: 90, left: "unset" }}
+          ></div>
         </Scrollbars>
       </div>
     </React.Fragment>
