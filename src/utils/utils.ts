@@ -1666,7 +1666,7 @@ const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
     handles: { s: $("#custom-handle") },
   });
   // Configure style to put icon in the proper bottom right position of the element.
-  customHandle!.setAttribute("style", "z-index: 90; left: unset; cursor: s-resize");
+  customHandle!.setAttribute("style", "z-index: 90; left: unset; cursor: s-resize;");
   // Configure the style attribute to link handle to the Resizable icon resource.
   if (chrome.runtime !== null && chrome.runtime !== undefined) {
     const customHandleStyle = customHandle!.getAttribute("style");
