@@ -30,8 +30,6 @@ library.add(faAngleUp, faAngleDown);
 // const unselectedClass =
 //   "hover:bg-[#1b1b1b] hover:border-[#272727] text-[#aaa] hover:text-[#dfdfdf]";
 
-
-
 export type CustomSelectProps = {
   colSpan: number;
 };
@@ -96,7 +94,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         </button>
         <Scrollbars
           ref={selectScrollRef}
-          className={`${selectOpen ? "border-x border-y" : ""}`}
+          className={`${selectOpen ? "border-x border-y" : "hidden"}`}
           autoHide={false}
           style={{
             width: "100%",
@@ -106,6 +104,17 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           renderTrackHorizontal={(props) => (
             <div {...props} style={{ display: "none" }} />
           )}
+          renderTrackVertical={({ style, ...props }) => {
+            const finalStyle = {
+              ...style,
+              width: "9px",
+              right: 0,
+              bottom: "2px",
+              top: "2px",
+              borderRadius: "3px",
+            };
+            return <div id="vtrack" style={finalStyle} {...props} />;
+          }}
           renderThumbVertical={({ style, ...props }) => (
             <main
               {...props}
@@ -113,7 +122,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
               style={{
                 ...style,
                 backgroundColor: "#e9e9e9",
-                width: "90%",
+                width: "100%",
                 opacity: ".75",
                 height: "10px",
                 left: "20%",
@@ -132,7 +141,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         >
           <main
             id="option-container"
-            className={`w-[99%] h-[99%] absolute ${selectOpen ? "" : "hidden"}`}
+            className={`w-[99%] h-[99%] absolute`}
           >
             {[...Array<number>(totalCards).keys()]
               .map((n: number) => n + 1)
@@ -169,7 +178,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                     value={n}
                     key={n}
                   >
-                    {n}
+                    <span className="mr-2 pointer-events-none">{n}</span>
                   </button>
                 );
               })}
