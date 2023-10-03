@@ -24,11 +24,9 @@ import {
   onSelectScroll,
   onOptionClick,
   onToggleSelect,
+  addResizableAndCustomHandleToCustomSelectScrollBars,
 } from "../../../../utils/utils";
 library.add(faAngleUp, faAngleDown);
-// const selectedClass = "bg-[#1b1b1b] border-[#272727] text-[#dfdfdf]";
-// const unselectedClass =
-//   "hover:bg-[#1b1b1b] hover:border-[#272727] text-[#aaa] hover:text-[#dfdfdf]";
 
 export type CustomSelectProps = {
   colSpan: number;
@@ -55,11 +53,12 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   );
   const selectScrollRef = useRef<Scrollbars>(null);
 
-  // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
   useEffect(() => {
+    // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
     if (selectScrollRef.current !== undefined && selectScrollRef.current) {
       selectScrollRef.current!.scrollTop(selectScrollPosition);
     }
+    addResizableAndCustomHandleToCustomSelectScrollBars();
   }, []);
 
   return (
@@ -74,7 +73,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         >
           <span className="col-span-1"></span>{" "}
           <span className="col-span-6 pointer-events-none">Top</span>
-          {/* <br className="pointer-events-none"></br> */}
           <span
             className={`col-span-5 ${
               pinnedTopCardsLookAmount === topCardsLookAmount
@@ -93,6 +91,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           </span>
         </button>
         <Scrollbars
+          id="select-scrollbars"
           ref={selectScrollRef}
           className={`${selectOpen ? "border-x border-y" : "hidden"}`}
           autoHide={false}
@@ -113,7 +112,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
               top: "2px",
               borderRadius: "3px",
             };
-            return <div id="vtrack" style={finalStyle} {...props} />;
+            return <div style={finalStyle} {...props} />;
           }}
           renderThumbVertical={({ style, ...props }) => (
             <main
@@ -139,10 +138,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             );
           }}
         >
-          <main
-            id="option-container"
-            className={`w-[99%] h-[99%] absolute`}
-          >
+          <main id="option-container" className={`w-[99%] h-[99%] absolute`}>
             {[...Array<number>(totalCards).keys()]
               .map((n: number) => n + 1)
               .map((n: number) => {
@@ -183,6 +179,12 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                 );
               })}
           </main>
+          <div
+            id="custom-handle"
+            // Order of the classes matters.  This gives the functionality of a south handle with
+            // the appearance and positioning of a southeast handle.
+            className="ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
+          ></div>
         </Scrollbars>
       </div>
     </React.Fragment>
@@ -190,3 +192,4 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
 };
 
 export default CustomSelect;
+

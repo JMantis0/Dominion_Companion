@@ -75,7 +75,7 @@ const MainDeckViewer = () => {
               />
             );
           })}
-          <ViewFooter />;
+          <ViewFooter />
         </div>
         <div className={"col-span-2"}>
           <CustomSelect colSpan={12} />

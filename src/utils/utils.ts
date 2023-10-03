@@ -1618,31 +1618,64 @@ const onSortButtonClick = (
 };
 
 /**
- * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.  
+ * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.
  * The fix for getting Resizable handle icons to appear in extension context is also here.
  */
 const addResizableAndDraggableToPrimaryFrame = () => {
-  $("#primaryFrame")
-    .draggable({
-      // optional callback:
-      // drag: function (event, ui) {},
-    })
-    .resizable({
-      handles: "all",
-      // optional callback
-      // resize: function (event, ui) {},
-    });
-    
-    // Add the Resizable handle-icon
+  $("#primaryFrame").draggable({}).resizable({
+    handles: "n, e, s, w, ne, nw, se, sw",
+  });
+  const primaryFrameResizableHandle = document.querySelector(
+    "#primaryFrame > .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
+  );
+  // Give the PrimaryFrame resizable handle an id for disambiguation.
+  primaryFrameResizableHandle?.setAttribute(
+    "id",
+    "primary-frame-resizable-handle"
+  );
+  // Configure style to pull icon inward away from the frame border.
+  primaryFrameResizableHandle?.setAttribute(
+    "style",
+    "bottom: 8px; right: 8px; z-index:90;"
+  );
+  // Configure the style attribute to link handle to the Resizable icon resource.
   if (chrome.runtime !== null && chrome.runtime !== undefined) {
-    const resizableHandleElement = $(
-      ".ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
-    )[0];
-    resizableHandleElement.setAttribute(
+    const handleStyle = primaryFrameResizableHandle?.getAttribute("style");
+    primaryFrameResizableHandle!.setAttribute(
       "style",
-      "background-image: url(chrome-extension://" +
+      handleStyle +
+        "background-image: url(chrome-extension://" +
         chrome.runtime.id +
-        "/ui-icons_ffffff_256x240.png) !important; z-index:90"
+        "/ui-icons_ffffff_256x240.png) !important;"
+    );
+  }
+};
+
+/**
+ * Function called by the CustomSelect useEffect hook to configure
+ * the jQuery resizable handle to appear and function correctly.  The default
+ * behavior of the Resizable widget places a 's' handle as a child of the wrong
+ * div (option-container).  Function manually appends it to the Scrollbars  div after render.
+ * The function also edits the style attribute to link it to the icon resource.
+ */
+const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
+  const selectScrollbars = document.getElementById("select-scrollbars");
+  const customHandle = document.getElementById("custom-handle");
+  selectScrollbars!.append(customHandle!);
+  $("#select-scrollbars").resizable({
+    handles: { s: $("#custom-handle") },
+  });
+  // Configure style to put icon in the proper bottom right position of the element.
+  customHandle!.setAttribute("style", "z-index: 90; left: unset; cursor: s-resize");
+  // Configure the style attribute to link handle to the Resizable icon resource.
+  if (chrome.runtime !== null && chrome.runtime !== undefined) {
+    const customHandleStyle = customHandle!.getAttribute("style");
+    customHandle!.setAttribute(
+      "style",
+      customHandleStyle +
+        "background-image: url(chrome-extension://" +
+        chrome.runtime.id +
+        "/ui-icons_ffffff_256x240.png) !important;"
     );
   }
 };
@@ -1692,4 +1725,5 @@ export {
   onTurnToggleButtonClick,
   onSortButtonClick,
   addResizableAndDraggableToPrimaryFrame,
+  addResizableAndCustomHandleToCustomSelectScrollBars,
 };
