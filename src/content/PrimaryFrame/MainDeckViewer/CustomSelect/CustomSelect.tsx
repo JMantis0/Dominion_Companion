@@ -24,8 +24,8 @@ import {
   onSelectScroll,
   onOptionClick,
   onToggleSelect,
+  addResizableAndCustomHandleToCustomSelectScrollBars,
 } from "../../../../utils/utils";
-import $ from "jquery";
 library.add(faAngleUp, faAngleDown);
 
 export type CustomSelectProps = {
@@ -53,33 +53,12 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   );
   const selectScrollRef = useRef<Scrollbars>(null);
 
-  // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
   useEffect(() => {
+    // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
     if (selectScrollRef.current !== undefined && selectScrollRef.current) {
       selectScrollRef.current!.scrollTop(selectScrollPosition);
     }
-    $("#select-scrollbars").append($("#custom-handle"));
-    $("#select-scrollbars").resizable({
-      handles: { s: $("#custom-handle") },
-      // optional callback
-      // resize: function (event, ui) {},
-    });
-    const customHandle = document.getElementById("custom-handle");
-
-    if (
-      customHandle !== null &&
-      chrome.runtime !== null &&
-      chrome.runtime !== undefined
-    ) {
-      customHandle.setAttribute(
-        "style",
-        "background-image: url(chrome-extension://" +
-          chrome.runtime.id +
-          "/ui-icons_ffffff_256x240.png) !important; z-index:90;left:unset;"
-      );
-    } else {
-      console.log("chrome or custom handle not found");
-    }
+    addResizableAndCustomHandleToCustomSelectScrollBars();
   }, []);
 
   return (
@@ -94,7 +73,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         >
           <span className="col-span-1"></span>{" "}
           <span className="col-span-6 pointer-events-none">Top</span>
-          {/* <br className="pointer-events-none"></br> */}
           <span
             className={`col-span-5 ${
               pinnedTopCardsLookAmount === topCardsLookAmount
@@ -121,9 +99,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             width: "100%",
             height: "100px",
             border: selectOpen ? "1px solid white" : "none",
-          }}
-          renderView={({ style, ...props }) => {
-            return <div id="scrollbars-view" {...props} style={{ ...style }} />;
           }}
           renderTrackHorizontal={(props) => (
             <div {...props} style={{ display: "none" }} />
@@ -209,7 +184,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             // Order of the classes matters.  This gives the functionality of a south handle with
             // the appearance and positioning of a southeast handle.
             className="ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
-            style={{ zIndex: 90, left: "unset" }}
           ></div>
         </Scrollbars>
       </div>
@@ -218,3 +192,4 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
 };
 
 export default CustomSelect;
+

@@ -1622,18 +1622,11 @@ const onSortButtonClick = (
  * The fix for getting Resizable handle icons to appear in extension context is also here.
  */
 const addResizableAndDraggableToPrimaryFrame = () => {
-  $("#primaryFrame")
-    .draggable({
-      // optional callback:
-      // drag: function (event, ui) {},
-    })
-    .resizable({
-      handles: "n, e, s, w, ne, nw, se, sw",
-      // optional callback
-      // resize: function (event, ui) {},
-    });
+  $("#primaryFrame").draggable({}).resizable({
+    handles: "n, e, s, w, ne, nw, se, sw",
+  });
 
-  // Add the Resizable handle-icon
+  // Configure the style attribute to link handle to the Resizable icon resource.
   if (chrome.runtime !== null && chrome.runtime !== undefined) {
     const resizableHandleElement = $(
       ".ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
@@ -1642,7 +1635,34 @@ const addResizableAndDraggableToPrimaryFrame = () => {
       "style",
       "background-image: url(chrome-extension://" +
         chrome.runtime.id +
-        "/ui-icons_ffffff_256x240.png) !important; z-index:90"
+        "/ui-icons_ffffff_256x240.png) !important; z-index:90;"
+    );
+  }
+};
+
+/**
+ * Function called by the CustomSelect useEffect hook to configure
+ * the jQuery resizable handle to appear and function correctly.  The default
+ * behavior of the Resizable widget places a 's' handle as a child of the wrong
+ * div (option-container).  Function manually appends it to the Scrollbars  div after render.
+ * The function also edits the style attribute to link it to the icon resource.
+ */
+const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
+  $("#select-scrollbars").append($("#custom-handle"));
+  $("#select-scrollbars").resizable({
+    handles: { s: $("#custom-handle") },
+  });
+  const customHandle = document.getElementById("custom-handle");
+  customHandle!.setAttribute("style", "z-index:90; left:unset;");
+  // Configure the style attribute to link handle to the Resizable icon resource.
+  if (chrome.runtime !== null && chrome.runtime !== undefined) {
+    const customHandleStyle = customHandle!.getAttribute("style");
+    customHandle!.setAttribute(
+      "style",
+      customHandleStyle +
+        "background-image: url(chrome-extension://" +
+        chrome.runtime.id +
+        "/ui-icons_ffffff_256x240.png) !important;"
     );
   }
 };
@@ -1692,4 +1712,5 @@ export {
   onTurnToggleButtonClick,
   onSortButtonClick,
   addResizableAndDraggableToPrimaryFrame,
+  addResizableAndCustomHandleToCustomSelectScrollBars,
 };
