@@ -1073,7 +1073,7 @@ const isKingdomElementPresent = (): boolean => {
  * Purpose: To initialize the global variable kingdom.
  * @returns The array of strings containing the kingdom card available in the current game.
  */
-const getKingdom = (): Array<string> => {
+const getClientKingdom = (): Array<string> => {
   let kingdom: Array<string>;
   let cards = [];
   try {
@@ -1646,7 +1646,7 @@ const addResizableAndDraggableToPrimaryFrame = () => {
       handleStyle +
         "background-image: url(chrome-extension://" +
         chrome.runtime.id +
-        "/ui-icons_ffffff_256x240.png) !important;"
+        "/ui-icons_ffffff_256x240.png);"
     );
   }
 };
@@ -1666,7 +1666,10 @@ const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
     handles: { s: $("#custom-handle") },
   });
   // Configure style to put icon in the proper bottom right position of the element.
-  customHandle!.setAttribute("style", "z-index: 90; left: unset; cursor: s-resize;");
+  customHandle!.setAttribute(
+    "style",
+    "z-index: 90; left: unset; cursor: s-resize;"
+  );
   // Configure the style attribute to link handle to the Resizable icon resource.
   if (chrome.runtime !== null && chrome.runtime !== undefined) {
     const customHandleStyle = customHandle!.getAttribute("style");
@@ -1675,7 +1678,7 @@ const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
       customHandleStyle +
         "background-image: url(chrome-extension://" +
         chrome.runtime.id +
-        "/ui-icons_ffffff_256x240.png) !important;"
+        "/ui-icons_ffffff_256x240.png);"
     );
   }
 };
@@ -1704,7 +1707,7 @@ export {
   getRatedGameBoolean,
   getPlayerRatings,
   isKingdomElementPresent,
-  getKingdom,
+  getClientKingdom,
   createPlayerDecks,
   areNewLogsToSend,
   getUndispatchedLogs,

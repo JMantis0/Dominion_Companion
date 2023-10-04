@@ -6,7 +6,7 @@ import {
   baseKingdomCardCheck,
   createPlayerDecks,
   getGameLog,
-  getKingdom,
+  getClientKingdom,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerInfoElements,
   getPlayerNameAbbreviations,
@@ -401,7 +401,7 @@ const Observer: FunctionComponent = () => {
     }
     if (!kingdomInitialized) {
       if (isKingdomElementPresent()) {
-        kingdom = getKingdom();
+        kingdom = getClientKingdom();
         baseOnly = baseKingdomCardCheck(kingdom);
         dispatch(setBaseOnly(baseOnly));
         if (!baseOnly) {
