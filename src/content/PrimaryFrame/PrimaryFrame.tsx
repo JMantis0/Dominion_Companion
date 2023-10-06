@@ -15,6 +15,8 @@ import {
   addResizableAndDraggableToPrimaryFrame,
   chromeListenerUseEffectHandler,
 } from "../../utils/utils";
+import $ from "jquery";
+// import DevDisplay from "./DevDisplay/DevDisplay";
 
 const PrimaryFrame = () => {
   const dispatch = useDispatch();
@@ -49,106 +51,122 @@ const PrimaryFrame = () => {
 
   return (
     <React.Fragment>
-      <div id="primaryFrame" className="w-[250px] h-[400px]">
-        <div
-          className={`${
-            hidden ? "hidden" : ""
-          } backdrop-blur-sm bg-black/[.85] h-full w-fill overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+      <div>
+        <button
+          className={"text-white mt-[-41px]"}
+          onClick={() => {
+            $("#primaryFrame").toggle("blind");
+            console.log("Click on Header");
+          }}
         >
-          {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
-            <React.Fragment>
-              <PrimaryFrameHeader />
-              <main className="text-white grid grid-cols-12 mb-[10px] border-t-2">
-                <PrimaryFrameTab
-                  title="Deck"
-                  count={pd.entireDeck.length}
-                  colSpan={6}
-                  position="Top"
-                />
-                <PrimaryFrameTab
-                  title="Opponent"
-                  count={od.entireDeck.length}
-                  colSpan={6}
-                  position="Top"
-                />
-              </main>
-              <Scrollbars
-                autoHide={false}
-                renderTrackHorizontal={(props) => (
-                  <div
-                    {...props}
-                    style={{ display: "none" }}
-                    className="track-horizontal"
+          CollapseButton
+        </button>
+
+        <div id="primaryFrame" className="w-[250px] h-[400px]">
+          <div
+            className={`${
+              hidden ? "hidden" : ""
+            } backdrop-blur-sm bg-black/[.85] h-full w-fill overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+          >
+            {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
+              <React.Fragment>
+                <PrimaryFrameHeader />
+                <main className="text-white grid grid-cols-12 mb-[10px] border-t-2">
+                  <PrimaryFrameTab
+                    title="Deck"
+                    count={pd.entireDeck.length}
+                    colSpan={6}
+                    position="Top"
                   />
-                )}
-                renderThumbVertical={({ style, ...props }) => (
-                  <main
-                    {...props}
-                    style={{
-                      ...style,
-                      backgroundColor: "#e9e9e9",
-                      width: "75%",
-                      opacity: ".75",
-                      height: "30px",
-                    }}
+                  <PrimaryFrameTab
+                    title="Opponent"
+                    count={od.entireDeck.length}
+                    colSpan={6}
+                    position="Top"
                   />
-                )}
-              >
-                <div className="p-1 mr-2">
-                  <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
-                    <MainDeckViewer />
-                  </div>
-                  <div
-                    className={primaryFrameTab !== "Discard" ? "hidden" : ""}
-                  >
-                    <DiscardZoneViewer />
-                  </div>
-                  <div
-                    className={primaryFrameTab !== "Opponent" ? "hidden" : ""}
-                  >
-                    <OpponentViewer />
-                  </div>
-                  <div className={primaryFrameTab !== "Trash" ? "hidden" : ""}>
-                    <TrashZoneViewer />
-                  </div>
-                </div>
-              </Scrollbars>
-              <div
-                className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
-              >
-                <PrimaryFrameTab
-                  title="Discard"
-                  count={pd.graveyard.length}
-                  colSpan={4}
-                  position="Bottom"
-                />
-                <PrimaryFrameTab
-                  title="Trash"
-                  count={pd.trash.length}
-                  colSpan={4}
-                  position="Bottom"
-                />
-                <button
-                  className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 border-t-2`}
-                  onClick={() => {
-                    chrome.runtime.sendMessage({ action: "openOptionsPage" });
-                  }}
-                  name="History"
+                </main>
+                <Scrollbars
+                  autoHide={false}
+                  renderTrackHorizontal={(props) => (
+                    <div
+                      {...props}
+                      style={{ display: "none" }}
+                      className="track-horizontal"
+                    />
+                  )}
+                  renderThumbVertical={({ style, ...props }) => (
+                    <main
+                      {...props}
+                      style={{
+                        ...style,
+                        backgroundColor: "#e9e9e9",
+                        width: "75%",
+                        opacity: ".75",
+                        height: "30px",
+                      }}
+                    />
+                  )}
                 >
-                  History
-                </button>
+                  <div className="p-1 mr-2">
+                    <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
+                      <MainDeckViewer />
+                      {/* <DevDisplay/> */}
+                    </div>
+                    <div
+                      className={primaryFrameTab !== "Discard" ? "hidden" : ""}
+                    >
+                      <DiscardZoneViewer />
+                    </div>
+                    <div
+                      className={primaryFrameTab !== "Opponent" ? "hidden" : ""}
+                    >
+                      <OpponentViewer />
+                    </div>
+                    <div
+                      className={primaryFrameTab !== "Trash" ? "hidden" : ""}
+                    >
+                      <TrashZoneViewer />
+                    </div>
+                  </div>
+                </Scrollbars>
+                <div
+                  className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
+                >
+                  <PrimaryFrameTab
+                    title="Discard"
+                    count={pd.graveyard.length}
+                    colSpan={4}
+                    position="Bottom"
+                  />
+                  <PrimaryFrameTab
+                    title="Trash"
+                    count={pd.trash.length}
+                    colSpan={4}
+                    position="Bottom"
+                  />
+                  <button
+                    className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 border-t-2`}
+                    onClick={() => {
+                      chrome.runtime.sendMessage({ action: "openOptionsPage" });
+                    }}
+                    name="History"
+                  >
+                    History
+                  </button>
+                </div>
+              </React.Fragment>
+            ) : baseOnly ? (
+              <div className="text-white">No active game.</div>
+            ) : (
+              <div className="text-white">
+                Only Base Set cards supported. Non-base cards detected in
+                Kingdom{" "}
+                {pd.kingdom.map((card) => {
+                  return <div>{card}</div>;
+                })}
               </div>
-            </React.Fragment>
-          ) : baseOnly ? (
-            <div className="text-white">No active game.</div>
-          ) : (
-            <div className="text-white">
-              Only Base Set cards supported. Non-base cards detected in Kingdom{" "}
-              {pd.kingdom.map((card) => {
-                return <div>{card}</div>;
-              })}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </React.Fragment>
