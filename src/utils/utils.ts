@@ -6,8 +6,11 @@ import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 import {
   setDiscardSortState,
+  setHandSortState,
+  setInPlaySortState,
   setOpponentSortState,
   setOpponentTrashSortState,
+  setSetAsideSortState,
   setSortedButtonsState,
   setTrashSortState,
 } from "../redux/contentSlice";
@@ -37,7 +40,10 @@ export type SortReducer =
   | typeof setDiscardSortState
   | typeof setOpponentSortState
   | typeof setOpponentTrashSortState
-  | typeof setTrashSortState;
+  | typeof setTrashSortState
+  | typeof setHandSortState
+  | typeof setInPlaySortState
+  | typeof setSetAsideSortState;
 
 /**
  * Custom type for deck field gameResult.
@@ -754,16 +760,19 @@ const cumulativeHyperGeo = (
 ): number => {
   let cumulativeProb: number = 0;
   for (let i = sampleSuccesses; i <= sampleSize; i++) {
-    cumulativeProb += getHyperGeometricProbability(
-      populationSize,
-      sampleSize,
-      populationSuccesses,
-      i
-    );
+    try {
+      cumulativeProb += getHyperGeometricProbability(
+        populationSize,
+        populationSuccesses,
+        sampleSize,
+        i
+      );
+    } catch (e: unknown) {
+      console.error(getErrorMessage(e));
+    }
   }
   return cumulativeProb;
 };
-
 /**
  * Function returns the hypergeometric and cumulative hypergeometric probabilities that the given card will be drawn in the next
  * given number of draws.
@@ -783,32 +792,40 @@ const getCumulativeHyperGeometricProbabilityForCard = (
 ): { hyperGeo: number; cumulative: number } => {
   let probability: number = 0;
   let cumProb: number = 0;
+
   let secondDrawPool: string[] =
     turn === "Current"
       ? deck.graveyard
       : deck.graveyard.concat(deck.hand, deck.inPlay, deck.setAside);
+
   const populationSize: number = deck.library.length;
+
   const populationSuccesses: number = getCountsFromArray(deck.library).has(
     cardName
   )
     ? getCountsFromArray(deck.library).get(cardName)!
     : 0;
+
   const sampleSize: number = drawCount;
   const sampleSuccesses = successCount;
   if (deck.library.length === 0 && secondDrawPool.length === 0) {
   } else if (sampleSize <= deck.library.length) {
-    probability = getHyperGeometricProbability(
-      populationSize,
-      populationSuccesses,
-      sampleSize,
-      sampleSuccesses
-    );
-    cumProb = cumulativeHyperGeo(
-      populationSize,
-      populationSuccesses,
-      sampleSize,
-      sampleSuccesses
-    );
+    try {
+      probability = getHyperGeometricProbability(
+        populationSize,
+        populationSuccesses,
+        sampleSize,
+        sampleSuccesses
+      );
+      cumProb = cumulativeHyperGeo(
+        populationSize,
+        populationSuccesses,
+        sampleSize,
+        sampleSuccesses
+      );
+    } catch (e: unknown) {
+      console.error(getErrorMessage(e));
+    }
   } else if (sampleSize > deck.library.length) {
     const libraryCumProb = cumulativeHyperGeo(
       populationSize,
@@ -822,8 +839,14 @@ const getCumulativeHyperGeometricProbabilityForCard = (
     ).has(cardName)
       ? getCountsFromArray(secondDrawPool)!.get(cardName)!
       : 0;
-    const secondPoolSampleSize = sampleSize - populationSize;
-    const secondPoolSampleSuccesses = sampleSuccesses - populationSuccesses;
+    const secondPoolSampleSize =
+      sampleSize - populationSize > secondPoolPopulationSize
+        ? secondPoolPopulationSize
+        : sampleSize - populationSize;
+    const secondPoolSampleSuccesses =
+      sampleSuccesses - populationSuccesses < 0
+        ? 0
+        : sampleSuccesses - populationSuccesses;
     if (libraryCumProb < 1) {
       cumProb =
         cumulativeHyperGeo(
@@ -835,12 +858,16 @@ const getCumulativeHyperGeometricProbabilityForCard = (
     } else if (libraryCumProb === 1) {
       cumProb = 1;
     }
-    probability = getHyperGeometricProbability(
-      secondPoolPopulationSize,
-      secondPoolPopulationSuccesses,
-      secondPoolSampleSize,
-      secondPoolSampleSuccesses
-    );
+    try {
+      probability = getHyperGeometricProbability(
+        secondPoolPopulationSize,
+        secondPoolPopulationSuccesses,
+        secondPoolSampleSize,
+        secondPoolSampleSuccesses
+      );
+    } catch (e: unknown) {
+      console.error(getErrorMessage(e));
+    }
   } else {
     console.error("drawCount", drawCount);
     console.error("library length", deck.library.length);

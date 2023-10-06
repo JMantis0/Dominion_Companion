@@ -15,6 +15,9 @@ export interface ContentState {
   opponentSortState: SortButtonState;
   opponentTrashSortState: SortButtonState;
   trashSortState: SortButtonState;
+  inPlaySortState: SortButtonState;
+  handSortState: SortButtonState;
+  setAsideSortState: SortButtonState;
   viewerHidden: boolean;
   gameActiveStatus: boolean;
   savedGames: any;
@@ -49,6 +52,18 @@ const initialState: ContentState = {
     sort: "descending",
   },
   trashSortState: {
+    category: "card",
+    sort: "descending",
+  },
+  inPlaySortState: {
+    category: "card",
+    sort: "descending",
+  },
+  handSortState: {
+    category: "card",
+    sort: "descending",
+  },
+  setAsideSortState: {
     category: "card",
     sort: "descending",
   },
@@ -101,6 +116,15 @@ export const contentSlice = createSlice({
     },
     setTrashSortState: (state, action: PayloadAction<SortButtonState>) => {
       state.trashSortState = action.payload;
+    },
+    setInPlaySortState: (state, action: PayloadAction<SortButtonState>) => {
+      state.inPlaySortState = action.payload;
+    },
+    setHandSortState: (state, action: PayloadAction<SortButtonState>) => {
+      state.handSortState = action.payload;
+    },
+    setSetAsideSortState: (state, action: PayloadAction<SortButtonState>) => {
+      state.setAsideSortState = action.payload;
     },
     setViewerHidden: (state, action: PayloadAction<boolean>) => {
       state.viewerHidden = action.payload;
@@ -156,6 +180,9 @@ export const {
   setOpponentSortState,
   setOpponentTrashSortState,
   setTrashSortState,
+  setInPlaySortState,
+  setHandSortState,
+  setSetAsideSortState,
   setGameActiveStatus,
   setSavedGames,
   setPrimaryFrameTab,

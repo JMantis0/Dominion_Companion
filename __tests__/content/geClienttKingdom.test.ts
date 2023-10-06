@@ -4,7 +4,7 @@
 
 import { beforeAll } from "@jest/globals";
 import { expect, describe, it } from "@jest/globals";
-import { getKingdom } from "../../src/utils/utils";
+import { getClientKingdom } from "../../src/utils/utils";
 
 describe("Function getKingdom()", () => {
   describe("when element with class kingdom-viewer-group is present", () => {
@@ -35,7 +35,7 @@ describe("Function getKingdom()", () => {
       document.body.appendChild(kingdomViewerGroupElement);
     });
     it("should return an array of the innerText of each name-layer element, and the common cards", () => {
-      expect(getKingdom()).toStrictEqual([
+      expect(getClientKingdom()).toStrictEqual([
         "Fire",
         "Water",
         "Air",

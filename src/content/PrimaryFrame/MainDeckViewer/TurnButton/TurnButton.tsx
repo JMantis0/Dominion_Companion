@@ -37,13 +37,7 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
       className={`w-full h-[42px] border-x border-y whitespace-nowrap text-xs relative ${
         pinnedTurnToggleButton === buttonName ? "text-lime-500" : "text-white"
       }
-        hover:bg-[#383838] ${
-          buttonName === "Next" &&
-          libraryLength < 5 &&
-          topCardsLookAmount > libraryLength
-            ? "nextTurnDifferent"
-            : ""
-        }`}
+        hover:bg-[#383838]`}
       name={buttonName}
       onMouseEnter={(e: BaseSyntheticEvent) => {
         const buttonName = e.target.name;
@@ -67,7 +61,7 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
       }}
     >
       {buttonName === "Next" &&
-      libraryLength < 5 &&
+      // libraryLength < 5 &&
       topCardsLookAmount > libraryLength ? (
         <FontAwesomeIcon
           className="absolute top-0 right-0"

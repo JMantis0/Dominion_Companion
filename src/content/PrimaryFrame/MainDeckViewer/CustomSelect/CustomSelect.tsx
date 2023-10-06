@@ -4,9 +4,14 @@ import React, {
   UIEvent,
   useEffect,
   useRef,
+  useState,
 } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAngleUp,
+  faAngleDown,
+  faCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
@@ -26,7 +31,7 @@ import {
   onToggleSelect,
   addResizableAndCustomHandleToCustomSelectScrollBars,
 } from "../../../../utils/utils";
-library.add(faAngleUp, faAngleDown);
+library.add(faAngleUp, faAngleDown, faCircle);
 
 export type CustomSelectProps = {
   colSpan: number;
@@ -37,10 +42,11 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const selectOpen = useSelector(
     (state: RootState) => state.content.selectOpen
   );
-  const totalCards = useSelector(
-    (state: RootState) =>
-      state.content.playerDeck.library.length +
-      state.content.playerDeck.graveyard.length
+  const entireDeckLength = useSelector(
+    (state: RootState) => state.content.playerDeck.entireDeck.length
+  );
+  const libraryLength = useSelector(
+    (state: RootState) => state.content.playerDeck.library.length
   );
   const topCardsLookAmount = useSelector(
     (state: RootState) => state.content.topCardsLookAmount
@@ -51,7 +57,12 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const selectScrollPosition = useSelector(
     (state: RootState) => state.content.selectScrollPosition
   );
+  // Used to access get the scroll position.
   const selectScrollRef = useRef<Scrollbars>(null);
+  // Used to get the options container height.
+  const optionsContainerRef = useRef<HTMLElement>(null);
+  // Used to limit the height of the dropdown.
+  const [maxScrollBarHeight, setMaxScrollBarHeight] = useState<number>(0);
 
   useEffect(() => {
     // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
@@ -60,6 +71,11 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
     }
     addResizableAndCustomHandleToCustomSelectScrollBars();
   }, []);
+
+  useEffect(() => {
+    const optionsContainerHeight = optionsContainerRef.current?.offsetHeight!;
+    setMaxScrollBarHeight(optionsContainerHeight);
+  }, [entireDeckLength, selectOpen]);
 
   return (
     <React.Fragment>
@@ -93,12 +109,13 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         <Scrollbars
           id="select-scrollbars"
           ref={selectScrollRef}
-          className={`${selectOpen ? "border-x border-y" : "hidden"}`}
+          className={`${selectOpen ? `border-x border-y` : "hidden"}`}
           autoHide={false}
           style={{
             width: "100%",
             height: "100px",
             border: selectOpen ? "1px solid white" : "none",
+            maxHeight: selectOpen ? maxScrollBarHeight : "unset",
           }}
           renderTrackHorizontal={(props) => (
             <div {...props} style={{ display: "none" }} />
@@ -138,8 +155,12 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
             );
           }}
         >
-          <main id="option-container" className={`w-[99%] h-[99%] absolute`}>
-            {[...Array<number>(totalCards).keys()]
+          <main
+            id="option-container"
+            className={`w-[99%] absolute`}
+            ref={optionsContainerRef}
+          >
+            {[...Array<number>(entireDeckLength).keys()]
               .map((n: number) => n + 1)
               .map((n: number) => {
                 return (
@@ -174,7 +195,23 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                     value={n}
                     key={n}
                   >
-                    <span className="mr-2 pointer-events-none">{n}</span>
+                    <span className="mr-2 pointer-events-none whitespace-nowrap">
+                      {n}{" "}
+                      <FontAwesomeIcon
+                        // className="absolute top-0 right-0"
+                        icon="circle"
+                        size="xs"
+                        style={{
+                          color:
+                            // libraryLength < 5 && 
+                            n > libraryLength
+                              ? "#ff0000"
+                              : "transparent",
+                          height: "5px",
+                          marginBottom: "2.5px",
+                        }}
+                      />
+                    </span>
                   </button>
                 );
               })}
@@ -192,4 +229,3 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
 };
 
 export default CustomSelect;
-

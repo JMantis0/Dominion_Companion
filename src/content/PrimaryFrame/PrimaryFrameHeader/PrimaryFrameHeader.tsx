@@ -25,16 +25,16 @@ const PrimaryFrameHeader = () => {
 
   return (
     <div
-      className="text-xs mt-[-41px] text-white grid grid-cols-12"
+      className="text-xs mt-[-41px] text-white grid grid-cols-12 "
       id="header"
     >
       <div
-        className={`h-full w-full align-center col-span-7 whitespace-nowrap`}
+        className={`h-full w-full align-center col-span-7 whitespace-nowrap border-b-2`}
       >
         {pd.gameTitle}
       </div>
       <div
-        className={`h-full w-full align-center col-span-4 whitespace-nowrap`}
+        className={`h-full w-full align-center col-span-5 whitespace-nowrap border-b-2`}
       >
         {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
       </div>
