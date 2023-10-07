@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {
-  CardCounts,
   combineDeckListMapAndZoneListMap,
   getCountsFromArray,
   sortMainViewer,
@@ -15,7 +14,7 @@ import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
 import CustomSelect from "./CustomSelect/CustomSelect";
 import TurnButton from "./TurnButton/TurnButton";
-
+import type { CardCounts } from "../../../utils/.d";
 
 const MainDeckViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(

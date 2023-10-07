@@ -1,16 +1,17 @@
 import React, { useState, useEffect, FunctionComponent } from "react";
-// import { useSelector } from "react-redux";
-import { OpponentStoreDeck } from "../../../model/opponentStoreDeck";
-import { StoreDeck } from "../../../model/storeDeck";
 import {
-  SortButtonState,
-  SortReducer,
   getCountsFromArray,
   getRowColor,
   sortZoneView,
 } from "../../../utils/utils";
 import ZoneCardRow from "./ZoneCardRow/ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader/ZoneViewHeader";
+import type {
+  SortButtonState,
+  SortReducer,
+  StoreDeck,
+  OpponentStoreDeck,
+} from "../../../utils/.d";
 
 type ZoneViewerProps = {
   deck: StoreDeck | OpponentStoreDeck;

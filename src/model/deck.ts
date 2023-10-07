@@ -1,6 +1,6 @@
-import { GameResult, getLogScrollContainerLogLines } from "../utils/utils";
+import { getLogScrollContainerLogLines } from "../utils/utils";
 import { getErrorMessage } from "../utils/utils";
-import { StoreDeck } from "./storeDeck";
+import type { GameResult, StoreDeck } from "../utils/.d";
 
 /**
  * Class for a Deck object used to track a
@@ -9,7 +9,7 @@ import { StoreDeck } from "./storeDeck";
 export class Deck implements StoreDeck {
   gameTitle: string;
   gameTurn: number;
-  gameResult: "Victory" | "Defeat" | "Tie" | "Unfinished";
+  gameResult: GameResult;
   ratedGame: boolean;
   rating: string;
   entireDeck: Array<string> = [];

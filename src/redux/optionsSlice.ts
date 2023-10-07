@@ -1,25 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { StoreDeck } from "../model/storeDeck";
-import { OpponentStoreDeck } from "../model/opponentStoreDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
-import { SortButtonState } from "../utils/utils";
+import type {
+  StoreDeck,
+  SortButtonState,
+  OpponentStoreDeck,
+  SavedGames,
+} from "../utils/.d";
 
-export interface SavedGame {
-  logArchive: string;
+interface OptionsState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
-  dateTime: string;
+  sortButtonState: SortButtonState;
+  savedGames: SavedGames;
   logHtml: string;
+  gameKeys: string[];
+  selectedRecord: number;
+  modalSwitch: boolean;
+  gameDateTitle: string;
 }
 
-export interface SavedGames {
-  [title: string]: SavedGame;
-}
-
-export interface OptionsState {
+interface OptionsState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   sortButtonState: SortButtonState;

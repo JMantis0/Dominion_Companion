@@ -15,7 +15,6 @@ import {
   getUndispatchedLogs,
   isGameLogPresent,
   isKingdomElementPresent,
-  SavedGame,
 } from "../../utils/utils";
 import {
   setOpponentDeck,
@@ -24,6 +23,7 @@ import {
   setSavedGames,
   setBaseOnly,
 } from "../../redux/contentSlice";
+import type { SavedGame } from "../../utils/.d";
 import { useDispatch } from "react-redux";
 import { OpponentDeck } from "../../model/opponentDeck";
 import { useSelector } from "react-redux";
