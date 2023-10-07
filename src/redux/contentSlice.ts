@@ -1,11 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { StoreDeck } from "../model/storeDeck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
-import { OpponentStoreDeck } from "../model/opponentStoreDeck";
-import { PrimaryFrameTabType, SortButtonState } from "../utils/utils";
+import type {
+  OpponentStoreDeck,
+  PrimaryFrameTabType,
+  SortButtonState,
+  StoreDeck,
+} from "../utils/.d";
+
 
 export interface ContentState {
   playerDeck: StoreDeck;

@@ -1,10 +1,11 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { OpponentStoreDeck } from "../../../../../model/opponentStoreDeck";
-import { StoreDeck } from "../../../../../model/storeDeck";
+import type { GameResult, OpponentStoreDeck, StoreDeck } from "../../../../../utils/.d";
+
+
 
 type NameAndResultProps = {
   playerName: string;
-  gameResult: "Victory" | "Defeat" | "Tie" | "Unfinished";
+  gameResult: GameResult;
   deck: StoreDeck | OpponentStoreDeck;
 };
 const NameAndResult: FunctionComponent<NameAndResultProps> = ({

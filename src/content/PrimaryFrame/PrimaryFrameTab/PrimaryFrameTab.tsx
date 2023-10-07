@@ -6,11 +6,11 @@ import {
   setPrimaryFrameTab,
 } from "../../../redux/contentSlice";
 import {
-  PrimaryFrameTabType,
   onPrimaryFrameTabClick,
   onPrimaryFrameTabMouseEnter,
   onPrimaryFrameTabMouseLeave,
 } from "../../../utils/utils";
+import type { PrimaryFrameTabType } from "../../../utils/.d";
 
 type PrimaryFrameTabProps = {
   title: PrimaryFrameTabType;

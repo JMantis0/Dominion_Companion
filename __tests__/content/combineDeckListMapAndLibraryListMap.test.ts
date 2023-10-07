@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { getCountsFromArray } from "../testUtilFuncs";
-import {
-  CardCounts,
-  combineDeckListMapAndZoneListMap,
-} from "../../src/utils/utils";
-
+import { combineDeckListMapAndZoneListMap } from "../../src/utils/utils";
+import type { CardCounts } from "../../src/utils/.d";
 describe("Function combineDeckListMapAndLibraryMap.test.ts", () => {
   let combinedMap: Map<string, CardCounts>;
   let entireDeckMap: Map<string, number>;

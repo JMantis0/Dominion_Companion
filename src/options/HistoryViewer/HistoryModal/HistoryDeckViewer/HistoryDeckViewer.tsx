@@ -6,14 +6,16 @@ import {
   combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
   createEmptySplitMapsObject,
-  SplitMaps,
-  sortTheHistoryDeckView,
+  sortHistoryDeckView,
   getRowColor,
 } from "../../../../utils/utils";
-import { StoreDeck } from "../../../../model/storeDeck";
-import { OpponentStoreDeck } from "../../../../model/opponentStoreDeck";
 import NameAndResult from "./NameAndResult/NameAndResult";
 import ZoneCardRow from "../../../../content/PrimaryFrame/ZoneViewer/ZoneCardRow/ZoneCardRow";
+import type {
+  SplitMaps,
+  StoreDeck,
+  OpponentStoreDeck
+} from "../../../../utils/.d"
 
 type HistoryDeckViewerProps = {
   deck: StoreDeck | OpponentStoreDeck;
@@ -35,22 +37,22 @@ const HistoryDeckViewer: FunctionComponent<HistoryDeckViewerProps> = ({
         getCountsFromArray(deck.entireDeck)
       )
     );
-    const sortedActions = sortTheHistoryDeckView(
+    const sortedActions = sortHistoryDeckView(
       "owned",
       unsortedSplitMap.actions!,
       sortButtonState.sort
     );
-    const sortedTreasures = sortTheHistoryDeckView(
+    const sortedTreasures = sortHistoryDeckView(
       "owned",
       unsortedSplitMap.treasures!,
       sortButtonState.sort
     );
-    const sortedVictories = sortTheHistoryDeckView(
+    const sortedVictories = sortHistoryDeckView(
       "owned",
       unsortedSplitMap.victories!,
       sortButtonState.sort
     );
-    const sortedCurses = sortTheHistoryDeckView(
+    const sortedCurses = sortHistoryDeckView(
       "owned",
       unsortedSplitMap.curses!,
       sortButtonState.sort

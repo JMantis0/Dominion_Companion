@@ -17,7 +17,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 import {
   setPinnedTopCardsLookAmount,
-  setSelectOpen,
   setSelectScrollPosition,
   setTopCardsLookAmount,
 } from "../../../../redux/contentSlice";
@@ -39,9 +38,6 @@ export type CustomSelectProps = {
 
 const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const dispatch: Dispatch<AnyAction> = useDispatch();
-  const selectOpen = useSelector(
-    (state: RootState) => state.content.selectOpen
-  );
   const entireDeckLength = useSelector(
     (state: RootState) => state.content.playerDeck.entireDeck.length
   );
@@ -63,6 +59,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const optionsContainerRef = useRef<HTMLElement>(null);
   // Used to limit the height of the dropdown.
   const [maxScrollBarHeight, setMaxScrollBarHeight] = useState<number>(0);
+  const [selectOpen, setSelectOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
@@ -84,7 +81,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
           id="select-button"
           className="w-full whitespace-nowrap grid grid-cols-12 border-y border-x text-white text-xs hover:bg-[#383838]"
           onClick={() => {
-            onToggleSelect(selectOpen, dispatch, setSelectOpen);
+            onToggleSelect(selectOpen, setSelectOpen);
           }}
         >
           <span className="col-span-1"></span>{" "}
@@ -203,10 +200,8 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                         size="xs"
                         style={{
                           color:
-                            // libraryLength < 5 && 
-                            n > libraryLength
-                              ? "#ff0000"
-                              : "transparent",
+                            // libraryLength < 5 &&
+                            n > libraryLength ? "#ff0000" : "transparent",
                           height: "5px",
                           marginBottom: "2.5px",
                         }}

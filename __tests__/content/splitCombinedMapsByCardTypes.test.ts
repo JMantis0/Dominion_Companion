@@ -1,11 +1,10 @@
 import { describe, it, beforeEach, expect } from "@jest/globals";
 import {
-  CardCounts,
   combineDeckListMapAndZoneListMap,
   splitCombinedMapsByCardTypes,
-  SplitMaps,
 } from "../../src/utils/utils";
 import { getCountsFromArray } from "../testUtilFuncs";
+import type { CardCounts, SplitMaps } from "../../src/utils/.d";
 
 describe("Function splitCombinedMapsByCardTypes()", () => {
   let expectedMap: SplitMaps;

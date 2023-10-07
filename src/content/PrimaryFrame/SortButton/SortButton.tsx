@@ -7,12 +7,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch } from "react-redux";
-import {
+import { onSortButtonClick } from "../../../utils/utils";
+import type {
   SortButtonState,
   SortCategory,
   SortReducer,
-  onSortButtonClick,
-} from "../../../utils/utils";
+} from "../../../utils/.d";
 
 library.add(faSortUp, faSortDown, faSort);
 
