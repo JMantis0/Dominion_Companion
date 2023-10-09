@@ -12,7 +12,7 @@ import type {
   SortButtonState,
   SortCategory,
   SortReducer,
-} from "../../../utils/.d";
+} from "../../../utils";
 
 library.add(faSortUp, faSortDown, faSort);
 

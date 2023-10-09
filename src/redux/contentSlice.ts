@@ -8,7 +8,7 @@ import type {
   PrimaryFrameTabType,
   SortButtonState,
   StoreDeck,
-} from "../utils/.d";
+} from "../utils";
 
 
 export interface ContentState {

@@ -8,7 +8,7 @@ import type {
   SortButtonState,
   OpponentStoreDeck,
   SavedGames,
-} from "../utils/.d";
+} from "../utils";
 
 interface OptionsState {
   playerDeck: StoreDeck;

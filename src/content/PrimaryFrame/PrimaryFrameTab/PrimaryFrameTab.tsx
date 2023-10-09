@@ -10,7 +10,7 @@ import {
   onPrimaryFrameTabMouseEnter,
   onPrimaryFrameTabMouseLeave,
 } from "../../../utils/utils";
-import type { PrimaryFrameTabType } from "../../../utils/.d";
+import type { PrimaryFrameTabType } from "../../../utils";
 
 type PrimaryFrameTabProps = {
   title: PrimaryFrameTabType;

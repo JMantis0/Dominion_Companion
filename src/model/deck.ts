@@ -1,6 +1,6 @@
 import { getLogScrollContainerLogLines } from "../utils/utils";
 import { getErrorMessage } from "../utils/utils";
-import type { GameResult, StoreDeck } from "../utils/.d";
+import type { GameResult, StoreDeck } from "../utils";
 
 /**
  * Class for a Deck object used to track a

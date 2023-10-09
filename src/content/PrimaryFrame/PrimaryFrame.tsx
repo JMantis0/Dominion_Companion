@@ -1,6 +1,6 @@
 /*global chrome*/
 import React, { useEffect } from "react";
-import "jquery-ui-bundle/jquery-ui.css";
+// import "jquery-ui-bundle/jquery-ui.css";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -14,8 +14,10 @@ import PrimaryFrameHeader from "./PrimaryFrameHeader/PrimaryFrameHeader";
 import {
   addResizableAndDraggableToPrimaryFrame,
   chromeListenerUseEffectHandler,
+  getPrimaryFrameStatus,
 } from "../../utils/utils";
 import $ from "jquery";
+import "jqueryui/jquery-ui.css";
 // import DevDisplay from "./DevDisplay/DevDisplay";
 
 const PrimaryFrame = () => {
@@ -32,23 +34,29 @@ const PrimaryFrame = () => {
   );
   useEffect(() => {
     if (chrome.runtime !== undefined)
-      chromeListenerUseEffectHandler("Add", hidden, dispatch, setViewerHidden);
+      chromeListenerUseEffectHandler(
+        "Add",
+        dispatch,
+        setViewerHidden,
+        getPrimaryFrameStatus
+      );
     return () => {
       if (chrome.runtime !== undefined)
         chromeListenerUseEffectHandler(
           "Remove",
-          hidden,
           dispatch,
-          setViewerHidden
+          setViewerHidden,
+          getPrimaryFrameStatus
         );
     };
     // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
     // Without this dependency, the event listener will have stale values for the 'hidden' variable
   }, [hidden]);
   useEffect(() => {
-    addResizableAndDraggableToPrimaryFrame();
+    addResizableAndDraggableToPrimaryFrame($);
   }, []);
 
+  const style = "w-[250px] h-[400px]";
   return (
     <React.Fragment>
       <div>
@@ -62,11 +70,9 @@ const PrimaryFrame = () => {
           CollapseButton
         </button>
 
-        <div id="primaryFrame" className="w-[250px] h-[400px]">
+        <div id="primaryFrame" className={hidden ? "hidden " + style : style}>
           <div
-            className={`${
-              hidden ? "hidden" : ""
-            } backdrop-blur-sm bg-black/[.85] h-full w-fill overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
+            className={`backdrop-blur-sm bg-black/[.85] h-full w-fill overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
           >
             {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
               <React.Fragment>

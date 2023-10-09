@@ -14,7 +14,7 @@ import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
 import CustomSelect from "./CustomSelect/CustomSelect";
 import TurnButton from "./TurnButton/TurnButton";
-import type { CardCounts } from "../../../utils/.d";
+import type { CardCounts } from "../../../utils";
 
 const MainDeckViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(

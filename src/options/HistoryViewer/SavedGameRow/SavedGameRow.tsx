@@ -13,7 +13,7 @@ import { RootState } from "../../../redux/store";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { SavedGame } from "../../../utils/.d";
+import { SavedGame } from "../../../utils";
 library.add(faPlay);
 
 type SavedGameRowProps = {

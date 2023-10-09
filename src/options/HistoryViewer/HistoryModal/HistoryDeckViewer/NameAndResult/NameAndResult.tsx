@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import type { GameResult, OpponentStoreDeck, StoreDeck } from "../../../../../utils/.d";
+import type { GameResult, OpponentStoreDeck, StoreDeck } from "../../../../../utils";
 
 
 

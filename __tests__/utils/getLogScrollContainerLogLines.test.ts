@@ -11,7 +11,6 @@ describe("Function getLogScrollContainerLogLines", () => {
   let logLine2: HTMLElement;
   let logLine1Text: Element;
   let logLine2Text: Element;
-
   let frag: DocumentFragment;
   let expectedLogLine1: HTMLElement;
   let expectedLogLine2: HTMLElement;
@@ -19,7 +18,6 @@ describe("Function getLogScrollContainerLogLines", () => {
   let expectedLogLine2Text: HTMLElement;
   let expectedCollection: HTMLCollection;
 
-  // lets here setup the jsdom
   describe("when a div with class 'log-scroll-container' is present in the DOM, should return a collection of all of it's children having class 'log-line'", () => {
     beforeEach(() => {
       logScrollContainer = document.createElement("div");
@@ -67,7 +65,49 @@ describe("Function getLogScrollContainerLogLines", () => {
   describe("When no div with class 'log-scroll-container' exists in the DOM", () => {
     beforeEach(() => {});
     it("should throw an error", () => {
-      expect(()=>getLogScrollContainerLogLines()).toThrow(Error);
+      expect(() => getLogScrollContainerLogLines()).toThrow(Error);
     });
+  });
+  // Another suite with some different techniques.
+  describe("getLogScrollContainerLogLines", () => {
+    // Mock the document and necessary elements
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <div class="log-scroll-container">
+          <div class="log-line">Log Line 1</div>
+          <div class="log-line">Log Line 2</div>
+          <div class="log-line">Log Line 3</div>
+        </div>
+      `;
+    });
+
+    // Reset the document after each test
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("should return a collection of log lines", () => {
+      // Act
+      const logLineCollection = getLogScrollContainerLogLines();
+
+      // Assert
+      expect(logLineCollection).toBeInstanceOf(HTMLCollection);
+      expect(logLineCollection.length).toBe(3); // Assuming there are 3 log lines
+    });
+
+    it("should throw an error if the container element is undefined", () => {
+      // Arrange - Remove the container element to simulate an undefined scenario
+      const containerElement = document.querySelector(".log-scroll-container");
+      if (containerElement) {
+        containerElement.parentNode?.removeChild(containerElement);
+      }
+
+      // Act and Assert
+      expect(() => getLogScrollContainerLogLines()).toThrowError(
+        "Element is undefined"
+      );
+    });
+
+    // Add more test cases as needed
   });
 });

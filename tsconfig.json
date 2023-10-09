@@ -1,21 +1,30 @@
 {
   // "compilerOptions": {
-  "jsx": "react",
   //   "module": "es6",
   //   "target": "es6",
   //   "moduleResolution": "node",
-  "esModuleInterop": true,
-  "sourceMap": true,
   // },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/model/deck.ts","__tests__/**/*.ts", "../../sandbox/src/DomRoot copy.tsx", "src/content/components/ShadowScrollBars.tsx"],
   // "exclude": ["node_modules"]
 
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/model/deck.ts",
+    "__tests__/**/*.ts",
+    "../../sandbox/src/DomRoot copy.tsx",
+    "src/content/components/ShadowScrollBars.tsx"
+  ],
   "compilerOptions": {
+    "sourceMap": true,
     "jsx": "react",
     /* Basic Options */
     "target": "ES6" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
     "module": "ES6" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
-    "lib": ["es6","dom"],                             /* Specify library files to be included in the compilation. */
+    "lib": [
+      "es6",
+      "dom",
+      "DOM.Iterable"
+    ] /* Specify library files to be included in the compilation. */,
     // "allowJs": true,                       /* Allow javascript files to be compiled. */
     // "checkJs": true,                       /* Report errors in .js files. */
     // "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
@@ -41,7 +50,7 @@
 
     /* Additional Checks */
     "noUnusedLocals": true /* Report errors on unused locals. */,
-    "noUnusedParameters": true,            /* Report errors on unused parameters. */
+    "noUnusedParameters": true /* Report errors on unused parameters. */,
     "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
     "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
 
@@ -51,7 +60,11 @@
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
-    // "types": [],                           /* Type declaration files to be included in compilation. */
+    "types": [
+      "jquery",
+      "jqueryui",
+      "chrome"
+    ] /* Type declaration files to be included in compilation. */,
     // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     // "preserveSymlinks": true,              /* Do not resolve the real path of symlinks. */
@@ -66,6 +79,6 @@
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
- 
+
   "exclude": ["node_modules"]
 }

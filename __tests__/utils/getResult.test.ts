@@ -172,4 +172,85 @@ describe("Function getResult.test.ts", () => {
       ).toStrictEqual(["Player", "Opponent"]);
     });
   });
+  
+  // More tests with some different techniques
+describe('getResult', () => {
+  it('should return the victor and defeated player names when player has resigned', () => {
+    // Arrange - Create a sample gameEndReason when player has resigned
+    const gameEndReason = 'Player A has resigned.';
+    const playerName = 'Player A';
+    const opponentName = 'Player B';
+
+    // Act
+    const [victor, defeated] = getResult(new Map(), playerName, opponentName, gameEndReason);
+
+    // Assert
+    expect(victor).toBe('Player B');
+    expect(defeated).toBe('Player A');
+  });
+
+  it('should return the victor and defeated player names when opponent has resigned', () => {
+    // Arrange - Create a sample gameEndReason when opponent has resigned
+    const gameEndReason = 'Player B has resigned.';
+    const playerName = 'Player A';
+    const opponentName = 'Player B';
+
+    // Act
+    const [victor, defeated] = getResult(new Map(), playerName, opponentName, gameEndReason);
+
+    // Assert
+    expect(victor).toBe('Player A');
+    expect(defeated).toBe('Player B');
+  });
+
+  it('should return the victor and defeated player names based on current VP', () => {
+    // Arrange - Create sample decks with different current VP values
+    const decks = new Map<string, any>();
+    decks.set('Player A', { currentVP: 10, gameTurn: 5 });
+    decks.set('Player B', { currentVP: 15, gameTurn: 5 });
+    const playerName = 'Player A';
+    const opponentName = 'Player B';
+
+    // Act
+    const [victor, defeated] = getResult(decks, playerName, opponentName, 'Game ended.');
+
+    // Assert
+    expect(victor).toBe('Player B');
+    expect(defeated).toBe('Player A');
+  });
+
+  it('should return the victor and defeated player names based on game turn', () => {
+    // Arrange - Create sample decks with different game turn values
+    const decks = new Map<string, any>();
+    decks.set('Player A', { currentVP: 10, gameTurn: 6 });
+    decks.set('Player B', { currentVP: 10, gameTurn: 5 });
+    const playerName = 'Player A';
+    const opponentName = 'Player B';
+
+    // Act
+    const [victor, defeated] = getResult(decks, playerName, opponentName, 'Game ended.');
+
+    // Assert
+    expect(victor).toBe('Player B');
+    expect(defeated).toBe('Player A');
+  });
+
+  it('should return "None: tie" when the game is a tie', () => {
+    // Arrange - Create sample decks with the same current VP and game turn values
+    const decks = new Map<string, any>();
+    decks.set('Player A', { currentVP: 10, gameTurn: 5 });
+    decks.set('Player B', { currentVP: 10, gameTurn: 5 });
+    const playerName = 'Player A';
+    const opponentName = 'Player B';
+
+    // Act
+    const [victor, defeated] = getResult(decks, playerName, opponentName, 'Game ended.');
+
+    // Assert
+    expect(victor).toBe('None: tie');
+    expect(defeated).toBe('None: tie');
+  });
+
+ 
+});
 });

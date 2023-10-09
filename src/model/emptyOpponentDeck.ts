@@ -1,4 +1,4 @@
-import { GameResult } from "../utils/.d";
+import { GameResult } from "../utils";
 
 export class EmptyOpponentDeck {
   gameTitle: string = "";
