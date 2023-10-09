@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const Popup = () => {
-  const [toggleState, setToggleState] = useState<"ON" | "OFF" | "Unassigned">(
-    "Unassigned"
-  );
+  const [toggleState, setToggleState] = useState<"ON" | "OFF">("OFF");
 
   const handleToggleOn = () => {
     // Append the domRoot to client
@@ -18,6 +16,7 @@ const Popup = () => {
         console.log("There was an error: ", e);
       }
       if (tab !== undefined) {
+        console.log(tab);
         const response = await chrome.tabs.sendMessage(tab.id!, {
           command: "appendDomRoot",
         });
@@ -43,6 +42,8 @@ const Popup = () => {
         console.log("There was an error: ", e);
       }
       if (tab !== undefined) {
+        console.log(tab);
+
         const response = await chrome.tabs.sendMessage(tab.id!, {
           command: "removeDomRoot",
         });
@@ -67,9 +68,11 @@ const Popup = () => {
         console.log("There was an error: ", e);
       }
       if (tab !== undefined) {
+        console.log(tab);
         const response = await chrome.tabs.sendMessage(tab.id!, {
           command: "sendHiddenState",
         });
+        console.log("response from content", response);
         if (response.message === "Hidden state is ON") {
           setToggleState("OFF");
         } else if (response.message === "Hidden state is OFF") {
@@ -90,9 +93,7 @@ const Popup = () => {
         <div className="col-span-2"></div>
         <button
           className={`col-span-8 border-2  ${
-            ["OFF", "Unassigned"].includes(toggleState)
-              ? "bg-green-900"
-              : "bg-green-600"
+            toggleState === "OFF" ? "bg-green-900" : "bg-green-600"
           }`}
           onClick={handleToggleOn}
         >
@@ -102,9 +103,7 @@ const Popup = () => {
         <div className="col-span-2"></div>
         <button
           className={`border-2 col-span-8 ${
-            ["ON", "Unassigned"].includes(toggleState)
-              ? "bg-red-900"
-              : "bg-red-600"
+            toggleState === "ON" ? "bg-red-900" : "bg-red-600"
           }`}
           onClick={handleToggleOff}
         >
@@ -118,6 +117,37 @@ const Popup = () => {
         }}
       >
         History
+      </button>
+      <button
+        onClick={() => {
+          (async () => {
+            let tab: chrome.tabs.Tab | undefined = undefined;
+            try {
+              [tab] = await chrome.tabs.query({
+                active: true,
+                lastFocusedWindow: true,
+              });
+            } catch (e) {
+              console.log("There was an error: ", e);
+            }
+            if (tab !== undefined) {
+              const response = await chrome.tabs.sendMessage(tab.id!, {
+                command: "sendHiddenState",
+              });
+              if (response.message === "Hidden state is ON") {
+                setToggleState("OFF");
+              } else if (response.message === "Hidden state is OFF") {
+                setToggleState("ON");
+              } else {
+                console.log("There was an error");
+              }
+            } else {
+              console.log("Invalid tab selected");
+            }
+          })();
+        }}
+      >
+        Get hidden state
       </button>
     </React.Fragment>
   );

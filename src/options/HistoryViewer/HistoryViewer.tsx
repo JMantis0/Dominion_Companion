@@ -8,7 +8,7 @@ import {
 import { RootState } from "../../redux/store";
 import SavedGameRow from "./SavedGameRow/SavedGameRow";
 import HistoryModal from "./HistoryModal/HistoryModal";
-import type { SavedGame, SavedGames } from "../../utils/.d";
+import type { SavedGame, SavedGames } from "../../utils";
 
 const HistoryViewer = () => {
   const dispatch = useDispatch();

@@ -11,7 +11,7 @@ import type {
   SortReducer,
   StoreDeck,
   OpponentStoreDeck,
-} from "../../../utils/.d";
+} from "../../../utils";
 
 type ZoneViewerProps = {
   deck: StoreDeck | OpponentStoreDeck;

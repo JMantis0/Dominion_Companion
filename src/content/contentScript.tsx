@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot, Root } from "react-dom/client";
 import DomRoot from "./DomRoot";
 
-let resetInterval: NodeJS.Timer;
+let resetInterval: NodeJS.Timeout;
 
 /**
  * Content global variable -

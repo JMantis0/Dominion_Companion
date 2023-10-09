@@ -30,6 +30,7 @@ import {
   onToggleSelect,
   addResizableAndCustomHandleToCustomSelectScrollBars,
 } from "../../../../utils/utils";
+import $ from "jquery";
 library.add(faAngleUp, faAngleDown, faCircle);
 
 export type CustomSelectProps = {
@@ -63,10 +64,18 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
 
   useEffect(() => {
     // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
-    if (selectScrollRef.current !== undefined && selectScrollRef.current) {
+    if (
+      selectScrollRef.current !== undefined &&
+      selectScrollRef.current !== null
+    ) {
       selectScrollRef.current!.scrollTop(selectScrollPosition);
+      const selectScrollElement = document.getElementById("select-scrollbars")!;
+      addResizableAndCustomHandleToCustomSelectScrollBars(
+        $,
+        $(selectScrollElement),
+        "scrollbar-handle"
+      );
     }
-    addResizableAndCustomHandleToCustomSelectScrollBars();
   }, []);
 
   useEffect(() => {

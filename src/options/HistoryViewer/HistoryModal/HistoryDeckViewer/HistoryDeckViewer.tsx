@@ -15,7 +15,7 @@ import type {
   SplitMaps,
   StoreDeck,
   OpponentStoreDeck
-} from "../../../../utils/.d"
+} from "../../../../utils"
 
 type HistoryDeckViewerProps = {
   deck: StoreDeck | OpponentStoreDeck;

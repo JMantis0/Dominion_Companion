@@ -64,7 +64,7 @@ module.exports = {
         },
         {
           from: path.resolve(
-            "node_modules/jquery-ui-bundle/images/ui-icons_ffffff_256x240.png"
+            "node_modules/jqueryui/images/ui-icons_ffffff_256x240.png"
           ),
           to: path.resolve("dist"),
         },

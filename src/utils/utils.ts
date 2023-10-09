@@ -2,7 +2,6 @@ import { AnyAction, Dispatch } from "redux";
 import { Deck } from "../model/deck";
 import { OpponentDeck } from "../model/opponentDeck";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
-import $ from "jquery";
 import { SetStateAction } from "react";
 import type {
   CardCounts,
@@ -13,7 +12,7 @@ import type {
   SortReducer,
   SplitMaps,
   StoreDeck,
-} from "./.d";
+} from ".";
 
 /**
  * Function called by the CustomSelect useEffect hook to configure
@@ -22,12 +21,28 @@ import type {
  * div (option-container).  Function manually appends it to the Scrollbars  div after render.
  * The function also edits the style attribute to link it to the icon resource.
  */
-const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
-  const selectScrollbars = document.getElementById("select-scrollbars");
-  const customHandle = document.getElementById("custom-handle");
-  selectScrollbars!.append(customHandle!);
-  $("#select-scrollbars").resizable({
-    handles: { s: $("#custom-handle") },
+const addResizableAndCustomHandleToCustomSelectScrollBars = (
+  $: JQueryStatic,
+  selectScrollbarsElement: JQuery<HTMLElement>,
+  handleId: string
+) => {
+  // Create handle and attach it to the given element
+  const customHandle: HTMLElement = document.createElement("div");
+  selectScrollbarsElement.append(customHandle!);
+
+  // add the classes required for the handle by jQueryUI
+  customHandle.setAttribute(
+    "class",
+    "ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
+  );
+  customHandle.setAttribute("id", handleId);
+  // Wrap the element in a jQuery object...
+  const selectScrollJQueryUIObject: JQuery<HTMLElement> = $(
+    selectScrollbarsElement
+  );
+  //and add the Resizable widget with the custom handle created earlier
+  selectScrollJQueryUIObject.resizable({
+    handles: { s: $(customHandle) },
   });
   // Configure style to put icon in the proper bottom right position of the element.
   customHandle!.setAttribute(
@@ -51,7 +66,7 @@ const addResizableAndCustomHandleToCustomSelectScrollBars = () => {
  * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.
  * The fix for getting Resizable handle icons to appear in extension context is also here.
  */
-const addResizableAndDraggableToPrimaryFrame = () => {
+const addResizableAndDraggableToPrimaryFrame = ($: JQueryStatic) => {
   $("#primaryFrame").draggable({}).resizable({
     handles: "n, e, s, w, ne, nw, se, sw",
   });
@@ -93,7 +108,7 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   let areNewLogs: boolean;
   const procArr = logsProcessed.split("\n").slice();
   const gLogArr = gameLog.split("\n").slice();
-  // remove premoves
+  // remove premoves (innerText of the game-log element places all the premoves text on one line)
   if (gLogArr[gLogArr.length - 1].match("Premoves") !== null) {
     gLogArr.pop();
   }
@@ -101,9 +116,8 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
     areNewLogs = false;
   } else if (procArr.length > gLogArr.length) {
-    areNewLogs = true;
     throw new Error("Processed logs Larger than game log");
-  } else if (procArr.length < gLogArr.length) {
+  } else if (gLogArr.length > procArr.length) {
     areNewLogs = true;
   } else if (procArr.slice().pop() !== gLogArr.slice().pop()) {
     areNewLogs = true;
@@ -177,17 +191,16 @@ const baseKingdomCardCheck = (kingdom: string[]): boolean => {
 /**
  * Function that handles the adding and removing of an Chrome onMessage listener.  Used by the PrimaryFrame component to listen for
  * messages from the Popup component that adds and removes the DomRoot from the client.
- * The listener function
  * @param add - String that determines whether the listener is to be removed or added.
- * @param hidden - The current hidden state of the domRoot.
  * @param dispatch - Redux reducer dispatcher.
  * @param setViewerHidden - Reducer function that sets the 'hidden' redux state variable.
+ * @param getViewerStatus - Function that checks the DOM to get the hidden status
  */
 const chromeListenerUseEffectHandler = (
   add: "Add" | "Remove",
-  hidden: boolean,
   dispatch: Dispatch<AnyAction>,
-  setViewerHidden: ActionCreatorWithPayload<boolean, "content/setViewerHidden">
+  setViewerHidden: ActionCreatorWithPayload<boolean, "content/setViewerHidden">,
+  getViewerStatus: Function
 ) => {
   const chromeMessageListener = (
     request: { command: string },
@@ -203,7 +216,9 @@ const chromeListenerUseEffectHandler = (
       dispatch(setViewerHidden(true));
       response.message = "Successfully turned off.";
     } else if (request.command === "sendHiddenState") {
-      response.message = hidden ? "Hidden state is ON" : "Hidden state is OFF";
+      response.message = getViewerStatus()
+        ? "Hidden state is ON"
+        : "Hidden state is OFF";
     } else {
       response.message = "Invalid Request";
     }
@@ -213,6 +228,23 @@ const chromeListenerUseEffectHandler = (
     chrome.runtime.onMessage.addListener(chromeMessageListener);
   } else if (add === "Remove") {
     chrome.runtime.onMessage.removeListener(chromeMessageListener);
+  }
+};
+
+/**
+ * Function that calculates mathematical combinations
+ * @param n the number of elements in the set.
+ * @param r - the number or elements in a combination.
+ * @returns - The number of possible combinations.
+ */
+const combinations = (n: number, r: number): number => {
+  if (n < r) {
+    return 0;
+  } else if (n == r || r == 0) {
+    return 1;
+  } else {
+    r = r < n - r ? n - r : r;
+    return product_Range(r + 1, n) / product_Range(1, n - r);
   }
 };
 
@@ -230,20 +262,28 @@ const combineDeckListMapAndZoneListMap = (
   zoneListMap: Map<string, number>
 ): Map<string, CardCounts> => {
   let newMap: Map<string, CardCounts> = new Map();
-  Array.from(deckListMap.entries()).forEach((entry) => {
-    let [card, deckAmount] = entry;
-    let libCount: number;
+  // first create a list of all the cards that are in both maps...
+  const cardList: string[] = Array.from(deckListMap.keys()).concat(
+    Array.from(zoneListMap.keys())
+  );
+
+  // For each card create a CardCounts object and add it to the new map.
+  cardList.forEach((card) => {
+    let deckListAmount = 0;
+    let zoneListAmount = 0;
     if (zoneListMap.has(card)) {
-      libCount = zoneListMap.get(card)!;
-    } else {
-      libCount = 0;
+      zoneListAmount = zoneListMap.get(card)!;
     }
-    let counts: CardCounts = {
-      entireDeckCount: deckAmount,
-      zoneCount: libCount,
+    if (deckListMap.has(card)) {
+      deckListAmount = deckListMap.get(card)!;
+    }
+    const counts: CardCounts = {
+      entireDeckCount: deckListAmount,
+      zoneCount: zoneListAmount,
     };
     newMap.set(card, counts);
   });
+
   return newMap;
 };
 
@@ -319,6 +359,37 @@ const createPlayerDecks = (
 };
 
 /**
+ * Function returns the cumulative hypergeometric probability of a sample that contains the number
+ * of given success or more than the number of given successes.
+ * @param populationSize  - Size of the population
+ * @param populationSuccesses - Number of successes in the population
+ * @param sampleSize - The sample size to be picked at random from the population
+ * @param sampleSuccesses - The number of successes in the sample.
+ * @returns - The probability that there will be at least the given number of successes in a sample.
+ */
+const cumulativeHyperGeometricProbability = (
+  populationSize: number,
+  populationSuccesses: number,
+  sampleSize: number,
+  sampleSuccesses: number
+): number => {
+  let cumulativeProb: number = 0;
+  for (let i = sampleSuccesses; i <= sampleSize; i++) {
+    try {
+      cumulativeProb += hyperGeometricProbability(
+        populationSize,
+        populationSuccesses,
+        sampleSize,
+        i
+      );
+    } catch (e: unknown) {
+      console.error(getErrorMessage(e));
+    }
+  }
+  return cumulativeProb;
+};
+
+/**
  * Gets the kingdom-viewer-group element from the DOM and iterates through the
  * name-layer elements within it.  Extracts the innerText of each name-layer and
  * pushes it to an array of strings.  Then adds default strings to the array, and
@@ -336,8 +407,9 @@ const getClientKingdom = (): Array<string> => {
       const card = elt.innerText.trim();
       cards.push(card);
     }
-  } catch (e) {
-    throw new Error(`Error in getKingdom`);
+  } catch (e: unknown) {
+    console.error(getErrorMessage(e));
+    throw new Error(getErrorMessage(e));
   }
   ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
     (card) => {
@@ -371,6 +443,51 @@ const getCountsFromArray = (
 };
 
 /**
+ * Classic function that returns the probability of getting a certain number of successes from a set of elements.
+ * @param populationSize  - Size of the population
+ * @param populationSuccesses - Number of successes in the population
+ * @param sampleSize - The sample size to be picked at random from the population
+ * @param sampleSuccesses - The number of successes in the sample.
+ * @returns - The probability that there will be  exactly the given number of successes in a sample.
+ */
+const hyperGeometricProbability = (
+  populationSize: number,
+  populationSuccesses: number,
+  sampleSize: number,
+  sampleSuccesses: number
+): number => {
+  let hyperGeometricProbability: number;
+  /**
+   * Hypergeometric formula has the following restrictions:
+   * 0 <= x <= n
+   * x <= k
+   * n - x <= N - k
+   * Probability for any set of parameter values outside these restrictions have a probability of 0
+   * The first 4 if/else below code in these restrictions.
+   */
+  if (!(0 <= sampleSuccesses)) {
+    hyperGeometricProbability = 0;
+  } else if (!(sampleSuccesses <= sampleSize)) {
+    hyperGeometricProbability = 0;
+  } else if (!(sampleSuccesses <= populationSuccesses)) {
+    hyperGeometricProbability = 0;
+  } else if (
+    !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
+  ) {
+    hyperGeometricProbability = 0;
+  } else {
+    hyperGeometricProbability =
+      (combinations(populationSuccesses, sampleSuccesses) *
+        combinations(
+          populationSize - populationSuccesses,
+          sampleSize - sampleSuccesses
+        )) /
+      combinations(populationSize, sampleSize);
+  }
+  return hyperGeometricProbability;
+};
+
+/**
  * Function returns the hypergeometric and cumulative hypergeometric probabilities that the given card will be drawn in the next
  * given number of draws.
  * @param deck - The player's StoreDeck.
@@ -387,110 +504,6 @@ const getCumulativeHyperGeometricProbabilityForCard = (
   successCount: number,
   drawCount: number
 ): { hyperGeo: number; cumulative: number } => {
-  /**
-   * Function that calculates mathematical combinations
-   * @param n the number of elements in the set.
-   * @param r - the number or elements in a combination.
-   * @returns - The number of possible combinations.
-   */
-  const combinations = (n: number, r: number): number => {
-    if (n == r || r == 0) {
-      return 1;
-    } else {
-      r = r < n - r ? n - r : r;
-      return product_Range(r + 1, n) / product_Range(1, n - r);
-    }
-  };
-  /**
-   * Function returns the cumulative hypergeometric probability of a sample that contains the number
-   * of given success or more than the number of given successes.
-   * @param populationSize  - Size of the population
-   * @param populationSuccesses - Number of successes in the population
-   * @param sampleSize - The sample size to be picked at random from the population
-   * @param sampleSuccesses - The number of successes in the sample.
-   * @returns - The probability that there will be at least the given number of successes in a sample.
-   */
-  const cumulativeHyperGeometricProbability = (
-    populationSize: number,
-    populationSuccesses: number,
-    sampleSize: number,
-    sampleSuccesses: number
-  ): number => {
-    let cumulativeProb: number = 0;
-    for (let i = sampleSuccesses; i <= sampleSize; i++) {
-      try {
-        cumulativeProb += hyperGeometricProbability(
-          populationSize,
-          populationSuccesses,
-          sampleSize,
-          i
-        );
-      } catch (e: unknown) {
-        console.error(getErrorMessage(e));
-      }
-    }
-    return cumulativeProb;
-  };
-  /**
-   * Classic function that returns the probability of getting a certain number of successes from a set of elements.
-   * @param populationSize  - Size of the population
-   * @param populationSuccesses - Number of successes in the population
-   * @param sampleSize - The sample size to be picked at random from the population
-   * @param sampleSuccesses - The number of successes in the sample.
-   * @returns - The probability that there will be  exactly the given number of successes in a sample.
-   */
-  const hyperGeometricProbability = (
-    populationSize: number,
-    populationSuccesses: number,
-    sampleSize: number,
-    sampleSuccesses: number
-  ): number => {
-    let hyperGeometricProbability: number;
-    /**
-     * Hypergeometric formula has the following restrictions:
-     * 0 <= x <= n
-     * x <= k
-     * n - x <= N - k
-     * Probability for any set of parameter values outside these restrictions have a probability of 0
-     * The first 4 if/else below code in these restrictions.
-     */
-    if (!(0 <= sampleSuccesses)) {
-      hyperGeometricProbability = 0;
-    } else if (!(sampleSuccesses <= sampleSize)) {
-      hyperGeometricProbability = 0;
-    } else if (!(sampleSuccesses <= populationSuccesses)) {
-      hyperGeometricProbability = 0;
-    } else if (
-      !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
-    ) {
-      hyperGeometricProbability = 0;
-    } else {
-      hyperGeometricProbability =
-        (combinations(populationSuccesses, sampleSuccesses) *
-          combinations(
-            populationSize - populationSuccesses,
-            sampleSize - sampleSuccesses
-          )) /
-        combinations(populationSize, sampleSize);
-    }
-    return hyperGeometricProbability;
-  };
-
-  /**
-   * Helper function for combining combination operations.
-   * @param a
-   * @param b
-   * @returns
-   */
-  const product_Range = (a: number, b: number): number => {
-    var prd = a,
-      i = a;
-    while (i++ < b) {
-      prd *= i;
-    }
-    return prd;
-  };
-
   let probability: number = 0;
   let cumProb: number = 0;
   let secondDrawPool: string[] =
@@ -675,8 +688,8 @@ const getPlayerNameAbbreviations = (
   gameLog: string,
   playerName: string
 ): Array<string> => {
-  let playerNick: string;
-  let opponentNick: string;
+  let playerNick: string = "";
+  let opponentNick: string = "";
   const gameLogArr = gameLog.split("\n");
   let n1: string;
   let n2: string;
@@ -686,14 +699,23 @@ const getPlayerNameAbbreviations = (
       break;
     }
   }
-  n1 = gameLogArr[i].split(" ")[0]; // n1 player is the player going first.
-  n2 = gameLogArr[i + 2].split(" ")[0];
-  if (playerName.substring(0, n1.length) == n1) {
-    playerNick = n1;
-    opponentNick = n2;
-  } else {
-    playerNick = n2;
-    opponentNick = n1;
+  if (i !== gameLogArr.length) {
+    n1 = gameLogArr[i]; // n1 player is the player going first.
+    n2 = gameLogArr[i + 2];
+    for (i = 0; i <= Math.min(n1.length, n2.length); i++) {
+      if (n1[i].toLowerCase() !== n2[i].toLowerCase()) {
+        n1 = n1.substring(0, i + 1).trim();
+        n2 = n2.substring(0, i + 1).trim();
+        break;
+      }
+    }
+    if (playerName.substring(0, n1.length) == n1) {
+      playerNick = n1;
+      opponentNick = n2;
+    } else {
+      playerNick = n2;
+      opponentNick = n1;
+    }
   }
   return [playerNick, opponentNick];
 };
@@ -723,6 +745,14 @@ const getPlayerRatings = (
     }
   }
   return [playerRating, opponentRating];
+};
+
+const getPrimaryFrameStatus = (): boolean | undefined => {
+  let status: boolean | undefined;
+  status = document
+    .getElementById("primaryFrame")
+    ?.classList.contains("hidden");
+  return status;
 };
 
 /**
@@ -972,14 +1002,14 @@ const onMouseLeaveOption = (
  * @param setTurn - The contentSlice reducer that sets the turnToggleButton state.
  */
 const onMouseLeaveTurnButton = (
-  pinnedTurnToggleButton: "Current" | "Next",
+  pinnedButtonName: "Current" | "Next",
   dispatch: Dispatch<AnyAction>,
   setTurn: ActionCreatorWithPayload<
     "Current" | "Next",
     "content/setTurnToggleButton"
   >
 ) => {
-  dispatch(setTurn(pinnedTurnToggleButton));
+  dispatch(setTurn(pinnedButtonName));
 };
 
 /**
@@ -1148,6 +1178,21 @@ const onTurnToggleButtonClick = (
 ) => {
   dispatch(setPinnedTurnToggleButton(buttonName));
   dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Helper function for combining combination operations.
+ * @param a
+ * @param b
+ * @returns
+ */
+const product_Range = (a: number, b: number): number => {
+  var prd = a,
+    i = a;
+  while (i++ < b) {
+    prd *= i;
+  }
+  return prd;
 };
 
 /**
@@ -1636,9 +1681,11 @@ export {
   arePlayerInfoElementsPresent,
   baseKingdomCardCheck,
   chromeListenerUseEffectHandler,
+  combinations,
   combineDeckListMapAndZoneListMap,
   createEmptySplitMapsObject,
   createPlayerDecks,
+  cumulativeHyperGeometricProbability,
   getClientKingdom,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
@@ -1649,10 +1696,12 @@ export {
   getPlayerInfoElements,
   getPlayerNameAbbreviations,
   getPlayerRatings,
+  getPrimaryFrameStatus,
   getRatedGameBoolean,
   getResult,
   getRowColor,
   getUndispatchedLogs,
+  hyperGeometricProbability,
   isErrorWithMessage,
   isGameLogPresent,
   isKingdomElementPresent,
@@ -1669,6 +1718,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  product_Range,
   sortHistoryDeckView,
   sortMainViewer,
   sortZoneView,

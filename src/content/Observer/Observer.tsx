@@ -23,7 +23,7 @@ import {
   setSavedGames,
   setBaseOnly,
 } from "../../redux/contentSlice";
-import type { SavedGame } from "../../utils/.d";
+import type { SavedGame } from "../../utils";
 import { useDispatch } from "react-redux";
 import { OpponentDeck } from "../../model/opponentDeck";
 import { useSelector } from "react-redux";
@@ -157,14 +157,14 @@ let baseOnly: boolean;
 /**
  * Interval used to detect
  */
-let initInterval: NodeJS.Timer;
+let initInterval: NodeJS.Timeout;
 
 /**
  * Content global variable -
  * Use - When a game is active, used to set an interval to periodically check if the game is still active,
  * and if the game is not active, executes a game reset.
  */
-let resetInterval: NodeJS.Timer;
+let resetInterval: NodeJS.Timeout;
 
 /**
  * Mutation Observers detect changes in the DOM.
@@ -239,8 +239,10 @@ const Observer: FunctionComponent = () => {
           const lastAddedNode: HTMLElement = addedNodes[
             addedNodes.length - 1
           ] as HTMLElement;
+          console.log("Premoves check");
           const lastAddedNodeText = lastAddedNode.innerText;
           if (lastAddedNodeText.length > 0) {
+            console.log("Premoves check2");
             if (areNewLogsToSend(logsProcessed, getGameLog())) {
               gameLog = getGameLog();
               const newLogsToDispatch = getUndispatchedLogs(
@@ -546,7 +548,7 @@ const Observer: FunctionComponent = () => {
   }, []);
 
   return (
-    <div className="top-[50%] hidden">
+    <div className="top-[50%]">
       <button
         className="top-[50%] whitespace-nowrap ml-[200px]"
         onClick={() => {

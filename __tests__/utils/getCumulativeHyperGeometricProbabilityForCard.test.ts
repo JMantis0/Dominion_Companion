@@ -1,6 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { getCumulativeHyperGeometricProbabilityForCard } from "../../src/utils/utils";
+import {
+  cumulativeHyperGeometricProbability,
+  getCumulativeHyperGeometricProbabilityForCard,
+  hyperGeometricProbability,
+} from "../../src/utils/utils";
 
 describe("Function getCumulativeHyperGeometricProbabilityForCard()", () => {
   let lib: string[];
@@ -362,4 +366,135 @@ describe("Function getCumulativeHyperGeometricProbabilityForCard()", () => {
       ).toEqual(1);
     });
   });
+});
+
+describe("cumulativeHyperGeometricProbability", () => {
+  it("should return the cumulative hypergeometric probability", () => {
+    // Define your test parameters
+    const populationSize = 100;
+    const populationSuccesses = 30;
+    const sampleSize = 10;
+    const sampleSuccesses = 3;
+
+    // Expected result (you may need to calculate it manually)
+    const expectedResult = 0.62714; // Replace with the actual expected result
+
+    // Call the function and assert the result using Jest's expect
+    const result = cumulativeHyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      sampleSuccesses
+    );
+
+    expect(result).toBeCloseTo(expectedResult, 4); // Adjust precision as needed
+  });
+
+  // Add more test cases as needed
+});
+
+describe("hyperGeometricProbability", () => {
+  it("should return the hypergeometric probability", () => {
+    // Define your test parameters
+    const populationSize = 100;
+    const populationSuccesses = 30;
+    const sampleSize = 10;
+    const sampleSuccesses = 3;
+
+    // Expected result (you may need to calculate it manually)
+    const expectedResult = 0.2136; // Replace with the actual expected result
+
+    // Call the function and assert the result using Jest's expect
+    const result = hyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      sampleSuccesses
+    );
+
+    expect(result).toBeCloseTo(expectedResult, 0.28116); // Adjust precision as needed
+  });
+
+  // Add more test cases as neededdescribe('getCumulativeHyperGeometricProbabilityForCard', () => {
+  it("should calculate the cumulative hypergeometric probability for a card when drawing one card", () => {
+    const deck: Deck = new Deck("title", false, "", "name", "nick", []);
+    deck.setLibrary(["Card A", "Card A", "Card B", "Card B", "Card B"]);
+
+    const cardName = "Card A";
+    const turn = "Current";
+    const successCount = 1;
+    const drawCount = 1;
+
+    // Expected hypergeometric probability for drawing one Card A
+    const expectedHyperGeo = 0.4; // 2 out of 5 cards are Card A
+    // Expected cumulative probability for drawing one Card A or more
+    const expectedCumulative = .4; // Certain to draw at least one Card A
+
+    const result = getCumulativeHyperGeometricProbabilityForCard(
+      deck,
+      cardName,
+      turn,
+      successCount,
+      drawCount
+    );
+
+    expect(result.hyperGeo).toBeCloseTo(expectedHyperGeo, 4);
+    expect(result.cumulative).toBe(expectedCumulative);
+  });
+
+  it("should handle the case when the card is in the graveyard", () => {
+    const deck: Deck = new Deck("title", false, "", "name", "nick", []);
+    deck.setLibrary(["Card A", "Card B", "Card C", "Card D", "Card E"]);
+    deck.setGraveyard(["Card A"]);
+
+    const cardName = "Card A";
+    const turn = "Current";
+    const successCount = 1;
+    const drawCount = 3;
+
+    // Expected hypergeometric probability for drawing one Card A
+    const expectedHyperGeo = 0.6; // 1 out of 5 remaining cards in the library is Card A
+    // Expected cumulative probability for drawing one Card A or more
+    const expectedCumulative = 0.6; // 20% chance to draw Card A or more
+
+    const result = getCumulativeHyperGeometricProbabilityForCard(
+      deck,
+      cardName,
+      turn,
+      successCount,
+      drawCount
+    );
+
+    expect(result.hyperGeo).toBeCloseTo(expectedHyperGeo, 4);
+    expect(result.cumulative).toBeCloseTo(expectedCumulative, 4);
+  });
+
+  it("should handle the case when drawing more cards than available in the library", () => {
+    const deck: Deck = new Deck("title", false, "", "name", "nick", []);
+    deck.setLibrary(["Card A", "Card B", "Card C", "Card D", "Card E"]);
+    deck.setGraveyard([]);
+
+    const cardName = "Card A";
+    const turn = "Current";
+    const successCount = 2;
+    const drawCount = 4;
+
+    // Expected hypergeometric probability for drawing two Card A
+    const expectedHyperGeo = 0; // Not possible to draw 2 Card A from 3 cards
+    // Expected cumulative probability for drawing two Card A or more
+    const expectedCumulative = 0; // Not possible to draw 2 Card A from 3 cards
+
+    const result = getCumulativeHyperGeometricProbabilityForCard(
+      deck,
+      cardName,
+      turn,
+      successCount,
+      drawCount
+    );
+
+    expect(result.hyperGeo).toBe(expectedHyperGeo);
+    expect(result.cumulative).toBe(expectedCumulative);
+  });
+
+  // Add more test cases as needed
 });

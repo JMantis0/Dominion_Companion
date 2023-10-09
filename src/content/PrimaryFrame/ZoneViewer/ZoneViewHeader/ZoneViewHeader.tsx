@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import SortButton from "../../SortButton/SortButton";
-import type { SortButtonState, SortReducer } from "../../../../utils/.d";
+import type { SortButtonState, SortReducer } from "../../../../utils";
 
 type ZoneViewHeaderProps = {
   dispatchFunc: SortReducer;

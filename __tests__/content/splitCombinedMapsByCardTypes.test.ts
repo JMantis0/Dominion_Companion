@@ -4,7 +4,7 @@ import {
   splitCombinedMapsByCardTypes,
 } from "../../src/utils/utils";
 import { getCountsFromArray } from "../testUtilFuncs";
-import type { CardCounts, SplitMaps } from "../../src/utils/.d";
+import type { CardCounts, SplitMaps } from "../../src/utils";
 
 describe("Function splitCombinedMapsByCardTypes()", () => {
   let expectedMap: SplitMaps;
