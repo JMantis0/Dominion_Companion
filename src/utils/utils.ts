@@ -1235,12 +1235,27 @@ const sortTwoCardsByProbability = (
   turn: "Current" | "Next"
 ): number => {
   let result = 0;
-  cardA;
-  cardB;
-  sortType;
-  deck;
-  topCardsLookAmount;
-  turn;
+  const cardAProb = getCumulativeHyperGeometricProbabilityForCard(
+    deck,
+    cardA,
+    turn,
+    1,
+    topCardsLookAmount
+  ).cumulative;
+  const cardBProb = getCumulativeHyperGeometricProbabilityForCard(
+    deck,
+    cardB,
+    turn,
+    1,
+    topCardsLookAmount
+  ).cumulative;
+
+  if (cardAProb > cardBProb) {
+    result = sortType === "ascending" ? -1 : 1;
+  } else if (cardAProb < cardBProb) {
+    result = sortType === "ascending" ? 1 : -1;
+  }
+
   return result;
 };
 

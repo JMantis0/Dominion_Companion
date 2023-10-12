@@ -122,7 +122,7 @@ describe("Function sortTwoCardsByProbability()", () => {
         turn
       );
       // Assert
-      expect(result).toBe(1);
+      expect(result).toBe(-1);
     });
 
     it("...and by returning 0 if probability of drawing cardA is equal to cardB", () => {
@@ -141,7 +141,7 @@ describe("Function sortTwoCardsByProbability()", () => {
         turn
       );
       // Assert
-      expect(result).toBe(1);
+      expect(result).toBe(0);
     });
   });
 });
