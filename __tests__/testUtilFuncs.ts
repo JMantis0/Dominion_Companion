@@ -1,5 +1,6 @@
 import { Deck } from "../src/model/deck";
 import { OpponentDeck } from "../src/model/opponentDeck";
+import { CardCounts } from "../src/utils";
 
 export const getCountsFromArray = (
   deckListArray: Array<string>
@@ -153,4 +154,10 @@ export const createRandomKingdom = (): string[] => {
   );
 
   return rKingdom;
+};
+
+export const getMapArray = (
+  map: Map<string, CardCounts>
+): Array<[string, CardCounts]> => {
+  return Array.from(map.entries());
 };
