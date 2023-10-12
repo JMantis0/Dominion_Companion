@@ -1210,18 +1210,38 @@ const product_Range = (a: number, b: number): number => {
  * @param sortType
  * @returns
  */
-const sortByName = (
+const sortTwoCardsByName = (
   cardA: string,
   cardB: string,
   sortType: "ascending" | "descending"
 ): number => {
   let result: number = 0;
   if (cardA > cardB) {
-    result = 1;
+    // cardA > cardB means that cardA comes alphabetically after cardB
+    result = sortType === "ascending" ? 1 : -1;
   } else if (cardA < cardB) {
-    result = -1;
+    // cardA < cardB means that cardA comes alphabetically before cardB
+    result = sortType === "ascending" ? -1 : 1;
   }
-  return sortType === "ascending" ? result : -result;
+  return result;
+};
+
+const sortTwoCardsByProbability = (
+  cardA: string,
+  cardB: string,
+  sortType: "ascending" | "descending",
+  deck: StoreDeck,
+  topCardsLookAmount: number,
+  turn: "Current" | "Next"
+): number => {
+  let result = 0;
+  cardA;
+  cardB;
+  sortType;
+  deck;
+  topCardsLookAmount;
+  turn;
+  return result;
 };
 
 /**
@@ -1394,7 +1414,7 @@ const sortMainViewer = (
             }
             // ...and finally, if those are equal, sort by card name.
             else {
-              return sortByName(cardA, cardB, sortType);
+              return sortTwoCardsByName(cardA, cardB, sortType);
             }
           })
           .forEach((entry) => {
@@ -1409,7 +1429,7 @@ const sortMainViewer = (
           .sort((entryA, entryB) => {
             const cardA = entryA[0];
             const cardB = entryB[0];
-            return sortByName(cardA, cardB, sortType);
+            return sortTwoCardsByName(cardA, cardB, sortType);
           })
           .forEach((entry) => {
             const [card, cardCounts] = entry;
@@ -1477,7 +1497,7 @@ const sortMainViewer = (
             }
             // ... and if the hypergeometrics are equal, sort by cardName.
             else {
-              return sortByName(cardA, cardB, sortType);
+              return sortTwoCardsByName(cardA, cardB, sortType);
             }
           })
           .forEach((entry) => {
@@ -1539,7 +1559,7 @@ const sortMainViewer = (
                 ? probB - probA
                 : -(probB - probA);
             } else {
-              return sortByName(cardA, cardB, sortType);
+              return sortTwoCardsByName(cardA, cardB, sortType);
             }
           })
           .forEach((entry) => {
@@ -1854,7 +1874,8 @@ export {
   onToggleSelect,
   onTurnToggleButtonClick,
   product_Range,
-  sortByName,
+  sortTwoCardsByName,
+  sortTwoCardsByProbability,
   sortHistoryDeckView,
   sortMainViewer,
   sortZoneView,
