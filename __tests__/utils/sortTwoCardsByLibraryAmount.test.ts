@@ -1,71 +1,95 @@
 import { describe, it, expect } from "@jest/globals";
+import { sortTwoCardsByLibraryAmount } from "../../src/utils/utils";
 
 describe("Function sortTwoCardsByLibraryAmount() ", () => {
-  // Arrange
-  const library = ["Card1", "Card1", "Card2", "Card3"];
+ 
 
   describe("should ascending sort two cards by amount of that card in the library correctly", () => {
-    it("...by returning a value of 1 when the amount of cardA is lesser than the amount of cardB", () => {
+    it("...by returning a value of 1 when the amount of cardALibCount is lesser than the amount of cardBLibCount", () => {
       //Arrange
       const sortType = "ascending";
-      const cardA = "Card2"; // cardA amount is less
-      const cardB = "Card1";
+      const cardALibCount = 1; // cardA amount is less
+      const cardBLibCount = 2;
       // Act
-      const result = sortTwoCardsByLibraryAmount(cardA, cardB, sortType);
+      const result = sortTwoCardsByLibraryAmount(
+        cardALibCount,
+        cardBLibCount,
+        sortType,
+      );
       // Assert
       expect(result).toEqual(1);
     });
-    it("...by returning a value of -1 when the amount of cardA is greater than the amount of cardB", () => {
+    it("...by returning a value of -1 when the amount of cardA is greater than the amount of cardBLibCount", () => {
       //Arrange
       const sortType = "ascending";
-      const cardA = "Card1"; //cardA is greater
-      const cardB = "Card2";
+      const cardALibCount = 2; //cardALibCount is greater
+      const cardBLibCount = 1;
       // Act
-      const result = sortTwoCardsByLibraryAmount(cardA, cardB, sortType);
+      const result = sortTwoCardsByLibraryAmount(
+        cardALibCount,
+        cardBLibCount,
+        sortType,
+      );
       // Assert
-      expect(result).toEqual(1);
+      expect(result).toEqual(-1);
     });
-    it("...by returning a value of 0 when the amount of cardA and cardB are equal", () => {
+    it("...by returning a value of 0 when the amount of cardALibCount and cardBLibCount are equal", () => {
       //Arrange
       const sortType = "ascending";
-      const cardA = "Card2"; //card mounts are equal
-      const cardB = "Card3";
+      const cardALibCount = 1; //card mounts are equal
+      const cardBLibCount = 1;
       // Act
-      const result = sortTwoCardsByLibraryAmount(cardA, cardB, sortType);
+      const result = sortTwoCardsByLibraryAmount(
+        cardALibCount,
+        cardBLibCount,
+        sortType,
+      );
       // Assert
       expect(result).toEqual(0);
     });
   });
-  describe("should ascending sort two cards by amount of that card in the library correctly", () => {
-    it("...by returning a value of -1 when the amount of cardA is lesser than the amount of cardB", () => {
+  describe("should descending sort two cards by amount of that card in the library correctly", () => {
+    it("...by returning a value of -1 when the amount of cardALibCount is lesser than the amount of cardBLibCount", () => {
       //Arrange
       const sortType = "descending";
-      const cardA = "Card2"; //cardA is lesser
-      const cardB = "Card1";
+      const cardALibCount = 1; //cardALibCount is lesser
+      const cardBLibCount = 2;
       // Act
-      const result = sortTwoCardsByLibraryAmount(cardA, cardB, sortType);
+      const result = sortTwoCardsByLibraryAmount(
+        cardALibCount,
+        cardBLibCount,
+        sortType,
+      );
       // Assert
       expect(result).toEqual(-1);
     });
-    it("...by returning a value of 1 when the amount of cardA is greater than the amount of cardB", () => {
+    it("...by returning a value of 1 when the amount of cardALibCount is greater than the amount of cardBLibCount", () => {
       //Arrange
       const sortType = "descending";
-      const cardA = "Card1"; //cardA is greater
-      const cardB = "Card2";
+      const cardALibCount = 2; //cardALibCount is greater
+      const cardBLibCount = 1;
       // Act
-      const result = sortTwoCardsByLibraryAmount(cardA, cardB, sortType);
+      const result = sortTwoCardsByLibraryAmount(
+        cardALibCount,
+        cardBLibCount,
+        sortType,
+      );
       // Assert
       expect(result).toEqual(1);
     });
-    it("...by returning a value of 0 when the amount of cardA and cardB are equal", () => {
+    it("...by returning a value of 0 when the amount of cardALibCount and cardBLibCount are equal", () => {
       //Arrange
       const sortType = "descending";
-      const cardA = "Card3"; // card amounts equal
-      const cardB = "Card2";
+      const cardALibCount = 1; // card amounts equal
+      const cardBLibCount = 1;
       // Act
-      const result = sortTwoCardsByLibraryAmount(cardA, cardB, sortType);
+      const result = sortTwoCardsByLibraryAmount(
+        cardALibCount,
+        cardBLibCount,
+        sortType,
+      );
       // Assert
-      expect(result).toEqual(1);
+      expect(result).toEqual(0);
     });
   });
 });

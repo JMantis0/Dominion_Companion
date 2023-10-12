@@ -1203,6 +1203,20 @@ const product_Range = (a: number, b: number): number => {
   return prd;
 };
 
+const sortTwoCardsByLibraryAmount = (
+  cardALibCount: number,
+  cardBLibCount: number,
+  sortType: "ascending" | "descending"
+): number => {
+  let result = 0;
+  if (cardALibCount > cardBLibCount) {
+    result = sortType === "ascending" ? -1 : 1;
+  } else if (cardALibCount < cardBLibCount) {
+    result = sortType === "ascending" ? 1 : -1;
+  }
+  return result;
+};
+
 /**
  * Sort two cards by their names and a sortType parameter.  If ascending, A sorts in potion before Z
  * @param cardA
@@ -1821,6 +1835,7 @@ export {
   onToggleSelect,
   onTurnToggleButtonClick,
   product_Range,
+  sortTwoCardsByLibraryAmount,
   sortTwoCardsByName,
   sortTwoCardsByProbability,
   sortHistoryDeckView,
