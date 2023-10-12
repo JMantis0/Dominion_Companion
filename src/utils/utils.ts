@@ -244,6 +244,9 @@ const combinations = (n: number, r: number): number => {
     return 1;
   } else {
     r = r < n - r ? n - r : r;
+    if (n < r + 1 || n - r < 1) {
+      throw new Error("combination impossible");
+    }
     return product_Range(r + 1, n) / product_Range(1, n - r);
   }
 };
@@ -1182,17 +1185,43 @@ const onTurnToggleButtonClick = (
 
 /**
  * Helper function for combining combination operations.
- * @param a
- * @param b
- * @returns
+ * returns the product of all the integers from a to b
+ * ie: product_Range(2,5) will return 2*3*4*5 = 120
+ * @param a - Starting number, should be less than b.
+ * @param b - Ending number, should bt greater than or equal to a.
+ * @returns - the product of all the integers from a to b (inclusive).
  */
 const product_Range = (a: number, b: number): number => {
+  if (a > b) {
+    throw Error("product_Range invalid parameters (a>b)");
+  }
   var prd = a,
     i = a;
   while (i++ < b) {
     prd *= i;
   }
   return prd;
+};
+
+/**
+ * Sort two cards by their names and a sortType parameter.  If ascending, A sorts in potion before Z
+ * @param cardA
+ * @param cardB
+ * @param sortType
+ * @returns
+ */
+const sortByName = (
+  cardA: string,
+  cardB: string,
+  sortType: "ascending" | "descending"
+): number => {
+  let result: number = 0;
+  if (cardA > cardB) {
+    result = 1;
+  } else if (cardA < cardB) {
+    result = -1;
+  }
+  return sortType === "ascending" ? result : -result;
 };
 
 /**
@@ -1211,7 +1240,6 @@ const sortHistoryDeckView = (
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
   switch (sortParam) {
-    // add cases for card, deckAmount, ownedAmount
     case "card":
       {
         [...mapCopy.entries()]
@@ -1280,7 +1308,14 @@ const sortHistoryDeckView = (
 };
 
 /**
- * Returns a sorted map.  Sorts by the sortParam and sortType.
+ * Returns a sorted map.  Sorts by the sortParam and sortType.  If there are 2 rows with an equal amount, a secondary sort will be applied.  If the secondary values are equal, a tertiary sort will be applied
+ *
+ * Primary - "probability" -> Secondary - "owned" -> tertiary "zone" -> quaternary - "card"
+ * Primary - "owned" -> Secondary - "zone" -> tertiary "probability" -> quaternary - "card"
+ * Primary - "zone" -> Secondary - "owned" -> tertiary "probability" -> quaternary - "card"
+ * Primary - "card" (no equal value possible, secondary not needed)
+ *
+ *
  * @param sortParam - The category to sort on.
  * @param unsortedMap - The unsorted map.
  * @param sortType - Ascending or Descending.
@@ -1297,54 +1332,69 @@ const sortMainViewer = (
 ): Map<string, CardCounts> => {
   const mapCopy = new Map(unsortedMap);
   const sortedMap: Map<string, CardCounts> = new Map();
+
   switch (sortParam) {
     case "probability":
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            if (sortType === "ascending") {
-              if (entryB[1].zoneCount - entryA[1].zoneCount !== 0) {
-                return entryB[1].zoneCount - entryA[1].zoneCount;
-              } else {
-                // If equal, sort by hyper geometric
-                return (
-                  getCumulativeHyperGeometricProbabilityForCard(
-                    pd,
-                    entryB[0],
-                    turn,
-                    1,
-                    topCardsLookAmount
-                  ).cumulative -
-                  getCumulativeHyperGeometricProbabilityForCard(
-                    pd,
-                    entryA[0],
-                    turn,
-                    1,
-                    topCardsLookAmount
-                  ).cumulative
-                );
-              }
-            } else {
-              if (entryA[1].zoneCount - entryB[1].zoneCount !== 0) {
-                return entryA[1].zoneCount - entryB[1].zoneCount;
-              } else {
-                return (
-                  getCumulativeHyperGeometricProbabilityForCard(
-                    pd,
-                    entryA[0],
-                    turn,
-                    1,
-                    topCardsLookAmount
-                  ).cumulative -
-                  getCumulativeHyperGeometricProbabilityForCard(
-                    pd,
-                    entryB[0],
-                    turn,
-                    1,
-                    topCardsLookAmount
-                  ).cumulative
-                );
-              }
+            const cardA = entryA[0];
+            const cardALibCount = entryA[1].zoneCount;
+            const cardATotCount = entryA[1].entireDeckCount;
+            const cardB = entryB[0];
+            const cardBLibCount = entryB[1].zoneCount;
+            const cardBTotCount = entryB[1].entireDeckCount;
+            // First try to sort the two entries by their libraryCount (simpler probability)...
+            if (cardBLibCount - cardALibCount !== 0) {
+              return sortType === "ascending"
+                ? cardBLibCount - cardALibCount
+                : -(cardBLibCount - cardALibCount);
+            }
+            // ...if those are equal then try to sort by the hypergeometric probability...
+            else if (
+              getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardB,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative -
+                getCumulativeHyperGeometricProbabilityForCard(
+                  pd,
+                  cardA,
+                  turn,
+                  1,
+                  topCardsLookAmount
+                ).cumulative !==
+              0
+            ) {
+              const probB = getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardB,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative;
+              const probA = getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardA,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative;
+              return sortType === "ascending"
+                ? probB - probA
+                : -(probB - probA);
+            }
+            // ...and if those are equal try to sort sort by total card count...
+            else if (cardBTotCount - cardATotCount !== 0) {
+              return sortType === "ascending"
+                ? cardBTotCount - cardATotCount
+                : -(cardBTotCount - cardATotCount);
+            }
+            // ...and finally, if those are equal, sort by card name.
+            else {
+              return sortByName(cardA, cardB, sortType);
             }
           })
           .forEach((entry) => {
@@ -1357,23 +1407,9 @@ const sortMainViewer = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            let result: number;
-            const card1 = entryA[0];
-            const card2 = entryB[0];
-            if (sortType === "ascending") {
-              if (card1 > card2) {
-                result = -1;
-              } else if (card1 < card2) {
-                result = 1;
-              } else result = 0;
-            } else {
-              if (card1 < card2) {
-                result = -1;
-              } else if (card1 < card2) {
-                result = 1;
-              } else result = 0;
-            }
-            return result;
+            const cardA = entryA[0];
+            const cardB = entryB[0];
+            return sortByName(cardA, cardB, sortType);
           })
           .forEach((entry) => {
             const [card, cardCounts] = entry;
@@ -1385,10 +1421,63 @@ const sortMainViewer = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            if (sortType === "ascending") {
-              return entryB[1].entireDeckCount - entryA[1].entireDeckCount;
-            } else {
-              return entryA[1].entireDeckCount - entryB[1].entireDeckCount;
+            const cardA = entryA[0];
+            const cardALibCount = entryA[1].zoneCount;
+            const cardATotCount = entryA[1].entireDeckCount;
+            const cardB = entryB[0];
+            const cardBLibCount = entryB[1].zoneCount;
+            const cardBTotCount = entryB[1].entireDeckCount;
+            // First try to sort by total owned count...
+            if (cardATotCount - cardBTotCount !== 0) {
+              return sortType === "ascending"
+                ? cardBTotCount - cardATotCount
+                : -(cardBTotCount - cardATotCount);
+            }
+            // ... if those are equal try to sort by amount in the library...
+            else if (cardALibCount - cardBLibCount !== 0) {
+              return sortType === "ascending"
+                ? cardBLibCount - cardALibCount
+                : -(cardBLibCount - cardALibCount);
+            }
+            // ...if those are equal try to sort by the hypergeometric probability...
+            else if (
+              getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardB,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative -
+                getCumulativeHyperGeometricProbabilityForCard(
+                  pd,
+                  cardA,
+                  turn,
+                  1,
+                  topCardsLookAmount
+                ).cumulative !==
+              0
+            ) {
+              const probB = getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardB,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative;
+              const probA = getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardA,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative;
+              return sortType === "ascending"
+                ? probB - probA
+                : -(probB - probA);
+            }
+            // ... and if the hypergeometrics are equal, sort by cardName.
+            else {
+              return sortByName(cardA, cardB, sortType);
             }
           })
           .forEach((entry) => {
@@ -1397,14 +1486,60 @@ const sortMainViewer = (
           });
       }
       break;
-    case "zone":
+    case "zone": // In this case, the zone is the library.
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            if (sortType === "ascending") {
-              return entryB[1].zoneCount - entryA[1].zoneCount;
+            const cardA = entryA[0];
+            const cardALibCount = entryA[1].zoneCount;
+            const cardATotCount = entryA[1].entireDeckCount;
+            const cardB = entryB[0];
+            const cardBLibCount = entryB[1].zoneCount;
+            const cardBTotCount = entryB[1].entireDeckCount;
+            if (cardBLibCount - cardALibCount !== 0) {
+              return sortType === "ascending"
+                ? cardBLibCount - cardALibCount
+                : -(cardBLibCount - cardALibCount);
+            } else if (cardBTotCount - cardATotCount !== 0) {
+              return sortType === "ascending"
+                ? cardBTotCount - cardATotCount
+                : -(cardBTotCount - cardATotCount);
+            } else if (
+              getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardB,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative -
+                getCumulativeHyperGeometricProbabilityForCard(
+                  pd,
+                  cardA,
+                  turn,
+                  1,
+                  topCardsLookAmount
+                ).cumulative !==
+              0
+            ) {
+              const probB = getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardB,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative;
+              const probA = getCumulativeHyperGeometricProbabilityForCard(
+                pd,
+                cardA,
+                turn,
+                1,
+                topCardsLookAmount
+              ).cumulative;
+              return sortType === "ascending"
+                ? probB - probA
+                : -(probB - probA);
             } else {
-              return entryA[1].zoneCount - entryB[1].zoneCount;
+              return sortByName(cardA, cardB, sortType);
             }
           })
           .forEach((entry) => {
@@ -1719,6 +1854,7 @@ export {
   onToggleSelect,
   onTurnToggleButtonClick,
   product_Range,
+  sortByName,
   sortHistoryDeckView,
   sortMainViewer,
   sortZoneView,

@@ -101,7 +101,7 @@ interface StoreDeck {
   gameTitle: string;
   gameTurn: number;
   gameResult: GameResult;
-  ratedGame: boolean;
+  ratedGame?: boolean;
   rating: string;
   entireDeck: Array<string>;
   playerName: string;
