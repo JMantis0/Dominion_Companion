@@ -1,12 +1,9 @@
 import { sortMainViewer } from "../../src/utils/utils";
 import { describe, it, expect } from "@jest/globals";
 import { CardCounts, SortCategory, StoreDeck } from "../../src/utils";
+import { getMapArray } from "../testUtilFuncs";
 
-const getMapArray = (
-  map: Map<string, CardCounts>
-): Array<[string, CardCounts]> => {
-  return Array.from(map.entries());
-};
+
 
 describe("sortMainViewer", () => {
   // Following 4 cases are for sortParam "probability" and sortTpe "ascending".
