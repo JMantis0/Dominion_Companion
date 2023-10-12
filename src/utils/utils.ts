@@ -1203,7 +1203,7 @@ const product_Range = (a: number, b: number): number => {
   return prd;
 };
 
-const sortTwoCardsByLibraryAmount = (
+const sortTwoCardsByAmount = (
   cardALibCount: number,
   cardBLibCount: number,
   sortType: "ascending" | "descending"
@@ -1394,10 +1394,11 @@ const sortMainViewer = (
             const cardBLibCount = entryB[1].zoneCount;
             const cardBTotCount = entryB[1].entireDeckCount;
             // First try to sort the two entries by their libraryCount (simpler probability)...
-            let result =
-              sortType === "ascending"
-                ? cardBLibCount - cardALibCount
-                : -(cardBLibCount - cardALibCount);
+            let result = sortTwoCardsByAmount(
+              cardALibCount,
+              cardBLibCount,
+              sortType
+            );
 
             // ...if those are equal then try to sort by the hypergeometric probability...
             if (result === 0) {
@@ -1412,10 +1413,11 @@ const sortMainViewer = (
             }
             // ...and if those are equal try to sort sort by total card count...
             if (result === 0) {
-              result =
-                sortType === "ascending"
-                  ? cardBTotCount - cardATotCount
-                  : -(cardBTotCount - cardATotCount);
+              result = result = sortTwoCardsByAmount(
+                cardATotCount,
+                cardBTotCount,
+                sortType
+              );
             }
             // ...and finally, if those are equal, sort by card name.
             if (result === 0) {
@@ -1454,16 +1456,18 @@ const sortMainViewer = (
             const cardBLibCount = entryB[1].zoneCount;
             const cardBTotCount = entryB[1].entireDeckCount;
             // First try to sort by total owned count...
-            let result =
-              sortType === "ascending"
-                ? cardBTotCount - cardATotCount
-                : -(cardBTotCount - cardATotCount);
+            let result = sortTwoCardsByAmount(
+              cardATotCount,
+              cardBTotCount,
+              sortType
+            );
             // ... if those are equal try to sort by amount in the library...
             if (result === 0) {
-              result =
-                sortType === "ascending"
-                  ? cardBLibCount - cardALibCount
-                  : -(cardBLibCount - cardALibCount);
+              result = sortTwoCardsByAmount(
+                cardALibCount,
+                cardBLibCount,
+                sortType
+              );
             }
             // ...if those are equal try to sort by the hypergeometric probability...
             if (result === 0) {
@@ -1498,15 +1502,17 @@ const sortMainViewer = (
             const cardB = entryB[0];
             const cardBLibCount = entryB[1].zoneCount;
             const cardBTotCount = entryB[1].entireDeckCount;
-            let result =
-              sortType === "ascending"
-                ? cardBLibCount - cardALibCount
-                : -(cardBLibCount - cardALibCount);
+            let result = sortTwoCardsByAmount(
+              cardALibCount,
+              cardBLibCount,
+              sortType
+            );
             if (result === 0) {
-              result =
-                sortType === "ascending"
-                  ? cardBTotCount - cardATotCount
-                  : -(cardBTotCount - cardATotCount);
+              result = sortTwoCardsByAmount(
+                cardATotCount,
+                cardBTotCount,
+                sortType
+              );
             }
             if (result === 0) {
               result = sortTwoCardsByProbability(
@@ -1835,7 +1841,7 @@ export {
   onToggleSelect,
   onTurnToggleButtonClick,
   product_Range,
-  sortTwoCardsByLibraryAmount,
+  sortTwoCardsByAmount,
   sortTwoCardsByName,
   sortTwoCardsByProbability,
   sortHistoryDeckView,
