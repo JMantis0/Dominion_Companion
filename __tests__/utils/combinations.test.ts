@@ -24,5 +24,4 @@ describe('combinations', () => {
     expect(combinations(20, 10)).toBe(184756); // C(20, 10) = 184,756
   });
 
-  // Add more test cases as needed
 });
