@@ -38,7 +38,7 @@ const initialState: OptionsState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
   sortButtonState: {
-    category: "owned",
+    category: "card",
     sort: "ascending",
   },
   savedGames: {},

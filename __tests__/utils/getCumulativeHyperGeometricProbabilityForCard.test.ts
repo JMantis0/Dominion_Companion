@@ -415,7 +415,7 @@ describe("hyperGeometricProbability", () => {
     expect(result).toBeCloseTo(expectedResult, 0.28116); // Adjust precision as needed
   });
 
-  // Add more test cases as neededdescribe('getCumulativeHyperGeometricProbabilityForCard', () => {
+  // Add more test cases as needed () => {
   it("should calculate the cumulative hypergeometric probability for a card when drawing one card", () => {
     const deck: Deck = new Deck("title", false, "", "name", "nick", []);
     deck.setLibrary(["Card A", "Card A", "Card B", "Card B", "Card B"]);
@@ -428,7 +428,7 @@ describe("hyperGeometricProbability", () => {
     // Expected hypergeometric probability for drawing one Card A
     const expectedHyperGeo = 0.4; // 2 out of 5 cards are Card A
     // Expected cumulative probability for drawing one Card A or more
-    const expectedCumulative = .4; // Certain to draw at least one Card A
+    const expectedCumulative = 0.4; // Certain to draw at least one Card A
 
     const result = getCumulativeHyperGeometricProbabilityForCard(
       deck,
@@ -496,5 +496,121 @@ describe("hyperGeometricProbability", () => {
     expect(result.cumulative).toBe(expectedCumulative);
   });
 
-  // Add more test cases as needed
+  // Case where turn is Next and the second draw pool includes nonempty hand and inPlay cards.
+  it("should calculate probability correctly for the next turn when the topCardLook amount exceeds library size", () => {
+    //Arrange
+    const deck = new Deck("Title", false, "rating", "Name", "nick", [
+      "Kingdom",
+    ]);
+    deck.setEntireDeck([
+      "Card1",
+      "Card2",
+      "Card2",
+      "Card3",
+      "Card3",
+      "Card3",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card5",
+      "Card5",
+      "Card5",
+      "Card5",
+      "Card5",
+    ]);
+    deck.setLibrary(["Card5"]);
+    deck.setGraveyard([
+      "Card2",
+      "Card2",
+      "Card3",
+      "Card3",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card5",
+    ]);
+    deck.setHand(["Card5", "Card5", "Card5", "Card1"]);
+    deck.setInPlay(["Card3"]);
+    const cardName = "Card1";
+    const turn = "Next";
+    const successCount = 1;
+    const topCardsLookAmount = 3;
+    //Act
+    const result = getCumulativeHyperGeometricProbabilityForCard(
+      deck,
+      cardName,
+      turn,
+      successCount,
+      topCardsLookAmount
+    ).cumulative;
+
+    // Expected result
+    // Population size = graveyard length 10 + hand length 4 + inPlay length 1 - library size = 14
+    // Population successes = 1
+    // sample size = topCardsLookAmount 3 - librarySize 1 = 2
+    // sample successes = 1
+
+    const expectedResult = 0.14286;
+    expect(result).toBeCloseTo(expectedResult);
+  });
+  it("should calculate probability correctly for the next turn when the topCardLook amount exceeds library size", () => {
+    //Arrange
+    const deck = new Deck("Title", false, "rating", "Name", "nick", [
+      "Kingdom",
+    ]);
+    deck.setEntireDeck([
+      "Card1",
+      "Card2",
+      "Card2",
+      "Card3",
+      "Card3",
+      "Card3",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card5",
+      "Card5",
+      "Card5",
+      "Card5",
+      "Card5",
+    ]);
+    deck.setLibrary(["Card5"]);
+    deck.setGraveyard([
+      "Card2",
+      "Card2",
+      "Card3",
+      "Card3",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card4",
+      "Card5",
+    ]);
+    deck.setHand(["Card5", "Card5", "Card5", "Card1"]);
+    deck.setInPlay(["Card3"]);
+    const cardName = "Card1";
+    const turn = "Next";
+    const successCount = 1;
+    const topCardsLookAmount = 3;
+    //Act
+    const result = getCumulativeHyperGeometricProbabilityForCard(
+      deck,
+      cardName,
+      turn,
+      successCount,
+      topCardsLookAmount
+    ).cumulative;
+
+    // Expected result
+    // Population size = graveyard length 10 + hand length 4 + inPlay length 1 - library size = 14
+    // Population successes = 1
+    // sample size = topCardsLookAmount 3 - librarySize 1 = 2
+    // sample successes = 1
+
+    const expectedResult = 0.14286;
+    expect(result).toBeCloseTo(expectedResult);
+  });
 });
