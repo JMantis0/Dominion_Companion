@@ -1,6 +1,5 @@
 import { Deck } from "../src/model/deck";
 import { OpponentDeck } from "../src/model/opponentDeck";
-import { CardCounts } from "../src/utils";
 
 export const getCountsFromArray = (
   deckListArray: Array<string>
@@ -45,7 +44,7 @@ export const createRandomDeck = (): Deck => {
 
   const rTrash = createRandomFieldArray(rKingdom);
   rDeck.setTrash(rTrash);
-
+  rDeck.setDebug;
   return rDeck;
 };
 
@@ -156,8 +155,11 @@ export const createRandomKingdom = (): string[] => {
   return rKingdom;
 };
 
-export const getMapArray = (
-  map: Map<string, CardCounts>
-): Array<[string, CardCounts]> => {
+/**
+ * Converts a map into an array, used to compare the order of two maps.
+ * @param map 
+ * @returns 
+ */
+export const getMapArray = <Type>(map: Map<string, Type>): Array<[string, Type]> => {
   return Array.from(map.entries());
 };

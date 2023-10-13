@@ -36,11 +36,11 @@ describe("Function getPlayerNameAbbreviations() ", () => {
       ]);
     });
   });
+
   describe("getPlayerNameAbbreviations", () => {
     it("should return player and opponent name abbreviations", () => {
       // Arrange - Create a sample game log
       const gameLog = "A starts with ...\n...\nB starts with ...\n...";
-      console.log(gameLog);
       const playerName = "BigGuy";
 
       // Act
@@ -56,7 +56,8 @@ describe("Function getPlayerNameAbbreviations() ", () => {
 
     it("should handle player names in reverse order", () => {
       // Arrange - Create a sample game log with player names in reverse order
-      const gameLog = "Player B starts with ...\n...\nPlayer A starts with ...\n...";
+      const gameLog =
+        "Player B starts with ...\n...\nPlayer A starts with ...\n...";
       const playerName = "Player A";
 
       // Act
@@ -86,5 +87,21 @@ describe("Function getPlayerNameAbbreviations() ", () => {
       expect(opponentNick).toBe("");
     });
 
+    it("should handle player names in correctly if playerName is player going first.", () => {
+      // Arrange - Create a sample game log with player names in reverse order
+      const gameLog =
+        "Player B starts with ...\n...\nPlayer A starts with ...\n...";
+      const playerName = "Player B";
+
+      // Act
+      const [playerNick, opponentNick] = getPlayerNameAbbreviations(
+        gameLog,
+        playerName
+      );
+
+      // Assert
+      expect(playerNick).toBe("Player B");
+      expect(opponentNick).toBe("Player A");
+    });
   });
 });

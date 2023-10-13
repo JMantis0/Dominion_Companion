@@ -244,9 +244,6 @@ const combinations = (n: number, r: number): number => {
     return 1;
   } else {
     r = r < n - r ? n - r : r;
-    if (n < r + 1 || n - r < 1) {
-      throw new Error("combination impossible");
-    }
     return product_Range(r + 1, n) / product_Range(1, n - r);
   }
 };
@@ -378,16 +375,12 @@ const cumulativeHyperGeometricProbability = (
 ): number => {
   let cumulativeProb: number = 0;
   for (let i = sampleSuccesses; i <= sampleSize; i++) {
-    try {
-      cumulativeProb += hyperGeometricProbability(
-        populationSize,
-        populationSuccesses,
-        sampleSize,
-        i
-      );
-    } catch (e: unknown) {
-      console.error(getErrorMessage(e));
-    }
+    cumulativeProb += hyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      i
+    );
   }
   return cumulativeProb;
 };
@@ -403,16 +396,18 @@ const cumulativeHyperGeometricProbability = (
 const getClientKingdom = (): Array<string> => {
   let kingdom: Array<string>;
   let cards = [];
-  try {
+  const kingdomViewerGroupElement = document.getElementsByClassName(
+    "kingdom-viewer-group"
+  )[0];
+  if (kingdomViewerGroupElement !== undefined) {
     for (let elt of document
       .getElementsByClassName("kingdom-viewer-group")[0]
       .getElementsByClassName("name-layer") as HTMLCollectionOf<HTMLElement>) {
       const card = elt.innerText.trim();
       cards.push(card);
     }
-  } catch (e: unknown) {
-    console.error(getErrorMessage(e));
-    throw new Error(getErrorMessage(e));
+  } else {
+    throw Error("The kingdom-viewer-group element is not present in the DOM");
   }
   ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
     (card) => {
@@ -521,25 +516,20 @@ const getCumulativeHyperGeometricProbabilityForCard = (
     : 0;
   const sampleSize: number = drawCount;
   const sampleSuccesses = successCount;
-  if (deck.library.length === 0 && secondDrawPool.length === 0) {
-  } else if (sampleSize <= deck.library.length) {
-    try {
-      probability = hyperGeometricProbability(
-        populationSize,
-        populationSuccesses,
-        sampleSize,
-        sampleSuccesses
-      );
-      cumProb = cumulativeHyperGeometricProbability(
-        populationSize,
-        populationSuccesses,
-        sampleSize,
-        sampleSuccesses
-      );
-    } catch (e: unknown) {
-      console.error(getErrorMessage(e));
-    }
-  } else if (sampleSize > deck.library.length) {
+  if (sampleSize <= deck.library.length) {
+    probability = hyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      sampleSuccesses
+    );
+    cumProb = cumulativeHyperGeometricProbability(
+      populationSize,
+      populationSuccesses,
+      sampleSize,
+      sampleSuccesses
+    );
+  } else {
     const libraryCumProb = cumulativeHyperGeometricProbability(
       populationSize,
       populationSuccesses,
@@ -571,20 +561,12 @@ const getCumulativeHyperGeometricProbabilityForCard = (
     } else if (libraryCumProb === 1) {
       cumProb = 1;
     }
-    try {
-      probability = hyperGeometricProbability(
-        secondPoolPopulationSize,
-        secondPoolPopulationSuccesses,
-        secondPoolSampleSize,
-        secondPoolSampleSuccesses
-      );
-    } catch (e: unknown) {
-      console.error(getErrorMessage(e));
-    }
-  } else {
-    console.error("drawCount", drawCount);
-    console.error("library length", deck.library.length);
-    throw new Error("invalid hypergeometric.");
+    probability = hyperGeometricProbability(
+      secondPoolPopulationSize,
+      secondPoolPopulationSuccesses,
+      secondPoolSampleSize,
+      secondPoolSampleSuccesses
+    );
   }
   return {
     hyperGeo: Math.round(probability * 10000) / 10000,
@@ -750,7 +732,6 @@ const getPlayerRatings = (
   return [playerRating, opponentRating];
 };
 
-
 /**
  * Function gets boolean for whether the primary frame is hidden or not.
  * @returns - boolean.
@@ -899,7 +880,8 @@ const getUndispatchedLogs = (
 };
 
 /**
- * A helper function that determines if the given error has a message property.
+ * Type guard function.  Takes an error of unknown type and uses type predicate to
+ * narrow the type of the error if it indeed an ErrorWithMessage.
  * @param error  An error
  * @returns
  */
@@ -1209,87 +1191,6 @@ const product_Range = (a: number, b: number): number => {
 };
 
 /**
- * Compare function.  Sorts two cards by their amounts and a sort parameter.
- * @param cardAAmount - amount of cardA.
- * @param cardBAmount - amount of cardB.
- * @param sortType - ascending or descending.
- * @returns 
- */
-const sortTwoCardsByAmount = (
-  cardAAmount: number,
-  cardBAmount: number,
-  sortType: "ascending" | "descending"
-): number => {
-  let result = 0;
-  if (cardAAmount > cardBAmount) {
-    result = sortType === "ascending" ? -1 : 1;
-  } else if (cardAAmount < cardBAmount) {
-    result = sortType === "ascending" ? 1 : -1;
-  }
-  return result;
-};
-
-/**
- * Compare function.  Sort two cards by their names and a sortType parameter.  If ascending, A sorts in potion before Z
- * @param cardA
- * @param cardB
- * @param sortType
- * @returns
- */
-const sortTwoCardsByName = (
-  cardA: string,
-  cardB: string,
-  sortType: "ascending" | "descending"
-): number => {
-  let result: number = 0;
-  if (cardA > cardB) {
-    // cardA > cardB means that cardA comes alphabetically after cardB
-    result = sortType === "ascending" ? 1 : -1;
-  } else if (cardA < cardB) {
-    // cardA < cardB means that cardA comes alphabetically before cardB
-    result = sortType === "ascending" ? -1 : 1;
-  }
-  return result;
-};
-
-
-/**
- * Compare function.  Sort two cards based on the hypergeometric probability of drawing the card with the given parameters.
- */
-const sortTwoCardsByProbability = (
-  cardA: string,
-  cardB: string,
-  sortType: "ascending" | "descending",
-  deck: StoreDeck,
-  topCardsLookAmount: number,
-  turn: "Current" | "Next"
-): number => {
-  let result = 0;
-  const cardAProb = getCumulativeHyperGeometricProbabilityForCard(
-    deck,
-    cardA,
-    turn,
-    1,
-    topCardsLookAmount
-  ).cumulative;
-  const cardBProb = getCumulativeHyperGeometricProbabilityForCard(
-    deck,
-    cardB,
-    turn,
-    1,
-    topCardsLookAmount
-  ).cumulative;
-
-  if (cardAProb > cardBProb) {
-    result = sortType === "ascending" ? -1 : 1;
-  } else if (cardAProb < cardBProb) {
-    result = sortType === "ascending" ? 1 : -1;
-  }
-
-  return result;
-};
-
-/**
  * Returns a sorted map.  Sorts by the sortParam and sortType.
  * @param sortParam - The category to sort on.
  * @param unsortedMap - The unsorted map.
@@ -1309,22 +1210,9 @@ const sortHistoryDeckView = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            let result: number;
-            const card1 = entryA[0];
-            const card2 = entryB[0];
-            if (sortType === "ascending") {
-              if (card1 > card2) {
-                result = -1;
-              } else if (card1 < card2) {
-                result = 1;
-              } else result = 0;
-            } else {
-              if (card1 < card2) {
-                result = -1;
-              } else if (card1 < card2) {
-                result = 1;
-              } else result = 0;
-            }
+            const cardA = entryA[0];
+            const cardB = entryB[0];
+            let result: number = sortTwoCardsByName(cardA, cardB, sortType);
             return result;
           })
           .forEach((entry) => {
@@ -1337,11 +1225,14 @@ const sortHistoryDeckView = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            if (sortType === "ascending") {
-              return entryB[1].entireDeckCount - entryA[1].entireDeckCount;
-            } else {
-              return entryA[1].entireDeckCount - entryB[1].entireDeckCount;
-            }
+            const cardATot = entryA[1].entireDeckCount;
+            const cardBTot = entryB[1].entireDeckCount;
+            let result: number = sortTwoCardsByAmount(
+              cardATot,
+              cardBTot,
+              sortType
+            );
+            return result;
           })
           .forEach((entry) => {
             const [card, cardCounts] = entry;
@@ -1353,11 +1244,14 @@ const sortHistoryDeckView = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            if (sortType === "ascending") {
-              return entryB[1].zoneCount - entryA[1].zoneCount;
-            } else {
-              return entryA[1].zoneCount - entryB[1].zoneCount;
-            }
+            const cardALibAmount = entryA[1].zoneCount;
+            const cardBLibAmount = entryB[1].zoneCount;
+            let result = sortTwoCardsByAmount(
+              cardALibAmount,
+              cardBLibAmount,
+              sortType
+            );
+            return result;
           })
           .forEach((entry) => {
             const [card, cardCounts] = entry;
@@ -1365,16 +1259,14 @@ const sortHistoryDeckView = (
           });
       }
       break;
-    default: {
-      throw new Error("Invalid sort category " + sortParam);
-    }
+    // No default case needed.
   }
   return sortedMap;
 };
 
 /**
  * Returns a sorted map.  Sorts by the sortParam and sortType.  If there are 2 rows with an equal
- * amount, a secondary sort will be applied.  If the secondary values are equal, a tertiary sort 
+ * amount, a secondary sort will be applied.  If the secondary values are equal, a tertiary sort
  * will be applied.
  * Primary - "probability" -> Secondary - "owned" -> tertiary "zone" -> quaternary - "card"
  * Primary - "owned" -> Secondary - "zone" -> tertiary "probability" -> quaternary - "card"
@@ -1553,11 +1445,89 @@ const sortMainViewer = (
           });
       }
       break;
-    default: {
-      throw new Error("Invalid sort category " + sortParam);
-    }
+    //  No default case needed
   }
   return sortedMap;
+};
+
+/**
+ * Compare function.  Sorts two cards by their amounts and a sort parameter.
+ * @param cardAAmount - amount of cardA.
+ * @param cardBAmount - amount of cardB.
+ * @param sortType - ascending or descending.
+ * @returns
+ */
+const sortTwoCardsByAmount = (
+  cardAAmount: number,
+  cardBAmount: number,
+  sortType: "ascending" | "descending"
+): number => {
+  let result = 0;
+  if (cardAAmount > cardBAmount) {
+    result = sortType === "ascending" ? -1 : 1;
+  } else if (cardAAmount < cardBAmount) {
+    result = sortType === "ascending" ? 1 : -1;
+  }
+  return result;
+};
+
+/**
+ * Compare function.  Sort two cards by their names and a sortType parameter.  If ascending, A sorts in potion before Z
+ * @param cardA
+ * @param cardB
+ * @param sortType
+ * @returns
+ */
+const sortTwoCardsByName = (
+  cardA: string,
+  cardB: string,
+  sortType: "ascending" | "descending"
+): number => {
+  let result: number = 0;
+  if (cardA > cardB) {
+    // cardA > cardB means that cardA comes alphabetically after cardB
+    result = sortType === "ascending" ? 1 : -1;
+  } else if (cardA < cardB) {
+    // cardA < cardB means that cardA comes alphabetically before cardB
+    result = sortType === "ascending" ? -1 : 1;
+  }
+  return result;
+};
+
+/**
+ * Compare function.  Sort two cards based on the hypergeometric probability of drawing the card with the given parameters.
+ */
+const sortTwoCardsByProbability = (
+  cardA: string,
+  cardB: string,
+  sortType: "ascending" | "descending",
+  deck: StoreDeck,
+  topCardsLookAmount: number,
+  turn: "Current" | "Next"
+): number => {
+  let result = 0;
+  const cardAProb = getCumulativeHyperGeometricProbabilityForCard(
+    deck,
+    cardA,
+    turn,
+    1,
+    topCardsLookAmount
+  ).cumulative;
+  const cardBProb = getCumulativeHyperGeometricProbabilityForCard(
+    deck,
+    cardB,
+    turn,
+    1,
+    topCardsLookAmount
+  ).cumulative;
+
+  if (cardAProb > cardBProb) {
+    result = sortType === "ascending" ? -1 : 1;
+  } else if (cardAProb < cardBProb) {
+    result = sortType === "ascending" ? 1 : -1;
+  }
+
+  return result;
 };
 
 /**
@@ -1580,22 +1550,9 @@ const sortZoneView = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            let result: number;
-            const card1 = entryA[0];
-            const card2 = entryB[0];
-            if (sortType === "ascending") {
-              if (card1 > card2) {
-                result = -1;
-              } else if (card1 < card2) {
-                result = 1;
-              } else result = 0;
-            } else {
-              if (card1 < card2) {
-                result = -1;
-              } else if (card1 < card2) {
-                result = 1;
-              } else result = 0;
-            }
+            const cardA = entryA[0];
+            const cardB = entryB[0];
+            let result: number = sortTwoCardsByName(cardA, cardB, sortType);
             return result;
           })
           .forEach((entry) => {
@@ -1608,13 +1565,21 @@ const sortZoneView = (
       {
         [...mapCopy.entries()]
           .sort((entryA, entryB) => {
-            const cardAmount1 = entryA[1];
-            const cardAmount2 = entryB[1];
-            if (sortType === "ascending") {
-              return cardAmount2 - cardAmount1;
-            } else {
-              return cardAmount1 - cardAmount2;
+            const cardAmountA = entryA[1];
+            const cardAmountB = entryB[1];
+            // First try to sort by card amount...
+            let result = sortTwoCardsByAmount(
+              cardAmountA,
+              cardAmountB,
+              sortType
+            );
+            //... if card amounts equal sort by card name.
+            if (result === 0) {
+              const cardA = entryA[0];
+              const cardB = entryB[0];
+              result = sortTwoCardsByName(cardA, cardB, sortType);
             }
+            return result;
           })
           .forEach((entry) => {
             const [card, cardCounts] = entry;
@@ -1622,9 +1587,7 @@ const sortZoneView = (
           });
       }
       break;
-    default: {
-      throw new Error("Invalid sort category " + sortParam);
-    }
+    // default case not needed
   }
   return sortedMap;
 };
@@ -1859,11 +1822,11 @@ export {
   onToggleSelect,
   onTurnToggleButtonClick,
   product_Range,
+  sortHistoryDeckView,
+  sortMainViewer,
   sortTwoCardsByAmount,
   sortTwoCardsByName,
   sortTwoCardsByProbability,
-  sortHistoryDeckView,
-  sortMainViewer,
   sortZoneView,
   splitCombinedMapsByCardTypes,
   stringifyProbability,

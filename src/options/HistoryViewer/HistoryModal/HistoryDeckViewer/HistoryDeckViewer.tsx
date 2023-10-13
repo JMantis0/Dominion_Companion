@@ -14,8 +14,8 @@ import ZoneCardRow from "../../../../content/PrimaryFrame/ZoneViewer/ZoneCardRow
 import type {
   SplitMaps,
   StoreDeck,
-  OpponentStoreDeck
-} from "../../../../utils"
+  OpponentStoreDeck,
+} from "../../../../utils";
 
 type HistoryDeckViewerProps = {
   deck: StoreDeck | OpponentStoreDeck;
@@ -38,22 +38,22 @@ const HistoryDeckViewer: FunctionComponent<HistoryDeckViewerProps> = ({
       )
     );
     const sortedActions = sortHistoryDeckView(
-      "owned",
+      sortButtonState.category,
       unsortedSplitMap.actions!,
       sortButtonState.sort
     );
     const sortedTreasures = sortHistoryDeckView(
-      "owned",
+      sortButtonState.category,
       unsortedSplitMap.treasures!,
       sortButtonState.sort
     );
     const sortedVictories = sortHistoryDeckView(
-      "owned",
+      sortButtonState.category,
       unsortedSplitMap.victories!,
       sortButtonState.sort
     );
     const sortedCurses = sortHistoryDeckView(
-      "owned",
+      sortButtonState.category,
       unsortedSplitMap.curses!,
       sortButtonState.sort
     );

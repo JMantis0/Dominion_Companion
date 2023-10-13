@@ -28,7 +28,7 @@ export class Deck implements StoreDeck {
   waitToShuffle: boolean = false;
   waitToDrawLibraryLook: boolean = false;
   treasurePopped: boolean = false;
-  debug: boolean = true;
+  debug: boolean = false;
 
   constructor(
     gameTitle: string,

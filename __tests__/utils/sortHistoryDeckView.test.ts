@@ -6,17 +6,17 @@ import { describe, it, expect } from "@jest/globals";
 describe("sortHistoryDeckView", () => {
   // Test data
   const unsortedMap: Map<string, CardCounts> = new Map([
+    ["Carrot", { entireDeckCount: 2, zoneCount: 1 }],
     ["Apple", { entireDeckCount: 5, zoneCount: 3 }],
     ["Banana", { entireDeckCount: 3, zoneCount: 2 }],
-    ["Carrot", { entireDeckCount: 2, zoneCount: 1 }],
   ]);
 
   it("should sort by card name in ascending order", () => {
     const sortedMap = sortHistoryDeckView("card", unsortedMap, "ascending");
     const expectedSortedMap: Map<string, CardCounts> = new Map([
-      ["Carrot", { entireDeckCount: 2, zoneCount: 1 }],
-      ["Banana", { entireDeckCount: 3, zoneCount: 2 }],
       ["Apple", { entireDeckCount: 5, zoneCount: 3 }],
+      ["Banana", { entireDeckCount: 3, zoneCount: 2 }],
+      ["Carrot", { entireDeckCount: 2, zoneCount: 1 }],
     ]);
 
     expect(Array.from(sortedMap.entries())).toStrictEqual(
@@ -27,9 +27,9 @@ describe("sortHistoryDeckView", () => {
     const sortedMap = sortHistoryDeckView("card", unsortedMap, "descending");
     // Expected result
     const expectedSortedMap: Map<string, CardCounts> = new Map([
-      ["Apple", { entireDeckCount: 5, zoneCount: 3 }],
-      ["Banana", { entireDeckCount: 3, zoneCount: 2 }],
       ["Carrot", { entireDeckCount: 2, zoneCount: 1 }],
+      ["Banana", { entireDeckCount: 3, zoneCount: 2 }],
+      ["Apple", { entireDeckCount: 5, zoneCount: 3 }],
     ]);
 
     expect(Array.from(sortedMap.entries())).toStrictEqual(
