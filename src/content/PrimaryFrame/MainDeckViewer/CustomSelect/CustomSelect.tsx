@@ -63,10 +63,8 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const [selectOpen, setSelectOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    // On any render, the scroll  position is set to whatever value was previously set to the redux variable selectScrollPosition
-    console.log(
-      "UseEffect for customselect component should only trigger once"
-    );
+    // On any render, the scroll  position is set to whatever value was previously
+    // set to the redux variable selectScrollPosition.
     if (
       selectScrollRef.current !== undefined &&
       selectScrollRef.current !== null
@@ -228,12 +226,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                 );
               })}
           </main>
-          {/* <div
-            id="custom-handle"
-            // Order of the classes matters.  This gives the functionality of a south handle with
-            // the appearance and positioning of a southeast handle.
-            className="ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
-          ></div> */}
         </Scrollbars>
       </div>
     </React.Fragment>

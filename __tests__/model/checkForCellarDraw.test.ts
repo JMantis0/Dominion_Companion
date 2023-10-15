@@ -1,53 +1,52 @@
-import { it, describe, beforeEach, expect } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForCellarDraw()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
-  // case with no shuffle
-  describe('if the logArchive length is greater than 3 and at index of 3 less than the current logArchive length contains the substring " plays a Cellar"', () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "rNick plays a Cellar.",
-        "rNick gets +1 Action.",
-        "rNick discards an Estate.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForCellarDraw()).toBeTruthy();
-    });
-  });
-  // case with intermediate shuffle
-  describe('if the logArchive length is greater than 3 and at index of 4 less than the current logArchive length contains the substring " plays a Cellar" AND the logArchive at the index of 1 less than logArchive length contains the substring "shuffles their deck"', () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "rNick plays a Cellar.",
-        "rNick gets +1 Action.",
-        "rNick discards an Estate.",
-        "rNick shuffles their deck.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForCellarDraw()).toBeTruthy();
-    });
+  it("should return true if the draws on the current line were caused by a cellar", () => {
+    //Arrange
+    const deck1 = new Deck("", false, "", "pName", "pNick", []);
+    const deck2 = new Deck("", false, "", "pName", "pNick", []);
+    // Case1 - shuffle occurred before draws take place due to low library count.
+    const logArchive1 = [
+      "G plays a Cellar.",
+      "G gets +1 Action.",
+      "G discards 3 Coppers, an Estate, and a Cellar.",
+      "G shuffles their deck.",
+    ];
+    // Case2 - no shuffle needed because sufficient cards amount in library.
+    const logArchive2 = [
+      "G plays a Cellar.",
+      "G gets +1 Action.",
+      "G discards a Copper, a Silver, an Estate, and a Laboratory.",
+    ];
+    deck1.setLogArchive(logArchive1);
+    deck2.setLogArchive(logArchive2);
+
+    // Act
+    const result1 = deck1.checkForCellarDraw();
+    const result2 = deck2.checkForCellarDraw();
+
+    // Assert
+    expect(result1).toBeTruthy();
+    expect(result2).toBeTruthy();
   });
 
-  describe('when either the entry at 1 less than log Archive length does not contain the substring " shuffles their deck." or the log archive entry at 4 less than archive length does not contain the substring " plays a Cellar."', () => {
-    it("should return false", () => {
-      rDeck = createRandomDeck();
-      logArchive = logArchive = [
-        "rNick plays a Vassal",
-        "rNick gets +$2.",
-        "rNick trashes an Estate.",
-        "rNick shuffles their deck.",
-      ];
-      rDeck.setLogArchive(logArchive);
-      expect(rDeck.checkForCellarDraw()).toBeFalsy();
-    });
+  it("should return false if draws on the current line were not caused by a cellar", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "Turn 9 - oName",
+      "oNick plays a Silver, a Gold, and 2 Coppers. (+$7)",
+      "oNick buys and gains a Gold.",
+      "oNick draws 5 cards.",
+      "Turn 10 - pName",
+      "pNick plays a Laboratory.",
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForCellarDraw();
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

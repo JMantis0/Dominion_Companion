@@ -1,99 +1,41 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForSentryDiscard()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
-  // Case for no trash and no interceding shuffle.
-  describe("when the logArchive entry at index 4 less than the logArchive length contains the substring ' plays a Sentry'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.", // Index 4 less than logArchive length.
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        "G looks at an Estate and a Poacher.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryDiscard()).toBeTruthy();
-    });
+  it("should return true if the most recent play in the logArchive is a Sentry", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "pNick plays a Sentry.", // Most recent play is Sentry
+      "pNick draws a Poacher.",
+      "pNick gets +1 Action.",
+      "pNick looks at an Estate and a Poacher.",
+    ];
+    deck.setLogArchive(logArchive);
+    // Act
+    const result = deck.checkForSentryDiscard();
+    // Assert
+    expect(result).toBeTruthy();
   });
-
-  // Case for no trash and yes interceding shuffle.
-  describe("when the logArchive entry at index 5 less than the logArchive length contains the substring ' plays a Sentry' and the logArchive entry at index 4 less than the logArchive length contains the substring ' shuffles their deck'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.", // Index 5 less than logArchive length.
-        "G shuffles their deck.", // Index 4 less than logArchive length.
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        "G looks at an Estate and a Poacher.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryDiscard()).toBeTruthy();
-    });
-  });
-
-  // Case for trash and no interceding shuffle.
-  describe("when the logArchive entry at index 5 less than the logArchive length contains the substring ' plays a Sentry' and the logArchive entry at index 1 less than lorArchive length contains the substring ' trashes '", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.", // Index 5 less than logArchive length.
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        "G looks at an Estate and a Poacher.",
-        "G trashes an Estate.", // Index 1 less than logArchive length.
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryDiscard()).toBeTruthy();
-    });
-  });
-
-  // Case for trash and interceding shuffle
-  describe("when the logArchive entry at index 6 less than the logArchive length contains the substring ' plays a Sentry' and the logArchive entry at index 5 less than logArchive length contains the substring ' shuffles their deck', and the logArchive entry at index 1 less than logArchive length contains the substring ' trashes '", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.", // Index 6 less than logArchive length.
-        "G shuffles their deck", // Index 5 less than logArchive length.
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        "G looks at an Estate and a Poacher.",
-        "G trashes an Estate.", // Index 1 less than logArchive length.
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryDiscard()).toBeTruthy();
-    });
-  });
-
-  describe("when the logArchive entry at index 6 less than the logArchive length contains the substring ' plays a Sentry' and the logArchive entry at index 5 less than logArchive length contains the substring ' shuffles their deck', but the logArchive entry at index 1 less than logArchive length does not contain the substring ' trashes '", () => {
-    // case 4
-    describe("When the logArchive entry at index 2 less than the log archive length contains the substring ' shuffles their deck', and the entry at 5 less than the length contains the substring ' plays a Sentry', and the entry at index 1 less than the length contains the substring ' looks at '", () => {
-      beforeEach(() => {
-        rDeck = createRandomDeck();
-        logArchive = [
-          "G plays a Sentry again.",
-          "G draws a Vassal.",
-          "G gets +1 Action.",
-          "G shuffles their deck.",
-          "G looks at 2 Sentries.",
-        ];
-        rDeck.setLogArchive(logArchive);
-      });
-      it("should return true", () => {
-        expect(rDeck.checkForSentryDiscard()).toBeTruthy();
-      });
-    });
+  it("should return false if the most recent play in the logArchive is a Sentry", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "pNick plays a Sentry.",
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
+      "pNick looks at 2 Cellars.",
+      "pNick trashes a Cellar.",
+      "pNick topdecks a Cellar.",
+      "pNick plays a Cellar.", // Most recent play is Cellar
+      "pNick gets +1 Action.",
+      "pNick discards a Copper and a Silver.",
+      "pNick draws a Copper and a Cellar.",
+    ];
+    deck.setLogArchive(logArchive);
+    // Act
+    const result = deck.checkForSentryDiscard();
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

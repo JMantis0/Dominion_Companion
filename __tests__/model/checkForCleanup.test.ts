@@ -1,70 +1,101 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
-import { createRandomDeck } from "../testUtilFuncs";
+import { it, describe, expect } from "@jest/globals";
+import { Deck } from "../../src/model/deck";
 
 describe("Function checkForCleanup()", () => {
-  let line1: string;
-  let line2: string;
-  let line3: string;
-  let line4: string;
-  let line5: string;
-  let line6: string;
-  let line7: string;
-  let line8: string;
-  let line9: string;
-  let line10: string;
-  let rDeck = createRandomDeck();
-  describe("when given a line that has a combined total of 5 a's and/or an's and/or number values", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      line1 = `${rDeck.getPlayerNick} draws a frog, a mouse, a dog, a cat, and a fish`;
-      line2 = `${rDeck.getPlayerNick}draws a frog, a mouse, a dog, and 2 cats`;
-      line3 = `${rDeck.getPlayerNick}draws a frog, a mouse, and 3 dogs.`;
-      line4 = `${rDeck.getPlayerNick}draws a frog and 4 mice`;
-      line5 = `${rDeck.getPlayerNick}draws 5 mice.`;
-      line6 = `${rDeck.getPlayerNick}draws 4 mice and a frog.`;
-      line7 = `${rDeck.getPlayerNick}draws 3 mice, a frog, and a dog.`;
-      line8 = `${rDeck.getPlayerNick}draws 2 mice, a frog, a dog, and a cat.`;
-      line9 = `${rDeck.getPlayerNick}draws a mouse, a frog, a dog, a cat, and a fish.`;
-      line10 = `${rDeck.getPlayerNick}draws 5 dogs.`;
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForCleanUp(line1)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line2)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line3)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line4)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line5)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line6)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line7)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line8)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line9)).toBeTruthy();
-      expect(rDeck.checkForCleanUp(line10)).toBeTruthy();
-    });
+  it("should return true when a cleanup might be needed", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const line1 = `${deck.getPlayerNick} draws a Sentry, a Copper, an Estate, a Vassal, and a Gold`;
+    const line2 = `${deck.getPlayerNick} draws a Sentry, a Copper, an Estate, and 2 cats`;
+    const line3 = `${deck.getPlayerNick} draws a Sentry, a Copper, and 3 Festivals.`;
+    const line4 = `${deck.getPlayerNick} draws a Sentry and 4 Libraries`;
+    const line5 = `${deck.getPlayerNick} draws 5 Libraries.`;
+    const line6 = `${deck.getPlayerNick} draws 4 Libraries and a Sentry.`;
+    const line7 = `${deck.getPlayerNick} draws 3 Libraries, a Sentry, and an Estate.`;
+    const line8 = `${deck.getPlayerNick} draws 2 Libraries, a Sentry, an Estate, and a Vassal.`;
+    const line9 = `${deck.getPlayerNick} draws a Copper, a Sentry, an Estate, a Vassal, and a Gold.`;
+    const line10 = `${deck.getPlayerNick} draws 5 Festivals.`;
+
+    // Act
+    const result1 = deck.checkForCleanUp(line1);
+    const result2 = deck.checkForCleanUp(line2);
+    const result3 = deck.checkForCleanUp(line3);
+    const result4 = deck.checkForCleanUp(line4);
+    const result5 = deck.checkForCleanUp(line5);
+    const result6 = deck.checkForCleanUp(line6);
+    const result7 = deck.checkForCleanUp(line7);
+    const result8 = deck.checkForCleanUp(line8);
+    const result9 = deck.checkForCleanUp(line9);
+    const result10 = deck.checkForCleanUp(line10);
+
+    // Assert
+    expect(result1).toBeTruthy();
+    expect(result2).toBeTruthy();
+    expect(result3).toBeTruthy();
+    expect(result4).toBeTruthy();
+    expect(result5).toBeTruthy();
+    expect(result6).toBeTruthy();
+    expect(result7).toBeTruthy();
+    expect(result8).toBeTruthy();
+    expect(result9).toBeTruthy();
+    expect(result10).toBeTruthy();
   });
-  describe("when given a line that has a combined total of more or less than exactly 5 a's and/or an's and/or number values", () => {
-    beforeEach(() => {
-      line1 = "rNick draws a frog.";
-      line2 = "rNick draws a frog and a monkey.";
-      line3 = "rNick draws a frog, a mouse, and a monkey.";
-      line4 = "rNick draws a frog, a mouse, a dog,and a monkey.";
-      line5 = "rNick draws 5 mice,a monkey.";
-      line6 = "rNick draws 4 mice a frog, and a monkey.";
-      line7 = "rNick draws 3 mice,a frog, a dog, and a monkey.";
-      line8 = "rNick draws 2 mice,a frog, a dog, a cat, and a monkey.";
-      line9 =
-        "rNick draws a mouse, a frog, a dog, a cat, a fish, and a monkey.";
-      line10 = "rNick draws a cat and a monkey.";
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForCleanUp(line1)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line2)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line3)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line4)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line5)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line6)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line7)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line8)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line9)).toBeFalsy();
-      expect(rDeck.checkForCleanUp(line10)).toBeFalsy();
-    });
+
+  it("should return false when a cleanup is not needed", () => {
+    //Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const line1 = "rNick draws a Sentry."; // 1 draw
+    const line2 = "rNick draws a Sentry and a Vassal."; // 2 draws
+    const line3 = "rNick draws a Sentry, a Duchy, and a Vassal."; // 3 draws
+    const line4 = "rNick draws a Sentry, a Duchy, a Festival, and a Vassal."; // 4 draws
+    const line5 = "rNick draws 5 Witches ,a Vassal."; // 6 draws
+    const line6 = "rNick draws 4 Witches  a Sentry, and a Vassal."; // 6 draws
+    const line7 = "rNick draws 3 Witches ,a Sentry, a Merchant, and a Vassal."; // 6 draws
+    const line8 =
+      "rNick draws 2 Witches ,a Sentry, a Merchant, a Curse, and a Vassal."; // 6 draws
+    const line9 =
+      "rNick draws a Duchy, a Cellar, a Merchant, a Curse, a Gold, and a Vassal."; // 6 Draws
+    const line10 = "rNick draws a Curse and a Vassal."; // 2 draws
+
+    // Act
+    const result1 = deck.checkForCleanUp(line1);
+    const result2 = deck.checkForCleanUp(line2);
+    const result3 = deck.checkForCleanUp(line3);
+    const result4 = deck.checkForCleanUp(line4);
+    const result5 = deck.checkForCleanUp(line5);
+    const result6 = deck.checkForCleanUp(line6);
+    const result7 = deck.checkForCleanUp(line7);
+    const result8 = deck.checkForCleanUp(line8);
+    const result9 = deck.checkForCleanUp(line9);
+    const result10 = deck.checkForCleanUp(line10);
+
+    // Assert
+    expect(result1).toBeFalsy();
+    expect(result2).toBeFalsy();
+    expect(result3).toBeFalsy();
+    expect(result4).toBeFalsy();
+    expect(result5).toBeFalsy();
+    expect(result6).toBeFalsy();
+    expect(result7).toBeFalsy();
+    expect(result8).toBeFalsy();
+    expect(result9).toBeFalsy();
+    expect(result10).toBeFalsy();
+  });
+  
+  // Case where entire deck is less than 5 cards.
+  it("should work correctly when where are less than 5 cards in the entire deck", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    deck.setEntireDeck(["Copper", "Copper", "Estate"]);
+    const line1 = "rNick draws 2 Coppers and an Estate";
+    const line2 = "rNick draws 2 Coppers";
+
+    // Act
+    const result1 = deck.checkForCleanUp(line1);
+    const result2 = deck.checkForCleanUp(line2);
+
+    // Assert
+    expect(result1).toBeTruthy();
+    expect(result2).toBeFalsy();
   });
 });

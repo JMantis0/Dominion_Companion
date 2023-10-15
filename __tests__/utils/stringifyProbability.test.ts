@@ -26,7 +26,7 @@ describe("Function stringifyProbability", () => {
   it("should take a number and output a human readable string, rounding down", () => {
     // Arrange
     const probability = 0.4436;
-    const expectedString = "45.3%";
+    const expectedString = "44.4%";
 
     // Act
     let probabilityString = stringifyProbability(probability);

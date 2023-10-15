@@ -16,7 +16,7 @@ describe("Function topDeckFromHand()", () => {
       cardToBeTopDecked = rDeck.getEntireDeck()[0];
       handBefore = rDeck.getHand().slice();
       libraryBefore = rDeck.getLibrary().slice();
-      rDeck.topDeckCardFromHand(cardToBeTopDecked);
+      rDeck.topDeckFromHand(cardToBeTopDecked);
       handAfter = rDeck.getHand().slice();
       libraryAfter = rDeck.getLibrary().slice();
     });
@@ -35,7 +35,7 @@ describe("Function topDeckFromHand()", () => {
     it("should throw an error", () => {
       cardToBeTopDecked = "Joker";
       expect(() => {
-        rDeck.topDeckCardFromHand(cardToBeTopDecked);
+        rDeck.topDeckFromHand(cardToBeTopDecked);
       }).toThrow(Error);
     });
   });

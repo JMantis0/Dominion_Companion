@@ -239,10 +239,8 @@ const Observer: FunctionComponent = () => {
           const lastAddedNode: HTMLElement = addedNodes[
             addedNodes.length - 1
           ] as HTMLElement;
-          console.log("Premoves check");
           const lastAddedNodeText = lastAddedNode.innerText;
           if (lastAddedNodeText.length > 0) {
-            console.log("Premoves check2");
             if (areNewLogsToSend(logsProcessed, getGameLog())) {
               gameLog = getGameLog();
               const newLogsToDispatch = getUndispatchedLogs(

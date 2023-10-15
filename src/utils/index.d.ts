@@ -98,27 +98,27 @@ interface SplitMaps {
  * Type used to stringify and store in Chrome Local Storage
  */
 interface StoreDeck {
+  currentVP: number;
+  entireDeck: Array<string>;
+  gameResult: GameResult;
   gameTitle: string;
   gameTurn: number;
-  gameResult: GameResult;
-  ratedGame?: boolean;
-  rating: string;
-  entireDeck: Array<string>;
+  graveyard: Array<string>;
+  hand: Array<string>;
+  inPlay: Array<string>;
+  kingdom: Array<string>;
+  lastEntryProcessed: string;
+  library: Array<string>;
+  logArchive: Array<string>;
   playerName: string;
   playerNick: string;
-  currentVP: number;
-  kingdom: Array<string>;
-  library: Array<string>;
-  graveyard: Array<string>;
-  inPlay: Array<string>;
-  hand: Array<string>;
-  trash: Array<string>;
-  lastEntryProcessed: string;
-  logArchive: Array<string>;
+  ratedGame?: boolean;
+  rating: string;
   setAside: Array<string>;
-  waitToShuffle: boolean;
-  waitToDrawLibraryLook: boolean;
+  trash: Array<string>;
   treasurePopped: boolean;
+  waitToDrawLibraryLook: boolean;
+  waitToShuffle: boolean;
 }
 
 export {

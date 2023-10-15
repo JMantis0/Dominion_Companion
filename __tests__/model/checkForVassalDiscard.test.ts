@@ -1,18 +1,42 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForVassalDiscard()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
-  describe("when the log entry at index 2 less than the logArchive length contains the substring ' plays a Vassal'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = ["G plays a Vassal.", "G gets +$2."];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForVassalDiscard()).toBeTruthy();
-    });
+  it("should return true if the most recent play was a Vassal", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "pNick plays a Poacher.",
+      "pNick draws a Vassal.",
+      "pNick gets +1 Action.",
+      "pNick gets +$1.",
+      "pNick plays a Vassal.",
+      "pNick gets +$2.",
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForVassalDiscard();
+
+    // Assert
+    expect(result).toBeTruthy();
+  });
+
+  it("should return true if the most recent play was a Vassal", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "oNick plays a Bandit.",
+      "oNick gains a Gold.",
+      "pNick reveals a Gold and a Smithy.",
+      "pNick trashes a Gold.",
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForVassalDiscard();
+
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

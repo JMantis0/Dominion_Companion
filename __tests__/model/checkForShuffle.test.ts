@@ -1,26 +1,26 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForShuffle()", () => {
-  let rDeck: Deck;
-  let line: string;
-  describe('when given a line containing the substring "shuffles their deck"', () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      line = "rNick shuffles their deck.";
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForShuffle(line)).toBeTruthy();
-    });
+  it("should return true when the provided line matches the string ' shuffles their deck'.", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const line = "pNick shuffles their deck.";
+
+    // Act
+    const result = deck.checkForShuffle(line);
+
+    // Assert
+    expect(result).toBeTruthy();
   });
-  describe('when given a line that does not contain the substring "shuffles their deck"', () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      line = "rNick doesn't shuffle anything.";
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForShuffle(line)).toBeFalsy();
-    });
+  it("should return false when the provided line does not match ' shuffles their deck'", () => {
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const line = "pNick draws a Copper.";
+
+    // Act
+    const result = deck.checkForShuffle(line);
+
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

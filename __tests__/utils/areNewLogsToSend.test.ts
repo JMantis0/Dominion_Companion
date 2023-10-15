@@ -2,7 +2,7 @@ import { expect, describe, it } from "@jest/globals";
 import { areNewLogsToSend } from "../../src/utils/utils";
 
 describe("Function areNewLogsToSend()", () => {
-  it("should return false when the last entry in processed logs is a 'buy without gain' line", () => {
+  it("should return false when the last entry in processed logs is a 'buy without gain' line, but the logsProcessed and gameLog are the same otherwise", () => {
     const logsProcessed = "Log1\nLog2\nLog3\nLog4";
     const gameLog = "Log1\nLog2\nLog3\nLog4\nG buys a Copper";
     expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
