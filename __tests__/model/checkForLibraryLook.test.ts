@@ -1,70 +1,74 @@
-import { it, describe, expect, beforeEach, afterEach } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForLibraryLook()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
-  let line: string;
-  describe("When the current line contains the substring ' looks at ' and nearest log line div looking backwards has innerText that contains the substring ' plays a ' and also also contains ' plays a Library'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "Line1",
-        "Line2",
-        "Line3",
-        "Line4",
-        "G plays a Library.",
-        "G looks at an Estate.",
-        "G looks at a Workshop.",
-        "G sets a Workshop aside with Library.",
-        "G shuffles their deck.",
-      ];
-      line = "G looks at a Silver.";
-      rDeck.setLogArchive(logArchive);
-    });
-    afterEach(() => {});
-    it("should return true", () => {
-      expect(rDeck.checkForLibraryLook(line)).toBeTruthy();
-    });
+  it("should return true when the current line is looking at a card due to a Library play", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "Line1",
+      "Line2",
+      "Line3",
+      "Line4",
+      "G plays a Library.",
+      "G looks at an Estate.",
+      "G looks at a Workshop.",
+      "G sets a Workshop aside with Library.",
+      "G shuffles their deck.",
+    ];
+    const line = "G looks at a Silver.";
+    deck.setLogArchive(logArchive);
+    
+    // Act
+    const result = deck.checkForLibraryLook(line);
+
+    // Assert
+    expect(result).toBeTruthy();
   });
-  describe("When the current line contains the substring ' looks at ' and nearest log line div looking backwards has innerText that contains the substring ' plays a ' but does not contain the substring ' plays a Library'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "Line1",
-        "Line2",
-        "Line3",
-        "Line4",
-        "G plays a Sentry.",
-        "G draws an Estate.",
-        "G gets +1 Action.",
-      ];
-      line = "G looks at 2 Coppers.";
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForLibraryLook(line)).toBeFalsy();
-    });
+
+  it("should return false when the curring line is looking at a card but it was not due to a Library play", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "Line1",
+      "Line2",
+      "Line3",
+      "Line4",
+      "G plays a Sentry.",
+      "G draws an Estate.",
+      "G gets +1 Action.",
+    ];
+    const line = "G looks at 2 Coppers.";
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForLibraryLook(line);
+
+    // Assert
+    expect(result).toBeFalsy();
   });
-  describe("When the current line does not contain the substring ' looks at ' ", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "Line1",
-        "Line2",
-        "Line3",
-        "Line4",
-        "G plays a Sentry.",
-        "G draws an Estate.",
-        "G gets +1 Action.",
-        "G looks at 2 Coppers.",
-      ];
-      line = "G discards 2 Coppers.";
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForLibraryLook(line)).toBeFalsy();
-    });
+
+  it("should return false if the current line is not looking at a card", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+
+    const logArchive = [
+      "Line1",
+      "Line2",
+      "Line3",
+      "Line4",
+      "G plays a Sentry.",
+      "G draws an Estate.",
+      "G gets +1 Action.",
+      "G looks at 2 Coppers.",
+    ];
+    const line = "G discards 2 Coppers.";
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForLibraryLook(line);
+
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

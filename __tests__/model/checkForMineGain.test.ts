@@ -1,29 +1,29 @@
-import { it, describe, beforeEach, expect } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForMineGain()", () => {
-  let rDeck: Deck;
-  let fakeLogArchive: string[];
-
-  describe("when the gain occurring on the line is from a mine play", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      fakeLogArchive = ["pNick plays a Mine.", "pNick trashes a copper."];
-      rDeck.setLogArchive(fakeLogArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForMineGain()).toBe(true);
-    });
+  it("should return true when the most recent in the logArchive is a Mine", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = ["pNick plays a Mine.", "pNick trashes a copper."];
+    deck.setLogArchive(logArchive);
+    // Act
+    const result = deck.checkForMineGain();
+    // Assert
+    expect(result).toBe(true);
   });
-  describe("when the gain occurring on the line is not from a mine play", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      fakeLogArchive = ["pNick gains a Mine", "pNick plays 3 Coppers. (+$3)."];
-      rDeck.setLogArchive(fakeLogArchive);
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForMineGain()).toBe(false);
-    });
-  });
+});
+it("should return false if the most recent play in the logArchive is not a Mine", () => {
+  // Arrange
+  const deck = new Deck("", false, "", "pName", "pNick", []);
+  const logArchive = [
+    "G plays a Village.",
+    "G draws a Copper.",
+    "G gets +2 Actions.",
+  ];
+  deck.setLogArchive(logArchive);
+  // Act
+  const result = deck.checkForMineGain();
+  // Assert
+  expect(result).toBe(false);
 });

@@ -624,7 +624,6 @@ const getPlayerAndOpponentNameByComparingElementPosition = (
   let playerName: string;
   let opponentName: string;
   const nameTransformMap: Map<string, number> = new Map();
-  console.log(document.body.innerHTML)
   for (let element of playerInfoElements) {
     const nameElement = element.getElementsByTagName(
       "player-info-name"

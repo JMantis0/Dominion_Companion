@@ -1,32 +1,39 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForBanditDiscard()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
+  it("should return true if the activity in the last line of the logArchive was caused by a bandit", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "oNick plays a Bandit.",
+      "oNick gains a Gold.",
+      "rNick reveals a Silver and a Province.",
+      "rNick trashes a Silver",
+      "rNick discards a Province", // discard activity caused by Bandit
+    ];
+    deck.setLogArchive(logArchive);
 
-  describe("when the most recent play in the game log is a Bandit play", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "oNick plays a Bandit.",
-        "rNick reveals a Silver and a Province.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForBanditDiscard()).toBeTruthy();
-    });
+    // Act
+    const result = deck.checkForBanditDiscard();
+
+    // Assert
+    expect(result).toBeTruthy();
   });
-  describe("when the most recent play in the game log is not a Bandit play", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = ["pNick plays a Vassal.", "pNick discards a Library"];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return false", () => {
-      expect(rDeck.checkForBanditDiscard()).toBeFalsy();
-    });
+  it("should return false if the activity in the last line of the logArchive was not by a bandit", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "oNick", []);
+    const logArchive = [
+      "pNick plays a Vassal.",
+      "pNick gets +$2.",
+      "pNick discards a Silver", // discard activity caused by Vassal
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForBanditDiscard();
+
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

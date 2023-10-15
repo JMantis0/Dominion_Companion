@@ -1,41 +1,37 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForBanditTrash()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
-  describe("when the most recent play in the log archive was a Bandit", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "L plays a Bandit.",
-        "L gains a Gold.",
-        "G reveals a Silver and an Estate.",
-        "G trashes a Silver.",
-        "G discards an Estate.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForBanditTrash()).toBeTruthy();
-    });
+  it("should return true if the trash activity in the last line of the logArchive was caused by a Bandit", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "oNick plays a Bandit.",
+      "oNick gains a Gold.",
+      "pNick reveals a Silver and an Estate.",
+      "pNick trashes a Silver.", // trash caused by a Bandit
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForBanditTrash();
+
+    // Assert
+    expect(result).toBeTruthy();
   });
-  describe("when the most recent play in was not a Bandit", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.",
-        "G draws a Copper.",
-        "G gets +1 Action.",
-        "G looks at a Smithy and a Village.",
-        "G discards a Smithy.",
-        "G topdecks a Village.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForBanditTrash()).toBeFalsy();
-    });
+  it("should return false if the trash activity in the last line of the logArchive was not caused by a Bandit", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "G plays a Chapel.",
+      "G trashes an Estate.", // trash caused by a Chapel
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Act
+    const result = deck.checkForBanditTrash();
+
+    // Assert
+    expect(result).toBeFalsy();
   });
 });

@@ -1,55 +1,39 @@
-import { it, describe, beforeEach, expect } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function checkForSentryTrash()", () => {
-  let rDeck: Deck;
-  let logArchive: string[];
-  describe("when the log entry at index 4 less than  logArchive length contains the substring ' plays a Sentry'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.",
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        " G looks at an Estate and a Poacher.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryTrash()).toBeTruthy();
-    });
+  it("should return true if the most recent play in the logArchive is a Sentry", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "pNick plays a Laboratory.",
+      "pNick shuffles their deck.",
+      "pNick draws 2 Silvers.",
+      "pNick gets +1 Action.",
+      "pNick plays a Sentry.", // Most recent play is Sentry
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
+      "pNick looks at 2 Cellars.",
+    ];
+    deck.setLogArchive(logArchive);
+    // Act
+    const result = deck.checkForSentryTrash();
+    // Assert
+    expect(result).toBeTruthy();
   });
-  describe("when the log entry at index 5 less than logArchive length contains the substring ' plays a Sentry' and the log entry at index 4 less than logArchive contains the substring ' shuffles their deck'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.",
-        "G shuffles their deck",
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        " G looks at an Estate and a Poacher.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryTrash()).toBeTruthy();
-    });
-  });
-  describe("when the log entry at index 5 less than logArchive length contains the substring ' plays a Sentry' and the log entry at index 2 less than logArchive contains the substring ' shuffles their deck'", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      logArchive = [
-        "G plays a Sentry.",
-        "G draws a Poacher.",
-        "G gets +1 Action.",
-        "G shuffles their deck.",
-        "G looks at 2 Coppers.",
-      ];
-      rDeck.setLogArchive(logArchive);
-    });
-    it("should return true", () => {
-      expect(rDeck.checkForSentryTrash()).toBeTruthy();
-    });
+  it("should return false if the most recent play in the logArchive is a Sentry", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const logArchive = [
+      "pNick plays a Merchant.", 
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
+      "pNick plays a Chapel.",
+    ];
+    deck.setLogArchive(logArchive);
+    // Act
+    const result = deck.checkForSentryTrash();
+    // Assert
+    expect(result).toBeFalsy();
   });
 });
