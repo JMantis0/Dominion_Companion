@@ -50,7 +50,14 @@ export const createRandomDeck = (): Deck => {
 
 export const createRandomOpponentDeck = (): OpponentDeck => {
   const rKingdom: string[] = createRandomKingdom();
-  const rDeck = new Deck("rTitle", false, "", "rName", "rNick", rKingdom);
+  const rDeck = new OpponentDeck(
+    "rTitle",
+    false,
+    "",
+    "rName",
+    "rNick",
+    rKingdom
+  );
 
   const rEntireDeck = createRandomFieldArray(rKingdom);
   rDeck.setEntireDeck(rEntireDeck);
@@ -157,9 +164,11 @@ export const createRandomKingdom = (): string[] => {
 
 /**
  * Converts a map into an array, used to compare the order of two maps.
- * @param map 
- * @returns 
+ * @param map
+ * @returns
  */
-export const getMapArray = <Type>(map: Map<string, Type>): Array<[string, Type]> => {
+export const getMapArray = <Type>(
+  map: Map<string, Type>
+): Array<[string, Type]> => {
   return Array.from(map.entries());
 };

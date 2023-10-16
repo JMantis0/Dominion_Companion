@@ -603,7 +603,7 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
   let scrollEl: Element;
   let logLineCollection: HTMLCollectionOf<HTMLElement>;
   scrollEl = document.getElementsByClassName("log-scroll-container")[0];
-  if (scrollEl == undefined) throw new Error("Element is undefined");
+  if (scrollEl === undefined) throw new Error("Element is undefined");
   logLineCollection = scrollEl.getElementsByClassName(
     "log-line"
   ) as HTMLCollectionOf<HTMLElement>;

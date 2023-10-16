@@ -1,5 +1,5 @@
 import { getLogScrollContainerLogLines } from "../utils/utils";
-import { getErrorMessage } from "../utils/utils";
+// import { getErrorMessage } from "../utils/utils";
 import type { GameResult, StoreDeck } from "../utils";
 
 /**
@@ -491,89 +491,90 @@ export class Deck implements StoreDeck {
       vassalPlayInLogs = this.getMostRecentPlay(this.logArchive) === "Vassal";
     }
     if (vassalPlayInLogs) {
-      try {
-        let logScrollElement = getLogScrollContainerLogLines();
-        if (this.debug) {
-          console.log("The logScrollElement is: ", logScrollElement);
-          console.log(
-            "The logScrollElement has length of: ",
-            logScrollElement.length
-          );
-          let logScrollElementInnerText: Array<string> = [];
-          for (let i = 0; i < logScrollElement.length; i++) {
-            logScrollElementInnerText.push(logScrollElement[i].innerText);
-          }
-          console.log(
-            "The logSCrollElementInnerText is: ",
-            logScrollElementInnerText
-          );
-          console.log(
-            "The logScrollElementInnerText has length: ",
-            logScrollElementInnerText.length
-          );
-          console.log("The logArchive is: ", this.logArchive);
-          console.log(
-            "The logArchive has a length of : ",
-            this.logArchive.length
-          );
+      // try {
+      let logScrollElement = getLogScrollContainerLogLines();
+      if (this.debug) {
+        console.log("The logScrollElement is: ", logScrollElement);
+        console.log(
+          "The logScrollElement has length of: ",
+          logScrollElement.length
+        );
+        let logScrollElementInnerText: Array<string> = [];
+        for (let i = 0; i < logScrollElement.length; i++) {
+          logScrollElementInnerText.push(logScrollElement[i].innerHTML);
         }
-        let currentLinePaddingNumber: number;
-        let currentLinePaddingPercentage: string;
-        currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
-        if (
-          currentLinePaddingPercentage[
-            currentLinePaddingPercentage.length - 1
-          ] === "%"
-        ) {
-          currentLinePaddingNumber = parseFloat(
-            currentLinePaddingPercentage.slice(
-              0,
-              currentLinePaddingPercentage.length - 1
-            )
-          );
-        } else
-          throw new Error(
-            "Current line PaddingLeft property does not end with %"
-          );
-        let previousLinePaddingNumber: number;
-        let previousLinePaddingPercentage: string;
-        previousLinePaddingPercentage =
-          logScrollElement[len - 1].style.paddingLeft;
-        if (previousLinePaddingPercentage.slice(-1) === "%") {
-          previousLinePaddingNumber = parseFloat(
-            previousLinePaddingPercentage.slice(
-              0,
-              previousLinePaddingPercentage.length - 1
-            )
-          );
-        } else
-          throw new Error(
-            "Previous line paddingLeft property does not end with %"
-          );
-        if (this.debug) console.log("Length is : ", len);
-        if (this.debug)
-          console.log(
-            `Padding for line current line ${logScrollElement[len].innerText}`,
-            currentLinePaddingNumber
-          );
-        if (this.debug)
-          console.log(
-            `Padding for line previous line ${
-              logScrollElement[len - 1].innerText
-            }`,
-            previousLinePaddingNumber
-          );
-        if (currentLinePaddingNumber < previousLinePaddingNumber) {
-          vassalPlay = false;
-        } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
-          vassalPlay = true;
-        }
-      } catch (e) {
-        if (this.debug)
-          console.group("There was an error: ", getErrorMessage(e));
-        if (this.debug) console.log(this.logArchive);
-        if (this.debug) console.groupEnd();
+        console.log(
+          "The logSCrollElementInnerText is: ",
+          logScrollElementInnerText
+        );
+        console.log(
+          "The logScrollElementInnerText has length: ",
+          logScrollElementInnerText.length
+        );
+        console.log("The logArchive is: ", this.logArchive);
+        console.log(
+          "The logArchive has a length of : ",
+          this.logArchive.length
+        );
       }
+      let currentLinePaddingNumber: number;
+      let currentLinePaddingPercentage: string;
+      currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
+      if (
+        currentLinePaddingPercentage[
+          currentLinePaddingPercentage.length - 1
+        ] === "%"
+      ) {
+        currentLinePaddingNumber = parseFloat(
+          currentLinePaddingPercentage.slice(
+            0,
+            currentLinePaddingPercentage.length - 1
+          )
+        );
+      } else
+        throw new Error(
+          "Current line paddingLeft property does not end with %."
+        );
+      let previousLinePaddingNumber: number;
+      let previousLinePaddingPercentage: string;
+      previousLinePaddingPercentage =
+        logScrollElement[len - 1].style.paddingLeft;
+      if (previousLinePaddingPercentage.slice(-1) === "%") {
+        previousLinePaddingNumber = parseFloat(
+          previousLinePaddingPercentage.slice(
+            0,
+            previousLinePaddingPercentage.length - 1
+          )
+        );
+      } else
+        throw new Error(
+          "Previous line paddingLeft property does not end with %."
+        );
+      if (this.debug) console.log("Length is : ", len);
+      if (this.debug)
+        console.log(
+          `Padding for line current line ${logScrollElement[len].innerText}`,
+          currentLinePaddingNumber
+        );
+      if (this.debug)
+        console.log(
+          `Padding for line previous line ${
+            logScrollElement[len - 1].innerText
+          }`,
+          previousLinePaddingNumber
+        );
+      if (currentLinePaddingNumber < previousLinePaddingNumber) {
+        vassalPlay = false;
+      } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
+        vassalPlay = true;
+      }
+      // }
+      // catch (e) {
+      //   if (this.debug)
+      //     console.group("There was an error: ", getErrorMessage(e));
+      //   if (this.debug) console.log(this.logArchive);
+      //   if (this.debug) console.groupEnd();
+      // }
     }
     return vassalPlay;
   }
@@ -847,7 +848,7 @@ export class Deck implements StoreDeck {
   getMostRecentPlay(logArchive: string[]): string {
     let mostRecentCardPlayed: string = "None";
     const len = logArchive.length;
-    if (len === 0) throw new Error("Empty log archive");
+    if (len === 0) throw new Error("Empty logArchive.");
     let playFound: boolean = false;
 
     for (let i = len - 1; i >= 0; i--) {
@@ -956,10 +957,11 @@ export class Deck implements StoreDeck {
    * @param currentLine - The current line.
    * @returns - The number of cards to gain (to avoid over gaining)
    */
-  handleRepeatBuyGain(currentLine: string): number {
+  handleRepeatBuyGain(currentLine: string, logArchive: string[]): number {
     let amendedAmount: number;
-    const prevLine = this.logArchive.slice().pop();
-    const lastSpaceIndex = prevLine?.lastIndexOf(" ");
+    if (logArchive.length === 0) throw new Error("Empty logArchive.");
+    const prevLine = logArchive.slice().pop();
+    const lastSpaceIndex = prevLine!.lastIndexOf(" ");
     const secondLastSpaceIndex = prevLine
       ?.slice(0, lastSpaceIndex)
       .lastIndexOf(" ");
@@ -981,17 +983,18 @@ export class Deck implements StoreDeck {
       );
     }
 
-    if (
-      currentLine.substring(secondLastIndex + 1, lastIndex).match(/\ban?\b/) !==
-      null
-    ) {
-      currCount = 1;
-    } else {
-      currCount = parseInt(
-        currentLine.substring(secondLastIndex + 1, lastIndex)
-      );
-    }
-    const removed = this.logArchive.pop();
+    // This section can be  removed, the current line will always  be a number character.
+    // if (
+    //   currentLine.substring(secondLastIndex + 1, lastIndex).match(/\ban?\b/) !==
+    //   null
+    // ) {
+    //   currCount = 1;
+    // } else {
+
+    currCount = parseInt(currentLine.substring(secondLastIndex + 1, lastIndex));
+    // }
+    const removed = logArchive.pop();
+    this.setLogArchive(logArchive);
     if (this.debug) console.info(`Popping off ${removed}`);
     amendedAmount = currCount - prevCount;
     return amendedAmount;
@@ -1133,24 +1136,6 @@ export class Deck implements StoreDeck {
   }
 
   /**
-   * Checks hand field array to see if card is there.  If yes,
-   * removes an instance of that card from hand field array
-   * and adds an instance of that card to library field array.
-   * @param card -The given card.
-   */
-  topDeckFromHand(card: string) {
-    const index = this.hand.indexOf(card);
-    if (index > -1) {
-      if (this.debug)
-        console.info(`Top decking ${this.hand[index]} from hand.`);
-      this.library.push(this.hand[index]);
-      this.hand.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in hand`);
-    }
-  }
-
-  /**
    * Checks graveyard field array to see if card is there.  If yes,
    * removes one instance of the card from the graveyard field array,
    * and adds one instance of the card to the library field array.
@@ -1164,7 +1149,25 @@ export class Deck implements StoreDeck {
       this.library.push(card);
       this.graveyard.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in discard`);
+      throw new Error(`No ${card} in discard pile.`);
+    }
+  }
+
+  /**
+   * Checks hand field array to see if card is there.  If yes,
+   * removes an instance of that card from hand field array
+   * and adds an instance of that card to library field array.
+   * @param card -The given card.
+   */
+  topDeckFromHand(card: string) {
+    const index = this.hand.indexOf(card);
+    if (index > -1) {
+      if (this.debug)
+        console.info(`Top decking ${this.hand[index]} from hand.`);
+      this.library.push(this.hand[index]);
+      this.hand.splice(index, 1);
+    } else {
+      throw new Error(`No ${card} in hand.`);
     }
   }
 
@@ -1244,7 +1247,7 @@ export class Deck implements StoreDeck {
           if (
             this.consecutiveBuysOfSameCard(act, cards.length, line, cards[0])
           ) {
-            numberOfCards[0] = this.handleRepeatBuyGain(line);
+            numberOfCards[0] = this.handleRepeatBuyGain(line, this.logArchive);
           }
         }
         // For Library activity, draw card from previous line if needed

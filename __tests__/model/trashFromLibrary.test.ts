@@ -1,42 +1,38 @@
-import { it, describe, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
-describe("Function trashFromLibrary()", () => {
-  let rDeck: Deck;
-  let cardToTrash: string;
-  let libBefore: string[];
-  let libraryAfter: string[];
-  let trashBefore: string[];
-  let trashAfter: string[];
-  describe("When given a card that is in the library field array", () => {
-    beforeEach(() => {
-      rDeck = createRandomDeck();
-      cardToTrash = rDeck.getEntireDeck()[0];
-      libBefore = rDeck.getLibrary().slice();
-      trashBefore = rDeck.getTrash().slice();
-      rDeck.trashFromLibrary(cardToTrash);
-      libraryAfter = rDeck.getLibrary().slice();
-      trashAfter = rDeck.getTrash().slice();
-    });
-    it("should remove one instance of the card from the library field array", () => {
-      expect(libraryAfter.concat([cardToTrash]).sort()).toStrictEqual(
-        libBefore.sort()
-      );
-    });
-    it("should add one instance of the card to the trash field array", () => {
-      expect(trashBefore.concat([cardToTrash]).sort()).toStrictEqual(
-        trashAfter.sort()
-      );
-    });
-    describe("when given a card that is not in the library", () => {
-      beforeEach(() => {
-        rDeck = createRandomDeck();
-        cardToTrash = "Joker";
-      });
-      it("should throw an error", () => {
-        expect(() => rDeck.trashFromLibrary(cardToTrash)).toThrow(Error);
-      });
-    });
+describe("Function trashFromLibrary() ", () => {
+  it("should remove an instance of the provided card from library, and add it to trash", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const library = ["Harbinger", "Chapel", "Estate", "Silver"];
+    const trash = ["Sentry", "Vassal"];
+    const card = "Harbinger";
+    deck.setLibrary(library);
+    deck.setTrash(trash);
+    const expectedLibrary = ["Chapel", "Estate", "Silver"];
+    const expectedTrash = ["Sentry", "Vassal", "Harbinger"];
+
+    // Act
+    deck.trashFromLibrary(card);
+    const resultTrash = deck.getTrash();
+    const resultLibrary = deck.getLibrary();
+
+    // Assert
+    expect(resultLibrary).toStrictEqual(expectedLibrary);
+    expect(resultTrash).toStrictEqual(expectedTrash);
+  });
+
+  it("should throw an error if the provided card is not in library", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const library = ["Harbinger", "Chapel", "Estate", "Silver"];
+    deck.setLibrary(library);
+    const card = "Pot of Greed";
+
+    // Act and Assert
+    expect(() => deck.trashFromLibrary(card)).toThrowError(
+      "No Pot of Greed in library."
+    );
   });
 });

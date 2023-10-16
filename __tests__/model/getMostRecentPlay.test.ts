@@ -29,11 +29,11 @@ describe("Function getMostRecentPlay()", () => {
     expect(result).toBe(expectedResult);
   });
 
-  it("should work correctly for cards played by Throne Room", () => {
+  it("should return the card correctly for cards played by Throne Room", () => {
     // Arrange
     const deck = new Deck("", false, "", "pNick", "pName", []);
     const logArchive = [
-      "pNick plays a Sentry again.",  // Cards played by Throne Room will end with 'again.' and require proper parsing.
+      "pNick plays a Sentry again.", // Cards played by Throne Room will end with 'again.' and require proper parsing.
       "pNick draws a Vassal.",
       "pNick gets +1 Action.",
       "pNick shuffles their deck.",
@@ -46,5 +46,58 @@ describe("Function getMostRecentPlay()", () => {
 
     // Assert
     expect(result).toBe(expectedResult);
+  });
+
+  it("should work correctly for cards that start with a vowel preceded by the article 'an'", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const logArchive = [
+      "pNick plays an Artisan.",
+      "pNick gains a Market.",
+      "pNick topdecks a Market.",
+    ];
+
+    // Act
+    const result = deck.getMostRecentPlay(logArchive);
+    const expectedResult = "Artisan";
+
+    // Assert
+    expect(result).toBe(expectedResult);
+  });
+
+  it("should return 'None' if no play is found in the logArchive", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const logArchive = [
+      "Game #123456789, unrated.",
+      "Card Pool: level 1",
+      "pNick starts with 7 Coppers.",
+      "pNick starts with 3 Estates.",
+      "oNick starts with 7 Coppers.",
+      "oNick starts with 3 Estates.",
+      "pNick shuffles their deck.",
+      "oNick shuffles their deck.",
+      "pNick draws 4 Coppers and an Estate.",
+      "oNick draws 5 cards.",
+      "Turn 1 - pName",
+    ];
+
+    // Act
+    const result = deck.getMostRecentPlay(logArchive);
+    const expectedResult = "None";
+
+    // Assert
+    expect(result).toBe(expectedResult);
+  });
+
+  it("should throw an error if the logArchive is empty", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const logArchive: string[] = [];
+
+    // Act and Assert
+    expect(() => deck.getMostRecentPlay(logArchive)).toThrowError(
+      "Empty logArchive."
+    );
   });
 });

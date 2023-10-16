@@ -23,4 +23,23 @@ describe("Function getCardCountsFromEntry", () => {
     expect(expectedCards).toStrictEqual(cardResult);
     expect(expectedCardAmounts).toStrictEqual(cardAmountResult);
   });
+  it("should work for both numbers and the articles 'a' and 'an'", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", [
+      "Copper",
+      "Gold",
+      "Estate",
+    ]);
+    const line = "pName draws 4 Coppers, a Gold, and an Estate.";
+    const expectedCards = ["Copper", "Gold", "Estate"];
+    const expectedCardAmounts = [4, 1, 1];
+
+    // Act
+    const [cardResult, cardAmountResult] =
+      deck.getCardsAndCountsFromEntry(line);
+
+    // Assert
+    expect(expectedCards).toStrictEqual(cardResult);
+    expect(expectedCardAmounts).toStrictEqual(cardAmountResult);
+  });
 });
