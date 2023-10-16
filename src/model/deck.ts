@@ -136,6 +136,14 @@ export class Deck implements StoreDeck {
     this.kingdom = kingdom;
   }
 
+  getLastEntryProcessed() {
+    return this.lastEntryProcessed;
+  }
+
+  setLastEntryProcessed(line: string) {
+    this.lastEntryProcessed = line;
+  }
+
   getLibrary() {
     return this.library;
   }
@@ -491,12 +499,10 @@ export class Deck implements StoreDeck {
             "The logScrollElement has length of: ",
             logScrollElement.length
           );
-        }
-        let logScrollElementInnerText: Array<string> = [];
-        for (let i = 0; i < logScrollElement.length; i++) {
-          logScrollElementInnerText.push(logScrollElement[i].innerText);
-        }
-        if (this.debug) {
+          let logScrollElementInnerText: Array<string> = [];
+          for (let i = 0; i < logScrollElement.length; i++) {
+            logScrollElementInnerText.push(logScrollElement[i].innerText);
+          }
           console.log(
             "The logSCrollElementInnerText is: ",
             logScrollElementInnerText
@@ -708,7 +714,7 @@ export class Deck implements StoreDeck {
       this.graveyard.push(card);
       this.setAside.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in setAside`);
+      throw new Error(`No ${card} in setAside.`);
     }
   }
 
@@ -725,7 +731,7 @@ export class Deck implements StoreDeck {
       this.hand.push(card);
       this.library.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in deck`);
+      throw new Error(`No ${card} in library.`);
     }
   }
 
@@ -743,7 +749,7 @@ export class Deck implements StoreDeck {
       }
     }
     if (prevLineCard === "EmptyCard")
-      throw new Error("No card found in previous entry");
+      throw new Error("No card found in the most recent logArchive entry.");
     this.draw(prevLineCard);
   }
 
@@ -881,7 +887,7 @@ export class Deck implements StoreDeck {
   /**
    * This function is used to deal with the Client-DOM behavior of removing and adding
    * a log line when consecutive treasures are played.  The function looks at the
-   * current line and the previously processed line and calculated the difference in the
+   * current line and the previously processed line and calculates the difference in the
    * amount of treasures played on each line for each treasure, and returns an array with those
    * counts, to be used by the update method.  It also pops the last log entry off of the logArchive
    * to keep it identical to what appears in the "game-log" innerText.
@@ -1025,8 +1031,7 @@ export class Deck implements StoreDeck {
       needToDrawCardLookedAtFromPreviousLine =
         prevLineLibraryLook &&
         this.waitToDrawLibraryLook &&
-        act !== "aside with Library" &&
-        !this.treasurePopped; //here we check to see if a treasure log entry was popped off for this line.  If so, the draw from the library look already occurred and this prevents it from drawing again.
+        act !== "aside with Library";
     }
 
     return needToDrawCardLookedAtFromPreviousLine;
@@ -1058,7 +1063,7 @@ export class Deck implements StoreDeck {
       this.inPlay.push(card);
       this.hand.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in hand`);
+      throw new Error(`No ${card} in hand.`);
     }
   }
 
@@ -1077,7 +1082,7 @@ export class Deck implements StoreDeck {
       this.inPlay.push(card);
       this.graveyard.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in discard pile`);
+      throw new Error(`No ${card} in discard pile.`);
     }
   }
 
@@ -1092,12 +1097,12 @@ export class Deck implements StoreDeck {
     if (index > -1) {
       this.entireDeck.splice(index, 1);
     } else {
-      throw new Error(`No ${card} in the deck list`);
+      throw new Error(`No ${card} in the deck list.`);
     }
   }
 
   /**
-   *
+   *  Removes the given card from the library and pushes it to the setAside zone.
    */
   setAsideWithLibrary(card: string) {
     const index = this.library.indexOf(card);
@@ -1107,29 +1112,6 @@ export class Deck implements StoreDeck {
       this.library.splice(index, 1);
     } else {
       throw new Error(`No ${card} in library.`);
-    }
-  }
-
-  /**
-   * Randomizes the order of the library array field.
-   * Might be obsolete.  Shuffling is a superficiality.
-   */
-  shuffle() {
-    if (this.debug) console.info("Shuffling library into a random order.");
-    let currentIndex = this.library.length,
-      randomIndex;
-
-    // While there remain elements to shuffle.
-    while (currentIndex != 0) {
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [this.library[currentIndex], this.library[randomIndex]] = [
-        this.library[randomIndex],
-        this.library[currentIndex],
-      ];
     }
   }
 
@@ -1148,7 +1130,6 @@ export class Deck implements StoreDeck {
       this.library.push(this.graveyard[i]);
       this.graveyard.splice(i, 1);
     }
-    this.shuffle();
   }
 
   /**

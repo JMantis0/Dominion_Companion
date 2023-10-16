@@ -5,8 +5,8 @@ describe("Function checkForCleanup()", () => {
   it("should return true when a cleanup might be needed", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
-    const line1 = `${deck.getPlayerNick} draws a Sentry, a Copper, an Estate, a Vassal, and a Gold`;
-    const line2 = `${deck.getPlayerNick} draws a Sentry, a Copper, an Estate, and 2 cats`;
+    const line1 = `${deck.getPlayerNick} draws a Sentry, a Copper, an Estate, a Vassal, and a Gold.`;
+    const line2 = `${deck.getPlayerNick} draws a Sentry, a Copper, an Estate, and 2 Golds.`;
     const line3 = `${deck.getPlayerNick} draws a Sentry, a Copper, and 3 Festivals.`;
     const line4 = `${deck.getPlayerNick} draws a Sentry and 4 Libraries`;
     const line5 = `${deck.getPlayerNick} draws 5 Libraries.`;

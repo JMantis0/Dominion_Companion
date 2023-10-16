@@ -1,35 +1,35 @@
-import { describe, it, expect, beforeEach, jest } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
 
 describe("Function play()", () => {
-  let testDeck: Deck;
-  let testHand: string[];
-  let testInPlay: string[];
+  it("should remove one instance of the the provided card from hand and add it to inPlay", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const hand = ["Copper", "Estate", "Estate", "Sentry"];
+    const inPlay = ["Laboratory"];
+    const card = "Sentry";
+    deck.setHand(hand);
+    deck.setInPlay(inPlay);
+    const expectedHand = ["Copper", "Estate", "Estate"];
+    const expectedInPlay = ["Laboratory", "Sentry"];
+    // Act
+    deck.play(card);
+    const resultHand = deck.getHand();
+    const resultInPlay = deck.getInPlay();
 
-  beforeEach(() => {
-    testDeck = new Deck("tTitle", false, "No Rating", "testName", "testNick", [
-      "Ace",
-      "Heart",
-      "Club",
-      "Spade",
-    ]);
-    testHand = ["Ace", "Club", "Club", "Heart"];
-    testInPlay = [];
-    testDeck.setInPlay(testInPlay);
-    testDeck.setHand(testHand);
+    // Assert
+    expect(resultHand).toStrictEqual(expectedHand);
+    expect(resultInPlay).toStrictEqual(expectedInPlay);
   });
-  describe("when given a card that is in the hand", () => {
-    it("should remove the card from hand and add it to inPlay", () => {
-      testDeck.play("Ace");
-      expect(testDeck.getInPlay().indexOf("Ace")).toBeGreaterThan(-1);
-      expect(testDeck.getHand().indexOf("Ace")).toBeLessThan(0);
-    });
-  });
-  describe("when given a card that is not in the hand", () => {
-    it("should throw an error", () => {
-      const spy = jest.spyOn(testDeck, "play");
-      expect(() => testDeck.play("Spade")).toThrow(Error);
-      expect(spy).toHaveBeenCalled();
-    });
+
+  it("should throw an error when the provided card is not in hand", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const hand = ["Copper", "Estate", "Estate", "Sentry"];
+    deck.setHand(hand);
+    const card = "Pot of Greed";
+
+    // Act and Assert
+    expect(() => deck.play(card)).toThrowError(`No Pot of Greed in hand.`);
   });
 });

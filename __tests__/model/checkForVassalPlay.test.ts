@@ -5,7 +5,7 @@ import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
 
 describe("Function checkForVassalPlay()", () => {
-  // Arrange dom to mimic the client 
+  // Arrange dom to mimic the client
   const rDeck: Deck = new Deck("", false, "", "pName", "pNick", []);
   const logLineContainer = document.createElement("div");
   const logLine1Element = document.createElement("div");
@@ -32,7 +32,6 @@ describe("Function checkForVassalPlay()", () => {
   logLineContainer.appendChild(logLine4Element);
   logLineContainer.appendChild(logLine5Element);
   document.body.appendChild(logLineContainer);
-  console.log(document.body.innerHTML);
   /** The document body innerHTML:
    * 
   <div class="log-scroll-container">
