@@ -1,35 +1,43 @@
-import { describe, it, expect, beforeEach, jest } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck, getCountOfCard } from "../testUtilFuncs";
 
 describe("Function draw()", () => {
-  let rDeck: Deck;
-  let cardToDraw: string;
-  beforeEach(() => {
-    rDeck = createRandomDeck();
-    cardToDraw = rDeck.getLibrary()[0];
-  });
-  describe("when given a card that is in the library", () => {
-    it("should remove the card from the library and place it in the hand", () => {
-      const acesInHandBefore = getCountOfCard(rDeck.getHand(), cardToDraw);
-      const acesInLibraryBefore = getCountOfCard(
-        rDeck.getLibrary(),
-        cardToDraw
-      );
-      rDeck.draw(cardToDraw);
-      const acesInLibraryAfter = getCountOfCard(rDeck.getLibrary(), cardToDraw);
-      const acesInHandAfter = getCountOfCard(rDeck.getHand(), cardToDraw);
+  it("should remove one instance of the provided card from the library and add it to the hand", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
+    const library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
+    deck.setHand(hand);
+    deck.setLibrary(library);
+    const card = "Copper";
 
-      expect(acesInHandAfter).toEqual(acesInHandBefore + 1);
-      expect(acesInLibraryAfter).toEqual(acesInLibraryBefore - 1);
-    });
-  });
+    // Act
+    deck.draw(card);
+    const resultHand = deck.getHand();
+    const resultLibrary = deck.getLibrary();
+    const expectedHand = [
+      "Copper",
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Copper",
+    ];
+    const expectedLibrary = ["Estate", "Copper", "Copper", "Copper"];
 
-  describe("when given a card that is not in the library", () => {
-    it("should thrown an error", () => {
-      const spy = jest.spyOn(rDeck, "draw");
-      expect(() => rDeck.draw("Spade")).toThrow(Error);
-      expect(spy).toHaveBeenCalled();
-    });
+    // Assert
+    expect(resultHand).toStrictEqual(expectedHand);
+    expect(resultLibrary).toStrictEqual(expectedLibrary);
+  });
+  
+  it("should throw an error when the provided card is not in library", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
+    deck.setLibrary(library);
+    const card = "Sentry";
+
+    // Act and Assert
+    expect(() => deck.draw(card)).toThrowError("No Sentry in library.");
   });
 });

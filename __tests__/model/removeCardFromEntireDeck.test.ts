@@ -1,25 +1,32 @@
-import { it, beforeEach, describe, expect } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
 describe("Function removeCardFromEntireDeck()", () => {
-  let tDeck: Deck;
-  let tEntireDeck: string[];
-  beforeEach(() => {
-    tDeck = createRandomDeck();
-    tEntireDeck = ["Ace", "Heart"];
-    tDeck.setEntireDeck(tEntireDeck);
-  });
-  describe("when given a card that is in the deck", () => {
-    it("should remove that card from the entireDeck field array", () => {
-      tDeck.removeCardFromEntireDeck("Ace");
-      expect(tDeck.getEntireDeck().indexOf("Ace")).toBeLessThan(0);
-    });
-  });
+  it("should remove an instance of the provided card from the entire deck", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const entireDeck = ["Vassal", "Cellar", "Cellar"];
+    deck.setEntireDeck(entireDeck);
+    const card = "Vassal";
+    const expectedEntireDeck = ["Cellar", "Cellar"];
 
-  describe("when given a card that is not in the entireDeck array", () => {
-    it("should throw an Error", () => {
-      expect(() => tDeck.removeCardFromEntireDeck("Spade")).toThrow(Error);
-    });
+    // Act
+    deck.removeCardFromEntireDeck(card);
+    const resultEntireDeck = deck.getEntireDeck();
+
+    // Assert
+    expect(resultEntireDeck).toStrictEqual(expectedEntireDeck);
+  });
+  it("should throw an error when the provided card is not in the entire deck", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const entireDeck = ["Vassal", "Cellar", "Cellar"];
+    deck.setEntireDeck(entireDeck);
+    const card = "Pot of Greed";
+
+    // Act and Assert
+    expect(() => deck.removeCardFromEntireDeck(card)).toThrowError(
+      "No Pot of Greed in the deck list."
+    );
   });
 });
