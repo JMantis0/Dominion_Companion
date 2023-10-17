@@ -782,6 +782,46 @@ export class Deck implements StoreDeck {
   }
 
   /**
+   * Function gets required details from the current line
+   * @param line - Current line being processed through the update method.
+   * @returns - on object containing the act from the line, an array of cards from the line
+   * and a corresponding array of numbers for the amounts of cards from the line.
+   */
+  getActCardsAndCounts(line: string): {
+    act: string;
+    cards: string[];
+    numberOfCards: number[];
+  } {
+    let act: string = "";
+    let cards: Array<string> = [];
+    let number: Array<number> = [];
+
+    if (this.consecutiveTreasurePlays(line)) {
+      number = this.handleConsecutiveTreasurePlays(line);
+      act = "plays";
+      cards = ["Copper", "Silver", "Gold"];
+    } else {
+      act = this.getActionFromEntry(line);
+      [cards, number] = this.getCardsAndCountsFromEntry(line);
+      //Pop off repeated buy log entry if needed
+      if (this.consecutiveBuysOfSameCard(act, cards.length, line, cards[0])) {
+        number[0] = this.handleRepeatBuyGain(line, this.logArchive);
+      }
+    }
+
+    const lineInfo: {
+      act: string;
+      cards: string[];
+      numberOfCards: number[];
+    } = {
+      act: act,
+      cards: cards,
+      numberOfCards: number,
+    };
+    return lineInfo;
+  }
+
+  /**
    * Parses a log entry to get the action from it.
    * @param entry -The log entry.
    * @returns - The action from the entry.
@@ -1232,24 +1272,9 @@ export class Deck implements StoreDeck {
           this.waitToShuffle = false;
         }
         if (this.debug) console.group(line);
-        let act = "";
-        let cards: Array<string> = [];
-        let numberOfCards: Array<number> = [];
-        //Pop off repeated treasure log entry if needed
-        if (this.consecutiveTreasurePlays(line)) {
-          numberOfCards = this.handleConsecutiveTreasurePlays(line);
-          act = "plays";
-          cards = ["Copper", "Silver", "Gold"];
-        } else {
-          act = this.getActionFromEntry(line);
-          [cards, numberOfCards] = this.getCardsAndCountsFromEntry(line);
-          //Pop off repeated buy log entry if needed
-          if (
-            this.consecutiveBuysOfSameCard(act, cards.length, line, cards[0])
-          ) {
-            numberOfCards[0] = this.handleRepeatBuyGain(line, this.logArchive);
-          }
-        }
+
+        const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+
         // For Library activity, draw card from previous line if needed
         if (this.libraryTriggeredPreviousLineDraw(act)) {
           this.drawCardFromPreviousLine();
@@ -1264,7 +1289,6 @@ export class Deck implements StoreDeck {
             {
               this.waitToShuffle = true;
             }
-
             break;
           case "gains":
             {
