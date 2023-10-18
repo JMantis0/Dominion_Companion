@@ -208,6 +208,14 @@ export class Deck implements StoreDeck {
     this.trash = trash;
   }
 
+  getWaitToDrawLibraryLook() {
+    return this.waitToDrawLibraryLook;
+  }
+
+  setWaitToDrawLibraryLook(wait: boolean) {
+    this.waitToDrawLibraryLook = wait;
+  }
+
   /**
    * Adds one instance of the card to the entireDeck field array.
    * @param card - The The given card.
@@ -222,18 +230,18 @@ export class Deck implements StoreDeck {
    * @returns Boolean for whether the current line gain activity
    * was triggered by an Artisan
    */
-  checkForArtisanGain = (): boolean => {
+  checkForArtisanGain(): boolean {
     return this.getMostRecentPlay(this.logArchive) === "Artisan";
-  };
+  }
 
   /**
    * Checks the logArchive to determine if the current line top deck activity
    * was triggered by an Artisan.
    * @returns Boolean for whether the current line top deck activity.
    */
-  checkForArtisanTopDeck = (): boolean => {
+  checkForArtisanTopDeck(): boolean {
     return this.getMostRecentPlay(this.logArchive) === "Artisan";
-  };
+  }
 
   /**
    * Checks to see if the current discard activity of the current line
@@ -241,9 +249,9 @@ export class Deck implements StoreDeck {
    * be removed from the library field array.
    * @returns - Boolean for whether the discard activity was triggered by a Bandit.
    */
-  checkForBanditDiscard = () => {
+  checkForBanditDiscard() {
     return this.getMostRecentPlay(this.logArchive) === "Bandit";
-  };
+  }
 
   /**
    * Checks to see if the trash activity of the current line was triggered
@@ -251,9 +259,9 @@ export class Deck implements StoreDeck {
    * the library field array.
    * @returns - Boolean for whether the trash activity was triggered by a Bandit.
    */
-  checkForBanditTrash = () => {
+  checkForBanditTrash() {
     return this.getMostRecentPlay(this.logArchive) === "Bandit";
-  };
+  }
 
   /**
    * Checks to see if the current line gain activity was triggered by a Bureaucrat.
@@ -295,7 +303,7 @@ export class Deck implements StoreDeck {
    * control flow should not trigger a shuffle if the current line has 5 draws.
    * @returns - Boolean for if the current line's draws were from a Cellar.
    */
-  checkForCellarDraw = () => {
+  checkForCellarDraw() {
     let cellarDraws = false;
     const logArchLen = this.logArchive.length;
     if (
@@ -309,7 +317,7 @@ export class Deck implements StoreDeck {
       cellarDraws = true;
     }
     return cellarDraws;
-  };
+  }
 
   /**
    * Checks the current line to see if there are exactly five draws
@@ -319,7 +327,7 @@ export class Deck implements StoreDeck {
    * @param line
    * @returns
    */
-  checkForCleanUp = (line: string) => {
+  checkForCleanUp(line: string) {
     let needCleanUp = false;
     let drawCount = 0;
     const lineCopyWithoutNickname = line.slice(this.getPlayerNick().length);
@@ -338,7 +346,7 @@ export class Deck implements StoreDeck {
       needCleanUp = true;
     }
     return needCleanUp;
-  };
+  }
 
   /**
    * Checks the logArchive to see if the current line's topdeck was triggered
@@ -373,7 +381,7 @@ export class Deck implements StoreDeck {
    * @param currentLine - The current look at line
    * @returns The boolean for whether the current look at activity was triggered by a Library
    */
-  checkForLibraryLook = (currentLine: string): boolean => {
+  checkForLibraryLook(currentLine: string): boolean {
     let libraryLook: boolean = false;
     if (currentLine.match(" looks at ") !== null) {
       if (this.getMostRecentPlay(this.logArchive) === "Library") {
@@ -384,7 +392,7 @@ export class Deck implements StoreDeck {
       // throw new Error("Current line is not a looks at line.");
     }
     return libraryLook;
-  };
+  }
 
   /**
    * Looks 2 lines back in the logArchive to determine if
@@ -418,14 +426,13 @@ export class Deck implements StoreDeck {
     return this.getMostRecentPlay(this.logArchive) === "Sentry";
   }
   /**
-   * Checks to see if the current line contains the substring
+   * Checks to see if the lastEntryProcessed contains the substring
    * "shuffles their deck".
-   * @param line - The line being checked.
    * @returns - Boolean for whether the match is found.
    */
-  checkForShuffle = (line: string) => {
-    return line.match(" shuffles their deck") !== null;
-  };
+  checkForShuffle() {
+    return this.lastEntryProcessed.match(" shuffles their deck") !== null;
+  }
 
   /**
    * Checks the given line to see if it is a line that plays a treasure card.
@@ -580,9 +587,7 @@ export class Deck implements StoreDeck {
    * @returns - Boolean for whether the latest logArchive entry was for the buy of the card
    * gaines and bought in the current line.
    */
-  checkPreviousLineProcessedForCurrentCardBuy = (
-    currentCard: string
-  ): boolean => {
+  checkPreviousLineProcessedForCurrentCardBuy(currentCard: string): boolean {
     let previousLineBoughtCurrentLineCard: boolean;
     if (this.lastEntryProcessed.match(` buys a ${currentCard}`) !== null) {
       previousLineBoughtCurrentLineCard = true;
@@ -590,7 +595,7 @@ export class Deck implements StoreDeck {
       previousLineBoughtCurrentLineCard = false;
     }
     return previousLineBoughtCurrentLineCard;
-  };
+  }
 
   /**
    * Iterates over all the card instances in the hand and inPlay field arrays.
@@ -889,7 +894,10 @@ export class Deck implements StoreDeck {
     let playFound: boolean = false;
 
     for (let i = len - 1; i >= 0; i--) {
-      if (logArchive[i].match(/ plays an? /) !== null) {
+      if (
+        logArchive[i].match(/ plays an? /) !== null &&
+        !this.checkForTreasurePlayLine(logArchive[i])
+      ) {
         playFound = true;
         let lowerIndex: number;
         if (logArchive[i].match(" plays a ")) {
@@ -1127,14 +1135,30 @@ export class Deck implements StoreDeck {
   }
 
   /**
+   * Takes a given logArchive, removes the last entry from it, and sets
+   * the result to the logArchive field.  Used to remove duplicate entries
+   * from the logArchive
+   * @param logArchive - the current logArchive
+   */
+  popLastLogArchiveEntry(logArchive: string[]) {
+    logArchive.pop();
+    this.setLogArchive(logArchive);
+  }
+
+  /**
    * Update function.  Discards cards according to the provided information.
    * @param line - The current line being processed.
    * @param cards - Array of card names to be discarded.
    * @param numberOfCards - Array of the amounts of each card to discard.
    */
-  processDiscardsLine(line: string, cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
-    const libraryDiscard = this.checkForLibraryDiscard(line);
+  processDiscardsLine(
+    // line: string,
+    cards: string[],
+    numberOfCards: number[]
+  ) {
+    const mostRecentPlay: string = this.getMostRecentPlay(this.logArchive);
+    const libraryDiscard: boolean = mostRecentPlay === "Library";
+    // const libraryDiscard = this.checkForLibraryDiscard(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (libraryDiscard) {
@@ -1149,14 +1173,20 @@ export class Deck implements StoreDeck {
   }
 
   /**
-   * Update function.  Draws cards according to the provided information.
+   * Update function.  Draws cards according to the provided information.  Will
+   * perform cleanup before drawing cards when necessary.
    * @param line - The current line being processed.
    * @param cards - Array of card names to be drawn.
    * @param numberOfCards - Array of the amounts of each card to draw.
    */
   processDrawsLine(line: string, cards: string[], numberOfCards: number[]) {
+    // This first section collects 3 booleans which serve
+    // as sufficient context to determine whether or not
+    // to perform a cleanup before drawing any cards.
+    // This check happens at the end of every turn,
+    // when a player draws Their new hand.
     const cleanupNeeded = this.checkForCleanUp(line);
-    const shuffleOccurred = this.checkForShuffle(this.lastEntryProcessed);
+    const shuffleOccurred = this.checkForShuffle();
     const cellarDraws = this.checkForCellarDraw();
     if (cleanupNeeded && !shuffleOccurred && !cellarDraws) {
       this.cleanup();
@@ -1189,7 +1219,7 @@ export class Deck implements StoreDeck {
               this.checkPreviousLineProcessedForCurrentCardBuy(cards[i]);
             if (lastLineBuy) {
               // keep the logArchive from accumulating duplicates.
-              this.logArchive.pop();
+              this.popLastLogArchiveEntry(this.logArchive);
             }
           }
           this.gain(cards[i]);
@@ -1206,24 +1236,28 @@ export class Deck implements StoreDeck {
    * @param line - The current line being processed by the update function.
    * @param cards - The card being looked at.
    */
-  processLooksAtLine(line: string, card: string) {
+  processLooksAtLine(line: string, cards: string[], numberOfCards: number[]) {
     const libraryLook = this.checkForLibraryLook(line);
-    if (libraryLook) {
-      const cardsToDrawNow: string[] = [
-        "Estate",
-        "Duchy",
-        "Province",
-        "Gardens",
-        "Copper",
-        "Silver",
-        "Gold",
-      ];
-      if (this.debug) console.log("It's a library look");
-      if (cardsToDrawNow.includes(card)) {
-        this.draw(card);
-      } else {
-        if (this.debug) console.log("waitToDraw changing to true;");
-        this.waitToDrawLibraryLook = true;
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        if (libraryLook) {
+          const cardsToDrawNow: string[] = [
+            "Estate",
+            "Duchy",
+            "Province",
+            "Gardens",
+            "Copper",
+            "Silver",
+            "Gold",
+          ];
+          if (this.debug) console.log("It's a library look");
+          if (cardsToDrawNow.includes(cards[i])) {
+            this.draw(cards[i]);
+          } else {
+            if (this.debug) console.log("waitToDraw changing to true;");
+            this.setWaitToDrawLibraryLook(true);
+          }
+        }
       }
     }
   }
@@ -1430,9 +1464,7 @@ export class Deck implements StoreDeck {
           this.waitToShuffle = false;
         }
         if (this.debug) console.group(line);
-
         const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
-
         // For Library activity that occurred on the previous line
         // these lines check to see if the card needs to be drawn,
         // and if so, draws it.
@@ -1440,7 +1472,6 @@ export class Deck implements StoreDeck {
           this.drawCardFromPreviousLine();
         }
         this.waitToDrawLibraryLook = false;
-
         switch (act) {
           case "shuffles their deck":
             this.waitToShuffle = true;
@@ -1452,7 +1483,7 @@ export class Deck implements StoreDeck {
             this.processDrawsLine(line, cards, numberOfCards);
             break;
           case "discards":
-            this.processDiscardsLine(line, cards, numberOfCards);
+            this.processDiscardsLine(cards, numberOfCards);
             break;
           case "plays":
             this.processPlaysLine(line, cards, numberOfCards);
@@ -1464,7 +1495,7 @@ export class Deck implements StoreDeck {
             this.processTopDecksLine(cards, numberOfCards);
             break;
           case "looks at":
-            this.processLooksAtLine(line, cards[0]); //only 1 card needs to be looked at at a time.
+            this.processLooksAtLine(line, cards, numberOfCards);
             break;
           case "aside with Library": {
             for (let i = 0; i < cards.length; i++) {
