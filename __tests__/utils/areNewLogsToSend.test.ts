@@ -4,7 +4,7 @@ import { areNewLogsToSend } from "../../src/utils/utils";
 describe("Function areNewLogsToSend()", () => {
   it("should return false when the last entry in processed logs is a 'buy without gain' line, but the logsProcessed and gameLog are the same otherwise", () => {
     const logsProcessed = "Log1\nLog2\nLog3\nLog4";
-    const gameLog = "Log1\nLog2\nLog3\nLog4\nG buys a Copper";
+    const gameLog = "Log1\nLog2\nLog3\nLog4\npNick buys a Copper";
     expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
   });
 
@@ -58,7 +58,7 @@ describe("Function areNewLogsToSend() when there is a Premoves element active in
   it("should return false when the last entry in processed logs is a 'buy without gain' line", () => {
     const logsProcessed = "Log1\nLog2\nLog3\nLog4";
     const gameLog =
-      "Log1\nLog2\nLog3\nLog4\nG buys a Copper\nPremoves Player Does Something";
+      "Log1\nLog2\nLog3\nLog4\npNick buys a Copper\nPremoves Player Does Something";
     expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
   });
 

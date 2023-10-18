@@ -8,16 +8,16 @@ describe("Function checkForCellarDraw()", () => {
     const deck2 = new Deck("", false, "", "pName", "pNick", []);
     // Case1 - shuffle occurred before draws take place due to low library count.
     const logArchive1 = [
-      "G plays a Cellar.",
-      "G gets +1 Action.",
-      "G discards 3 Coppers, an Estate, and a Cellar.",
-      "G shuffles their deck.",
+      "pNick plays a Cellar.",
+      "pNick gets +1 Action.",
+      "pNick discards 3 Coppers, an Estate, and a Cellar.",
+      "pNick shuffles their deck.",
     ];
     // Case2 - no shuffle needed because sufficient cards amount in library.
     const logArchive2 = [
-      "G plays a Cellar.",
-      "G gets +1 Action.",
-      "G discards a Copper, a Silver, an Estate, and a Laboratory.",
+      "pNick plays a Cellar.",
+      "pNick gets +1 Action.",
+      "pNick discards a Copper, a Silver, an Estate, and a Laboratory.",
     ];
     deck1.setLogArchive(logArchive1);
     deck2.setLogArchive(logArchive2);

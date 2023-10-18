@@ -82,9 +82,7 @@ describe("Function checkForVassalPlay()", () => {
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine5Element.style.paddingLeft = "0%";
-
-    console.log("Second test document body");
-    console.log(document.body.innerHTML);
+    
     // Act
     const result = rDeck.checkForVassalPlay();
 
@@ -95,18 +93,18 @@ describe("Function checkForVassalPlay()", () => {
   it("should return false when the most recent play in the logArchive is not a Vassal", () => {
     // Arrange
     const logArchive = [
-      "G plays a Throne Room.",
-      "G plays a Sentry.",
-      "G draws a Gold.",
-      "G gets +1 Action.",
-      "G looks at a Copper and an Estate.",
-      "G trashes a Copper and an Estate.",
-      "G plays a Sentry again.",
-      "G draws a Gold.",
-      "G gets +1 Action.",
-      "G looks at a Copper and a Silver.",
-      "G trashes a Copper.",
-      "G topdecks a Silver.",
+      "pNick plays a Throne Room.",
+      "pNick plays a Sentry.",
+      "pNick draws a Gold.",
+      "pNick gets +1 Action.",
+      "pNick looks at a Copper and an Estate.",
+      "pNick trashes a Copper and an Estate.",
+      "pNick plays a Sentry again.",
+      "pNick draws a Gold.",
+      "pNick gets +1 Action.",
+      "pNick looks at a Copper and a Silver.",
+      "pNick trashes a Copper.",
+      "pNick topdecks a Silver.",
     ];
     rDeck.setLogArchive(logArchive);
     logLineContainer.remove();

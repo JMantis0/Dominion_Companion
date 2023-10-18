@@ -6,9 +6,10 @@ describe("Function checkForShuffle()", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
     const line = "pNick shuffles their deck.";
-
+    deck.setLastEntryProcessed(line);
+    
     // Act
-    const result = deck.checkForShuffle(line);
+    const result = deck.checkForShuffle();
 
     // Assert
     expect(result).toBeTruthy();
@@ -16,9 +17,10 @@ describe("Function checkForShuffle()", () => {
   it("should return false when the provided line does not match ' shuffles their deck'", () => {
     const deck = new Deck("", false, "", "pName", "pNick", []);
     const line = "pNick draws a Copper.";
+    deck.setLastEntryProcessed(line);
 
     // Act
-    const result = deck.checkForShuffle(line);
+    const result = deck.checkForShuffle();
 
     // Assert
     expect(result).toBeFalsy();

@@ -2,6 +2,7 @@ import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
 
 describe("Function handleRepeatBuyGain()", () => {
+
   it("should return the difference between the amount of the card that is bought in the provided line, and the amount that is bought in the most recent logArchive entry, and remove the last member of the logArchive", () => {
     // Arrange
     const deck = new Deck("", false, "", "pNick", "pName", []);
@@ -13,7 +14,6 @@ describe("Function handleRepeatBuyGain()", () => {
     const line = "pNick buys and gains 3 Golds.";
     const expectedDifference = 1;
     const expectedLogArchive = ["pNick plays 2 Golds. (+$6)"];
-
     // Act
     const resultDifference = deck.handleRepeatBuyGain(line, logArchive);
     const resultLogArchive = deck.getLogArchive();

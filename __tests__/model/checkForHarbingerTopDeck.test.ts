@@ -7,18 +7,18 @@ describe("Function checkForHarbingerTopDeck()", () => {
     const deck1 = new Deck("", false, "", "pName", "pNick", []);
     const deck2 = new Deck("", false, "", "pName", "pNick", []);
     const logArchive1 = [
-      "G plays a Harbinger.",
-      "G draws a Copper.",
-      "G gets +1 Action.",
-      "G looks at 4 Coppers, a Silver, an Estate, and a Merchant.",
+      "pNick plays a Harbinger.",
+      "pNick draws a Copper.",
+      "pNick gets +1 Action.",
+      "pNick looks at 4 Coppers, a Silver, an Estate, and a Merchant.",
     ];
     // Case with a shuffle occurring just before drawing with a Harbinger
     const logArchive2 = [
-      "G plays a Harbinger.",
-      "G shuffles their deck.",
-      "G draws a Copper.",
-      "G gets +1 Action.",
-      "G looks at 4 Coppers, a Silver, an Estate, and a Merchant.",
+      "pNick plays a Harbinger.",
+      "pNick shuffles their deck.",
+      "pNick draws a Copper.",
+      "pNick gets +1 Action.",
+      "pNick looks at 4 Coppers, a Silver, an Estate, and a Merchant.",
     ];
     deck1.setLogArchive(logArchive1);
     deck2.setLogArchive(logArchive2);
@@ -30,11 +30,11 @@ describe("Function checkForHarbingerTopDeck()", () => {
   it("should return false when the most recent play is not a Harbinger", () => {
     const deck = new Deck("", false, "", "pName", "pNick", []);
     const logArchive = [
-      "G plays a Sentry.",
-      "G draws an Estate.",
-      "G gets +1 Action.",
-      "G looks at 2 Cellars.",
-      "G trashes a Cellar.",
+      "pNick plays a Sentry.",
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
+      "pNick looks at 2 Cellars.",
+      "pNick trashes a Cellar.",
     ];
     deck.setLogArchive(logArchive);
     const result = deck.checkForHarbingerTopDeck();

@@ -10,13 +10,13 @@ describe("Function checkForLibraryLook()", () => {
       "Line2",
       "Line3",
       "Line4",
-      "G plays a Library.",
-      "G looks at an Estate.",
-      "G looks at a Workshop.",
-      "G sets a Workshop aside with Library.",
-      "G shuffles their deck.",
+      "pNick plays a Library.",
+      "pNick looks at an Estate.",
+      "pNick looks at a Workshop.",
+      "pNick sets a Workshop aside with Library.",
+      "pNick shuffles their deck.",
     ];
-    const line = "G looks at a Silver.";
+    const line = "pNick looks at a Silver.";
     deck.setLogArchive(logArchive);
     
     // Act
@@ -34,11 +34,11 @@ describe("Function checkForLibraryLook()", () => {
       "Line2",
       "Line3",
       "Line4",
-      "G plays a Sentry.",
-      "G draws an Estate.",
-      "G gets +1 Action.",
+      "pNick plays a Sentry.",
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
     ];
-    const line = "G looks at 2 Coppers.";
+    const line = "pNick looks at 2 Coppers.";
     deck.setLogArchive(logArchive);
 
     // Act
@@ -57,12 +57,12 @@ describe("Function checkForLibraryLook()", () => {
       "Line2",
       "Line3",
       "Line4",
-      "G plays a Sentry.",
-      "G draws an Estate.",
-      "G gets +1 Action.",
-      "G looks at 2 Coppers.",
+      "pNick plays a Sentry.",
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
+      "pNick looks at 2 Coppers.",
     ];
-    const line = "G discards 2 Coppers.";
+    const line = "pNick discards 2 Coppers.";
     deck.setLogArchive(logArchive);
 
     // Act

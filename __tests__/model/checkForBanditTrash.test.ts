@@ -23,8 +23,8 @@ describe("Function checkForBanditTrash()", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
     const logArchive = [
-      "G plays a Chapel.",
-      "G trashes an Estate.", // trash caused by a Chapel
+      "pNick plays a Chapel.",
+      "pNick trashes an Estate.", // trash caused by a Chapel
     ];
     deck.setLogArchive(logArchive);
 

@@ -6,39 +6,39 @@ describe("Function checkForLibraryDiscard()", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
     const logArchive = [
-      "G plays a Library.",
-      "G looks at a Poacher.",
-      "G sets a Poacher aside with Library.",
-      "G looks at a Smithy.",
-      "G sets a Smithy aside with Library.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at an Artisan.",
-      "G sets an Artisan aside with Library.",
-      "G looks at a Poacher.",
-      "G sets a Poacher aside with Library.",
-      "G looks at a Copper.",
-      "G looks at a Throne Room.",
-      "G sets a Throne Room aside with Library.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at a Silver.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at a Copper.",
-      "G looks at a Library.",
-      "G sets a Library aside with Library.",
-      "G looks at an Estate.",
-      "G looks at a Copper.",
+      "pNick plays a Library.",
+      "pNick looks at a Poacher.",
+      "pNick sets a Poacher aside with Library.",
+      "pNick looks at a Smithy.",
+      "pNick sets a Smithy aside with Library.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at an Artisan.",
+      "pNick sets an Artisan aside with Library.",
+      "pNick looks at a Poacher.",
+      "pNick sets a Poacher aside with Library.",
+      "pNick looks at a Copper.",
+      "pNick looks at a Throne Room.",
+      "pNick sets a Throne Room aside with Library.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at a Silver.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at a Copper.",
+      "pNick looks at a Library.",
+      "pNick sets a Library aside with Library.",
+      "pNick looks at an Estate.",
+      "pNick looks at a Copper.",
     ];
     const line =
-      "G discards an Artisan, 7 Libraries, 2 Poachers, a Smithy, and a Throne Room.";
+      "pNick discards an Artisan, 7 Libraries, 2 Poachers, a Smithy, and a Throne Room.";
     deck.setLogArchive(logArchive);
 
     // Act
@@ -65,12 +65,12 @@ describe("Function checkForLibraryDiscard()", () => {
       "Line2",
       "Line3",
       "Line4",
-      "G plays a Sentry.",
-      "G draws an Estate.",
-      "G gets +1 Action.",
-      "G looks at 2 Coppers.",
+      "pNick plays a Sentry.",
+      "pNick draws an Estate.",
+      "pNick gets +1 Action.",
+      "pNick looks at 2 Coppers.",
     ];
-    const line = "G discards 2 Coppers.";
+    const line = "pNick discards 2 Coppers.";
     deck.setLogArchive(logArchive);
     // Act
     const result = deck.checkForLibraryDiscard(line);
