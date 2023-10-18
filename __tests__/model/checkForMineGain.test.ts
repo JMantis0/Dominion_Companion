@@ -17,9 +17,9 @@ it("should return false if the most recent play in the logArchive is not a Mine"
   // Arrange
   const deck = new Deck("", false, "", "pName", "pNick", []);
   const logArchive = [
-    "G plays a Village.",
-    "G draws a Copper.",
-    "G gets +2 Actions.",
+    "pNick plays a Village.",
+    "pNick draws a Copper.",
+    "pNick gets +2 Actions.",
   ];
   deck.setLogArchive(logArchive);
   // Act

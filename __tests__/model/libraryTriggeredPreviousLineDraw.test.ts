@@ -29,12 +29,12 @@ describe("libraryTriggeredPreviousLineDraw", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
     const logArchive = [
-      "G plays a Sentry.",
-      "G draws a Silver.",
-      "G gets +1 Action.",
-      "G looks at a Copper and a Gold.",
-      "G trashes a Copper.",
-      "G topdecks a Gold.",
+      "pNick plays a Sentry.",
+      "pNick draws a Silver.",
+      "pNick gets +1 Action.",
+      "pNick looks at a Copper and a Gold.",
+      "pNick trashes a Copper.",
+      "pNick topdecks a Gold.",
     ];
     deck.setLogArchive(logArchive);
     deck.waitToDrawLibraryLook = true;

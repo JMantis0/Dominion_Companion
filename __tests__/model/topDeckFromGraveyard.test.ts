@@ -1,25 +1,38 @@
-import { expect, it, describe, beforeEach } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../src/model/deck";
-import { createRandomDeck } from "../testUtilFuncs";
 
-describe("Function topDeckFromGraveyard()", () => {
-  let tDeck: Deck;
-  let tDiscard: string[];
-  beforeEach(() => {
-    tDeck = createRandomDeck();
-    tDiscard = ["Ace", "Club", "Club", "Heart"];
-    tDeck.setGraveyard(tDiscard);
+describe("Function topDeckFromGraveyard() ", () => {
+  it("should remove an instance of the provided card from graveyard, and add it to library", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const graveyard = ["Harbinger", "Library", "Estate", "Silver"];
+    const library = ["Sentry", "Vassal"];
+    const card = "Harbinger";
+    deck.setGraveyard(graveyard);
+    deck.setLibrary(library);
+    const expectedGraveyard = ["Library", "Estate", "Silver"];
+    const expectedLibrary = ["Sentry", "Vassal", "Harbinger"];
+
+    // Act
+    deck.topDeckFromGraveyard(card);
+    const resultLibrary = deck.getLibrary();
+    const resultGraveyard = deck.getGraveyard();
+
+    // Assert
+    expect(resultGraveyard).toStrictEqual(expectedGraveyard);
+    expect(resultLibrary).toStrictEqual(expectedLibrary);
   });
-  describe("when given a card that is in the discard pile", () => {
-    it("should remove the card from the discard pile and place it into the library", () => {
-      expect(() => tDeck.topDeckFromGraveyard("Ace")).not.toThrow(Error);
-      expect(tDeck.getLibrary().indexOf("Ace")).toBeGreaterThan(-1);
-      expect(tDeck.getGraveyard().indexOf("Ace")).toBeLessThan(0);
-    });
-  });
-  describe("when given a card that is not in the discard field array", () => {
-    it("should throw an error", () => {
-      expect(() => tDeck.topDeckFromGraveyard("Joker")).toThrow(Error);
-    });
+
+  it("should throw an error if the provided card is not in graveyard", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const graveyard = ["Harbinger", "Library", "Estate", "Silver"];
+    deck.setGraveyard(graveyard);
+    const card = "Pot of Greed";
+
+    // Act and Assert
+    expect(() => deck.topDeckFromGraveyard(card)).toThrowError(
+      "No Pot of Greed in discard pile."
+    );
   });
 });
