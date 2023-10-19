@@ -240,6 +240,14 @@ export class Deck implements StoreDeck {
   }
 
   /**
+   * Adds the provided line to the logArchive
+   * @param line
+   */
+  addLogToLogArchive(line: string) {
+    this.setLogArchive(this.logArchive.concat(line));
+  }
+
+  /**
    * Checks the logArchive to determine if the current line gain activity
    * was triggered by an Artisan.
    * @returns Boolean for whether the current line gain activity
@@ -769,6 +777,18 @@ export class Deck implements StoreDeck {
     if (prevLineCard === "EmptyCard")
       throw new Error("No card found in the most recent logArchive entry.");
     this.draw(prevLineCard);
+  }
+
+  /**
+   * Update function.  Checks to see if the a card needs to be drawn from
+   * any Library activity that took place on the previous logArchive line.
+   * @param act
+   */
+  drawLookedAtCardIfNeeded(act: string) {
+    if (this.libraryTriggeredPreviousLineDraw(act)) {
+      this.drawCardFromPreviousLine();
+    }
+    this.setWaitToDrawLibraryLook(false);
   }
 
   /**
@@ -1502,6 +1522,16 @@ export class Deck implements StoreDeck {
     }
   }
 
+  shuffleAndCleanUpIfNeeded(line: string) {
+    if (this.waitToShuffle) {
+      if (this.ifCleanUpNeeded(line)) {
+        this.cleanup();
+      }
+      this.shuffleGraveYardIntoLibrary();
+      this.setWaitToShuffle(false);
+    }
+  }
+
   /**
    * Updates the deck state based on log entries from the client game log.
    * @param log
@@ -1510,43 +1540,41 @@ export class Deck implements StoreDeck {
     log.forEach((line) => {
       this.setTreasurePopped(false);
       if (!this.logEntryAppliesToThisDeck(line)) {
-        // Inside this if, log entries do not apply to this deck.  They are either
-        // info entries, or apply to opponent decks.
+        // Inside this if, log entries apply to an opponent deck.
         if (this.consecutiveTreasurePlays(line)) {
-          //  If playing with no animations, need this to pop off opponent treasure plays.
+          //  When playing with no animations this will remove duplicate treasure play logs from the logArchive.
           this.handleConsecutiveTreasurePlays(line);
         }
       }
-      // inside this else, log entries apply to this deck.
+      // Inside this else, log entries apply to this deck.
       else {
-        //Clean up before shuffling if needed.
-        if (this.waitToShuffle) {
-          if (this.ifCleanUpNeeded(line)) {
-            this.cleanup();
-          }
-          this.shuffleGraveYardIntoLibrary();
-          this.setWaitToShuffle(false);
-        }
+        this.shuffleAndCleanUpIfNeeded(line);
         if (this.debug) console.group(line);
         const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
-        // For Library activity that occurred on the previous line
-        // these lines check to see if the card needs to be drawn,
-        // and if so, draws it.
-        if (this.libraryTriggeredPreviousLineDraw(act)) {
-          this.drawCardFromPreviousLine();
-        }
-        this.setWaitToDrawLibraryLook(false);
+        this.drawLookedAtCardIfNeeded(act);
         this.processDeckChanges(line, act, cards, numberOfCards);
       }
-      if (line.match("Premoves") === null) this.setLastEntryProcessed(line);
-      //update the log archive
-      if (line !== "Between Turns" && line.substring(0, 8) !== "Premoves") {
-        this.logArchive.push(line);
-      }
-      this.updateVP();
-      if (this.checkForTurnLine(line)) this.incrementTurn();
+      this.updateArchives(line);
       if (this.debug) console.groupEnd();
+      this.updateVP();
     });
+  }
+
+  /**
+   * Update function.  Refreshes the logArchive, lastEntryProcessed, and
+   * gameTurn fields.
+   * @param line - The current line being processed
+   */
+  updateArchives(line: string) {
+    if (
+      line.match("Between Turns") === null &&
+      line.substring(0, 8) !== "Premoves"
+    ) {
+      //update the log archive
+      this.setLastEntryProcessed(line);
+      this.addLogToLogArchive(line);
+    }
+    if (this.checkForTurnLine(line)) this.incrementTurn();
   }
 
   /**
