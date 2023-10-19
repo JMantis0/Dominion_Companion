@@ -208,12 +208,27 @@ export class Deck implements StoreDeck {
     this.trash = trash;
   }
 
+  getTreasurePopped() {
+    return this.treasurePopped;
+  }
+
+  setTreasurePopped(treasurePopped: boolean) {
+    this.treasurePopped = treasurePopped;
+  }
+
   getWaitToDrawLibraryLook() {
     return this.waitToDrawLibraryLook;
   }
 
   setWaitToDrawLibraryLook(wait: boolean) {
     this.waitToDrawLibraryLook = wait;
+  }
+  getWaitToShuffle() {
+    return this.waitToShuffle;
+  }
+
+  setWaitToShuffle(wait: boolean) {
+    this.waitToShuffle = wait;
   }
 
   /**
@@ -1146,6 +1161,55 @@ export class Deck implements StoreDeck {
   }
 
   /**
+   * Update function.  Calls the appropriate process line function to update
+   * the deck state.
+   * @param line - The current line being processed.
+   * @param act - The act from the current line. ie: draws, discards
+   * @param cards - The array of cards collected from the line.
+   * @param numberOfCards - The array of card amounts collected from the line
+   */
+  processDeckChanges(
+    line: string,
+    act: string,
+    cards: string[],
+    numberOfCards: number[]
+  ) {
+    switch (act) {
+      case "shuffles their deck":
+        this.setWaitToShuffle(true);
+        break;
+      case "gains":
+        this.processGainsLine(line, cards, numberOfCards);
+        break;
+      case "draws":
+        this.processDrawsLine(line, cards, numberOfCards);
+        break;
+      case "discards":
+        this.processDiscardsLine(cards, numberOfCards);
+        break;
+      case "plays":
+        this.processPlaysLine(line, cards, numberOfCards);
+        break;
+      case "trashes":
+        this.processTrashesLine(cards, numberOfCards);
+        break;
+      case "topdecks":
+        this.processTopDecksLine(cards, numberOfCards);
+        break;
+      case "looks at":
+        this.processLooksAtLine(line, cards, numberOfCards);
+        break;
+      case "aside with Library": {
+        for (let i = 0; i < cards.length; i++) {
+          for (let j = 0; j < numberOfCards[i]; j++) {
+            this.setAsideWithLibrary(cards[i]);
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Update function.  Discards cards according to the provided information.
    * @param line - The current line being processed.
    * @param cards - Array of card names to be discarded.
@@ -1444,7 +1508,7 @@ export class Deck implements StoreDeck {
    */
   update(log: Array<string>) {
     log.forEach((line) => {
-      this.treasurePopped = false;
+      this.setTreasurePopped(false);
       if (!this.logEntryAppliesToThisDeck(line)) {
         // Inside this if, log entries do not apply to this deck.  They are either
         // info entries, or apply to opponent decks.
@@ -1461,7 +1525,7 @@ export class Deck implements StoreDeck {
             this.cleanup();
           }
           this.shuffleGraveYardIntoLibrary();
-          this.waitToShuffle = false;
+          this.setWaitToShuffle(false);
         }
         if (this.debug) console.group(line);
         const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
@@ -1471,42 +1535,10 @@ export class Deck implements StoreDeck {
         if (this.libraryTriggeredPreviousLineDraw(act)) {
           this.drawCardFromPreviousLine();
         }
-        this.waitToDrawLibraryLook = false;
-        switch (act) {
-          case "shuffles their deck":
-            this.waitToShuffle = true;
-            break;
-          case "gains":
-            this.processGainsLine(line, cards, numberOfCards);
-            break;
-          case "draws":
-            this.processDrawsLine(line, cards, numberOfCards);
-            break;
-          case "discards":
-            this.processDiscardsLine(cards, numberOfCards);
-            break;
-          case "plays":
-            this.processPlaysLine(line, cards, numberOfCards);
-            break;
-          case "trashes":
-            this.processTrashesLine(cards, numberOfCards);
-            break;
-          case "topdecks":
-            this.processTopDecksLine(cards, numberOfCards);
-            break;
-          case "looks at":
-            this.processLooksAtLine(line, cards, numberOfCards);
-            break;
-          case "aside with Library": {
-            for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < numberOfCards[i]; j++) {
-                this.setAsideWithLibrary(cards[i]);
-              }
-            }
-          }
-        }
+        this.setWaitToDrawLibraryLook(false);
+        this.processDeckChanges(line, act, cards, numberOfCards);
       }
-      if (line.match("Premoves") === null) this.lastEntryProcessed = line;
+      if (line.match("Premoves") === null) this.setLastEntryProcessed(line);
       //update the log archive
       if (line !== "Between Turns" && line.substring(0, 8) !== "Premoves") {
         this.logArchive.push(line);

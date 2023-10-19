@@ -11,17 +11,17 @@ describe("Function getCardCountsFromEntry", () => {
       "Silver",
       "Gold",
     ]);
+
+    // Arguments for function being tested
     const line = "pName draws 4 Coppers, 10 Golds, and 2 Silvers.";
-    const expectedCards = ["Copper", "Silver", "Gold"];
-    const expectedCardAmounts = [4, 2, 10];
 
     // Act
     const [cardResult, cardAmountResult] =
       deck.getCardsAndCountsFromEntry(line);
 
     // Assert
-    expect(expectedCards).toStrictEqual(cardResult);
-    expect(expectedCardAmounts).toStrictEqual(cardAmountResult);
+    expect(cardResult).toStrictEqual(["Copper", "Silver", "Gold"]);
+    expect(cardAmountResult).toStrictEqual([4, 2, 10]);
   });
   it("should work for both numbers and the articles 'a' and 'an'", () => {
     // Arrange
@@ -30,16 +30,36 @@ describe("Function getCardCountsFromEntry", () => {
       "Gold",
       "Estate",
     ]);
+
+    // Arguments for function being tested
     const line = "pName draws 4 Coppers, a Gold, and an Estate.";
-    const expectedCards = ["Copper", "Gold", "Estate"];
-    const expectedCardAmounts = [4, 1, 1];
 
     // Act
     const [cardResult, cardAmountResult] =
       deck.getCardsAndCountsFromEntry(line);
 
     // Assert
-    expect(expectedCards).toStrictEqual(cardResult);
-    expect(expectedCardAmounts).toStrictEqual(cardAmountResult);
+    expect(cardResult).toStrictEqual(["Copper", "Gold", "Estate"]);
+    expect(cardAmountResult).toStrictEqual([4, 1, 1]);
+  });
+  
+  it("should return an empty arrays for lines with no card matches", () => {
+    // Arrange
+    const deck = new Deck("", false, "", "pName", "pNick", [
+      "Copper",
+      "Gold",
+      "Estate",
+    ]);
+
+    // Arguments for function being tested
+    const line = "pNick shuffles their deck.";
+
+    // Act
+    const [cardResult, cardAmountResult] =
+      deck.getCardsAndCountsFromEntry(line);
+
+    // Assert
+    expect(cardResult).toStrictEqual([]);
+    expect(cardAmountResult).toStrictEqual([]);
   });
 });

@@ -23,17 +23,17 @@ describe("Function processDrawsLine", () => {
     deck.setLogArchive(logArchive);
     deck.setLastEntryProcessed(lastEntryProcessed);
 
-    // Arguments for function being tested
-    const line = "pNick draws 2 Coppers, a Silver, a Gold, and a Merchant.";
-    const cards = ["Copper", "Silver", "Gold", "Merchant"];
-    const numberOfCards = [2, 1, 1, 1];
-
     // Mock dependency functions
     const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
     const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
     const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
     const cleanup = jest.spyOn(Deck.prototype, "cleanup");
     const draw = jest.spyOn(Deck.prototype, "draw");
+
+    // Arguments for function being tested
+    const line = "pNick draws 2 Coppers, a Silver, a Gold, and a Merchant.";
+    const cards = ["Copper", "Silver", "Gold", "Merchant"];
+    const numberOfCards = [2, 1, 1, 1];
 
     // Act - simulate drawing where a shuffle already occurred on the previous line.
     // with draws that were caused by turn ending.
@@ -78,17 +78,17 @@ describe("Function processDrawsLine", () => {
     deck.setLogArchive(logArchive);
     deck.setLastEntryProcessed(lastEntryProcessed);
 
-    // Arguments for function being tested
-    const line = "pNick draws 2 Coppers, a Silver, a Gold, and an Estate.";
-    const cards = ["Copper", "Silver", "Gold", "Estate"];
-    const numberOfCards = [2, 1, 1, 1];
-
     // Mock dependency functions
     const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
     const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
     const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
     const cleanup = jest.spyOn(Deck.prototype, "cleanup");
     const draw = jest.spyOn(Deck.prototype, "draw");
+
+    // Arguments for function being tested
+    const line = "pNick draws 2 Coppers, a Silver, a Gold, and an Estate.";
+    const cards = ["Copper", "Silver", "Gold", "Estate"];
+    const numberOfCards = [2, 1, 1, 1];
 
     // Act - simulate drawing where a shuffle already occurred on the previous line.
     // with draws that were caused by turn ending.
@@ -133,17 +133,17 @@ describe("Function processDrawsLine", () => {
     deck.setLogArchive(logArchive);
     deck.setLastEntryProcessed(lastEntryProcessed);
 
-    // Arguments for the function being tested
-    const line = "pNick draws 2 Coppers, 2 Estates, and a Bureaucrat.";
-    const cards = ["Copper", "Estate", "Bureaucrat"];
-    const numberOfCards = [2, 2, 1];
-
     // Mock dependency functions
     const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
     const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
     const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
     const cleanup = jest.spyOn(Deck.prototype, "cleanup");
     const draw = jest.spyOn(Deck.prototype, "draw");
+
+    // Arguments for the function being tested
+    const line = "pNick draws 2 Coppers, 2 Estates, and a Bureaucrat.";
+    const cards = ["Copper", "Estate", "Bureaucrat"];
+    const numberOfCards = [2, 2, 1];
 
     // Act - Simulate drawing 5 cards at end of turn where a cleanup is needed.
     deck.processDrawsLine(line, cards, numberOfCards);
@@ -186,17 +186,17 @@ describe("Function processDrawsLine", () => {
     deck.setLogArchive(logArchive);
     deck.setLastEntryProcessed(lastEntryProcessed);
 
-    // Arguments for the function being tested
-    const line = "pNick draws a Cellar and a Merchant.";
-    const cards = ["Cellar", "Merchant"];
-    const numberOfCards = [1, 1];
-
     // Mock dependency functions
     const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
     const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
     const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
     const cleanup = jest.spyOn(Deck.prototype, "cleanup");
     const draw = jest.spyOn(Deck.prototype, "draw");
+
+    // Arguments for the function being tested
+    const line = "pNick draws a Cellar and a Merchant.";
+    const cards = ["Cellar", "Merchant"];
+    const numberOfCards = [1, 1];
 
     // Act - Simulate drawing 5 cards at end of turn where a cleanup is needed.
     deck.processDrawsLine(line, cards, numberOfCards);
