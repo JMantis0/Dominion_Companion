@@ -248,62 +248,6 @@ export class Deck implements StoreDeck {
   }
 
   /**
-   * Checks the logArchive to determine if the current line gain activity
-   * was triggered by an Artisan.
-   * @returns Boolean for whether the current line gain activity
-   * was triggered by an Artisan
-   */
-  checkForArtisanGain(): boolean {
-    return this.getMostRecentPlay(this.logArchive) === "Artisan";
-  }
-
-  /**
-   * Checks the logArchive to determine if the current line top deck activity
-   * was triggered by an Artisan.
-   * @returns Boolean for whether the current line top deck activity.
-   */
-  checkForArtisanTopDeck(): boolean {
-    return this.getMostRecentPlay(this.logArchive) === "Artisan";
-  }
-
-  /**
-   * Checks to see if the current discard activity of the current line
-   * was triggered by an opponent's Bandit. Cards discarded this way must
-   * be removed from the library field array.
-   * @returns - Boolean for whether the discard activity was triggered by a Bandit.
-   */
-  checkForBanditDiscard() {
-    return this.getMostRecentPlay(this.logArchive) === "Bandit";
-  }
-
-  /**
-   * Checks to see if the trash activity of the current line was triggered
-   * by an opponent's Bandit.  Cards trashed in this way must be removed from
-   * the library field array.
-   * @returns - Boolean for whether the trash activity was triggered by a Bandit.
-   */
-  checkForBanditTrash() {
-    return this.getMostRecentPlay(this.logArchive) === "Bandit";
-  }
-
-  /**
-   * Checks to see if the current line gain activity was triggered by a Bureaucrat.
-   * Purpose: Control flow for Deck state updates: such gains must be pushed to the library field array.
-   * @returns Boolean for whether the current line's gain activity was from a Bureaucrat
-   */
-  checkForBureaucratGain(): boolean {
-    return this.getMostRecentPlay(this.logArchive) === "Bureaucrat";
-  }
-
-  /**
-   * Checks the current
-   * @returns
-   */
-  checkForBureaucratTopDeck() {
-    return this.getMostRecentPlay(this.logArchive) === "Bureaucrat";
-  }
-
-  /**
    * Checks if the card in the current line was gained by buying.
    * Purpose: Deck control flow to keep logArchive accurate.
    * @returns - Boolean for whether the card in the current line.
@@ -371,32 +315,6 @@ export class Deck implements StoreDeck {
     return needCleanUp;
   }
 
-  /**
-   * Checks the logArchive to see if the current line's topdeck was triggered
-   * by a Harbinger.
-   * @returns Boolean for if the current line's topdeck came from a Harbinger
-   */
-  checkForHarbingerTopDeck() {
-    return this.getMostRecentPlay(this.logArchive) === "Harbinger";
-  }
-
-  /**
-   * Checks the logArchive to determine whether the discard activity was triggered
-   * by a Library.
-   * @param currentLine - The current discard line
-   * @returns The boolean for whether the current discard activity was triggered by a Library
-   */
-  checkForLibraryDiscard(currentLine: string): boolean {
-    let libraryDiscard: boolean = false;
-    if (currentLine.match(" discards ") !== null) {
-      if (this.getMostRecentPlay(this.logArchive) === "Library")
-        libraryDiscard = true;
-    } else {
-      libraryDiscard = false;
-      throw new Error("Current line is not a discard line.");
-    }
-    return libraryDiscard;
-  }
 
   /**
    * Checks the logArchive to determine whether the look at activity was triggered
@@ -417,37 +335,6 @@ export class Deck implements StoreDeck {
     return libraryLook;
   }
 
-  /**
-   * Looks 2 lines back in the logArchive to determine if
-   * the current line being read is a gain from a Mine card.
-   * Purpose: control flow for deck update.  Gains triggered by Mine
-   * need to be gained into hand.
-   * @returns - Boolean for whether the gain is from a Mine or not.
-   */
-  checkForMineGain() {
-    return this.getMostRecentPlay(this.logArchive) === "Mine";
-  }
-
-  /**
-   * Checks the logArchive to see if the current line's discard activity
-   * was triggered by a Sentry.
-   * Purpose: Control flow of deck updates: discards triggered by Sentry must
-   * be discarded from the library field array.
-   * @returns - Boolean for whether the current line's discard was triggered by a Sentry.
-   */
-  checkForSentryDiscard(): boolean {
-    return this.getMostRecentPlay(this.logArchive) === "Sentry";
-  }
-
-  /**
-   * Checks the logArchive to see if the current line's Trash activity
-   * was triggered by a Sentry.
-   * @returns Boolean for whether the current line's trash was triggered by a Sentry.
-   *
-   */
-  checkForSentryTrash() {
-    return this.getMostRecentPlay(this.logArchive) === "Sentry";
-  }
   /**
    * Checks to see if the lastEntryProcessed contains the substring
    * "shuffles their deck".
@@ -484,16 +371,6 @@ export class Deck implements StoreDeck {
       turnLine = true;
     else turnLine = false;
     return turnLine;
-  }
-
-  /**
-   * Checks to see if the current line's discard activity was
-   * triggered by a Vassal.
-   * Purpose: To determine which field array to discard card from.
-   * @returns - Boolean for whether the current line discard activity is triggered by a Vassal.
-   */
-  checkForVassalDiscard() {
-    return this.getMostRecentPlay(this.logArchive) === "Vassal";
   }
 
   /**
@@ -1026,7 +903,7 @@ export class Deck implements StoreDeck {
     ];
 
     const removed = this.logArchive.pop(); // keep duplicate entries out.
-    this.treasurePopped = true;
+    this.setTreasurePopped(true);
     if (this.debug) console.info("popping log off", removed);
     return amountsToPlay;
   }
@@ -1062,17 +939,7 @@ export class Deck implements StoreDeck {
         prevLine!.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
       );
     }
-
-    // This section can be  removed, the current line will always  be a number character.
-    // if (
-    //   currentLine.substring(secondLastIndex + 1, lastIndex).match(/\ban?\b/) !==
-    //   null
-    // ) {
-    //   currCount = 1;
-    // } else {
-
     currCount = parseInt(currentLine.substring(secondLastIndex + 1, lastIndex));
-    // }
     const removed = logArchive.pop();
     this.setLogArchive(logArchive);
     if (this.debug) console.info(`Popping off ${removed}`);
