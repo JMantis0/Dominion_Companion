@@ -1,23 +1,25 @@
+import { GameResult } from "../utils";
+
 /**
  * Class for a Deck object used to track a
  * player's Deck state.
  */
 export class OpponentDeck {
+  currentVP: number = 3;
+  debug: boolean = false;
+  entireDeck: Array<string> = [];
+  gameResult: GameResult;
   gameTitle: string;
   gameTurn: number;
-  gameResult: string;
-  ratedGame: boolean;
-  rating: string;
-  entireDeck: Array<string> = [];
-  playerName: string = "";
-  playerNick: string = "";
-  currentVP: number = 3;
   kingdom: Array<string> = [];
-  trash: Array<string> = [];
   lastEntryProcessed: string = "";
   logArchive: Array<string> = [];
+  playerName: string = "";
+  playerNick: string = "";
+  ratedGame: boolean;
+  rating: string;
+  trash: Array<string> = [];
   treasurePopped: boolean = false;
-  debug: boolean = false;
 
   constructor(
     gameTitle: string,
@@ -43,93 +45,109 @@ export class OpponentDeck {
     }
   }
 
-  setGameTitle(title: string) {
+  getCurrentVP(): number {
+    return this.currentVP;
+  }
+  setCurrentVP(vp: number) {
+    this.currentVP = vp;
+  }
+  getDebug(): boolean {
+    return this.debug;
+  }
+  setDebug(debugOn: boolean): void {
+    this.debug = debugOn;
+  }
+  getEntireDeck(): string[] {
+    return this.entireDeck;
+  }
+
+  setEntireDeck(deck: Array<string>): void {
+    this.entireDeck = deck;
+  }
+
+  getGameResult(): GameResult {
+    return this.gameResult;
+  }
+  setGameResult(result: GameResult) {
+    this.gameResult = result;
+  }
+
+  getGameTitle(): string {
+    return this.gameTitle;
+  }
+  setGameTitle(title: string): void {
     this.gameTitle = title;
   }
-  getGameTitle() {
-    return this.gameTitle;
+
+  getGameTurn(): number {
+    return this.gameTurn;
   }
 
   setGameTurn(turn: number) {
     this.gameTurn = turn;
   }
 
-  getGameTurn() {
-    return this.gameTurn;
-  }
-
-  setGameResult(result: string) {
-    this.gameResult = result;
-  }
-
-  getGameResult() {
-    return this.gameResult;
-  }
-
-  setRatedGame(ratedGame: boolean) {
-    this.ratedGame = ratedGame;
-  }
-
-  getRatedGame() {
-    return this.ratedGame;
-  }
-
-  setPlayerName(name: string) {
-    this.playerName = name;
-  }
-  getPlayerName() {
-    return this.playerName;
-  }
-  setPlayerNick(playerNick: string) {
-    this.playerNick = playerNick;
-  }
-  getPlayerNick() {
-    return this.playerNick;
-  }
-
-  setRating(rating: string) {
-    this.rating = rating;
-  }
-
-  getRating() {
-    return this.rating;
-  }
-
-  setCurrentVP(vp: number) {
-    this.currentVP = vp;
-  }
-  getCurrentVP() {
-    return this.currentVP;
-  }
-  setKingdom(kingdom: Array<string>) {
-    this.kingdom = kingdom;
-  }
-  getKingdom() {
+  getKingdom(): string[] {
     return this.kingdom;
   }
-  setTrash(trash: Array<string>) {
-    this.trash = trash;
+
+  setKingdom(kingdom: Array<string>): void {
+    this.kingdom = kingdom;
   }
-  getTrash() {
-    return this.trash;
-  }
-  setLogArchive(logArchive: Array<string>) {
-    this.logArchive = logArchive;
-  }
-  getLogArchive() {
+
+  getLogArchive(): string[] {
     return this.logArchive;
   }
 
-  getEntireDeck() {
-    return this.entireDeck;
+  setLogArchive(logArchive: Array<string>): void {
+    this.logArchive = logArchive;
   }
 
-  setEntireDeck(deck: Array<string>) {
-    this.entireDeck = deck;
+  getPlayerName(): string {
+    return this.playerName;
   }
 
-  setDebug(debugOn: boolean) {
-    this.debug = debugOn;
+  setPlayerName(name: string): void {
+    this.playerName = name;
+  }
+
+  getPlayerNick(): string {
+    return this.playerNick;
+  }
+  setPlayerNick(playerNick: string): void {
+    this.playerNick = playerNick;
+  }
+  
+  getRatedGame(): boolean {
+    return this.ratedGame;
+  }
+
+  setRatedGame(ratedGame: boolean): void {
+    this.ratedGame = ratedGame;
+  }
+
+  getRating(): string {
+    return this.rating;
+  }
+
+  setRating(rating: string): void {
+    this.rating = rating;
+  }
+
+  getTrash(): string[] {
+    return this.trash;
+  }
+
+  setTrash(trash: Array<string>): void {
+    this.trash = trash;
+  }
+
+  getTreasurePopped(): boolean {
+    return this.treasurePopped;
+  }
+
+  setTreasurePopped(popped: boolean) {
+    this.treasurePopped = popped;
   }
 
   updateVP() {
