@@ -1,10 +1,10 @@
 import { it, describe, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function removeCardFromEntireDeck()", () => {
   it("should remove an instance of the provided card from the entire deck", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const entireDeck = ["Vassal", "Cellar", "Cellar"];
     deck.setEntireDeck(entireDeck);
     const card = "Vassal";
@@ -19,7 +19,7 @@ describe("Function removeCardFromEntireDeck()", () => {
   });
   it("should throw an error when the provided card is not in the entire deck", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", true, "", "pName", "pNick", []);
     const entireDeck = ["Vassal", "Cellar", "Cellar"];
     deck.setEntireDeck(entireDeck);
     const card = "Pot of Greed";

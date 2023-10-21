@@ -1,10 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function updateVP()", () => {
   it("should correctly update the deck VP based on the card in the entire deck.", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const entireDeckList = [
       "Estate",
       "Estate",
@@ -30,7 +30,7 @@ describe("Function updateVP()", () => {
 
   it("should calculate VP correctly for randomized deck lists", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const randomNumber = () => {
       return Math.floor(Math.random() * (100 - 0) + 0);
     };

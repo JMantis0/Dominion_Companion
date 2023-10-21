@@ -1,8 +1,8 @@
 import { describe, it, expect } from "@jest/globals";
-import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("The OpponentDeck getter functions", () => {
-  const oDeck = new OpponentDeck(
+describe("The BaseDeck getter functions", () => {
+  const oDeck = new BaseDeck(
     "Title",
     false,
     "Ranking",

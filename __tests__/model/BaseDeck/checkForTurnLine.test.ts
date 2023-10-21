@@ -1,10 +1,10 @@
 import { it, describe, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function checkForTurnLine()", () => {
   it("should return true if the provided line is a 'turn line' for deck's playerName ", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const line = "Turn 11 - pName";
 
     // Act
@@ -16,7 +16,7 @@ describe("Function checkForTurnLine()", () => {
 
   it("should return false if the provided line is a 'turn line' for the deck's playerName ", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const line1 = "Between Turns";
     const line2 = "Turn 11 - OpponentName";
 

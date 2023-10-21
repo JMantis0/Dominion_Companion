@@ -1,10 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function checkForBuyAndGain", () => {
   it("should return true if the provide line contains the substring ' buys and gains ' and a match for the provided card", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const card = "Sentry";
     const line = "oNick buys and gains 2 Sentries"; //  Matches card and ' buys and gains '
 
@@ -17,7 +17,7 @@ describe("Function checkForBuyAndGain", () => {
 
   it("should return false if the provide line does not contain the substring 'buys and gains' or does not contain a match for the provided card", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const card = "Sentry";
     const line1 = "oNick buys and gains 2 Coppers"; //  Does not match card
     const line2 = "oNick plays a Sentry"; // Does not have 'buys and gains'

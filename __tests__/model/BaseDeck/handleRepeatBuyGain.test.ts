@@ -1,11 +1,11 @@
 import { it, describe, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function handleRepeatBuyGain()", () => {
 
   it("should return the difference between the amount of the card that is bought in the provided line, and the amount that is bought in the most recent logArchive entry, and remove the last member of the logArchive", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const logArchive = [
       "pNick plays 2 Golds. (+$6)",
       "pNick buys and gains 2 Golds.",
@@ -24,7 +24,7 @@ describe("Function handleRepeatBuyGain()", () => {
 
   it("should work even if the difference is greater than 1", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const logArchive = [
       "pNick plays 8 Golds. (+$24)",
       "pNick buys and gains an Artisan.",
@@ -45,7 +45,7 @@ describe("Function handleRepeatBuyGain()", () => {
 
   it("should throw an error when the logArchive is empty", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const logArchive: string[] = [];
     const line = "Game #132083560, unrated.";
 

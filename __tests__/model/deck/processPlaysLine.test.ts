@@ -74,4 +74,75 @@ describe("Function processPlaysLine()", () => {
     expect(playFromDiscard).toBeCalledWith("Moneylender");
     expect(play).not.toBeCalled();
   });
+  it("should process plays from discard correctly", () => {
+    //Arrange
+    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const logArchive = [
+      "Turn 8 - GoodBeard",
+      "pNick plays a Vassal.",
+      "pNick gets +$2.",
+      "pNick discards a Moneylender.",
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Arguments for function being tested.
+    const line = "pNick plays a MoneylenderF.";
+    const cards = ["Moneylender"];
+    const numberOfCards = [1];
+
+    // Mock function dependencies
+    const checkForVassalPlay = jest
+      .spyOn(Deck.prototype, "checkForVassalPlay")
+      .mockImplementation(() => true);
+    const playFromDiscard = jest
+      .spyOn(Deck.prototype, "playFromDiscard")
+      .mockImplementation(() => null);
+    const play = jest
+      .spyOn(Deck.prototype, "play")
+      .mockImplementation(() => null);
+    // Act - Simulate playing a card from discard (Moneylender).
+    deck.processPlaysLine(line, cards, numberOfCards);
+
+    // Assert
+    expect(checkForVassalPlay).toBeCalledTimes(1);
+    expect(playFromDiscard).toBeCalledTimes(1);
+    expect(playFromDiscard).toBeCalledWith("Moneylender");
+    expect(play).not.toBeCalled();
+  });
+  
+  it("should do nothing if card is being played again by a Throne Room", () => {
+    //Arrange
+    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const logArchive = [
+      "Turn 6 - pName",
+      "pNick plays a Throne Room.",
+      "pNick plays a Remodel.",
+      "pNick trashes a Copper.",
+      "pNick gains a Cellar.",
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Arguments for function being tested.
+    const line = "pNick plays a Remodel again.";
+    const cards = ["Remodel"];
+    const numberOfCards = [1];
+
+    // Mock function dependencies
+    const checkForVassalPlay = jest
+      .spyOn(Deck.prototype, "checkForVassalPlay")
+      .mockImplementation(() => true);
+    const playFromDiscard = jest
+      .spyOn(Deck.prototype, "playFromDiscard")
+      .mockImplementation(() => null);
+    const play = jest
+      .spyOn(Deck.prototype, "play")
+      .mockImplementation(() => null);
+    // Act - Simulate playing a card from discard (Moneylender).
+    deck.processPlaysLine(line, cards, numberOfCards);
+
+    // Assert
+    expect(checkForVassalPlay).toBeCalledTimes(1);
+    expect(playFromDiscard).not.toBeCalled();
+    expect(play).not.toBeCalled();
+  });
 });

@@ -1,10 +1,10 @@
 import { it, describe, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function handleConsecutiveTreasurePlays()", () => {
   it("should return an array with the correct number of Coppers to play", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const lastEntryProcessed = "pNick plays a Coppers and 2 Silvers. (+$2)";
     deck.setLastEntryProcessed(lastEntryProcessed);
     const line = "pNick plays 2 Coppers and 2 Silvers. (+$4)";
@@ -19,7 +19,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
 
   it("should return an array with the correct number of Silvers to play", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const lastEntryProcessed = "pNick plays 2 Coppers. (+$2)";
     deck.setLastEntryProcessed(lastEntryProcessed);
     const line = "pNick plays 2 Coppers and a Silver. (+$4)";
@@ -34,7 +34,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
 
   it("should return an array with the correct number of Golds to play", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const lastEntryProcessed = "pNick plays 2 Coppers. (+$2)";
     deck.setLastEntryProcessed(lastEntryProcessed);
     const line = "pNick plays 2 Coppers and a Gold. (+$4)";
@@ -49,7 +49,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
 
   it("should return an array with the correct number of each treasure to play even if there are multiple treasures that have differences greater than 1", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const deck = new BaseDeck("", false, "", "pNick", "pName", []);
     const lastEntryProcessed = "pNick plays 2 Coppers. (+$2)";
     deck.setLastEntryProcessed(lastEntryProcessed);
     const line = "pNick plays 5 Coppers, 3 Silvers, and 2 Golds. (+$4)";

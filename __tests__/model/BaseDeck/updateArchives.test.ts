@@ -1,15 +1,15 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import {  BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function updateArchives()", () => {
-  const deck = new Deck("", false, "", "pName", "pNick", []);
+  const deck = new  BaseDeck("", false, "", "pName", "pNick", []);
   const setLastEntryProcessed = jest.spyOn(
-    Deck.prototype,
+     BaseDeck.prototype,
     "setLastEntryProcessed"
   );
-  const addLogToLogArchive = jest.spyOn(Deck.prototype, "addLogToLogArchive");
-  const incrementTurn = jest.spyOn(Deck.prototype, "incrementTurn");
-  const checkForTurnLine = jest.spyOn(Deck.prototype, "checkForTurnLine");
+  const addLogToLogArchive = jest.spyOn( BaseDeck.prototype, "addLogToLogArchive");
+  const incrementTurn = jest.spyOn( BaseDeck.prototype, "incrementTurn");
+  const checkForTurnLine = jest.spyOn( BaseDeck.prototype, "checkForTurnLine");
   afterEach(() => {
     jest.clearAllMocks();
   });

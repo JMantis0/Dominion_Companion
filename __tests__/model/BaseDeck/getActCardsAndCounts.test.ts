@@ -1,10 +1,10 @@
 import { it, describe, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function getActCardsAndCounts", () => {
   it("should return the act, the cards, and the counts of the cards from the current line", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", [
+    const deck = new BaseDeck("", false, "", "pNick", "pName", [
       "Cellar",
       "Chapel",
       "Moat",
@@ -41,7 +41,7 @@ describe("Function getActCardsAndCounts", () => {
 
   it("should work for lines with multiple cards with different amounts", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", [
+    const deck = new BaseDeck("", false, "", "pNick", "pName", [
       "Cellar",
       "Chapel",
       "Moat",
@@ -81,7 +81,7 @@ describe("Function getActCardsAndCounts", () => {
 
   it("should handle consecutive treasure plays correctly", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", [
+    const deck = new BaseDeck("", false, "", "pNick", "pName", [
       "Cellar",
       "Chapel",
       "Moat",
@@ -126,7 +126,7 @@ describe("Function getActCardsAndCounts", () => {
 
   it("should handle consecutive buys of the same card correctly", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", [
+    const deck = new BaseDeck("", false, "", "pNick", "pName", [
       "Cellar",
       "Chapel",
       "Moat",

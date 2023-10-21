@@ -1,10 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function consecutiveBuysOfSameCard()", () => {
+  const deck = new BaseDeck("", false, "", "pName", "pNick", []);
   it("should return true if the provided line and the most recent line in logArchive are both 'buy and gain' lines for the same card", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
     const logArchive = [
       "Turn 10 - pName",
       "pNick plays a Festival.",
@@ -37,7 +37,7 @@ describe("Function consecutiveBuysOfSameCard()", () => {
   });
   it("should return false when neither line buy and gain.", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const logArchive = [
       "Turn 10 - pName",
       "pNick plays a Festival.",
@@ -69,7 +69,7 @@ describe("Function consecutiveBuysOfSameCard()", () => {
 
   it("should return false when both lines buy and gain, but are for different cards", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const logArchive = [
       "Turn 10 - pName",
       "pNick plays a Festival.",
@@ -103,7 +103,7 @@ describe("Function consecutiveBuysOfSameCard()", () => {
 
   it("should return false when provided line is not buy and gain, but last line in logArchive is", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const logArchive = [
       "Turn 10 - pName",
       "pNick plays a Festival.",
@@ -136,7 +136,7 @@ describe("Function consecutiveBuysOfSameCard()", () => {
   });
   it("should return false if provided line is buy and gain, but not last line in logArchive.", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const logArchive = [
       "Turn 10 - pName",
       "pNick plays a Festival.",
