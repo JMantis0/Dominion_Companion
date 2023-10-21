@@ -747,7 +747,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (mostRecentPlay === "Harbinger") {
+        if (mostRecentPlay === "Sentry") {
+          this.topDeckFromSetAside(cards[i]);
+        } else if (mostRecentPlay === "Harbinger") {
           this.topDeckFromGraveyard(cards[i]);
         } else if (["Artisan", "Bureaucrat"].includes(mostRecentPlay)) {
           this.topDeckFromHand(cards[i]);
@@ -844,6 +846,26 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Checks if the given card is in the setAside zone.  Then it
+   * removes one instance of that card from the setAside zone
+   * and adds it to the library zone.
+   * @param card - The given card.
+   */
+  topDeckFromSetAside(card: string): void {
+    const index = this.setAside.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in setAside.`);
+    } else {
+      // Remove card from setAside.
+      const newSetAside = this.setAside.slice();
+      newSetAside.splice(index, 1);
+      this.setSetAside(newSetAside);
+      // Add card to library.
+      this.setLibrary(this.library.concat(card));
+    }
+  }
+
+  /**
    * Checks hand field array to see if given card is there.  If yes,
    * removes an instance of that card from the hand field array and,
    * adds an instance of that card to the trash field array.
@@ -866,6 +888,12 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  /**
+   * Checks if the given card is in the setAside zone.  If so
+   * removes one instance of the card from the entireDeck and one from
+   * setAside. Then it  adds it one instance to the trash zone.
+   * @param card - The given card.
+   */
   trashFromSetAside(card: string): void {
     const index = this.setAside.indexOf(card);
     if (index < 0) {

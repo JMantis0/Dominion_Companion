@@ -1,10 +1,26 @@
-import { describe, it, expect, jest } from "@jest/globals";
+import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function processTopDecksLine()", () => {
-  it("should handle gaining a card from hand correctly", () => {
+  let deck = new Deck("", false, "", "pNick", "pName", []);
+
+  // Mock function dependencies
+  const getMostRecentPlay = jest.spyOn(Deck.prototype, "getMostRecentPlay");
+  const topDeckFromGraveyard = jest
+    .spyOn(Deck.prototype, "topDeckFromGraveyard")
+    .mockImplementation(() => null);
+  const topDeckFromHand = jest
+    .spyOn(Deck.prototype, "topDeckFromHand")
+    .mockImplementation(() => null);
+  const topDeckFromSetAside = jest
+    .spyOn(Deck.prototype, "topDeckFromSetAside")
+    .mockImplementation(() => null);
+  afterEach(() => {
+    deck = new Deck("", false, "", "pNick", "pName", []);
+    jest.clearAllMocks();
+  });
+  it("should handle top decking caused by an Artisan correctly", () => {
     // Arrange deck state
-    const deck = new Deck("", false, "", "pNick", "pName", []);
     const logArchive = [
       "Turn 12 - pName",
       "pNick plays a Market.",
@@ -21,15 +37,6 @@ describe("Function processTopDecksLine()", () => {
     const cards = ["Bandit"];
     const numberOfCards = [1];
 
-    // Mock function dependencies
-    const getMostRecentPlay = jest.spyOn(Deck.prototype, "getMostRecentPlay");
-    const topDeckFromGraveyard = jest
-      .spyOn(Deck.prototype, "topDeckFromGraveyard")
-      .mockImplementation(() => null);
-    const topDeckFromHand = jest
-      .spyOn(Deck.prototype, "topDeckFromHand")
-      .mockImplementation(() => null);
-
     // Act - Simulate top decking a card with an Artisan
     deck.processTopDecksLine(cards, numberOfCards);
 
@@ -40,9 +47,10 @@ describe("Function processTopDecksLine()", () => {
     expect(topDeckFromHand).toBeCalledTimes(1);
     expect(topDeckFromHand).toBeCalledWith("Bandit");
     expect(topDeckFromGraveyard).not.toBeCalled();
+    expect(topDeckFromSetAside).not.toBeCalled();
   });
 
-  it("should handle gaining a card from discard correctly", () => {
+  it("should handle top decking caused by a Harbinger correctly", () => {
     // Arrange deck state
     const deck = new Deck("", false, "", "pNick", "pName", []);
     const logArchive = [
@@ -61,15 +69,6 @@ describe("Function processTopDecksLine()", () => {
     const cards = ["Poacher"];
     const numberOfCards = [1];
 
-    // Mock function dependencies
-    const getMostRecentPlay = jest.spyOn(Deck.prototype, "getMostRecentPlay");
-    const topDeckFromGraveyard = jest
-      .spyOn(Deck.prototype, "topDeckFromGraveyard")
-      .mockImplementation(() => null);
-    const topDeckFromHand = jest
-      .spyOn(Deck.prototype, "topDeckFromHand")
-      .mockImplementation(() => null);
-
     // Act - Simulate top decking a card with an Artisan
     deck.processTopDecksLine(cards, numberOfCards);
 
@@ -80,5 +79,36 @@ describe("Function processTopDecksLine()", () => {
     expect(topDeckFromGraveyard).toBeCalledTimes(1);
     expect(topDeckFromGraveyard).toBeCalledWith("Poacher");
     expect(topDeckFromHand).not.toBeCalled();
+    expect(topDeckFromSetAside).not.toBeCalled();
+  });
+
+  it("should handle top decking caused by a Sentry correctly", () => {
+    // Arrange deck state
+    const deck = new Deck("", false, "", "pNick", "pName", []);
+    const logArchive = [
+      "pNick plays a Sentry.",
+      "pNick draws a Vassal.",
+      "pNick gets +1 Action.",
+      "pNick shuffles their deck.",
+      "pNick looks at a Copper and a Vassal.",
+      "pNick trashes a Copper.",
+    ];
+    deck.setLogArchive(logArchive);
+
+    // Arguments for function being tested.
+    const cards = ["Vassal"];
+    const numberOfCards = [1];
+
+    // Act - Simulate top decking a card with an Artisan
+    deck.processTopDecksLine(cards, numberOfCards);
+
+    // Assert
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentPlay).toBeCalledWith(logArchive);
+    expect(getMostRecentPlay.mock.results[0].value).toBe("Sentry");
+    expect(topDeckFromSetAside).toBeCalledTimes(1);
+    expect(topDeckFromSetAside).toBeCalledWith("Vassal");
+    expect(topDeckFromHand).not.toBeCalled();
+    expect(topDeckFromGraveyard).not.toBeCalled();
   });
 });
