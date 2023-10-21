@@ -10,7 +10,6 @@ import type {
   StoreDeck,
 } from "../utils";
 
-
 export interface ContentState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
@@ -44,32 +43,32 @@ const initialState: ContentState = {
     sort: "ascending",
   },
   discardSortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   opponentSortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   opponentTrashSortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   trashSortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   inPlaySortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   handSortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   setAsideSortState: {
-    category: "card",
-    sort: "descending",
+    category: "zone",
+    sort: "ascending",
   },
   viewerHidden: false,
   gameActiveStatus: false,

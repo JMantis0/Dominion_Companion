@@ -688,6 +688,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards - The card being looked at.
    */
   processLooksAtLine(line: string, cards: string[], numberOfCards: number[]) {
+    const sentryLook = this.getMostRecentPlay(this.logArchive) === "Sentry";
     const libraryLook = this.checkForLibraryLook(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
@@ -708,6 +709,8 @@ export class Deck extends BaseDeck implements StoreDeck {
             if (this.debug) console.log("waitToDraw changing to true;");
             this.setWaitToDrawLibraryLook(true);
           }
+        } else if (sentryLook) {
+          this.setAsideWithLibrary(cards[i]);
         }
       }
     }
@@ -762,12 +765,13 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.getMostRecentPlay(this.logArchive);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Bandit"].includes(mostRecentPlay)) {
+        if (mostRecentPlay === "Bandit") {
           this.trashFromLibrary(cards[i]);
+        } else if (mostRecentPlay === "Sentry") {
+          this.trashFromSetAside(cards[i]);
         } else {
           this.trashFromHand(cards[i]);
         }
-        this.removeCardFromEntireDeck(cards[i]);
       }
     }
   }
@@ -845,14 +849,38 @@ export class Deck extends BaseDeck implements StoreDeck {
    * adds an instance of that card to the trash field array.
    * @param card - The given card.
    */
-  trashFromHand(card: string) {
+  trashFromHand(card: string): void {
     const index = this.hand.indexOf(card);
-    if (index > -1) {
-      if (this.debug) console.info(`Trashing ${this.hand[index]} from hand.`);
-      this.trash.push(this.hand[index]);
-      this.hand.splice(index, 1);
-    } else {
+    if (index < 0) {
       throw new Error(`No ${card} in hand.`);
+    } else {
+      if (this.debug) console.info(`Trashing ${this.hand[index]} from hand.`);
+      // Remove card from entireDeck
+      this.removeCardFromEntireDeck(card);
+      // Add card to trash
+      this.setTrash(this.trash.concat(card));
+      // Remove card from hand
+      const newHand = this.hand.slice();
+      newHand.splice(index, 1);
+      this.setHand(newHand);
+    }
+  }
+
+  trashFromSetAside(card: string): void {
+    const index = this.setAside.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in setAside.`);
+    } else {
+      if (this.debug)
+        console.info(`Trashing ${this.hand[index]} from setAside.`);
+      // Remove from entireDeck
+      this.removeCardFromEntireDeck(card);
+      // Add card to trash
+      this.setTrash(this.trash.concat(card));
+      // Remove card from setAside
+      const newSetAside = this.setAside.slice();
+      newSetAside.splice(index, 1);
+      this.setSetAside(newSetAside);
     }
   }
 
@@ -864,13 +892,19 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   trashFromLibrary(card: string) {
     const index = this.library.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in library.`);
+    } else {
       if (this.debug)
         console.info(`Trashing ${this.library[index]} from library.`);
-      this.trash.push(this.library[index]);
-      this.library.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in library.`);
+      // Remove card from entireDeck
+      this.removeCardFromEntireDeck(card);
+      // Add card to trash
+      this.setTrash(this.trash.concat(card));
+      // Remove card from library
+      const newLibrary = this.library.slice();
+      newLibrary.splice(index, 1);
+      this.setLibrary(newLibrary);
     }
   }
 
