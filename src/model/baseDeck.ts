@@ -527,7 +527,9 @@ export class BaseDeck {
   removeCardFromEntireDeck(card: string) {
     const index = this.entireDeck.indexOf(card);
     if (index > -1) {
-      this.entireDeck.splice(index, 1);
+      const entireDeckCopy = this.entireDeck.slice();
+      entireDeckCopy.splice(index, 1);
+      this.setEntireDeck(entireDeckCopy);
       if (this.debug)
         console.log(`Removing ${card} from ${this.playerName}'s deck`);
     } else {
