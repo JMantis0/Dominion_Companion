@@ -330,19 +330,21 @@ export class BaseDeck {
   getActionFromEntry(entry: string): string {
     let act: string = "None";
     const actionArray = [
-      "shuffles their deck",
-      "gains",
-      "draws",
-      "discards",
-      "plays",
-      "trashes",
-      "looks at",
-      "topdecks",
       "aside with Library",
+      "discards",
+      "draws",
+      "gains",
+      "looks at",
+      "plays",
+      "reveals",
+      "shuffles their deck",
+      "topdecks",
+      "trashes",
     ];
+    const entryWithoutNickName = entry.slice(this.playerNick.length);
     for (let i = 0; i < actionArray.length; i++) {
       const action = actionArray[i];
-      if (entry.match(action) !== null) {
+      if (entryWithoutNickName.match(action) !== null) {
         act = action;
         break;
       }
