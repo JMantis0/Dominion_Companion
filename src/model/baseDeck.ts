@@ -249,11 +249,7 @@ export class BaseDeck {
    * @param card - the card from the current line
    * @returns -  Boolean for if the current line and previous line both bought the same card (consecutive buys).
    */
-  consecutiveBuysOfSameCard(
-    act: string,
-    line: string,
-    card: string
-  ): boolean {
+  consecutiveBuysOfSameCard(act: string, line: string, card: string): boolean {
     let consecutiveBuysOfTheSameCard: boolean = false;
     if (act === "gains") {
       const thisLineBuyAndGains = this.checkForBuyAndGain(line, card);
@@ -297,7 +293,7 @@ export class BaseDeck {
     let number: Array<number> = [];
 
     if (this.consecutiveTreasurePlays(line)) {
-      number = this.handleConsecutiveTreasurePlays(line);
+      number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
       cards = ["Copper", "Silver", "Gold"];
     } else {
@@ -305,7 +301,7 @@ export class BaseDeck {
       [cards, number] = this.getCardsAndCountsFromEntry(line);
       //Pop off repeated buy log entry if needed
       if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
-        number[0] = this.handleRepeatBuyGain(line, this.logArchive);
+        number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
       }
     }
 
@@ -377,6 +373,8 @@ export class BaseDeck {
         cardAmounts.push(amount);
       }
     });
+    // To Do - arrange the arrays to be in the same order that the cards appear in the given line
+    
     return [cards, cardAmounts];
   }
 
@@ -390,7 +388,7 @@ export class BaseDeck {
    * @param line - the current line.
    * @returns - A number array of length 3 representing the number of Copper, Silver, Gold to be played.
    */
-  handleConsecutiveTreasurePlays(line: string): Array<number> {
+  getConsecutiveTreasurePlayCounts(line: string): Array<number> {
     // Inside this if, this means that the player is in a play treasure phase.
     // The two lines must be compared to see how many additional treasures must be
     // processed
@@ -452,7 +450,7 @@ export class BaseDeck {
    * @param currentLine - The current line.
    * @returns - The number of cards to gain (to avoid over gaining)
    */
-  handleRepeatBuyGain(currentLine: string, logArchive: string[]): number {
+  getRepeatBuyGainCounts(currentLine: string, logArchive: string[]): number {
     let amendedAmount: number;
     if (logArchive.length === 0) throw new Error("Empty logArchive.");
     const prevLine = logArchive.slice().pop()!;
