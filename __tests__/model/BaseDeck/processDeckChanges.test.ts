@@ -164,7 +164,7 @@ describe("Function processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideWithLibrary).not.toBeCalled();
   });
-  
+
   it("Should use the provided act (trashes) to call the correct line processor", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
@@ -190,7 +190,7 @@ describe("Function processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideWithLibrary).not.toBeCalled();
   });
-  
+
   it("Should use the provided act (topdecks) to call the correct line processor", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
@@ -216,7 +216,7 @@ describe("Function processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideWithLibrary).not.toBeCalled();
   });
-  
+
   it("Should use the provided act (looks at) to call the correct line processor", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
@@ -232,7 +232,7 @@ describe("Function processDeckChanges", () => {
 
     // Assert
     expect(processLooksAtLine).toBeCalledTimes(1);
-    expect(processLooksAtLine).toBeCalledWith(line, cards, numberOfCards);
+    expect(processLooksAtLine).toBeCalledWith(cards, numberOfCards);
     expect(processTopDecksLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
@@ -242,7 +242,7 @@ describe("Function processDeckChanges", () => {
     expect(setWaitToShuffle).not.toBeCalled();
     expect(setAsideWithLibrary).not.toBeCalled();
   });
-  
+
   it("Should use the provided act (looks at) to call the correct line processor", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);

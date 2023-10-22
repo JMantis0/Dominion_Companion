@@ -13,7 +13,8 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick looks at a Chapel.",
       "pNick looks at a Poacher.",
     ];
-    deck.setLogArchive(logArchive);
+    deck.latestPlay = "Library";
+    deck.logArchive = logArchive;
     deck.waitToDrawLibraryLook = true;
     const act = "looks at";
 
@@ -36,15 +37,16 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick trashes a Copper.",
       "pNick topdecks a Gold.",
     ];
-    deck.setLogArchive(logArchive);
+    deck.latestPlay = "Sentry";
+    deck.logArchive = logArchive;
     deck.waitToDrawLibraryLook = true;
-    const act = "looks at";
+    const act = "plays";
 
     // Act
     const result = deck.libraryTriggeredPreviousLineDraw(act);
     expect(result).toBe(false);
   });
-  
+
   it("should return false if the logArchive entry is not a 'library look', but the card from that entry was already drawn", () => {
     // Case2 most recent logArchive entry is a 'Library look', but the card from that entry was already drawn, ie: this.waitToDrawLibraryLook is false.
     // Arrange
@@ -54,7 +56,8 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick looks at a Chapel.",
       "pNick looks at a Copper.",
     ];
-    deck.setLogArchive(logArchive);
+    deck.latestPlay = "Library";
+    deck.logArchive = logArchive;
     deck.waitToDrawLibraryLook = false;
     const act = "looks at";
 
@@ -75,7 +78,8 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick looks at a Chapel.",
       "pNick looks at a Poacher.",
     ];
-    deck.setLogArchive(logArchive);
+    deck.latestPlay = "Library";
+    deck.logArchive = logArchive;
     deck.waitToDrawLibraryLook = true;
     const act = "aside with Library";
 

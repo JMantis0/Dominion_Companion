@@ -14,7 +14,7 @@ describe("Function processTopDecksLine()", () => {
     deck.library = ["Copper", "Estate"];
     deck.setAside = ["Vassal", "Bandit"];
 
-    // Assert - simulate topDecking a card frop setAside
+    // Assert - simulate topDecking a card from setAside
     deck.topDeckFromSetAside("Bandit");
 
     expect(setLibrary).toBeCalledTimes(1);

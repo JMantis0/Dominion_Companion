@@ -18,6 +18,10 @@ describe("Function update()", () => {
     Deck.prototype,
     "consecutiveTreasurePlays"
   );
+  const getMostRecentPlay = jest
+    .spyOn(Deck.prototype, "getMostRecentPlay")
+    .mockImplementation(() => "");
+  const setLatestPlay = jest.spyOn(Deck.prototype, "setLatestPlay");
   const handleConsecutiveTreasurePlays = jest.spyOn(
     Deck.prototype,
     "handleConsecutiveTreasurePlays"
@@ -70,6 +74,8 @@ describe("Function update()", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(setLatestPlay).toBeCalledTimes(1);
   });
 
   it("should correctly handle single log lines that are non-consecutive treasure plays that do not apply to the deck", () => {
@@ -97,6 +103,8 @@ describe("Function update()", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(setLatestPlay).toBeCalledTimes(1);
   });
 
   it("should correctly handle single log lines that apply to the deck", () => {
@@ -128,6 +136,8 @@ describe("Function update()", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(setLatestPlay).toBeCalledTimes(1);
   });
 
   it("should correctly handle log arrays with multiple lines ", () => {
@@ -171,5 +181,7 @@ describe("Function update()", () => {
     expect(updateArchives).nthCalledWith(2, log[1]);
     expect(updateArchives).nthCalledWith(3, log[2]);
     expect(updateVP).toBeCalledTimes(3);
+    expect(getMostRecentPlay).toBeCalledTimes(3);
+    expect(setLatestPlay).toBeCalledTimes(3);
   });
 });

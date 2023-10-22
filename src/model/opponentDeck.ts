@@ -87,7 +87,7 @@ export class OpponentDeck extends BaseDeck {
   
   /**
    * Updates the deck state based on log entries from the client game log.
-   * @param logn array of log lines from the DOM Clients
+   * @param log - array of log lines from the DOM Clients
    */
   update(log: Array<string>) {
     log.forEach((line) => {

@@ -5,8 +5,10 @@ describe("Function processLooksAtLine", () => {
   // Instantiate deck object
   let deck = new Deck("", false, "", "pName", "pNick", []);
   // Spy on function dependencies
-  const checkForLibraryLook = jest.spyOn(Deck.prototype, "checkForLibraryLook");
-  const draw = jest.spyOn(Deck.prototype, "draw");
+  const getMostRecentPlay = jest.spyOn(Deck.prototype, "getMostRecentPlay");
+  const draw = jest
+    .spyOn(Deck.prototype, "draw")
+    .mockImplementation(() => null);
   const setWaitToDrawLibraryLook = jest.spyOn(
     Deck.prototype,
     "setWaitToDrawLibraryLook"
@@ -19,32 +21,35 @@ describe("Function processLooksAtLine", () => {
     jest.clearAllMocks();
   });
 
-  it("should take no action if the look was not cause by a Library", () => {
+  it("should take no action if the look was not cause by a Library, Sentry, or Bandit", () => {
     // Arrange
-    const logArchive = [
-      "pNick plays a Sentry.",
+    deck.logArchive = [
+      "pNick plays a Festival.",
+      "pNick gets +2 Actions.",
+      "pNick gets +1 Buy.",
+      "pNick gets +$2.",
+      "pNick plays a Harbinger.",
       "pNick draws a Silver.",
       "pNick gets +1 Action.",
     ];
-    deck.setLogArchive(logArchive);
 
     // Arguments for function being tested
-    const line = "pNick looks at a Copper and a Gold.";
-    const cards = ["Copper", "Gold"];
-    const numberOfCards = [1, 1];
+    const cards = ["Copper", "Estate", "Moat", "Poacher"];
+    const numberOfCards = [3, 3, 1, 2];
 
     // Act - simulate a Library looking at a Gold
-    deck.processLooksAtLine(line, cards, numberOfCards);
+    deck.processLooksAtLine(cards, numberOfCards);
 
     // Assert
-    expect(checkForLibraryLook).toBeCalledTimes(1);
-    expect(checkForLibraryLook.mock.results[0].value).toBe(false);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentPlay.mock.results[0].value).toBe("Harbinger");
+    expect(setAsideWithLibrary).not.toBeCalled();
     expect(draw).not.toBeCalled();
     expect(setWaitToDrawLibraryLook).not.toBeCalled();
   });
 
   it("should move the cards to setAside if look is caused by a Sentry", () => {
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays a Laboratory.",
       "pNick draws a Silver and a Province.",
       "pNick gets +1 Action.",
@@ -52,18 +57,16 @@ describe("Function processLooksAtLine", () => {
       "pNick draws a Merchant.",
       "pNick gets +1 Action.",
     ];
-    deck.setLogArchive(logArchive);
 
     // Arguments for function being tested
-    const line = "pNick looks at a Copper and a Province.";
     const cards = ["Copper", "Province"];
     const numberOfCards = [1, 1];
 
     // Act - Simulate looking at a Copper and Province with a Sentry
-    deck.processLooksAtLine(line, cards, numberOfCards);
+    deck.processLooksAtLine(cards, numberOfCards);
 
-    expect(checkForLibraryLook).toBeCalledTimes(1);
-    expect(checkForLibraryLook.mock.results[0].value).toBe(false);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentPlay.mock.results[0].value).toBe("Sentry");
     expect(setAsideWithLibrary).toBeCalledTimes(2);
     expect(setAsideWithLibrary).nthCalledWith(1, "Copper");
     expect(setAsideWithLibrary).nthCalledWith(2, "Province");
@@ -71,10 +74,36 @@ describe("Function processLooksAtLine", () => {
     expect(setWaitToDrawLibraryLook).not.toBeCalled();
   });
 
+  it("should move the cards to setAside if look is caused by a Bandit", () => {
+    deck.logArchive = [
+      "G plays a Poacher.",
+      "G draws a Copper.",
+      "G gets +1 Action.",
+      "G gets +$1.",
+      "G plays a Bandit.",
+      "G gains a Gold.",
+      "L reveals a Gold and a Smithy.",
+      "L trashes a Gold.",
+    ];
+
+    // Arguments for function being tested
+    const cards = ["Smithy"];
+    const numberOfCards = [1];
+
+    // Act - Simulate looking at a Copper and Province with a Sentry
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentPlay.mock.results[0].value).toBe("Bandit");
+    expect(setAsideWithLibrary).toBeCalledTimes(1);
+    expect(setAsideWithLibrary).toBeCalledWith("Smithy");
+    expect(draw).not.toBeCalled();
+    expect(setWaitToDrawLibraryLook).not.toBeCalled();
+  });
+
   it("should draw certain cards immediately if they are looked at by a Library", () => {
     // Arrange
-    const library = ["Gold"];
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays a Sentry.",
       "pNick draws a Silver.",
       "pNick gets +1 Action.",
@@ -83,24 +112,21 @@ describe("Function processLooksAtLine", () => {
       "pNick topdecks a Gold.",
       "pNick plays a Library.",
     ];
-    deck.setLogArchive(logArchive);
-    deck.setLibrary(library);
 
     // Arguments for function being tested
-    const line = "pNick looks at a Gold.";
     const cards = ["Gold"];
     const numberOfCards = [1];
 
     // Act - simulate a Library looking at a Gold
-    deck.processLooksAtLine(line, cards, numberOfCards);
+    deck.processLooksAtLine(cards, numberOfCards);
 
     // Assert
-    expect(checkForLibraryLook).toBeCalledTimes(1);
-    expect(checkForLibraryLook).toBeCalledWith(line);
-    expect(checkForLibraryLook.mock.results[0].value).toBe(true);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentPlay.mock.results[0].value).toBe("Library");
     expect(draw).toBeCalledTimes(1);
     expect(draw).toBeCalledWith("Gold");
     expect(setWaitToDrawLibraryLook).not.toBeCalled();
+    expect(setAsideWithLibrary).not.toBeCalled();
   });
 
   it("should set class field waitToDrawLibraryLook to true for certain cards that are looked at by a Library", () => {
@@ -117,20 +143,18 @@ describe("Function processLooksAtLine", () => {
     ];
     deck.setLogArchive(logArchive);
     // Arguments for function being tested
-    const line = "pNick looks at a Mine.";
     const cards = ["Mine"];
     const numberOfCards = [1];
 
     // Act - simulate a Library looking at a Gold
-    deck.processLooksAtLine(line, cards, numberOfCards);
+    deck.processLooksAtLine(cards, numberOfCards);
 
     // Assert
-    expect(checkForLibraryLook).toBeCalledTimes(1);
-    expect(checkForLibraryLook).toBeCalledWith(line);
-    expect(checkForLibraryLook.mock.results[0].value).toBe(true);
-    expect(deck.waitToDrawLibraryLook).toBe(true);
+    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentPlay.mock.results[0].value).toBe("Library");
     expect(setWaitToDrawLibraryLook).toHaveBeenCalledTimes(1);
     expect(setWaitToDrawLibraryLook).toHaveBeenCalledWith(true);
+    expect(setAsideWithLibrary).not.toBeCalled();
     expect(draw).not.toBeCalled();
   });
 });

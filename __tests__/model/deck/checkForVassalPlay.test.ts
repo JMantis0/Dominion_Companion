@@ -5,7 +5,7 @@ import { it, describe, expect, beforeEach, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function checkForVassalPlay()", () => {
-  const rDeck: Deck = new Deck("", false, "", "pName", "pNick", []);
+  const deck: Deck = new Deck("", false, "", "pName", "pNick", []);
   const logLineContainer = document.createElement("div");
   const logLine1Element = document.createElement("div");
   const logLine2Element = document.createElement("div");
@@ -55,16 +55,16 @@ describe("Function checkForVassalPlay()", () => {
   });
   it("should return true if the most recent play was a Vassal whose div element has equal left padding to the current div element", () => {
     //  Arrange
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    rDeck.setLogArchive(logArchive);
+    deck.latestPlay = "Vassal";
 
     // Act
-    const result = rDeck.checkForVassalPlay();
+    const result = deck.checkForVassalPlay();
 
     // Assert
     expect(result).toBe(true);
@@ -72,19 +72,19 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should return false if the most recent play was a Vassal whose div element has equal left padding to the current div element", () => {
     //  Arrange
-    const logArchive = [
+    deck.logArchive= [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    rDeck.setLogArchive(logArchive);
+    deck.latestPlay = "Vassal";
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine5Element.style.paddingLeft = "0%";
     
     // Act
-    const result = rDeck.checkForVassalPlay();
+    const result = deck.checkForVassalPlay();
 
     // Assert
     expect(result).toBe(false);
@@ -92,7 +92,7 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should return false when the most recent play in the logArchive is not a Vassal", () => {
     // Arrange
-    const logArchive = [
+    deck.logArchive= [
       "pNick plays a Throne Room.",
       "pNick plays a Sentry.",
       "pNick draws a Gold.",
@@ -106,11 +106,10 @@ describe("Function checkForVassalPlay()", () => {
       "pNick trashes a Copper.",
       "pNick topdecks a Silver.",
     ];
-    rDeck.setLogArchive(logArchive);
-    logLineContainer.remove();
+    deck.latestPlay = "Sentry";
 
     // Act
-    const result = rDeck.checkForVassalPlay();
+    const result = deck.checkForVassalPlay();
 
     // Assert
     expect(result).toBe(false);
@@ -118,38 +117,38 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should throw an error if the element for the current line paddingLeft property values to not end in a '%' character", () => {
     //  Arrange
-    const logArchive = [
+    deck.logArchive= [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    rDeck.setLogArchive(logArchive);
+    deck.latestPlay = "Vassal";
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine5Element.style.paddingLeft = "0";
 
     // Act and Assert
-    expect(() => rDeck.checkForVassalPlay()).toThrowError(
+    expect(() => deck.checkForVassalPlay()).toThrowError(
       "Current line paddingLeft property does not end with %."
     );
   });
 
   it("should throw an error if the element for the previous line paddingLeft property values to not end in a '%' character", () => {
     //  Arrange
-    const logArchive = [
+    deck.logArchive= [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    rDeck.setLogArchive(logArchive);
+    deck.latestPlay = "Vassal";
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine4Element.style.paddingLeft = "0";
 
     // Act and Assert
-    expect(() => rDeck.checkForVassalPlay()).toThrowError(
+    expect(() => deck.checkForVassalPlay()).toThrowError(
       "Previous line paddingLeft property does not end with %."
     );
   });

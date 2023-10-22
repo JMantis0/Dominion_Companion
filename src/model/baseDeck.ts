@@ -489,7 +489,6 @@ export class BaseDeck {
    */
   incrementTurn() {
     this.gameTurn++;
-    if (this.debug) console.log("turn: ", this.gameTurn);
   }
 
   /**
