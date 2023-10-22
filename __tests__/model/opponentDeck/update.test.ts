@@ -12,9 +12,9 @@ describe("Function update", () => {
     OpponentDeck.prototype,
     "consecutiveTreasurePlays"
   );
-  const handleConsecutiveTreasurePlays = jest.spyOn(
+  const getConsecutiveTreasurePlayCounts = jest.spyOn(
     OpponentDeck.prototype,
-    "handleConsecutiveTreasurePlays"
+    "getConsecutiveTreasurePlayCounts"
   );
   const getActCardsAndCounts = jest
     .spyOn(OpponentDeck.prototype, "getActCardsAndCounts")
@@ -44,7 +44,7 @@ describe("Function update", () => {
     expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
     expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(true);
     expect(consecutiveTreasurePlays).not.toBeCalled()
-    expect(handleConsecutiveTreasurePlays).not.toBeCalled();
+    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
     expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(getActCardsAndCounts).toBeCalledWith(log[0]);
     expect(processDeckChanges).toBeCalledTimes(1);
@@ -69,7 +69,7 @@ describe("Function update", () => {
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    expect(handleConsecutiveTreasurePlays).not.toBeCalled();
+    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
     expect(getActCardsAndCounts).not.toBeCalled();
     expect(processDeckChanges).not.toBeCalled();
     expect(updateArchives).toBeCalledTimes(1);
@@ -100,7 +100,7 @@ describe("Function update", () => {
     expect(logEntryAppliesToThisDeck.mock.results[1].value).toBe(false);
     expect(logEntryAppliesToThisDeck.mock.results[2].value).toBe(true);
     expect(consecutiveTreasurePlays).toBeCalledTimes(2);
-    expect(handleConsecutiveTreasurePlays).not.toBeCalled();
+    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
     expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(getActCardsAndCounts).toBeCalledWith(log[2]);
     expect(processDeckChanges).toBeCalledTimes(1);
@@ -127,8 +127,8 @@ describe("Function update", () => {
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith("pNick plays 2 Coppers.");
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(true);
-    expect(handleConsecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(handleConsecutiveTreasurePlays).toBeCalledWith(
+    expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
+    expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(
       "pNick plays 2 Coppers."
     );
     expect(updateArchives).toBeCalledTimes(1);

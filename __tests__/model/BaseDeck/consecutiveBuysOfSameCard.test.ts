@@ -1,169 +1,106 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function consecutiveBuysOfSameCard()", () => {
-  const deck = new BaseDeck("", false, "", "pName", "pNick", []);
+  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+  const checkForBuyAndGain = jest.spyOn(
+    BaseDeck.prototype,
+    "checkForBuyAndGain"
+  );
+
+  afterEach(() => {
+    deck = new BaseDeck("", false, "", "pName", "pNick", []);
+  });
+
   it("should return true if the provided line and the most recent line in logArchive are both 'buy and gain' lines for the same card", () => {
     // Arrange
-    const logArchive = [
-      "Turn 10 - pName",
-      "pNick plays a Festival.",
-      "pNick gets +2 Actions.",
-      "pNick gets +1 Buy.",
-      "pNick gets +$2.",
-      "pNick plays a Moat.",
-      "pNick draws a Copper and a Moat.",
-      "pNick plays a Moat.",
-      "pNick draws an Estate and a Moat.",
-      "pNick plays 4 Coppers. (+$4)",
-      "pNick buys and gains 2 Villages.", // Last logArchive entry is a 'buy and gain' for Village.
-    ];
-    deck.setLogArchive(logArchive);
+    deck.lastEntryProcessed = "pNick buys and gains 2 Villages."; // lestEntryProcessed is a 'buy and gain' for Village.
     const act = "gains";
-    const numberOfCards = 1;
     const line = "pNick buys and gains 3 Villages."; // Current line is 'buy and gain' for Village.
     const card = "Village";
 
-    // Act
-    const result = deck.consecutiveBuysOfSameCard(
-      act,
-      numberOfCards,
-      line,
-      card
-    );
+    // Act - Simulate buying the same card consecutively.
+    const result = deck.consecutiveBuysOfSameCard(act, line, card);
 
     // Assert
-    expect(result).toBeTruthy();
+    expect(result).toBe(true);
+    expect(checkForBuyAndGain).toBeCalledTimes(2);
+    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
+    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
+
   it("should return false when neither line buy and gain.", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    const logArchive = [
-      "Turn 10 - pName",
-      "pNick plays a Festival.",
-      "pNick gets +2 Actions.",
-      "pNick gets +1 Buy.",
-      "pNick gets +$2.",
-      "pNick plays a Moat.",
-      "pNick draws a Copper and a Moat.",
-      "pNick plays a Moat.",
-      "pNick draws an Estate and a Moat.", // Not a 'buy and gain' line.
-    ];
-    deck.setLogArchive(logArchive);
+    deck.lastEntryProcessed = "pNick draws an Estate and a Moat."; // Not a 'buy and gain' line.
     const act = "gains";
-    const numberOfCards = 1;
     const line = "pNick plays 4 Coppers. (+$4)"; // Not a 'buy and gain' line.
     const card = "Copper";
 
-    // Act
-    const result = deck.consecutiveBuysOfSameCard(
-      act,
-      numberOfCards,
-      line,
-      card
-    );
+    // Act - Simulate making a play this line, after a draw last line.
+    const result = deck.consecutiveBuysOfSameCard(act, line, card);
 
     // Assert
     expect(result).toBe(false);
+    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
+    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false when both lines buy and gain, but are for different cards", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    const logArchive = [
-      "Turn 10 - pName",
-      "pNick plays a Festival.",
-      "pNick gets +2 Actions.",
-      "pNick gets +1 Buy.",
-      "pNick gets +$2.",
-      "pNick plays a Moat.",
-      "pNick draws a Copper and a Moat.",
-      "pNick plays a Moat.",
-      "pNick draws an Estate and a Moat.",
-      "pNick plays 4 Coppers. (+$4)",
-      "pNick buys and gains 2 Villages.", // Buy and gain line for Village.
-    ];
-    deck.setLogArchive(logArchive);
+    deck.lastEntryProcessed = "pNick buys and gains 2 Villages."; // Buy and gain line for Village.
     const act = "gains";
-    const numberOfCards = 1;
     const line = "pNick buys and gains a Vassal."; // Buy and gain line for Vassal.
     const card = "Vassal";
 
-    // Act
-    const result = deck.consecutiveBuysOfSameCard(
-      act,
-      numberOfCards,
-      line,
-      card
-    );
+    // Act - Simulate making two buys in a row, of different cards.
+    const result = deck.consecutiveBuysOfSameCard(act, line, card);
 
     // Assert
     expect(result).toBe(false);
+    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
+    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false when provided line is not buy and gain, but last line in logArchive is", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    const logArchive = [
-      "Turn 10 - pName",
-      "pNick plays a Festival.",
-      "pNick gets +2 Actions.",
-      "pNick gets +1 Buy.",
-      "pNick gets +$2.",
-      "pNick plays a Moat.",
-      "pNick draws a Copper and a Moat.",
-      "pNick plays a Moat.",
-      "pNick draws an Estate and a Moat.",
-      "pNick plays 4 Coppers. (+$4)",
-      "pNick buys and gains 2 Villages.", //  'Buy and gain' line in last logArchive entry.
-    ];
-    deck.setLogArchive(logArchive);
+    deck.lastEntryProcessed = "pNick buys and gains 2 Villages."; //  'Buy and gain' line in last logArchive entry.
     const act = "gains";
-    const numberOfCards = 1;
     const line = "pNick draws a Copper, an Estate, a Festival, and 2 Poachers."; // Provided line not a 'buy and gain' line.
     const card = "Festival";
 
-    // Act
-    const result = deck.consecutiveBuysOfSameCard(
-      act,
-      numberOfCards,
-      line,
-      card
-    );
+    // Act - Simulate making a draws on this line, after making a buy and gain on the previous line.
+    const result = deck.consecutiveBuysOfSameCard(act, line, card);
 
     // Assert
     expect(result).toBe(false);
+    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
+    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
+
   it("should return false if provided line is buy and gain, but not last line in logArchive.", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    const logArchive = [
-      "Turn 10 - pName",
-      "pNick plays a Festival.",
-      "pNick gets +2 Actions.",
-      "pNick gets +1 Buy.",
-      "pNick gets +$2.",
-      "pNick plays a Moat.",
-      "pNick draws a Copper and a Moat.",
-      "pNick plays a Moat.",
-      "pNick draws an Estate and a Moat.",
-      "pNick plays 4 Coppers. (+$4)", // Last entry of logArchive is not a 'buy and gain' line.
-    ];
-    deck.setLogArchive(logArchive);
+    deck.lastEntryProcessed = "pNick plays 4 Coppers. (+$4)"; // lastEntryProcessed is not a 'buy and gain' line.
     const act = "gains";
-    const numberOfCards = 1;
     const line = "pNick buys and gains a Village."; // Provided line is a 'buy and gain' line.
     const card = "Village";
 
-    // Act
-    const result = deck.consecutiveBuysOfSameCard(
-      act,
-      numberOfCards,
-      line,
-      card
-    );
+    // Act - Simulate making a buy and gain on this line after playing treasures on the previous line.
+    const result = deck.consecutiveBuysOfSameCard(act, line, card);
 
     // Assert
     expect(result).toBe(false);
+    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
+    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
+  });
+
+  it("should return false when act is not 'gains'", () => {
+    //Arrange
+    const act = "plays";
+    const line = "pNick plays a Sentry.";
+    const card = "Sentry";
+
+    // Act and Assert - Simulate not maying a gain on the current line.
+    expect(deck.consecutiveBuysOfSameCard(act, line, card)).toBe(false);
+    expect(checkForBuyAndGain).not.toBeCalled();
   });
 });

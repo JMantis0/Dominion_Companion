@@ -249,17 +249,12 @@ export class BaseDeck {
    * @param card - the card from the current line
    * @returns -  Boolean for if the current line and previous line both bought the same card (consecutive buys).
    */
-  consecutiveBuysOfSameCard(
-    act: string,
-    numberOfCards: number,
-    line: string,
-    card: string
-  ): boolean {
+  consecutiveBuysOfSameCard(act: string, line: string, card: string): boolean {
     let consecutiveBuysOfTheSameCard: boolean = false;
-    if (act === "gains" && numberOfCards === 1) {
+    if (act === "gains") {
       const thisLineBuyAndGains = this.checkForBuyAndGain(line, card);
       const lastLineBuyAndGains = this.checkForBuyAndGain(
-        this.logArchive[this.logArchive.length - 1],
+        this.lastEntryProcessed,
         card
       );
       if (lastLineBuyAndGains && thisLineBuyAndGains) {
@@ -296,20 +291,18 @@ export class BaseDeck {
     let act: string = "";
     let cards: Array<string> = [];
     let number: Array<number> = [];
-
     if (this.consecutiveTreasurePlays(line)) {
-      number = this.handleConsecutiveTreasurePlays(line);
+      number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
       cards = ["Copper", "Silver", "Gold"];
     } else {
       act = this.getActionFromEntry(line);
       [cards, number] = this.getCardsAndCountsFromEntry(line);
       //Pop off repeated buy log entry if needed
-      if (this.consecutiveBuysOfSameCard(act, cards.length, line, cards[0])) {
-        number[0] = this.handleRepeatBuyGain(line, this.logArchive);
+      if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
+        number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
       }
     }
-
     const lineInfo: {
       act: string;
       cards: string[];
@@ -378,6 +371,8 @@ export class BaseDeck {
         cardAmounts.push(amount);
       }
     });
+    // To Do - arrange the arrays to be in the same order that the cards appear in the given line
+
     return [cards, cardAmounts];
   }
 
@@ -391,7 +386,7 @@ export class BaseDeck {
    * @param line - the current line.
    * @returns - A number array of length 3 representing the number of Copper, Silver, Gold to be played.
    */
-  handleConsecutiveTreasurePlays(line: string): Array<number> {
+  getConsecutiveTreasurePlayCounts(line: string): Array<number> {
     // Inside this if, this means that the player is in a play treasure phase.
     // The two lines must be compared to see how many additional treasures must be
     // processed
@@ -453,11 +448,12 @@ export class BaseDeck {
    * @param currentLine - The current line.
    * @returns - The number of cards to gain (to avoid over gaining)
    */
-  handleRepeatBuyGain(currentLine: string, logArchive: string[]): number {
+  getRepeatBuyGainCounts(currentLine: string, logArchive: string[]): number {
     let amendedAmount: number;
     if (logArchive.length === 0) throw new Error("Empty logArchive.");
-    const prevLine = logArchive.slice().pop()!;
-    const lastSpaceIndex = prevLine!.lastIndexOf(" ");
+    const logArchiveCopy = logArchive.slice();
+    const prevLine = this.lastEntryProcessed;
+    const lastSpaceIndex = prevLine.lastIndexOf(" ");
     const secondLastSpaceIndex = prevLine
       .slice(0, lastSpaceIndex)
       .lastIndexOf(" ");
@@ -468,19 +464,19 @@ export class BaseDeck {
     let prevCount: number;
     let currCount: number;
     if (
-      prevLine!
+      prevLine
         .substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
         .match(/\ban?\b/) !== null
     ) {
       prevCount = 1;
     } else {
       prevCount = parseInt(
-        prevLine!.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
+        prevLine.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
       );
     }
     currCount = parseInt(currentLine.substring(secondLastIndex + 1, lastIndex));
-    const removed = logArchive.pop();
-    this.setLogArchive(logArchive);
+    const removed = logArchiveCopy.pop();
+    this.setLogArchive(logArchiveCopy);
     if (this.debug) console.info(`Popping off ${removed}`);
     amendedAmount = currCount - prevCount;
     return amendedAmount;
@@ -490,7 +486,9 @@ export class BaseDeck {
    * Increases the gameTurn field by one.
    */
   incrementTurn() {
-    this.gameTurn++;
+    let newGameTurn = this.gameTurn;
+    newGameTurn++;
+    this.setGameTurn(newGameTurn);
   }
 
   /**
@@ -513,8 +511,9 @@ export class BaseDeck {
    * @param logArchive - the current logArchive
    */
   popLastLogArchiveEntry(logArchive: string[]) {
-    logArchive.pop();
-    this.setLogArchive(logArchive);
+    const archiveCopy = logArchive.slice();
+    archiveCopy.pop();
+    this.setLogArchive(archiveCopy);
   }
 
   /**
@@ -526,7 +525,9 @@ export class BaseDeck {
   removeCardFromEntireDeck(card: string) {
     const index = this.entireDeck.indexOf(card);
     if (index > -1) {
-      this.entireDeck.splice(index, 1);
+      const entireDeckCopy = this.entireDeck.slice();
+      entireDeckCopy.splice(index, 1);
+      this.setEntireDeck(entireDeckCopy);
       if (this.debug)
         console.log(`Removing ${card} from ${this.playerName}'s deck`);
     } else {
@@ -555,21 +556,25 @@ export class BaseDeck {
    * Deck method updates the value of the currentVP field.
    */
   updateVP() {
-    this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
-      switch (currentValue) {
-        case "Gardens":
-          return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
-        case "Estate":
-          return 1 + accumulatedVP;
-        case "Duchy":
-          return 3 + accumulatedVP;
-        case "Province":
-          return 6 + accumulatedVP;
-        case "Curse":
-          return accumulatedVP - 1;
-        default:
-          return 0 + accumulatedVP;
-      }
-    }, 0);
+    const newCurrentVP = this.entireDeck.reduce(
+      (accumulatedVP, currentValue) => {
+        switch (currentValue) {
+          case "Gardens":
+            return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
+          case "Estate":
+            return 1 + accumulatedVP;
+          case "Duchy":
+            return 3 + accumulatedVP;
+          case "Province":
+            return 6 + accumulatedVP;
+          case "Curse":
+            return accumulatedVP - 1;
+          default:
+            return 0 + accumulatedVP;
+        }
+      },
+      0
+    );
+    this.setCurrentVP(newCurrentVP);
   }
 }

@@ -22,9 +22,9 @@ describe("Function update()", () => {
     .spyOn(Deck.prototype, "getMostRecentPlay")
     .mockImplementation(() => "");
   const setLatestPlay = jest.spyOn(Deck.prototype, "setLatestPlay");
-  const handleConsecutiveTreasurePlays = jest.spyOn(
+  const getConsecutiveTreasurePlayCounts = jest.spyOn(
     Deck.prototype,
-    "handleConsecutiveTreasurePlays"
+    "getConsecutiveTreasurePlayCounts"
   );
   const shuffleAndCleanUpIfNeeded = jest.spyOn(
     Deck.prototype,
@@ -52,7 +52,7 @@ describe("Function update()", () => {
     // Arrange
     const log = ["oNick plays 2 Coppers and a Silver."];
     consecutiveTreasurePlays.mockImplementation(() => true);
-    handleConsecutiveTreasurePlays.mockImplementation(() => []);
+    getConsecutiveTreasurePlayCounts.mockImplementation(() => []);
 
     // Act - Simulate update deck with a line that doesn't apply to the deck and is a consecutive treasure play.
     deck.update(log);
@@ -65,8 +65,8 @@ describe("Function update()", () => {
     expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
-    expect(handleConsecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(handleConsecutiveTreasurePlays).toBeCalledWith(log[0]);
+    expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
+    expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(log[0]);
     expect(shuffleAndCleanUpIfNeeded).not.toBeCalled();
     expect(getActCardsAndCounts).not.toBeCalled();
     expect(drawLookedAtCardIfNeeded).not.toBeCalled();
@@ -95,7 +95,7 @@ describe("Function update()", () => {
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    expect(handleConsecutiveTreasurePlays).not.toBeCalled();
+    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
     expect(shuffleAndCleanUpIfNeeded).not.toBeCalled();
     expect(getActCardsAndCounts).not.toBeCalled();
     expect(drawLookedAtCardIfNeeded).not.toBeCalled();

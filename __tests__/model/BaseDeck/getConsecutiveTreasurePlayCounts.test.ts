@@ -1,7 +1,7 @@
 import { it, describe, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function handleConsecutiveTreasurePlays()", () => {
+describe("Function getConsecutiveTreasurePlayCounts()", () => {
   it("should return an array with the correct number of Coppers to play", () => {
     // Arrange
     const deck = new BaseDeck("", false, "", "pNick", "pName", []);
@@ -10,7 +10,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
     const line = "pNick plays 2 Coppers and 2 Silvers. (+$4)";
 
     // Act
-    const result = deck.handleConsecutiveTreasurePlays(line);
+    const result = deck.getConsecutiveTreasurePlayCounts(line);
     const expectedResult = [1, 0, 0];
 
     // Assert
@@ -25,7 +25,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
     const line = "pNick plays 2 Coppers and a Silver. (+$4)";
 
     // Act
-    const result = deck.handleConsecutiveTreasurePlays(line);
+    const result = deck.getConsecutiveTreasurePlayCounts(line);
     const expectedResult = [0, 1, 0];
 
     // Assert
@@ -40,7 +40,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
     const line = "pNick plays 2 Coppers and a Gold. (+$4)";
 
     // Act
-    const result = deck.handleConsecutiveTreasurePlays(line);
+    const result = deck.getConsecutiveTreasurePlayCounts(line);
     const expectedResult = [0, 0, 1];
 
     // Assert
@@ -55,7 +55,7 @@ describe("Function handleConsecutiveTreasurePlays()", () => {
     const line = "pNick plays 5 Coppers, 3 Silvers, and 2 Golds. (+$4)";
 
     // Act
-    const result = deck.handleConsecutiveTreasurePlays(line);
+    const result = deck.getConsecutiveTreasurePlayCounts(line);
     const expectedResult = [3, 3, 2];
 
     // Assert

@@ -89,7 +89,7 @@ export class OpponentDeck extends BaseDeck {
         // info entries, or apply to opponent decks.
         if (this.consecutiveTreasurePlays(line)) {
           //  If playing with no animations, need this to pop off opponent treasure plays.
-          this.handleConsecutiveTreasurePlays(line);
+          this.getConsecutiveTreasurePlayCounts(line);
         }
       }
       // inside this else, log entries apply to this deck.

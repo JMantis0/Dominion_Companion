@@ -1,10 +1,17 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function updateVP()", () => {
+  // Instantiate BaseDeck object.
+  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+  // Spy on function dependency.
+  const setCurrentVP = jest.spyOn(BaseDeck.prototype, "setCurrentVP");
+  afterEach(() => {
+    deck = new BaseDeck("", false, "", "pName", "pNick", []);
+    jest.clearAllMocks();
+  });
   it("should correctly update the deck VP based on the card in the entire deck.", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const entireDeckList = [
       "Estate",
       "Estate",
@@ -24,13 +31,14 @@ describe("Function updateVP()", () => {
 
     // Act
     deck.updateVP();
-    const resultVP = deck.getCurrentVP();
-    expect(resultVP).toBe(expectedVP);
+
+    expect(deck.currentVP).toBe(expectedVP);
+    expect(setCurrentVP).toBeCalledTimes(1);
+    expect(setCurrentVP).toBeCalledWith(expectedVP);
   });
 
   it("should calculate VP correctly for randomized deck lists", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
     const randomNumber = () => {
       return Math.floor(Math.random() * (100 - 0) + 0);
     };
@@ -69,9 +77,11 @@ describe("Function updateVP()", () => {
 
     // Act
     deck.updateVP();
-    const resultVP = deck.getCurrentVP();
+    const resultVP = deck.currentVP;
 
     // Assert
     expect(resultVP).toEqual(expectedVP);
+    expect(setCurrentVP).toBeCalledTimes(1);
+    expect(setCurrentVP).toBeCalledWith(expectedVP);
   });
 });

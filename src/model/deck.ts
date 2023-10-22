@@ -939,7 +939,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         // Inside this if, log entries apply to an opponent deck.
         if (this.consecutiveTreasurePlays(line)) {
           //  When playing with no animations this will remove duplicate treasure play logs from the logArchive.
-          this.handleConsecutiveTreasurePlays(line);
+          this.getConsecutiveTreasurePlayCounts(line);
         }
       }
       // Inside this else, log entries apply to this deck.
