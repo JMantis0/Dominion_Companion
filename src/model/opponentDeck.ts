@@ -66,8 +66,8 @@ export class OpponentDeck extends BaseDeck {
             this.popLastLogArchiveEntry(this.logArchive);
           }
         }
+        this.addCardToEntireDeck(cards[i]);
       }
-      this.addCardToEntireDeck(cards[i]);
     }
   }
 
@@ -84,7 +84,7 @@ export class OpponentDeck extends BaseDeck {
       }
     }
   }
-  
+
   /**
    * Updates the deck state based on log entries from the client game log.
    * @param log - array of log lines from the DOM Clients
