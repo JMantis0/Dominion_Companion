@@ -581,9 +581,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     // const libraryDiscard = this.checkForLibraryDiscard(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Library"].includes(mostRecentPlay)) {
+        if (["Sentry", "Library", "Bandit"].includes(mostRecentPlay)) {
           this.discardFromSetAside(cards[i]);
-        } else if (["Vassal", "Bandit"].includes(mostRecentPlay)) {
+        } else if (["Vassal"].includes(mostRecentPlay)) {
           this.discardFromLibrary(cards[i]);
         } else {
           this.discard(cards[i]);
@@ -750,9 +750,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (mostRecentPlay === "Bandit") {
-          this.trashFromLibrary(cards[i]);
-        } else if (mostRecentPlay === "Sentry") {
+        if (["Sentry", "Bandit"].includes(mostRecentPlay)) {
           this.trashFromSetAside(cards[i]);
         } else {
           this.trashFromHand(cards[i]);
