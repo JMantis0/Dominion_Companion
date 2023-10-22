@@ -291,7 +291,6 @@ export class BaseDeck {
     let act: string = "";
     let cards: Array<string> = [];
     let number: Array<number> = [];
-
     if (this.consecutiveTreasurePlays(line)) {
       number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
@@ -304,7 +303,6 @@ export class BaseDeck {
         number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
       }
     }
-
     const lineInfo: {
       act: string;
       cards: string[];
@@ -558,21 +556,25 @@ export class BaseDeck {
    * Deck method updates the value of the currentVP field.
    */
   updateVP() {
-    this.currentVP = this.entireDeck.reduce((accumulatedVP, currentValue) => {
-      switch (currentValue) {
-        case "Gardens":
-          return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
-        case "Estate":
-          return 1 + accumulatedVP;
-        case "Duchy":
-          return 3 + accumulatedVP;
-        case "Province":
-          return 6 + accumulatedVP;
-        case "Curse":
-          return accumulatedVP - 1;
-        default:
-          return 0 + accumulatedVP;
-      }
-    }, 0);
+    const newCurrentVP = this.entireDeck.reduce(
+      (accumulatedVP, currentValue) => {
+        switch (currentValue) {
+          case "Gardens":
+            return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
+          case "Estate":
+            return 1 + accumulatedVP;
+          case "Duchy":
+            return 3 + accumulatedVP;
+          case "Province":
+            return 6 + accumulatedVP;
+          case "Curse":
+            return accumulatedVP - 1;
+          default:
+            return 0 + accumulatedVP;
+        }
+      },
+      0
+    );
+    this.setCurrentVP(newCurrentVP);
   }
 }
