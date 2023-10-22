@@ -15,14 +15,6 @@ export class OpponentDeck extends BaseDeck {
   ) {
     super(gameTitle, ratedGame, rating, playerName, playerNick, kingdom);
   }
-  /**
-   * Update function.  Calls the appropriate process line function to update
-   * the deck state.
-   * @param line - The current line being processed.
-   * @param act - The act from the current line. ie: draws, discards
-   * @param cards - The array of cards collected from the line.
-   * @param numberOfCards - The array of card amounts collected from the line
-   */
 
   /**
    * Update function.  Calls the appropriate process line function to update
