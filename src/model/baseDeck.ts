@@ -251,12 +251,11 @@ export class BaseDeck {
    */
   consecutiveBuysOfSameCard(
     act: string,
-    numberOfCards: number,
     line: string,
     card: string
   ): boolean {
     let consecutiveBuysOfTheSameCard: boolean = false;
-    if (act === "gains" && numberOfCards === 1) {
+    if (act === "gains") {
       const thisLineBuyAndGains = this.checkForBuyAndGain(line, card);
       const lastLineBuyAndGains = this.checkForBuyAndGain(
         this.lastEntryProcessed,
@@ -305,7 +304,7 @@ export class BaseDeck {
       act = this.getActionFromEntry(line);
       [cards, number] = this.getCardsAndCountsFromEntry(line);
       //Pop off repeated buy log entry if needed
-      if (this.consecutiveBuysOfSameCard(act, cards.length, line, cards[0])) {
+      if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
         number[0] = this.handleRepeatBuyGain(line, this.logArchive);
       }
     }
