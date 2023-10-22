@@ -259,7 +259,7 @@ export class BaseDeck {
     if (act === "gains" && numberOfCards === 1) {
       const thisLineBuyAndGains = this.checkForBuyAndGain(line, card);
       const lastLineBuyAndGains = this.checkForBuyAndGain(
-        this.logArchive[this.logArchive.length - 1],
+        this.lastEntryProcessed,
         card
       );
       if (lastLineBuyAndGains && thisLineBuyAndGains) {
