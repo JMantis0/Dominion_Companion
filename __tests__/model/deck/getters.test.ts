@@ -44,6 +44,9 @@ describe("Deck class getter functions ", () => {
     expect(deck.getLastEntryProcessed()).toStrictEqual(
       "Sample Last Entry Processed"
     );
+    // Latest Play
+    deck.latestPlay = "SampleLatestPlay";
+    expect(deck.getLatestPlay()).toBe("SampleLatestPlay");
     // Library
     deck.library = ["Sample", "Library", "Zone"];
     expect(deck.getLibrary()).toStrictEqual(["Sample", "Library", "Zone"]);
