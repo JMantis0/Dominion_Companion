@@ -69,9 +69,9 @@ describe("Function processTopDecksLine()", () => {
     deck.processTrashesLine(cards, numberOfCards);
 
     // Assert
-    expect(trashFromLibrary).toBeCalledTimes(1);
-    expect(trashFromLibrary).toBeCalledWith("Silver");
+    expect(trashFromSetAside).toBeCalledTimes(1);
+    expect(trashFromSetAside).toBeCalledWith("Silver");
     expect(trashFromHand).not.toBeCalled();
-    expect(trashFromSetAside).not.toBeCalled();
+    expect(trashFromLibrary).not.toBeCalled();
   });
 });
