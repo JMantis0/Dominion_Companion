@@ -557,10 +557,13 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "looks at":
         this.processLooksAtLine(cards, numberOfCards);
         break;
+      case "reveals":
+        this.processRevealsLine(cards, numberOfCards);
+        break;
       case "aside with Library": {
         for (let i = 0; i < cards.length; i++) {
           for (let j = 0; j < numberOfCards[i]; j++) {
-            this.setAsideWithLibrary(cards[i]);
+            this.setAsideFromLibrary(cards[i]);
           }
         }
       }
@@ -654,11 +657,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards - The card being looked at.
    */
   processLooksAtLine(cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.getMostRecentPlay(this.getLogArchive());
+    const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Sentry", "Bandit"].includes(mostRecentPlay)) {
-          this.setAsideWithLibrary(cards[i]);
+          this.setAsideFromLibrary(cards[i]);
         } else if (mostRecentPlay === "Library") {
           const cardsToDrawNow: string[] = [
             "Estate",
@@ -698,6 +701,21 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.playFromDiscard(cards[i]);
         } else {
           this.play(cards[i]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Update function.  Processes revealed cards according to the provided information
+   * @param cards - Array of cards to be processed
+   * @param numberOfCards - Array of the quantities of each card to be processed.
+   */
+  processRevealsLine(cards: string[], numberOfCards: number[]): void {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        if (this.latestPlay === "Bandit") {
+          this.setAsideFromLibrary(cards[i]);
         }
       }
     }
@@ -746,7 +764,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   /**
    *  Removes the given card from the library and pushes it to the setAside zone.
    */
-  setAsideWithLibrary(card: string) {
+  setAsideFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
       if (this.debug) console.info(`Setting aside a ${card} with Library`);
