@@ -10,9 +10,8 @@ describe("Function checkPreviousLineProcessedForCurrentCardBuy()", () => {
 
   it("should return true when the last logArchive line is a buy for the card in the current line", () => {
     // Arrange
-    const card: string = "Sentry";
-    let lastEntryProcessed: string = "rNick buys a Sentry";
-    deck.setLastEntryProcessed(lastEntryProcessed);
+    const card = "Sentry";
+    deck.lastEntryProcessed = "rNick buys a Sentry";
     // Act
     const result = deck.checkPreviousLineProcessedForCurrentCardBuy(card);
     // Assert
@@ -21,9 +20,8 @@ describe("Function checkPreviousLineProcessedForCurrentCardBuy()", () => {
 
   it("should return false when the last logArchive line is not a buy for the card in the current line", () => {
     // Arrange
-    const card: string = "Joker";
-    let lastEntryProcessed: string = "rNick buys a Sentry";
-    deck.setLastEntryProcessed(lastEntryProcessed);
+    const card = "Joker";
+    deck.lastEntryProcessed = "rNick buys a Sentry";
     // Act
     const result = deck.checkPreviousLineProcessedForCurrentCardBuy(card);
     // Assert

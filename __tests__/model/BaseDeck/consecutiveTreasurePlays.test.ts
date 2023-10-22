@@ -1,11 +1,16 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function consecutiveTreasurePlays", () => {
-  it("should return true if the provided entry/line and the last entry in the logArchive (lastEntryProcessed) both play treasures", () => {
+  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+
+  afterEach(() => {
+    deck = new BaseDeck("", false, "", "pName", "pNick", []);
+  });
+
+  it("should return true if the provided entry/line and the lastEntryProcessed both play treasures", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    deck.setLastEntryProcessed("pNick plays 3 Coppers and a Silver. (+$5)");
+    deck.lastEntryProcessed = "pNick plays 3 Coppers and a Silver. (+$5)";
     const line = "pNick plays 3 Coppers and 2 Silvers. (+7)";
 
     // Act
@@ -17,8 +22,7 @@ describe("Function consecutiveTreasurePlays", () => {
 
   it("should return false when the lastEntryProcessed does not play a treasure", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    deck.setLastEntryProcessed("pNick discards a Copper.");
+    deck.lastEntryProcessed = "pNick discards a Copper.";
     const line = "pNick plays a Silver. (+2)";
 
     // Act
@@ -27,11 +31,10 @@ describe("Function consecutiveTreasurePlays", () => {
     // Assert
     expect(result).toBe(false);
   });
-  
-  it("should return false if either the line provided  does not play a treasure", () => {
+
+  it("should return false if either the line provided does not play a treasure", () => {
     // Arrange
-    const deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    deck.setLastEntryProcessed("pNick plays a Silver. (+2)");
+    deck.lastEntryProcessed = "pNick plays a Silver. (+2)";
     const line = "pNick buys and gains a Moat.";
 
     // Act
