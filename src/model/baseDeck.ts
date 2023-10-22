@@ -488,7 +488,9 @@ export class BaseDeck {
    * Increases the gameTurn field by one.
    */
   incrementTurn() {
-    this.gameTurn++;
+    let newGameTurn = this.gameTurn;
+    newGameTurn++;
+    this.setGameTurn(newGameTurn);
   }
 
   /**
