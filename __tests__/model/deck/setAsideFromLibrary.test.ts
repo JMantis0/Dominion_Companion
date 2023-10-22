@@ -1,7 +1,7 @@
 import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function setAsideWithLibrary()", () => {
+describe("Function setAsideFromLibrary()", () => {
   it("should remove an instance of the provided card from the library and add it to the setAside zone", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);
@@ -14,7 +14,7 @@ describe("Function setAsideWithLibrary()", () => {
     const expectedLibrary = ["Vassal", "Copper"];
 
     // Act
-    deck.setAsideWithLibrary(card);
+    deck.setAsideFromLibrary(card);
     const resultSetAside = deck.getSetAside();
     const resultLibrary = deck.getLibrary();
 
@@ -31,7 +31,7 @@ describe("Function setAsideWithLibrary()", () => {
     const card = "Pot of Greed";
 
     // Act and Assert
-    expect(() => deck.setAsideWithLibrary(card)).toThrowError(
+    expect(() => deck.setAsideFromLibrary(card)).toThrowError(
       "No Pot of Greed in library."
     );
   });
