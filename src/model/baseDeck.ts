@@ -374,7 +374,7 @@ export class BaseDeck {
       }
     });
     // To Do - arrange the arrays to be in the same order that the cards appear in the given line
-    
+
     return [cards, cardAmounts];
   }
 
@@ -453,8 +453,9 @@ export class BaseDeck {
   getRepeatBuyGainCounts(currentLine: string, logArchive: string[]): number {
     let amendedAmount: number;
     if (logArchive.length === 0) throw new Error("Empty logArchive.");
-    const prevLine = logArchive.slice().pop()!;
-    const lastSpaceIndex = prevLine!.lastIndexOf(" ");
+    const logArchiveCopy = logArchive.slice();
+    const prevLine = this.lastEntryProcessed;
+    const lastSpaceIndex = prevLine.lastIndexOf(" ");
     const secondLastSpaceIndex = prevLine
       .slice(0, lastSpaceIndex)
       .lastIndexOf(" ");
@@ -465,19 +466,19 @@ export class BaseDeck {
     let prevCount: number;
     let currCount: number;
     if (
-      prevLine!
+      prevLine
         .substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
         .match(/\ban?\b/) !== null
     ) {
       prevCount = 1;
     } else {
       prevCount = parseInt(
-        prevLine!.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
+        prevLine.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
       );
     }
     currCount = parseInt(currentLine.substring(secondLastIndex + 1, lastIndex));
-    const removed = logArchive.pop();
-    this.setLogArchive(logArchive);
+    const removed = logArchiveCopy.pop();
+    this.setLogArchive(logArchiveCopy);
     if (this.debug) console.info(`Popping off ${removed}`);
     amendedAmount = currCount - prevCount;
     return amendedAmount;
