@@ -2,8 +2,8 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 
 describe("Function processDeckChanges", () => {
+  let deck = new OpponentDeck("", false, "", "pName", "pNick", []);
   // Mock function dependencies
-  
   const processGainsLine = jest
     .spyOn(OpponentDeck.prototype, "processGainsLine")
     .mockImplementation(() => null);
@@ -13,11 +13,11 @@ describe("Function processDeckChanges", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    deck = new OpponentDeck("", false, "", "pName", "pNick", []);
   });
 
   it("Should use the provided act (gains) to call the correct line processor", () => {
     // Arrange
-    const deck = new OpponentDeck("", false, "", "pName", "pNick", []);
 
     // Arguments for function being tested
     const line = "pNick buys and gains a Copper.";
@@ -33,10 +33,9 @@ describe("Function processDeckChanges", () => {
     expect(processGainsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processTrashesLine).not.toBeCalled();
   });
-  
+
   it("Should use the provided act (trashes) to call the correct line processor", () => {
     // Arrange
-    const deck = new OpponentDeck("", false, "", "pName", "pNick", []);
 
     // Arguments for function being tested
     const line = "pNick trashes a Curse.";
@@ -52,5 +51,4 @@ describe("Function processDeckChanges", () => {
     expect(processTrashesLine).toBeCalledWith(cards, numberOfCards);
     expect(processGainsLine).not.toBeCalled();
   });
-  
 });
