@@ -187,7 +187,8 @@ describe("Function getActCardsAndCounts", () => {
 
   it("should handle consecutive buys of the same card correctly", () => {
     // Arrange
-    deck.logArchive = ["Log1", "pNick buys and gains a Silver."];
+    const initialLogArchive = ["Log1", "pNick buys and gains a Silver."];
+    deck.logArchive = initialLogArchive;
     deck.lastEntryProcessed = "pNick buys and gains a Silver.";
     const line = "pNick buys and gains 2 Silvers.";
     const expectedAct: string = "gains";
@@ -227,7 +228,7 @@ describe("Function getActCardsAndCounts", () => {
     expect(consecutiveBuysOfSameCard).toBeCalledWith("gains", line, "Silver");
     expect(consecutiveBuysOfSameCard.mock.results[0].value).toBe(true);
     expect(getRepeatBuyGainCounts).toBeCalledTimes(1);
-    expect(getRepeatBuyGainCounts).toBeCalledWith(line, deck.logArchive);
+    expect(getRepeatBuyGainCounts).toBeCalledWith(line, initialLogArchive);
     expect(getRepeatBuyGainCounts.mock.results[0].value).toBe(1);
   });
 });
