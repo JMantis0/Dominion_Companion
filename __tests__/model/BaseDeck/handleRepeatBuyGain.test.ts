@@ -1,7 +1,7 @@
 import { it, describe, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function handleRepeatBuyGain()", () => {
+describe("Function getRepeatBuyGainCounts()", () => {
 
   it("should return the difference between the amount of the card that is bought in the provided line, and the amount that is bought in the most recent logArchive entry, and remove the last member of the logArchive", () => {
     // Arrange
@@ -15,7 +15,7 @@ describe("Function handleRepeatBuyGain()", () => {
     const expectedDifference = 1;
     const expectedLogArchive = ["pNick plays 2 Golds. (+$6)"];
     // Act
-    const resultDifference = deck.handleRepeatBuyGain(line, logArchive);
+    const resultDifference = deck.getRepeatBuyGainCounts(line, logArchive);
     const resultLogArchive = deck.getLogArchive();
     // Assert
     expect(resultDifference).toEqual(expectedDifference);
@@ -35,7 +35,7 @@ describe("Function handleRepeatBuyGain()", () => {
     const expectedLogArchive = ["pNick plays 8 Golds. (+$24)"];
 
     // Act
-    const resultDifference = deck.handleRepeatBuyGain(line, logArchive);
+    const resultDifference = deck.getRepeatBuyGainCounts(line, logArchive);
     const resultLogArchive = deck.getLogArchive();
 
     // Assert
@@ -50,7 +50,7 @@ describe("Function handleRepeatBuyGain()", () => {
     const line = "Game #132083560, unrated.";
 
     // Act and Assert
-    expect(() => deck.handleRepeatBuyGain(line, logArchive)).toThrowError(
+    expect(() => deck.getRepeatBuyGainCounts(line, logArchive)).toThrowError(
       "Empty logArchive."
     );
   });
