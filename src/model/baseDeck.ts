@@ -513,8 +513,9 @@ export class BaseDeck {
    * @param logArchive - the current logArchive
    */
   popLastLogArchiveEntry(logArchive: string[]) {
-    logArchive.pop();
-    this.setLogArchive(logArchive);
+    const archiveCopy = logArchive.slice();
+    archiveCopy.pop();
+    this.setLogArchive(archiveCopy);
   }
 
   /**
