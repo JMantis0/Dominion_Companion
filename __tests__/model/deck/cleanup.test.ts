@@ -15,6 +15,17 @@ describe("Function cleanup()", () => {
     // Act
     deck.cleanup();
     // Assert
+    expect(deck.graveyard).toStrictEqual([
+      "Copper",
+      "Bandit",
+      "Laboratory",
+      "Copper",
+      "Remodel",
+      "Duchy",
+      "Estate",
+    ]);
+    expect(deck.hand).toStrictEqual([]);
+    expect(deck.inPlay).toStrictEqual([]);
     expect(setHand).toBeCalledTimes(1);
     expect(setHand).toBeCalledWith([]);
     expect(setInPlay).toBeCalledTimes(1);
