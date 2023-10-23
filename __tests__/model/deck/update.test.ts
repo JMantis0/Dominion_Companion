@@ -2,7 +2,7 @@ import { describe, it, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
-describe("Function update()", () => {
+describe("Method update()", () => {
   const deck = new Deck("", false, "", "pName", "pNick", [
     "Sentry",
     "Witch",

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function shuffleGraveYardIntoLibrary() ", () => {
+describe("Method shuffleGraveYardIntoLibrary() ", () => {
   it("should remove all cards from the graveyard and add them the library", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);

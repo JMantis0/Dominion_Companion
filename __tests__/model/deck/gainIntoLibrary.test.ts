@@ -1,7 +1,7 @@
 import { it, describe, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function gainIntoLibrary()", () => {
+describe("Method gainIntoLibrary()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
   // Spy on function dependency.

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function topDeckFromHand() ", () => {
+describe("Method topDeckFromHand() ", () => {
   it("should remove an instance of the provided card from hand, and add it to library", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);

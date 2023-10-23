@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processRevealsLine()", () => {
+describe("Method processRevealsLine()", () => {
   let deck = new Deck("", false, "", "pName", "pNick", []);
   const setAsideFromLibrary = jest
     .spyOn(Deck.prototype, "setAsideFromLibrary")

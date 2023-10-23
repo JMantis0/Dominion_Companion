@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function getActCardsAndCounts", () => {
+describe("Method getActCardsAndCounts", () => {
   let deck = new BaseDeck("", false, "", "pNick", "pName", [
     "Cellar",
     "Chapel",

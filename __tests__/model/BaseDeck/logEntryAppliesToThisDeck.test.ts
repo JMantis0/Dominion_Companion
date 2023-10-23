@@ -1,7 +1,7 @@
 import { it, describe, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function logEntryAppliesToThisDeck()", () => {
+describe("Method logEntryAppliesToThisDeck()", () => {
   it("should return true when the line has a match for the playerName or playerNick", () => {
     // Arrange
     const deck = new BaseDeck("", false, "", "pName", "pNick", []);

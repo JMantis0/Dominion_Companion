@@ -2,8 +2,8 @@ import { describe, it, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
-describe("Function shuffleAndCleanupIfNeeded()", () => {
-  // Mock function dependencies
+describe("Method shuffleAndCleanupIfNeeded()", () => {
+  // Spy on method dependencies
   const ifCleanUpNeeded = jest.spyOn(Deck.prototype, "ifCleanUpNeeded");
   const cleanup = jest
     .spyOn(Deck.prototype, "cleanup")

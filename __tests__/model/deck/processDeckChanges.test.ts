@@ -1,10 +1,11 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processDeckChanges", () => {
+describe("Method processDeckChanges", () => {
+  // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
 
-  // Mock function dependencies
+  // Spy on method dependencies
   const setWaitToShuffle = jest
     .spyOn(Deck.prototype, "setWaitToShuffle")
     .mockImplementation(() => null);
@@ -40,7 +41,7 @@ describe("Function processDeckChanges", () => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
-  it("Should use the provided act to call the correct line processor (shuffles their deck)", () => {
+  it("should only call method setWaitToShuffle when the act is 'shuffles their deck'.", () => {
     // Arguments for function being tested
     const line = "pNick shuffles their deck.";
     const act = "shuffles their deck";
@@ -64,7 +65,7 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (gains) to call the correct line processor", () => {
+  it("should only call method processGainsLine when the act is 'gains'.", () => {
     // Arguments for function being tested
     const line = "pNick buys and gains a Copper.";
     const act = "gains";
@@ -88,7 +89,7 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (draws) to call the correct line processor", () => {
+  it("should should only call method processDrawsLine when the act is 'draws'.", () => {
     // Arguments for function being tested
     const line = "pNick draws 4 Coppers and an Estate.";
     const act = "draws";
@@ -112,7 +113,7 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (discards) to call the correct line processor", () => {
+  it("should only call method processDiscardsLine when the act is 'discards'", () => {
     // Arguments for function being tested
     const line = "pNick discards 4 Coppers and an Estate.";
     const act = "discards";
@@ -136,8 +137,8 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (plays) to call the correct line processor", () => {
-    // Arguments for function being tested
+  it("should only call processPlaysLine when the act is 'plays'", () => {
+    // Arguments for function being tested.
     const line = "pNick plays a Bandit.";
     const act = "plays";
     const cards: string[] = ["Bandit"];
@@ -160,8 +161,8 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (trashes) to call the correct line processor", () => {
-    // Arguments for function being tested
+  it("should only call method processTrashesLine when the act is 'trashes'.", () => {
+    // Arguments for function being tested.
     const line = "pNick trashes a Curse.";
     const act = "trashes";
     const cards: string[] = ["Curse"];
@@ -184,7 +185,7 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (topdecks) to call the correct line processor", () => {
+  it("should only call method processTopDecksLine when the act is 'topdecks'.", () => {
     // Arguments for function being tested
     const line = "pNick topdecks a Festival.";
     const act = "topdecks";
@@ -208,7 +209,7 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (looks at) to call the correct line processor", () => {
+  it("should only call method processLooksAtLine when the act is 'looks at'.", () => {
     // Arguments for function being tested
     const line = "pNick looks at a Cellar.";
     const act = "looks at";
@@ -232,7 +233,7 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("should handle reveals lines correctly", () => {
+  it("should only call method processRevealsLine when the act is 'reveals'.", () => {
     const line = "pNick reveals a Gold and a Chapel.";
     const act = "reveals";
     const cards = ["Gold", "Chapel"];

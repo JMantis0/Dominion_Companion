@@ -1,7 +1,7 @@
 import { describe, it, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processDrawsLine", () => {
+describe("Method processDrawsLine", () => {
   // Case where there are 5 draws taking place on one line and a shuffle occurred
   // on the previous line: no cleanup should occur.
   it("should not cleanup before drawing if lastLineProcessed is a shuffle", () => {

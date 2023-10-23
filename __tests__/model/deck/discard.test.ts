@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function discard()", () => {
+describe("Method discard()", () => {
   let deck = new Deck("", false, "", "pName", "pNick", []);
   const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
   const setHand = jest.spyOn(Deck.prototype, "setHand");

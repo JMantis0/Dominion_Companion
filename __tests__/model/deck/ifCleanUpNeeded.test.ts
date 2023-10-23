@@ -1,10 +1,10 @@
 import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function ifCleanUpNeeded()", () => {
+describe("Method ifCleanUpNeeded()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies
+  // Spy on method dependencies
   const checkForCleanUp = jest.spyOn(Deck.prototype, "checkForCleanUp");
   const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
 

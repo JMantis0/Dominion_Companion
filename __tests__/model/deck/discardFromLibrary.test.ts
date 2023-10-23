@@ -2,10 +2,10 @@ import { it, describe, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
-describe("Function discardFromLibrary()", () => {
+describe("Method discardFromLibrary()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies
+  // Spy on method dependencies
   const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
   const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
 

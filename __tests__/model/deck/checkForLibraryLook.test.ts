@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function checkForLibraryLook()", () => {
+describe("Method checkForLibraryLook()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
 

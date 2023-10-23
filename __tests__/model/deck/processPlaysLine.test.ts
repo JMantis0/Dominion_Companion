@@ -1,9 +1,9 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processRevealsLine()", () => {
+describe("Method processRevealsLine()", () => {
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Mock function dependencies
+  // Spy on method dependencies
   const checkForVassalPlay = jest
     .spyOn(Deck.prototype, "checkForVassalPlay")
     .mockImplementation(() => false);

@@ -1,9 +1,9 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 
-describe("Function processGainsLine", () => {
+describe("Method processGainsLine", () => {
   let deck = new OpponentDeck("", false, "", "oName", "oNick", []);
-  // Mock function dependencies
+  // Spy on method dependencies
   const checkForBuyAndGain = jest.spyOn(
     OpponentDeck.prototype,
     "checkForBuyAndGain"

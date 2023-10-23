@@ -1,9 +1,9 @@
 import { it, describe, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
-describe("Function cleanup()", () => {
+describe("Method cleanup()", () => {
   // Instantiate Deck object
   const deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies
+  // Spy on method dependencies
   const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
   const setInPlay = jest.spyOn(Deck.prototype, "setInPlay");
   const setHand = jest.spyOn(Deck.prototype, "setHand");

@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function removeCardFromEntireDeck()", () => {
+describe("Method removeCardFromEntireDeck()", () => {
   // Instantiate BaseDeck object
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
   // Spy on function dependency

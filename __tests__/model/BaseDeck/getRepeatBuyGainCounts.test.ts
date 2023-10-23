@@ -2,7 +2,7 @@ import { it, describe, expect, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 import { afterEach } from "node:test";
 
-describe("Function getRepeatBuyGainCounts()", () => {
+describe("Method getRepeatBuyGainCounts()", () => {
   let deck = new BaseDeck("", false, "", "pNick", "pName", []);
   const setLogArchive = jest.spyOn(BaseDeck.prototype, "setLogArchive");
   afterEach(() => {

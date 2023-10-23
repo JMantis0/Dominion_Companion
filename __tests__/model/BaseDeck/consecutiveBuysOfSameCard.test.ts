@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function consecutiveBuysOfSameCard()", () => {
+describe("Method consecutiveBuysOfSameCard()", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
   const checkForBuyAndGain = jest.spyOn(
     BaseDeck.prototype,

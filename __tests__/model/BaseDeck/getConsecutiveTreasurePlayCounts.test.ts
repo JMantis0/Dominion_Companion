@@ -1,7 +1,7 @@
 import { it, describe, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function getConsecutiveTreasurePlayCounts()", () => {
+describe("Method getConsecutiveTreasurePlayCounts()", () => {
   it("should return an array with the correct number of Coppers to play", () => {
     // Arrange
     const deck = new BaseDeck("", false, "", "pNick", "pName", []);

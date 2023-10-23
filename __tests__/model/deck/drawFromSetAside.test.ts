@@ -1,10 +1,10 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function drawFromSetAside()", () => {
+describe("Method drawFromSetAside()", () => {
   // Instantiate Deck object
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies
+  // Spy on method dependencies
   const setSetAside = jest
     .spyOn(Deck.prototype, "setSetAside")
     .mockImplementation(() => null);

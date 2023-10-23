@@ -1,9 +1,9 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 
-describe("Function processTrashesLine", () => {
+describe("Method processTrashesLine", () => {
   let deck = new OpponentDeck("", false, "", "oName", "oNick", []);
-  // Mock function dependencies
+  // Spy on method dependencies
   const setTrash = jest.spyOn(OpponentDeck.prototype, "setTrash");
   const removeCardFromEntireDeck = jest.spyOn(
     OpponentDeck.prototype,

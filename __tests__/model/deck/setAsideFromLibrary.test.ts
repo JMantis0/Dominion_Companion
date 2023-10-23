@@ -1,7 +1,7 @@
 import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function setAsideFromLibrary()", () => {
+describe("Method setAsideFromLibrary()", () => {
   it("should remove an instance of the provided card from the library and add it to the setAside zone", () => {
     // Arrange
     const deck = new Deck("", false, "", "pName", "pNick", []);

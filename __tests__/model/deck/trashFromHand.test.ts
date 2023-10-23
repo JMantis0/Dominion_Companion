@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function trashFromHand() ", () => {
+describe("Method trashFromHand() ", () => {
   let deck = new Deck("", false, "", "pName", "pNick", []);
   const setTrash = jest.spyOn(Deck.prototype, "setTrash");
   const removeCardFromEntireDeck = jest.spyOn(

@@ -4,7 +4,7 @@
 import { it, describe, expect, beforeEach, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function checkForVassalPlay()", () => {
+describe("Method checkForVassalPlay()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
   // Create elements to simulate Client DOM

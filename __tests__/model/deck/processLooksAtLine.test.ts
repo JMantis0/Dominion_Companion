@@ -1,10 +1,10 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processLooksAtLine", () => {
+describe("Method processLooksAtLine", () => {
   // Instantiate deck object
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies
+  // Spy on method dependencies
   const draw = jest
     .spyOn(Deck.prototype, "draw")
     .mockImplementation(() => null);

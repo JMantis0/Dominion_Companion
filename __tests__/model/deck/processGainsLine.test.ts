@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processGainsLine()", () => {
+describe("Method processGainsLine()", () => {
   let deck = new Deck("", false, "", "pNick", "pName", []);
   // Spy on dependency functions
   const checkForBuyAndGain = jest.spyOn(Deck.prototype, "checkForBuyAndGain");

@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function checkForTreasurePlayLine()", () => {
+describe("Method checkForTreasurePlayLine()", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
   
   afterEach(() => {
