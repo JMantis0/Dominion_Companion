@@ -1,6 +1,5 @@
-import { it, describe, expect, jest } from "@jest/globals";
+import { it, describe, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
-import { afterEach } from "node:test";
 
 describe("Function gain()", () => {
   // Instantiate Deck object.
