@@ -543,12 +543,16 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   play(card: string) {
     const index = this.hand.indexOf(card);
-    if (index > -1) {
-      if (this.debug) console.info(`Playing ${card} from hand into play.`);
-      this.inPlay.push(card);
-      this.hand.splice(index, 1);
-    } else {
+    if (index < 0) {
       throw new Error(`No ${card} in hand.`);
+    } else {
+      if (this.debug) console.info(`Playing ${card} from hand into play.`);
+      const inPlayCopy = this.inPlay.slice();
+      const handCopy = this.hand.slice();
+      inPlayCopy.push(card);
+      handCopy.splice(index, 1);
+      this.setInPlay(inPlayCopy);
+      this.setHand(handCopy);
     }
   }
 
@@ -561,13 +565,17 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   playFromDiscard(card: string) {
     const index = this.graveyard.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in discard pile.`);
+    } else {
       if (this.debug)
         console.info(`Playing ${card} from discard pile into play.`);
-      this.inPlay.push(card);
-      this.graveyard.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in discard pile.`);
+      const inPlayCopy = this.inPlay.slice();
+      const graveyardCopy = this.graveyard.slice();
+      inPlayCopy.push(card);
+      graveyardCopy.splice(index, 1);
+      this.setInPlay(inPlayCopy);
+      this.setGraveyard(graveyardCopy);
     }
   }
 
@@ -575,9 +583,9 @@ export class Deck extends BaseDeck implements StoreDeck {
    * Update function.  Calls the appropriate process line function to update
    * the deck state.
    * @param line - The current line being processed.
-   * @param act - The act from the current line. ie: draws, discards
+   * @param act - The act from the current line. ie: draws, discards.
    * @param cards - The array of cards collected from the line.
-   * @param numberOfCards - The array of card amounts collected from the line
+   * @param numberOfCards - The array of card amounts collected from the line.
    */
   processDeckChanges(
     line: string,
@@ -613,6 +621,10 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "reveals":
         this.processRevealsLine(cards, numberOfCards);
         break;
+      case "aside with Library":
+        // No need to take action here, but this placing this switch case
+        // here as a reminder that this act exists, and needs to exist for the function
+        // libraryTriggeredPreviousLineDraw to work correctly.
     }
   }
 
