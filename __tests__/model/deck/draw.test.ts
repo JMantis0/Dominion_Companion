@@ -1,43 +1,58 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function draw()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on function dependencies
+  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
+  const setHand = jest.spyOn(Deck.prototype, "setHand");
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
   it("should remove one instance of the provided card from the library and add it to the hand", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
-    const library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
-    deck.setHand(hand);
-    deck.setLibrary(library);
-    const card = "Copper";
+    deck.hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
+    deck.library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
 
-    // Act
-    deck.draw(card);
-    const resultHand = deck.getHand();
-    const resultLibrary = deck.getLibrary();
-    const expectedHand = [
+    // Act - Simulate drawing a Copper from library to hand.
+    deck.draw("Copper");
+
+    expect(deck.hand).toStrictEqual([
       "Copper",
       "Copper",
       "Copper",
       "Estate",
       "Estate",
       "Copper",
-    ];
-    const expectedLibrary = ["Estate", "Copper", "Copper", "Copper"];
-
-    // Assert
-    expect(resultHand).toStrictEqual(expectedHand);
-    expect(resultLibrary).toStrictEqual(expectedLibrary);
+    ]);
+    expect(deck.library).toStrictEqual([
+      "Estate",
+      "Copper",
+      "Copper",
+      "Copper",
+    ]);
+    expect(setLibrary).toBeCalledTimes(1);
+    expect(setLibrary).toBeCalledWith(["Estate", "Copper", "Copper", "Copper"]);
+    expect(setHand).toBeCalledTimes(1);
+    expect(setHand).toBeCalledWith([
+      "Copper",
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Copper",
+    ]);
   });
-  
+
   it("should throw an error when the provided card is not in library", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
-    deck.setLibrary(library);
-    const card = "Sentry";
+    deck.library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
 
-    // Act and Assert
-    expect(() => deck.draw(card)).toThrowError("No Sentry in library.");
+    // Act and Assert - Simulate drawing a card that is not in library.
+    expect(() => deck.draw("Sentry")).toThrowError("No Sentry in library.");
   });
 });

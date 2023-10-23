@@ -332,8 +332,12 @@ export class Deck extends BaseDeck implements StoreDeck {
     const index = this.setAside.indexOf(card);
     if (index > -1) {
       if (this.debug) console.log(`Discarding ${card} from setAside`);
-      this.graveyard.push(card);
-      this.setAside.splice(index, 1);
+      const graveyardCopy = this.graveyard.slice();
+      const setAsideCopy = this.setAside.slice();
+      graveyardCopy.push(card);
+      setAsideCopy.splice(index, 1);
+      this.setGraveyard(graveyardCopy);
+      this.setSetAside(setAsideCopy);
     } else {
       throw new Error(`No ${card} in setAside.`);
     }
@@ -349,8 +353,12 @@ export class Deck extends BaseDeck implements StoreDeck {
     const index = this.library.indexOf(card);
     if (index > -1) {
       if (this.debug) console.info(`Drawing ${card} from library into hand.`);
-      this.hand.push(card);
-      this.library.splice(index, 1);
+      const handCopy = this.hand.slice();
+      const libraryCopy = this.library.slice();
+      handCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setHand(handCopy);
+      this.setLibrary(libraryCopy);
     } else {
       throw new Error(`No ${card} in library.`);
     }
