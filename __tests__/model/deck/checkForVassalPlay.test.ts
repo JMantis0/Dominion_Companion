@@ -5,7 +5,9 @@ import { it, describe, expect, beforeEach, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function checkForVassalPlay()", () => {
-  const deck: Deck = new Deck("", false, "", "pName", "pNick", []);
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Create elements to simulate Client DOM
   const logLineContainer = document.createElement("div");
   const logLine1Element = document.createElement("div");
   const logLine2Element = document.createElement("div");
@@ -51,6 +53,7 @@ describe("Function checkForVassalPlay()", () => {
   });
   // Clear the DOM after each test
   afterEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", []);
     document.body.innerHTML = "";
   });
   it("should return true if the most recent play was a Vassal whose div element has equal left padding to the current div element", () => {
@@ -72,7 +75,7 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should return false if the most recent play was a Vassal whose div element has equal left padding to the current div element", () => {
     //  Arrange
-    deck.logArchive= [
+    deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
@@ -82,7 +85,7 @@ describe("Function checkForVassalPlay()", () => {
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine5Element.style.paddingLeft = "0%";
-    
+
     // Act
     const result = deck.checkForVassalPlay();
 
@@ -92,7 +95,7 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should return false when the most recent play in the logArchive is not a Vassal", () => {
     // Arrange
-    deck.logArchive= [
+    deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Sentry.",
       "pNick draws a Gold.",
@@ -117,7 +120,7 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should throw an error if the element for the current line paddingLeft property values to not end in a '%' character", () => {
     //  Arrange
-    deck.logArchive= [
+    deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
@@ -136,7 +139,7 @@ describe("Function checkForVassalPlay()", () => {
 
   it("should throw an error if the element for the previous line paddingLeft property values to not end in a '%' character", () => {
     //  Arrange
-    deck.logArchive= [
+    deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Vassal.",
       "pNick gets +$2.",
