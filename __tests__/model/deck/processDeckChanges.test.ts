@@ -232,30 +232,6 @@ describe("Function processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("Should use the provided act (looks at) to call the correct line processor", () => {
-    // Arguments for function being tested
-    const line = "pNick sets Mine aside with Library.";
-    const act = "aside with Library";
-    const cards: string[] = ["Mine"];
-    const numberOfCards: number[] = [1];
-
-    // Act - simulate processing a aside with Library line.
-    deck.processDeckChanges(line, act, cards, numberOfCards);
-
-    // Assert
-    expect(setAsideFromLibrary).toBeCalledTimes(1);
-    expect(setAsideFromLibrary).toBeCalledWith("Mine");
-    expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
-    expect(processTrashesLine).not.toBeCalled();
-    expect(processPlaysLine).not.toBeCalled();
-    expect(processDiscardsLine).not.toBeCalled();
-    expect(processDrawsLine).not.toBeCalled();
-    expect(processGainsLine).not.toBeCalled();
-    expect(setWaitToShuffle).not.toBeCalled();
-    expect(processRevealsLine).not.toBeCalled();
-  });
-
   it("should handle reveals lines correctly", () => {
     const line = "pNick reveals a Gold and a Chapel.";
     const act = "reveals";

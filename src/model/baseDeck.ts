@@ -323,7 +323,6 @@ export class BaseDeck {
   getActionFromEntry(entry: string): string {
     let act: string = "None";
     const actionArray = [
-      "aside with Library",
       "discards",
       "draws",
       "gains",

@@ -1,37 +1,35 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function discard()", () => {
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+  const setHand = jest.spyOn(Deck.prototype, "setHand");
+  afterEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", []);
+    jest.clearAllMocks();
+  });
   it("should remove one instance of the provided card from the hand and add it to the graveyard", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    // Initial hand and library to simulate first turn.
-    const hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
-    const library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
-    deck.setHand(hand);
-    deck.setLibrary(library);
-    const card = "Copper";
+    deck.hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
 
-    // Act
-    deck.discard(card);
-    const resultHand = deck.getHand();
-    const resultGraveyard = deck.getGraveyard();
+    // Act - Simulate discarding a Copper from hand.
+    deck.discard("Copper");
 
     // Assert
-    expect(resultHand).toStrictEqual(["Copper", "Copper", "Estate", "Estate"]);
-    expect(resultGraveyard).toStrictEqual(["Copper"]);
+    expect(deck.graveyard).toStrictEqual(["Copper"]);
+    expect(deck.hand).toStrictEqual(["Copper", "Copper", "Estate", "Estate"]);
+    expect(setHand).toBeCalledTimes(1);
+    expect(setHand).toBeCalledWith(["Copper", "Copper", "Estate", "Estate"]);
+    expect(setGraveyard).toBeCalledTimes(1);
+    expect(setGraveyard).toBeCalledWith(["Copper"]);
   });
+
   it("should throw an error when the provided card is not in hand", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    // Initial hand and library to simulate first turn.
-    const hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
-    const library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
-    deck.setHand(hand);
-    deck.setLibrary(library);
-    const card = "Sentry";
+    deck.hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
 
-    // Act and Assert
-    expect(() => deck.discard(card)).toThrowError("No Sentry in hand.");
+    // Act and Assert - Simulate trying to discard a card that is not in hand.
+    expect(() => deck.discard("Sentry")).toThrowError("No Sentry in hand.");
   });
 });

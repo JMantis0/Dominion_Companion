@@ -88,7 +88,7 @@ describe("Function processLooksAtLine", () => {
     expect(setAsideFromLibrary).not.toBeCalled();
   });
 
-  it("should set class field waitToDrawLibraryLook to true for certain cards that are looked at by a Library", () => {
+  it("should move cards that looked at by a Library, but not drawn immediately to setAside, and waitToDrawLibraryLook should be set to true", () => {
     // Arrange
     deck.latestPlay = "Library";
     // Arguments for function being tested
@@ -101,7 +101,8 @@ describe("Function processLooksAtLine", () => {
     // Assert
     expect(setWaitToDrawLibraryLook).toHaveBeenCalledTimes(1);
     expect(setWaitToDrawLibraryLook).toHaveBeenCalledWith(true);
-    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(setAsideFromLibrary).toBeCalledTimes(1);
+    expect(setAsideFromLibrary).toBeCalledWith("Mine");
     expect(draw).not.toBeCalled();
   });
 });

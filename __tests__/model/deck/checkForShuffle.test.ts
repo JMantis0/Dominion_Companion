@@ -1,28 +1,26 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function checkForShuffle()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+
+  afterEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
   it("should return true when the provided line matches the string ' shuffles their deck'.", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const line = "pNick shuffles their deck.";
-    deck.setLastEntryProcessed(line);
-    
-    // Act
-    const result = deck.checkForShuffle();
+    deck.lastEntryProcessed = "pNick shuffles their deck.";
 
-    // Assert
-    expect(result).toBeTruthy();
+    // Act and Assert
+    expect(deck.checkForShuffle()).toBeTruthy();
   });
+  
   it("should return false when the provided line does not match ' shuffles their deck'", () => {
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const line = "pNick draws a Copper.";
-    deck.setLastEntryProcessed(line);
+    deck.lastEntryProcessed = "pNick draws a Copper.";
 
-    // Act
-    const result = deck.checkForShuffle();
-
-    // Assert
-    expect(result).toBeFalsy();
+    // Act and Assert
+    expect(deck.checkForShuffle()).toBeFalsy();
   });
 });

@@ -1,25 +1,44 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 describe("Function cleanup()", () => {
+  // Instantiate Deck object
+  const deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on function dependencies
+  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+  const setInPlay = jest.spyOn(Deck.prototype, "setInPlay");
+  const setHand = jest.spyOn(Deck.prototype, "setHand");
   it("should remove all members from the hand and inPlay field arrays, and add them to the graveyard field array", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const graveyard = ["Copper"];
-    const hand = ["Estate", "Duchy", "Remodel"];
-    const inPlay = ["Copper", "Laboratory", "Bandit"];
-    deck.setGraveyard(graveyard);
-    deck.setHand(hand);
-    deck.setInPlay(inPlay);
-
+    deck.graveyard = ["Copper"];
+    deck.inPlay = ["Copper", "Laboratory", "Bandit"];
+    deck.hand = ["Estate", "Duchy", "Remodel"];
     // Act
     deck.cleanup();
-    const result1 = deck.getGraveyard();
-    const result2 = deck.getInPlay();
-    const result3 = deck.getHand();
-
     // Assert
-    expect(result1).toStrictEqual(graveyard.concat(hand.concat(inPlay)));
-    expect(result2).toStrictEqual([]);
-    expect(result3).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual([
+      "Copper",
+      "Bandit",
+      "Laboratory",
+      "Copper",
+      "Remodel",
+      "Duchy",
+      "Estate",
+    ]);
+    expect(deck.hand).toStrictEqual([]);
+    expect(deck.inPlay).toStrictEqual([]);
+    expect(setHand).toBeCalledTimes(1);
+    expect(setHand).toBeCalledWith([]);
+    expect(setInPlay).toBeCalledTimes(1);
+    expect(setInPlay).toBeCalledWith([]);
+    expect(setGraveyard).toBeCalledTimes(1);
+    expect(setGraveyard).toBeCalledWith([
+      "Copper",
+      "Bandit",
+      "Laboratory",
+      "Copper",
+      "Remodel",
+      "Duchy",
+      "Estate",
+    ]);
   });
 });
