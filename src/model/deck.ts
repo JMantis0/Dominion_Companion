@@ -251,6 +251,9 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   cleanup() {
     if (this.debug) console.group("Cleaning up:");
+    const handCopy = this.hand.slice();
+    const inPlayCopy = this.inPlay.slice();
+    const graveYardCopy = this.graveyard.slice();
     let i = this.inPlay.length - 1;
     let j = this.hand.length - 1;
     for (i; i >= 0; i--) {
@@ -258,15 +261,18 @@ export class Deck extends BaseDeck implements StoreDeck {
         console.info(
           `Moving ${this.inPlay[i]} from in play into into discard pile.`
         );
-      this.graveyard.push(this.inPlay[i]);
-      this.inPlay.splice(i, 1);
+      graveYardCopy.push(this.inPlay[i]);
+      inPlayCopy.splice(i, 1);
     }
     for (j; j >= 0; j--) {
       if (this.debug)
         console.info(`Moving ${this.hand[j]} from hand into discard pile.`);
-      this.graveyard.push(this.hand[j]);
-      this.hand.splice(j, 1);
+      graveYardCopy.push(this.hand[j]);
+      handCopy.splice(j, 1);
     }
+    this.setHand(handCopy);
+    this.setInPlay(inPlayCopy);
+    this.setGraveyard(graveYardCopy);
     if (this.debug) console.groupEnd();
   }
 
