@@ -690,7 +690,6 @@ export class Deck extends BaseDeck implements StoreDeck {
           }
           this.gain(cards[i]);
         }
-        this.addCardToEntireDeck(cards[i]);
       }
     }
   }
