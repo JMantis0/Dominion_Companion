@@ -1,20 +1,32 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function gain()", () => {
+describe("Function gainIntoLibrary()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pNick", "pName", []);
+  // Spy on function dependency.
+  const setHand = jest.spyOn(Deck.prototype, "setHand");
+  const addCardToEntireDeck = jest.spyOn(Deck.prototype, "addCardToEntireDeck");
+
+  afterEach(() => {
+    deck = new Deck("", false, "", "pNick", "pName", []);
+    jest.clearAllMocks();
+  });
+
   it("should add the provided card to the hand", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const hand = ["Copper"];
-    const card = "Chapel";
-    deck.setHand(hand);
+    deck.hand = ["Copper"];
+    deck.entireDeck = ["Estate", "Copper"];
 
-    // Act
-    deck.gainIntoHand(card);
-    const resultHand = deck.getHand();
-    const expectedHand = ["Copper", "Chapel"];
+    // Act - Simulate gaining a Chapel into hand (as with Artisan).
+    deck.gainIntoHand("Chapel");
 
     // Assert
-    expect(resultHand).toStrictEqual(expectedHand);
+    expect(deck.hand).toStrictEqual(["Copper", "Chapel"]);
+    expect(deck.entireDeck).toStrictEqual(["Estate", "Copper", "Chapel"]);
+    expect(setHand).toBeCalledTimes(1);
+    expect(setHand).toBeCalledWith(["Copper", "Chapel"]);
+    expect(addCardToEntireDeck).toBeCalledTimes(1);
+    expect(addCardToEntireDeck).toBeCalledWith("Chapel");
   });
 });

@@ -105,11 +105,8 @@ describe("Function getActCardsAndCounts", () => {
     // Arrange
     const line = "pNick discards a Vassal, an Estate, 2 Curses, and 5 Golds.";
     const expectedAct: string = "discards";
-
-    // Note about order of cards in the array:
-    // Order is coming from the order than the cards appear in the kingdom, not the line.
-    const expectedCards: string[] = ["Vassal", "Curse", "Estate", "Gold"];
-    const expectedNumber: number[] = [1, 2, 1, 5];
+    const expectedCards: string[] = ["Vassal", "Estate", "Curse", "Gold"];
+    const expectedNumber: number[] = [1, 1, 2, 5];
 
     // Act
     const {
@@ -151,9 +148,6 @@ describe("Function getActCardsAndCounts", () => {
     deck.lastEntryProcessed = "pNick plays 2 Coppers and a Silver.";
     const line = "pNick plays 2 Coppers and 2 Silvers.";
     const expectedAct: string = "plays";
-
-    // Note about order of cards in the array:
-    // Order is coming from the order than the cards appear in the kingdom, not the line.
     const expectedCards: string[] = ["Copper", "Silver", "Gold"];
     const expectedNumber: number[] = [0, 1, 0];
     const expectedLogArchive = ["Log1"];
@@ -192,9 +186,6 @@ describe("Function getActCardsAndCounts", () => {
     deck.lastEntryProcessed = "pNick buys and gains a Silver.";
     const line = "pNick buys and gains 2 Silvers.";
     const expectedAct: string = "gains";
-
-    // Note about order of cards in the array:
-    // Order is coming from the order than the cards appear in the kingdom, not the line.
     const expectedCards: string[] = ["Silver"];
     const expectedNumber: number[] = [1];
     const expectedLogArchive = ["Log1"];

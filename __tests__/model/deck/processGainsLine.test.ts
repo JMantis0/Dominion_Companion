@@ -1,9 +1,9 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processGainLine()", () => {
+describe("Function processGainsLine()", () => {
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Mock dependency functions
+  // Spy on dependency functions
   const checkForBuyAndGain = jest.spyOn(Deck.prototype, "checkForBuyAndGain");
   const checkPreviousLineProcessedFoCurrentCardBuy = jest.spyOn(
     Deck.prototype,
@@ -12,7 +12,7 @@ describe("Function processGainLine()", () => {
   const gain = jest.spyOn(Deck.prototype, "gain");
   const addCardToEntireDeck = jest.spyOn(Deck.prototype, "addCardToEntireDeck");
   const gainIntoHand = jest.spyOn(Deck.prototype, "gainIntoHand");
-  const gainIntoDeck = jest.spyOn(Deck.prototype, "gainIntoDeck");
+  const gainIntoLibrary = jest.spyOn(Deck.prototype, "gainIntoLibrary");
   const popLastLogArchiveEntry = jest.spyOn(
     Deck.prototype,
     "popLastLogArchiveEntry"
@@ -59,7 +59,7 @@ describe("Function processGainLine()", () => {
     expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
     // Negative Assertions
     expect(gainIntoHand).not.toBeCalled();
-    expect(gainIntoDeck).not.toBeCalled();
+    expect(gainIntoLibrary).not.toBeCalled();
     expect(popLastLogArchiveEntry).not.toBeCalled();
   });
 
@@ -104,7 +104,7 @@ describe("Function processGainLine()", () => {
     expect(popLastLogArchiveEntry).toBeCalledTimes(1);
     // Negative Assertions
     expect(gainIntoHand).not.toBeCalled();
-    expect(gainIntoDeck).not.toBeCalled();
+    expect(gainIntoLibrary).not.toBeCalled();
   });
 
   // Case Gain into hand
@@ -137,7 +137,7 @@ describe("Function processGainLine()", () => {
     expect(checkForBuyAndGain).not.toBeCalled();
     expect(popLastLogArchiveEntry).not.toBeCalled();
     expect(checkPreviousLineProcessedFoCurrentCardBuy).not.toBeCalled();
-    expect(gainIntoDeck).not.toBeCalled();
+    expect(gainIntoLibrary).not.toBeCalled();
   });
 
   // Case Gain into library
@@ -164,8 +164,8 @@ describe("Function processGainLine()", () => {
 
     expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
     expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    expect(gainIntoDeck).toBeCalledTimes(1);
-    expect(gainIntoDeck).toBeCalledWith("Silver");
+    expect(gainIntoLibrary).toBeCalledTimes(1);
+    expect(gainIntoLibrary).toBeCalledWith("Silver");
     // Negative Assertions
     expect(gain).not.toBeCalled();
     expect(gainIntoHand).not.toBeCalled();

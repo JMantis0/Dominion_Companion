@@ -313,8 +313,12 @@ export class Deck extends BaseDeck implements StoreDeck {
         console.info(
           `Discarding ${this.library[index]} from library into discard pile.`
         );
-      this.graveyard.push(this.library[index]);
-      this.library.splice(index, 1);
+      const graveyardCopy = this.graveyard.slice();
+      const libraryCopy = this.library.slice();
+      graveyardCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setGraveyard(graveyardCopy);
+      this.setLibrary(libraryCopy);
     } else {
       throw new Error(`No ${card} in library.`);
     }
@@ -328,8 +332,12 @@ export class Deck extends BaseDeck implements StoreDeck {
     const index = this.setAside.indexOf(card);
     if (index > -1) {
       if (this.debug) console.log(`Discarding ${card} from setAside`);
-      this.graveyard.push(card);
-      this.setAside.splice(index, 1);
+      const graveyardCopy = this.graveyard.slice();
+      const setAsideCopy = this.setAside.slice();
+      graveyardCopy.push(card);
+      setAsideCopy.splice(index, 1);
+      this.setGraveyard(graveyardCopy);
+      this.setSetAside(setAsideCopy);
     } else {
       throw new Error(`No ${card} in setAside.`);
     }
@@ -345,8 +353,12 @@ export class Deck extends BaseDeck implements StoreDeck {
     const index = this.library.indexOf(card);
     if (index > -1) {
       if (this.debug) console.info(`Drawing ${card} from library into hand.`);
-      this.hand.push(card);
-      this.library.splice(index, 1);
+      const handCopy = this.hand.slice();
+      const libraryCopy = this.library.slice();
+      handCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setHand(handCopy);
+      this.setLibrary(libraryCopy);
     } else {
       throw new Error(`No ${card} in library.`);
     }
@@ -381,7 +393,10 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
+      if (this.debug)
+        console.info(
+          `Drawing ${card} set aside by Library from setAside into hand.`
+        );
       const handCopy = this.hand.slice();
       const setAsideCopy = this.setAside.slice();
       handCopy.push(card);
@@ -409,16 +424,10 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   gain(card: string) {
     if (this.debug) console.info(`Gaining ${card} into discard pile.`);
-    this.graveyard.push(card);
-  }
-
-  /**
-   * Takes a card and pushes it to the library field array.
-   * @param card
-   */
-  gainIntoDeck(card: string) {
-    if (this.debug) console.info(`Gaining ${card} into deck.`);
-    this.library.push(card);
+    const graveYardCopy = this.graveyard.slice();
+    graveYardCopy.push(card);
+    this.setGraveyard(graveYardCopy);
+    this.addCardToEntireDeck(card);
   }
 
   /**
@@ -427,7 +436,22 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   gainIntoHand(card: string) {
     if (this.debug) console.info(`Gaining ${card} into hand.`);
-    this.hand.push(card);
+    const handCopy = this.hand.slice();
+    handCopy.push(card);
+    this.setHand(handCopy);
+    this.addCardToEntireDeck(card);
+  }
+
+  /**
+   * Takes a card and pushes it to the library field array.
+   * @param card
+   */
+  gainIntoLibrary(card: string) {
+    if (this.debug) console.info(`Gaining ${card} into deck.`);
+    const libraryCopy = this.library.slice();
+    libraryCopy.push(card);
+    this.setLibrary(libraryCopy);
+    this.addCardToEntireDeck(card);
   }
 
   /**
@@ -651,7 +675,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (mostRecentPlay === "Bureaucrat") {
-          this.gainIntoDeck(cards[i]);
+          this.gainIntoLibrary(cards[i]);
         } else if (mostRecentPlay === "Mine" || mostRecentPlay === "Artisan") {
           this.gainIntoHand(cards[i]);
         } else {
@@ -666,7 +690,6 @@ export class Deck extends BaseDeck implements StoreDeck {
           }
           this.gain(cards[i]);
         }
-        this.addCardToEntireDeck(cards[i]);
       }
     }
   }
@@ -905,8 +928,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug)
-        console.info(`Trashing ${card} from setAside.`);
+      if (this.debug) console.info(`Trashing ${card} from setAside.`);
       // Remove from entireDeck
       this.removeCardFromEntireDeck(card);
       // Add card to trash

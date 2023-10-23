@@ -1,35 +1,41 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function discardFromSetAside()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on function dependencies
+  const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
+  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
   it("should remove the provided card from the setAside zone and add it to the graveyard", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const setAside = ["Sentry", "Vassal"];
-    const graveyard = ["Curse"];
-    deck.setSetAside(setAside);
-    deck.setGraveyard(graveyard);
-    const card = "Vassal";
+    deck.setAside = ["Sentry", "Vassal"];
+    deck.graveyard = ["Curse"];
 
-    // Act
-    deck.discardFromSetAside(card);
-    const resultSetAside = deck.getSetAside();
-    const resultGraveyard = deck.getGraveyard();
+    // Act - Simulate discarding a Vassal from setAside.
+    deck.discardFromSetAside("Vassal");
 
     // Assert
-    expect(resultSetAside).toStrictEqual(["Sentry"]);
-    expect(resultGraveyard).toStrictEqual(["Curse", "Vassal"]);
+    expect(deck.setAside).toStrictEqual(["Sentry"]);
+    expect(deck.graveyard).toStrictEqual(["Curse", "Vassal"]);
+    expect(setGraveyard).toBeCalledTimes(1);
+    expect(setGraveyard).toBeCalledWith(["Curse", "Vassal"]);
+    expect(setSetAside).toBeCalledTimes(1);
+    expect(setSetAside).toBeCalledWith(["Sentry"]);
   });
-  
+
   it("throw an Error when the provided card is not in the setAside zone", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const setAside = ["Sentry", "Vassal"];
-    deck.setSetAside(setAside);
-    const card = "Pot of Greed";
+    deck.setAside = ["Sentry", "Vassal"];
 
     // Act and Assert
-    expect(() => deck.discardFromSetAside(card)).toThrowError(
+    expect(() => deck.discardFromSetAside("Pot of Greed")).toThrowError(
       "No Pot of Greed in setAside."
     );
   });
