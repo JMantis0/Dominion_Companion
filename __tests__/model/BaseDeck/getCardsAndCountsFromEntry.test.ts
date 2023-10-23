@@ -1,8 +1,8 @@
 import { it, describe, expect, afterEach } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Function getCardCountsFromEntry", () => {
-  let deck = new Deck("", false, "", "pName", "pNick", [
+  let deck = new BaseDeck("", false, "", "pName", "pNick", [
     "Silver",
     "Gold",
     "Estate",
@@ -10,7 +10,7 @@ describe("Function getCardCountsFromEntry", () => {
   ]);
 
   afterEach(() => {
-    deck = new Deck("", false, "", "pName", "pNick", [
+    deck = new BaseDeck("", false, "", "pName", "pNick", [
       "Silver",
       "Gold",
       "Estate",
