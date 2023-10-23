@@ -1,52 +1,55 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function checkForCellarDraw()", () => {
-  it("should return true if the draws on the current line were caused by a cellar", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
+  // Case1 - No shuffle needed because sufficient cards amount in library.
+  it("should return true if the draws on the current line were caused by a Cellar with no shuffle in between the draws and the Cellar play", () => {
     //Arrange
-    const deck1 = new Deck("", false, "", "pName", "pNick", []);
-    const deck2 = new Deck("", false, "", "pName", "pNick", []);
-    // Case1 - shuffle occurred before draws take place due to low library count.
-    const logArchive1 = [
-      "pNick plays a Cellar.",
+    deck.logArchive = [
+      "pNick plays a Cellar.", // Draws caused by this Cellar.
+      "pNick gets +1 Action.",
+      "pNick discards a Copper, a Silver, an Estate, and a Laboratory.",
+    ];
+
+    // Act and Assert
+    expect(deck.checkForCellarDraw()).toBe(true);
+  });
+
+  // Case2 - shuffle occurred before draws take place due to low library count.
+  it("should return true if the draws on the current line were cuase by a Cellar with a shuffle in between the draws and the Cellar play", () => {
+    // Arrange
+    deck.logArchive = [
+      "pNick plays a Cellar.", // Draws caused by this Cellar, with a shuffle between.
       "pNick gets +1 Action.",
       "pNick discards 3 Coppers, an Estate, and a Cellar.",
       "pNick shuffles their deck.",
     ];
-    // Case2 - no shuffle needed because sufficient cards amount in library.
-    const logArchive2 = [
-      "pNick plays a Cellar.",
-      "pNick gets +1 Action.",
-      "pNick discards a Copper, a Silver, an Estate, and a Laboratory.",
-    ];
-    deck1.setLogArchive(logArchive1);
-    deck2.setLogArchive(logArchive2);
 
-    // Act
-    const result1 = deck1.checkForCellarDraw();
-    const result2 = deck2.checkForCellarDraw();
-
-    // Assert
-    expect(result1).toBeTruthy();
-    expect(result2).toBeTruthy();
+    // Act and Assert
+    expect(deck.checkForCellarDraw()).toBe(true);
   });
 
+  // Case 3 - Draws not caused by Cellar.
   it("should return false if draws on the current line were not caused by a cellar", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const logArchive = [
+    deck.logArchive = [
       "Turn 9 - oName",
       "oNick plays a Silver, a Gold, and 2 Coppers. (+$7)",
       "oNick buys and gains a Gold.",
       "oNick draws 5 cards.",
       "Turn 10 - pName",
-      "pNick plays a Laboratory.",
+      "pNick plays a Laboratory.", // Draws caused by Laboratory.
     ];
-    deck.setLogArchive(logArchive);
 
-    // Act
-    const result = deck.checkForCellarDraw();
-    // Assert
-    expect(result).toBeFalsy();
+    // Act and Assert
+    expect(deck.checkForCellarDraw()).toBe(false);
   });
 });
