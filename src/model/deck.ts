@@ -284,15 +284,19 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   discard(card: string) {
     const index = this.hand.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in hand.`);
+    } else {
+      const graveyardCopy = this.graveyard.slice();
+      const handCopy = this.hand.slice();
       if (this.debug)
         console.info(
           `Discarding ${this.hand[index]} from hand into discard pile.`
         );
-      this.graveyard.push(this.hand[index]);
-      this.hand.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in hand.`);
+      graveyardCopy.push(this.hand[index]);
+      handCopy.splice(index, 1);
+      this.setGraveyard(graveyardCopy);
+      this.setHand(handCopy);
     }
   }
 
