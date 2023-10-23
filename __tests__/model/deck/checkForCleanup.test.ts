@@ -1,10 +1,20 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function checkForCleanup()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on function dependency.
+  const getPlayerNick = jest.spyOn(Deck.prototype, "getPlayerNick");
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
   it("should return true when a cleanup might be needed", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
+    // All 10 lines below have 5 draws.
     const line1 =
       "pNick draws a Sentry, a Copper, an Estate, a Vassal, and a Gold.";
     const line2 = "pNick draws a Sentry, a Copper, an Estate, and 2 Golds.";
@@ -18,29 +28,18 @@ describe("Function checkForCleanup()", () => {
       "pNick draws a Copper, a Sentry, an Estate, a Vassal, and a Gold.";
     const line10 = "pNick draws 5 Festivals.";
 
-    // Act
-    const result1 = deck.checkForCleanUp(line1);
-    const result2 = deck.checkForCleanUp(line2);
-    const result3 = deck.checkForCleanUp(line3);
-    const result4 = deck.checkForCleanUp(line4);
-    const result5 = deck.checkForCleanUp(line5);
-    const result6 = deck.checkForCleanUp(line6);
-    const result7 = deck.checkForCleanUp(line7);
-    const result8 = deck.checkForCleanUp(line8);
-    const result9 = deck.checkForCleanUp(line9);
-    const result10 = deck.checkForCleanUp(line10);
-
-    // Assert
-    expect(result1).toBeTruthy();
-    expect(result2).toBeTruthy();
-    expect(result3).toBeTruthy();
-    expect(result4).toBeTruthy();
-    expect(result5).toBeTruthy();
-    expect(result6).toBeTruthy();
-    expect(result7).toBeTruthy();
-    expect(result8).toBeTruthy();
-    expect(result9).toBeTruthy();
-    expect(result10).toBeTruthy();
+    // Act and Assert
+    expect(deck.checkForCleanUp(line1)).toBe(true);
+    expect(deck.checkForCleanUp(line2)).toBe(true);
+    expect(deck.checkForCleanUp(line3)).toBe(true);
+    expect(deck.checkForCleanUp(line4)).toBe(true);
+    expect(deck.checkForCleanUp(line5)).toBe(true);
+    expect(deck.checkForCleanUp(line6)).toBe(true);
+    expect(deck.checkForCleanUp(line7)).toBe(true);
+    expect(deck.checkForCleanUp(line8)).toBe(true);
+    expect(deck.checkForCleanUp(line9)).toBe(true);
+    expect(deck.checkForCleanUp(line10)).toBe(true);
+    expect(getPlayerNick).toBeCalledTimes(10);
   });
 
   it("should return false when a cleanup is not needed", () => {
@@ -59,45 +58,28 @@ describe("Function checkForCleanup()", () => {
       "rNick draws a Duchy, a Cellar, a Merchant, a Curse, a Gold, and a Vassal."; // 6 Draws
     const line10 = "rNick draws a Curse and a Vassal."; // 2 draws
 
-    // Act
-    const result1 = deck.checkForCleanUp(line1);
-    const result2 = deck.checkForCleanUp(line2);
-    const result3 = deck.checkForCleanUp(line3);
-    const result4 = deck.checkForCleanUp(line4);
-    const result5 = deck.checkForCleanUp(line5);
-    const result6 = deck.checkForCleanUp(line6);
-    const result7 = deck.checkForCleanUp(line7);
-    const result8 = deck.checkForCleanUp(line8);
-    const result9 = deck.checkForCleanUp(line9);
-    const result10 = deck.checkForCleanUp(line10);
-
-    // Assert
-    expect(result1).toBeFalsy();
-    expect(result2).toBeFalsy();
-    expect(result3).toBeFalsy();
-    expect(result4).toBeFalsy();
-    expect(result5).toBeFalsy();
-    expect(result6).toBeFalsy();
-    expect(result7).toBeFalsy();
-    expect(result8).toBeFalsy();
-    expect(result9).toBeFalsy();
-    expect(result10).toBeFalsy();
+    // Act and Assert
+    expect(deck.checkForCleanUp(line1)).toBe(false);
+    expect(deck.checkForCleanUp(line2)).toBe(false);
+    expect(deck.checkForCleanUp(line3)).toBe(false);
+    expect(deck.checkForCleanUp(line4)).toBe(false);
+    expect(deck.checkForCleanUp(line5)).toBe(false);
+    expect(deck.checkForCleanUp(line6)).toBe(false);
+    expect(deck.checkForCleanUp(line7)).toBe(false);
+    expect(deck.checkForCleanUp(line8)).toBe(false);
+    expect(deck.checkForCleanUp(line9)).toBe(false);
+    expect(deck.checkForCleanUp(line10)).toBe(false);
   });
 
   // Case where entire deck is less than 5 cards.
   it("should work correctly when where are less than 5 cards in the entire deck", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    deck.setEntireDeck(["Copper", "Copper", "Estate"]);
-    const line1 = "rNick draws 2 Coppers and an Estate";
-    const line2 = "rNick draws 2 Coppers";
+    deck.entireDeck = ["Copper", "Copper", "Estate"];
+    const line1 = "rNick draws 2 Coppers and an Estate"; // Draw count === entireDeck length - cleanUp may be needed.
+    const line2 = "rNick draws 2 Coppers"; //  Draw count !== entireDeck length - cleanUp not needed.
 
-    // Act
-    const result1 = deck.checkForCleanUp(line1);
-    const result2 = deck.checkForCleanUp(line2);
-
-    // Assert
-    expect(result1).toBeTruthy();
-    expect(result2).toBeFalsy();
+    // Act act Assert
+    expect(deck.checkForCleanUp(line1)).toBe(true);
+    expect(deck.checkForCleanUp(line2)).toBe(false);
   });
 });
