@@ -431,21 +431,27 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
-   * Takes a card and pushes it to the library field array.
-   * @param card
-   */
-  gainIntoDeck(card: string) {
-    if (this.debug) console.info(`Gaining ${card} into deck.`);
-    this.library.push(card);
-  }
-
-  /**
    * Takes a card and pushes it to the hand field array.
    * @param card - The given card.
    */
   gainIntoHand(card: string) {
     if (this.debug) console.info(`Gaining ${card} into hand.`);
-    this.hand.push(card);
+    const handCopy = this.hand.slice();
+    handCopy.push(card);
+    this.setHand(handCopy);
+    this.addCardToEntireDeck(card);
+  }
+
+  /**
+   * Takes a card and pushes it to the library field array.
+   * @param card
+   */
+  gainIntoLibrary(card: string) {
+    if (this.debug) console.info(`Gaining ${card} into deck.`);
+    const libraryCopy = this.library.slice();
+    libraryCopy.push(card);
+    this.setLibrary(libraryCopy);
+    this.addCardToEntireDeck(card);
   }
 
   /**
@@ -669,7 +675,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (mostRecentPlay === "Bureaucrat") {
-          this.gainIntoDeck(cards[i]);
+          this.gainIntoLibrary(cards[i]);
         } else if (mostRecentPlay === "Mine" || mostRecentPlay === "Artisan") {
           this.gainIntoHand(cards[i]);
         } else {
