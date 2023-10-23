@@ -1,11 +1,23 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function getMostRecentPlay()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pNick", "pName", []);
+  // Spy on function dependency
+  const checkForTreasurePlayLine = jest.spyOn(
+    Deck.prototype,
+    "checkForTreasurePlayLine"
+  );
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pNick", "pName", []);
+  });
+
   it("should return the card that was most recently played in the logArchive", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays a Village.",
       "pNick draws a Smithy.",
       "pNick gets +2 Actions.",
@@ -21,18 +33,16 @@ describe("Function getMostRecentPlay()", () => {
       "pNick discards 2 Estates.",
     ];
 
-    // Act
-    const result = deck.getMostRecentPlay(logArchive);
-    const expectedResult = "Cellar";
-
-    // Assert
-    expect(result).toBe(expectedResult);
+    // Act and Assert
+    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
+    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
+    expect(checkForTreasurePlayLine).toBeCalledWith("pNick plays a Cellar.");
+    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(false);
   });
 
   it("should not return treasure plays", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays a Village.",
       "pNick draws a Smithy.",
       "pNick gets +2 Actions.",
@@ -49,18 +59,21 @@ describe("Function getMostRecentPlay()", () => {
       "pNick plays a Silver. (+$2)", //  Should not return "Silver"
     ];
 
-    // Act
-    const result = deck.getMostRecentPlay(logArchive);
-    const expectedResult = "Cellar";
-
-    // Assert
-    expect(result).toBe(expectedResult);
+    // Act and  Assert
+    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
+    expect(checkForTreasurePlayLine).toBeCalledTimes(2);
+    expect(checkForTreasurePlayLine).nthCalledWith(
+      1,
+      "pNick plays a Silver. (+$2)"
+    );
+    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(true);
+    expect(checkForTreasurePlayLine).nthCalledWith(2, "pNick plays a Cellar.");
+    expect(checkForTreasurePlayLine.mock.results[1].value).toBe(false);
   });
 
   it("should return the card correctly for cards played by Throne Room", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays a Sentry again.", // Cards played by Throne Room will end with 'again.' and require proper parsing.
       "pNick draws a Vassal.",
       "pNick gets +1 Action.",
@@ -68,35 +81,29 @@ describe("Function getMostRecentPlay()", () => {
       "pNick looks at 2 Sentries.",
     ];
 
-    // Act
-    const result = deck.getMostRecentPlay(logArchive);
-    const expectedResult = "Sentry";
-
-    // Assert
-    expect(result).toBe(expectedResult);
+    // Act and Assert
+    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Sentry");
+    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
+    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(false);
   });
 
   it("should work correctly for cards that start with a vowel preceded by the article 'an'", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const logArchive = [
+    deck.logArchive = [
       "pNick plays an Artisan.",
       "pNick gains a Market.",
       "pNick topdecks a Market.",
     ];
 
-    // Act
-    const result = deck.getMostRecentPlay(logArchive);
-    const expectedResult = "Artisan";
-
-    // Assert
-    expect(result).toBe(expectedResult);
+    // Act and Assert
+    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Artisan");
+    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
+    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(false);
   });
 
   it("should return 'None' if no play is found in the logArchive", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const logArchive = [
+    deck.logArchive = [
       "Game #123456789, unrated.",
       "Card Pool: level 1",
       "pNick starts with 7 Coppers.",
@@ -110,22 +117,13 @@ describe("Function getMostRecentPlay()", () => {
       "Turn 1 - pName",
     ];
 
-    // Act
-    const result = deck.getMostRecentPlay(logArchive);
-    const expectedResult = "None";
-
-    // Assert
-    expect(result).toBe(expectedResult);
+    // Act and Assert
+    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("None");
+    expect(checkForTreasurePlayLine).not.toBeCalled();
   });
 
   it("should throw an error if the logArchive is empty", () => {
-    // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const logArchive: string[] = [];
-
     // Act and Assert
-    expect(() => deck.getMostRecentPlay(logArchive)).toThrowError(
-      "Empty logArchive."
-    );
+    expect(() => deck.getMostRecentPlay([])).toThrowError("Empty logArchive.");
   });
 });
