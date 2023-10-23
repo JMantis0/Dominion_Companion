@@ -2,7 +2,9 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function drawLookedAtCardIfNeeded()", () => {
-  const deck = new Deck("", false, "", "pName", "pNick", []);
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on function dependencies
   const libraryTriggeredPreviousLineDraw = jest.spyOn(
     Deck.prototype,
     "libraryTriggeredPreviousLineDraw"
@@ -14,9 +16,12 @@ describe("Function drawLookedAtCardIfNeeded()", () => {
     Deck.prototype,
     "setWaitToDrawLibraryLook"
   );
+
   afterEach(() => {
     jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
   });
+
   it("should draw the card that was looked at on the previous line, if needed()", () => {
     // Arrange
     const act = "plays";
