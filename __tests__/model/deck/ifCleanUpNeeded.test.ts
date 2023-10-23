@@ -1,11 +1,21 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Function ifCleanUpNeeded()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on function dependencies
+  const checkForCleanUp = jest.spyOn(Deck.prototype, "checkForCleanUp");
+  const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
   it("should return true if a cleanup is needed based on the provided line", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const logArchive: string[] = [
+    deck.logArchive = [
       "pNick plays a Laboratory.",
       "pNick draws a Market and a Moneylender.",
       "pNick gets +1 Action.",
@@ -23,17 +33,17 @@ describe("Function ifCleanUpNeeded()", () => {
       "pNick shuffles their deck.",
     ];
     const line = "pNick draws a Silver, 2 Estates, a Laboratory, and a Market.";
-    deck.setLogArchive(logArchive);
-    // Act
 
-    // Assert
-    const result = deck.ifCleanUpNeeded(line);
-    expect(result).toBe(true);
+    // Act and Assert
+    expect(deck.ifCleanUpNeeded(line)).toBe(true);
+    expect(checkForCleanUp).toBeCalledTimes(1);
+    expect(checkForCleanUp).toBeCalledWith(line);
+    expect(checkForCellarDraw).toBeCalledTimes(1);
   });
+
   it("should return false if a cleanup is not needed based on the provided line", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const logArchive: string[] = [
+    deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Laboratory.",
       "pNick draws a Moneylender and a Sentry.",
@@ -46,11 +56,11 @@ describe("Function ifCleanUpNeeded()", () => {
       "pNick discards a Silver, an Estate, a Moneylender, a Sentry, and a Vassal.", //  5 draws caused by Cellar, cleanup is not needed.
     ];
     const line = "pNick draws a Silver, 2 Estates, a Laboratory, and a Market.";
-    deck.setLogArchive(logArchive);
-    // Act
 
-    // Assert
-    const result = deck.ifCleanUpNeeded(line);
-    expect(result).toBe(false);
+    // Act and Assert
+    expect(deck.ifCleanUpNeeded(line)).toBe(false);
+    expect(checkForCleanUp).toBeCalledTimes(1);
+    expect(checkForCleanUp).toBeCalledWith(line);
+    expect(checkForCellarDraw).toBeCalledTimes(1);
   });
 });
