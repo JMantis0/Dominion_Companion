@@ -353,8 +353,12 @@ export class BaseDeck {
    * @returns -The cards array and cardAmounts array.
    */
   getCardsAndCountsFromEntry(entry: string): [string[], number[]] {
-    let cards: string[] = [];
-    let cardAmounts: number[] = [];
+    type LineDatum = {
+      card: string;
+      amount: number;
+      startIndex: number;
+    };
+    const lineData: Array<LineDatum> = [];
     this.kingdom.forEach((card) => {
       const cardMatcher = card.substring(0, card.length - 1);
       if (entry.match(" " + cardMatcher) !== null) {
@@ -367,12 +371,24 @@ export class BaseDeck {
         } else {
           amount = parseInt(amountChar);
         }
-        cards.push(card);
-        cardAmounts.push(amount);
+        lineData.push({
+          card: card,
+          amount: amount,
+          startIndex: lowerSlice,
+        });
       }
     });
-    // To Do - arrange the arrays to be in the same order that the cards appear in the given line
 
+    // Arrange the card data in the same order it appears on the line before returning.
+    lineData.sort((a, b) => {
+      return a.startIndex - b.startIndex;
+    });
+    const cards: string[] = [];
+    const cardAmounts: number[] = [];
+    lineData.forEach((datum) => {
+      cards.push(datum.card);
+      cardAmounts.push(datum.amount);
+    });
     return [cards, cardAmounts];
   }
 
