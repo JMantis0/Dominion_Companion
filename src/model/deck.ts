@@ -313,8 +313,12 @@ export class Deck extends BaseDeck implements StoreDeck {
         console.info(
           `Discarding ${this.library[index]} from library into discard pile.`
         );
-      this.graveyard.push(this.library[index]);
-      this.library.splice(index, 1);
+      const graveyardCopy = this.graveyard.slice();
+      const libraryCopy = this.library.slice();
+      graveyardCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setGraveyard(graveyardCopy);
+      this.setLibrary(libraryCopy);
     } else {
       throw new Error(`No ${card} in library.`);
     }
@@ -381,7 +385,10 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
+      if (this.debug)
+        console.info(
+          `Drawing ${card} set aside by Library from setAside into hand.`
+        );
       const handCopy = this.hand.slice();
       const setAsideCopy = this.setAside.slice();
       handCopy.push(card);
@@ -905,8 +912,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug)
-        console.info(`Trashing ${card} from setAside.`);
+      if (this.debug) console.info(`Trashing ${card} from setAside.`);
       // Remove from entireDeck
       this.removeCardFromEntireDeck(card);
       // Add card to trash
