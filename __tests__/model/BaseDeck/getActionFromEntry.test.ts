@@ -74,9 +74,17 @@ describe("Function getActionFromEntry()", () => {
   });
 
   it("should return correctly when a player nickname or opponent nickname has the same action word in their name", () => {
+    // Arrange
     deck.setPlayerNick("Massivegains");
+    // Act and Assert
     expect(deck.getActionFromEntry("Massivegains reveals 2 Vassals.")).toBe(
       "reveals"
     );
+  });
+
+  it("should get action 'aside with Library' correctly", () => {
+    expect(
+      deck.getActionFromEntry("pNick sets a Cellar aside with Library.")
+    ).toBe("aside with Library");
   });
 });
