@@ -1,20 +1,32 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { afterEach } from "node:test";
 
 describe("Function gain()", () => {
-  it("should add the provided card to the graveyard", () => {
-    // Arrange
-    const deck = new Deck("", false, "", "pNick", "pName", []);
-    const graveyard = ["Copper"];
-    const card = "Chapel";
-    deck.setGraveyard(graveyard);
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pNick", "pName", []);
+  // Spy on function dependency.
+  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+  const addCardToEntireDeck = jest.spyOn(Deck.prototype, "addCardToEntireDeck");
 
-    // Act
-    deck.gain(card);
-    const resultGraveyard = deck.getGraveyard();
-    const expectedGraveyard = ["Copper", "Chapel"];
+  afterEach(() => {
+    deck = new Deck("", false, "", "pNick", "pName", []);
+    jest.clearAllMocks();
+  });
+
+  it("should add the provided card to the graveyard and to the entireDeck", () => {
+    // Arrange
+    deck.graveyard = ["Copper"];
+    deck.entireDeck = ["Estate", "Copper"];
+    // Act - Simulate gaining a Chapel into the graveyard.
+    deck.gain("Chapel");
 
     // Assert
-    expect(resultGraveyard).toStrictEqual(expectedGraveyard);
+    expect(deck.graveyard).toStrictEqual(["Copper", "Chapel"]);
+    expect(deck.entireDeck).toStrictEqual(["Estate", "Copper", "Chapel"]);
+    expect(setGraveyard).toBeCalledTimes(1);
+    expect(setGraveyard).toBeCalledWith(["Copper", "Chapel"]);
+    expect(addCardToEntireDeck).toBeCalledTimes(1);
+    expect(addCardToEntireDeck).toBeCalledWith("Chapel");
   });
 });

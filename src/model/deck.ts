@@ -424,7 +424,10 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   gain(card: string) {
     if (this.debug) console.info(`Gaining ${card} into discard pile.`);
-    this.graveyard.push(card);
+    const graveYardCopy = this.graveyard.slice();
+    graveYardCopy.push(card);
+    this.setGraveyard(graveYardCopy);
+    this.addCardToEntireDeck(card);
   }
 
   /**
