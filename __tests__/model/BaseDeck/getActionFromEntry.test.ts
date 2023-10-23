@@ -47,7 +47,7 @@ describe("Function getActionFromEntry()", () => {
     expect(deck.getActionFromEntry("pNick plays a Cellar.")).toBe("plays");
   });
 
-  it("should get action 'plays' correctly", () => {
+  it("should get action 'reveals' correctly", () => {
     // Act and Assert
     expect(deck.getActionFromEntry("pNick reveals 2 Golds.")).toBe("reveals");
   });

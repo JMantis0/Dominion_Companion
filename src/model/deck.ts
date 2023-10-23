@@ -589,13 +589,6 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "reveals":
         this.processRevealsLine(cards, numberOfCards);
         break;
-      case "aside with Library": {
-        for (let i = 0; i < cards.length; i++) {
-          for (let j = 0; j < numberOfCards[i]; j++) {
-            this.setAsideFromLibrary(cards[i]);
-          }
-        }
-      }
     }
   }
 
