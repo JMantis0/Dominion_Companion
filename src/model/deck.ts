@@ -369,7 +369,26 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     if (prevLineCard === "EmptyCard")
       throw new Error("No card found in the most recent logArchive entry.");
-    this.draw(prevLineCard);
+    this.drawFromSetAside(prevLineCard);
+  }
+
+  /**
+   * Draws the given card from the setAside zone into hand.
+   * @param card - The given card.
+   */
+  drawFromSetAside(card: string): void {
+    const index = this.setAside.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in setAside.`);
+    } else {
+      if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
+      const handCopy = this.hand.slice();
+      const setAsideCopy = this.setAside.slice();
+      handCopy.push(card);
+      setAsideCopy.splice(index, 1);
+      this.setHand(handCopy);
+      this.setSetAside(setAsideCopy);
+    }
   }
 
   /**
@@ -687,6 +706,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             this.draw(cards[i]);
           } else {
             if (this.debug) console.log("waitToDraw changing to true;");
+            this.setAsideFromLibrary(cards[i]);
             this.setWaitToDrawLibraryLook(true);
           }
         }
@@ -775,7 +795,8 @@ export class Deck extends BaseDeck implements StoreDeck {
   setAsideFromLibrary(card: string) {
     const index = this.library.indexOf(card);
     if (index > -1) {
-      if (this.debug) console.info(`Setting aside a ${card} with Library`);
+      if (this.debug)
+        console.info(`Setting aside a ${card} with ${this.latestPlay}.`);
       this.setAside.push(card);
       this.library.splice(index, 1);
     } else {
@@ -868,7 +889,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (index < 0) {
       throw new Error(`No ${card} in hand.`);
     } else {
-      if (this.debug) console.info(`Trashing ${this.hand[index]} from hand.`);
+      if (this.debug) console.info(`Trashing ${card} from hand.`);
       // Remove card from entireDeck
       this.removeCardFromEntireDeck(card);
       // Add card to trash
@@ -892,7 +913,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       throw new Error(`No ${card} in setAside.`);
     } else {
       if (this.debug)
-        console.info(`Trashing ${this.hand[index]} from setAside.`);
+        console.info(`Trashing ${card} from setAside.`);
       // Remove from entireDeck
       this.removeCardFromEntireDeck(card);
       // Add card to trash
