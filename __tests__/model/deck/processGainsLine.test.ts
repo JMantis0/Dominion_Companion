@@ -2,8 +2,9 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processGainsLine()", () => {
+  // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on dependency functions
+  // Spy on dependency functions.
   const checkForBuyAndGain = jest.spyOn(Deck.prototype, "checkForBuyAndGain");
   const checkPreviousLineProcessedFoCurrentCardBuy = jest.spyOn(
     Deck.prototype,
@@ -21,19 +22,14 @@ describe("Method processGainsLine()", () => {
     Deck.prototype,
     "checkPreviousLineProcessedForCurrentCardBuy"
   );
+
   afterEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
     jest.clearAllMocks();
   });
 
-  it("should handle gaining a card from a normal purchase correctly", () => {
-    // Arrange deck state
-    deck.logArchive = [
-      "Turn 3 - pName",
-      "pNick plays a Copper and a Silver. (+$3)",
-    ];
-
-    // Arguments for function being tested
+  it("should add card gained by purchasing to graveyard.", () => {
+    // Arrange
     const cards = ["Silver"];
     const numberOfCards = [1];
     const line = "pNick buys and gains a Silver.";
@@ -42,7 +38,6 @@ describe("Method processGainsLine()", () => {
     deck.processGainsLine(line, cards, numberOfCards);
 
     // Assert
-
     expect(checkForBuyAndGain).toBeCalledTimes(1);
     expect(checkForBuyAndGain).toHaveBeenCalledWith(line, "Silver");
     expect(checkForBuyAndGain.mock.results[0].value).toStrictEqual(true);
@@ -57,7 +52,6 @@ describe("Method processGainsLine()", () => {
     expect(gain).toHaveBeenCalledWith("Silver");
     expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
     expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    // Negative Assertions
     expect(gainIntoHand).not.toBeCalled();
     expect(gainIntoLibrary).not.toBeCalled();
     expect(popLastLogArchiveEntry).not.toBeCalled();
@@ -67,26 +61,16 @@ describe("Method processGainsLine()", () => {
   // The function should remove this entry from the logArchive to maintain it as a precise the
   // copy of the client game-log.
   it("should handle gaining a card was bought but not gained yet correctly, by removing an entry from the logArchive", () => {
-    // Arrange deck state
-    deck.logArchive = [
-      "Turn 3 - pName",
-      "pNick plays 2 Coppers and 2 Silvers. (+$6)",
-      "pNick buys and gains a Silver.",
-      "pNick buys a Silver.",
-    ];
-
+    // Arrange
     deck.lastEntryProcessed = "pNick buys a Silver.";
-
-    // Arguments for function being tested
     const cards = ["Silver"];
     const numberOfCards = [1];
     const line = "pNick buys and gains 2 Silvers.";
 
-    // Act - Simulate gaining a Silver by buying.
+    // Act - Simulate buy a second Silver consecutively.
     deck.processGainsLine(line, cards, numberOfCards);
 
     // Assert
-
     expect(checkForBuyAndGain).toBeCalledTimes(1);
     expect(checkForBuyAndGain).toBeCalledWith(line, "Silver");
     expect(checkForBuyAndGain.mock.results[0].value).toStrictEqual(true);
@@ -102,23 +86,37 @@ describe("Method processGainsLine()", () => {
     expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
     expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
     expect(popLastLogArchiveEntry).toBeCalledTimes(1);
-    // Negative Assertions
     expect(gainIntoHand).not.toBeCalled();
     expect(gainIntoLibrary).not.toBeCalled();
   });
 
-  // Case Gain into hand
-  it("should handle gaining a card into hand correctly", () => {
-    // Arrange deck state
-    deck.graveyard = ["Copper", "Copper"];
-    deck.logArchive = [
-      "pNick plays a Laboratory.",
-      "pNick draws 2 Coppers.",
-      "pNick gets +1 Action.",
-      "pNick plays a Mine.",
-      "pNick trashes a Copper.",
-    ];
+  it("should add cards gained by a Mine to hand", () => {
+    // Arrange
     deck.latestPlay = "Mine";
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+    const line = "pNick gains a Silver.";
+
+    // Act - Simulate gaining a Silver by playing a Mine.
+    deck.processGainsLine(line, cards, numberOfCards);
+
+    // Assert
+    expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
+    expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
+    expect(gainIntoHand).toBeCalledTimes(1);
+    expect(gainIntoHand).toBeCalledWith("Silver");
+    // Negative Assertions
+    expect(gain).not.toBeCalled();
+    expect(checkForBuyAndGain).not.toBeCalled();
+    expect(popLastLogArchiveEntry).not.toBeCalled();
+    expect(checkPreviousLineProcessedFoCurrentCardBuy).not.toBeCalled();
+    expect(gainIntoLibrary).not.toBeCalled();
+  });
+
+  it("should add cards gained by an Artisan to hand", () => {
+    // Arrange
+    deck.latestPlay = "Artisan";
+
     // Arguments for function being tested
     const cards = ["Silver"];
     const numberOfCards = [1];
@@ -141,18 +139,9 @@ describe("Method processGainsLine()", () => {
   });
 
   // Case Gain into library
-  it("should handle gaining a card into library correctly", () => {
-    // Arrange deck state
-    deck.graveyard = ["Copper", "Copper"];
-    deck.logArchive = [
-      "pNick plays a Cellar.",
-      "pNick gets +1 Action.",
-      "pNick discards a Copper and an Estate.",
-      "pNick draws a Copper and a Bureaucrat.",
-      "pNick plays a Bureaucrat.",
-    ];
+  it("should add cards gained by Bureaucrat to library.", () => {
+    // Arrange
     deck.latestPlay = "Bureaucrat";
-    // Arguments for function being tested
     const cards = ["Silver"];
     const numberOfCards = [1];
     const line = "pNick gains a Silver.";

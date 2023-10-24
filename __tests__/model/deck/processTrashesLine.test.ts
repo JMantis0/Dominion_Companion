@@ -2,6 +2,7 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processTopDecksLine()", () => {
+  // Instantiate Deck objet.
   let deck = new Deck("", false, "", "pNick", "pName", []);
 
   // Spy on method dependencies
@@ -20,7 +21,7 @@ describe("Method processTopDecksLine()", () => {
     jest.clearAllMocks();
   });
 
-  it("should handle trashing a card from hand correctly", () => {
+  it("should trash cards not trashed by Sentry or Bandit from hand.", () => {
     //Arrange
     deck.latestPlay = "Moneylender";
 
@@ -39,7 +40,7 @@ describe("Method processTopDecksLine()", () => {
     expect(trashFromLibrary).not.toBeCalled();
   });
 
-  it("should handle trashing a card with a Sentry correctly", () => {
+  it("should trash cards trashed by Sentry from setAside.", () => {
     // Arrange
     deck.latestPlay = "Sentry";
 
@@ -58,7 +59,7 @@ describe("Method processTopDecksLine()", () => {
     expect(trashFromLibrary).not.toBeCalled();
   });
 
-  it("should handle trashing a card with a Bandit correctly", () => {
+  it("should trash cards trashed by Bandit from setAside.", () => {
     // Arrange
     deck.latestPlay = "Bandit";
     // Arguments for function being tested.

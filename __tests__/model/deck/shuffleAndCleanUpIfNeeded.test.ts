@@ -3,6 +3,8 @@ import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
 describe("Method shuffleAndCleanupIfNeeded()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
   // Spy on method dependencies
   const ifCleanUpNeeded = jest.spyOn(Deck.prototype, "ifCleanUpNeeded");
   const cleanup = jest
@@ -14,17 +16,17 @@ describe("Method shuffleAndCleanupIfNeeded()", () => {
   const setWaitToShuffle = jest.spyOn(Deck.prototype, "setWaitToShuffle");
   afterEach(() => {
     jest.resetAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
   });
-  const deck = new Deck("", false, "", "pName", "pNick", []);
 
-  it("should not shuffle if not needed", () => {
+  it("should not cleanup or shuffle or if value of field 'waitToShuffle' is false.", () => {
     // Arrange
     deck.waitToShuffle = false;
 
     // Arguments for function being tested
     const line = "pName draws a Copper.";
 
-    // Act - an update where shuffle is not needed
+    // Act - Simulate processing a log where the previous line was not a 'shuffles their deck' line.
     deck.shuffleAndCleanUpIfNeeded(line);
 
     // Assert
@@ -34,10 +36,10 @@ describe("Method shuffleAndCleanupIfNeeded()", () => {
     expect(shuffleGraveYardIntoLibrary).not.toBeCalled();
   });
 
-  it("should shuffle if needed, but not cleanup if cleanup is not needed", () => {
+  it("should shuffle without cleaning up if value of field is 'waitToShuffle, and method ifCleanUpNeeded returns false.", () => {
     // Arrange
     deck.waitToShuffle = true;
-    ifCleanUpNeeded.mockImplementation(() => false);
+    ifCleanUpNeeded.mockImplementation(() => false); // Mock situation where not exactly 5 non-Cellar draws are occurring.
 
     // Arguments for function being tested
     const line = "pName draws a Copper.";
@@ -53,7 +55,8 @@ describe("Method shuffleAndCleanupIfNeeded()", () => {
     expect(setWaitToShuffle).toBeCalledWith(false);
     expect(cleanup).not.toBeCalled();
   });
-  it("should shuffle and cleanup if both are needed()", () => {
+
+  it("should cleanup and shuffle if value of field 'waitToShuffle' is true and method ifCleanUpNeeded returns true", () => {
     // Arrange
     deck.waitToShuffle = true;
     ifCleanUpNeeded.mockImplementation(() => true);

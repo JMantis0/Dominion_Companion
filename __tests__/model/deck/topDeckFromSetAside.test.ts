@@ -2,13 +2,17 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processTopDecksLine()", () => {
+  // Instantiate Deck object
   let deck = new Deck("", false, "", "pNick", "pName", []);
-
+  // Spy on method dependencies
   const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
   const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
+
   afterEach(() => {
+    deck = new Deck("", false, "", "pNick", "pName", []);
     jest.clearAllMocks();
   });
+
   it("should correctly move cards from setAside to library", () => {
     // Arrange
     deck.library = ["Copper", "Estate"];

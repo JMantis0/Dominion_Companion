@@ -2,14 +2,18 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processRevealsLine()", () => {
+  // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on method dependency.
   const setAsideFromLibrary = jest
     .spyOn(Deck.prototype, "setAsideFromLibrary")
     .mockImplementation(() => null);
+
   afterEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
     jest.clearAllMocks();
   });
+
   it("should move cards revealed by a Bandit play to from library to setAside", () => {
     deck.latestPlay = "Bandit";
 

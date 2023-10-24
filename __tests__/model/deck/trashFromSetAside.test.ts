@@ -12,6 +12,7 @@ describe("Method trashFromSetAside", () => {
     .spyOn(Deck.prototype, "removeCardFromEntireDeck")
     .mockImplementation(() => null);
   const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
+  
   afterEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
     jest.clearAllMocks();

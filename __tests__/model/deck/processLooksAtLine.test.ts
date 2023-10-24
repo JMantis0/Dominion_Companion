@@ -15,6 +15,7 @@ describe("Method processLooksAtLine", () => {
   const setAsideFromLibrary = jest
     .spyOn(Deck.prototype, "setAsideFromLibrary")
     .mockImplementation(() => null);
+
   afterEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
     jest.clearAllMocks();
@@ -38,6 +39,7 @@ describe("Method processLooksAtLine", () => {
   });
 
   it("should move the cards to setAside if look is caused by a Sentry", () => {
+    // Arrange
     deck.latestPlay = "Sentry";
 
     // Arguments for function being tested
@@ -55,6 +57,7 @@ describe("Method processLooksAtLine", () => {
   });
 
   it("should move the cards to setAside if look is caused by a Bandit", () => {
+    // Arrange
     deck.latestPlay = "Bandit";
     // Arguments for function being tested
     const cards = ["Smithy"];
@@ -75,15 +78,28 @@ describe("Method processLooksAtLine", () => {
     deck.latestPlay = "Library";
 
     // Arguments for function being tested
-    const cards = ["Gold"];
     const numberOfCards = [1];
 
     // Act - simulate a Library looking at a Gold
-    deck.processLooksAtLine(cards, numberOfCards);
+    deck.processLooksAtLine(["Gold"], numberOfCards);
+    deck.processLooksAtLine(["Silver"], numberOfCards);
+    deck.processLooksAtLine(["Copper"], numberOfCards);
+    deck.processLooksAtLine(["Gardens"], numberOfCards);
+    deck.processLooksAtLine(["Province"], numberOfCards);
+    deck.processLooksAtLine(["Duchy"], numberOfCards);
+    deck.processLooksAtLine(["Estate"], numberOfCards);
+    deck.processLooksAtLine(["Curse"], numberOfCards);
 
     // Assert
-    expect(draw).toBeCalledTimes(1);
-    expect(draw).toBeCalledWith("Gold");
+    expect(draw).toBeCalledTimes(8);
+    expect(draw).nthCalledWith(1, "Gold");
+    expect(draw).nthCalledWith(2, "Silver");
+    expect(draw).nthCalledWith(3, "Copper");
+    expect(draw).nthCalledWith(4, "Gardens");
+    expect(draw).nthCalledWith(5, "Province");
+    expect(draw).nthCalledWith(6, "Duchy");
+    expect(draw).nthCalledWith(7, "Estate");
+    expect(draw).nthCalledWith(8, "Curse");
     expect(setWaitToDrawLibraryLook).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
   });

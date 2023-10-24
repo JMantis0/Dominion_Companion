@@ -2,6 +2,7 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processRevealsLine()", () => {
+  // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
   // Spy on method dependencies
   const checkForVassalPlay = jest
@@ -13,11 +14,13 @@ describe("Method processRevealsLine()", () => {
   const play = jest
     .spyOn(Deck.prototype, "play")
     .mockImplementation(() => null);
+
   afterEach(() => {
     jest.clearAllMocks();
     deck = new Deck("", false, "", "pNick", "pName", []);
   });
-  it("should process regular plays from hand correctly", () => {
+
+  it("should play cards that are played normally from hand.", () => {
     //Arrange
     deck.latestPlay = "Market";
     // Arguments for function being tested.
@@ -35,7 +38,7 @@ describe("Method processRevealsLine()", () => {
     expect(playFromDiscard).not.toBeCalled();
   });
 
-  it("should process plays from discard correctly", () => {
+  it("should play cards played by Vassal from graveyard.", () => {
     //Arrange
     deck.latestPlay = "Vassal";
     checkForVassalPlay.mockImplementation(() => true);
@@ -53,7 +56,7 @@ describe("Method processRevealsLine()", () => {
     expect(play).not.toBeCalled();
   });
 
-  it("should do nothing if card is being played again by a Throne Room", () => {
+  it("should take no action for a card played again by a Throne Room.", () => {
     //Arrange
     const line = "pNick plays a Remodel again.";
     const cards = ["Remodel"];

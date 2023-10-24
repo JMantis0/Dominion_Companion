@@ -3,12 +3,14 @@ import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
 describe("Method update()", () => {
-  const deck = new Deck("", false, "", "pName", "pNick", [
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", [
     "Sentry",
     "Witch",
     "Copper",
     "Curse",
   ]);
+  // Spy on method dependencies
   const setTreasurePopped = jest.spyOn(Deck.prototype, "setTreasurePopped");
   const logEntryAppliesToThisDeck = jest.spyOn(
     Deck.prototype,
