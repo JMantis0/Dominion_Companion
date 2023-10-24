@@ -3,14 +3,15 @@ import { BaseDeck } from "../../../src/model/baseDeck";
 
 it("should add the provided card to the entireDeck", () => {
   // Arrange an BaseDeck object
-  const oDeck = new BaseDeck("", false, "", "oName", "o", []);
-  oDeck.setEntireDeck(["Card1", "Card2", "Card3"]);
+  const deck = new BaseDeck("", false, "", "oName", "o", []);
   // Mock function dependency
-  const setLogArchive = jest.spyOn(BaseDeck.prototype, "setEntireDeck");
+  const setEntireDeck = jest.spyOn(BaseDeck.prototype, "setEntireDeck");
   // Act - Simulate adding a card to the entireDeck
-  oDeck.addCardToEntireDeck("Card4");
+  deck.entireDeck = ["Card1", "Card2", "Card3"];
+  deck.addCardToEntireDeck("Card4");
 
   // Assert
-  expect(setLogArchive).toBeCalledWith(["Card1", "Card2", "Card3", "Card4"]);
-  expect(oDeck.entireDeck).toStrictEqual(["Card1", "Card2", "Card3", "Card4"]);
+  expect(setEntireDeck).toBeCalledTimes(1);
+  expect(setEntireDeck).toBeCalledWith(["Card1", "Card2", "Card3", "Card4"]);
+  expect(deck.entireDeck).toStrictEqual(["Card1", "Card2", "Card3", "Card4"]);
 });
