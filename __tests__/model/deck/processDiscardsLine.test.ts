@@ -1,10 +1,10 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processDiscardsLine()", () => {
-  // jest.mock("../../../src/model/deck");
+describe("Method processDiscardsLine()", () => {
+  // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Mock dependency functions
+  // Spy on dependent methods.
   const discardFromSetAside = jest
     .spyOn(Deck.prototype, "discardFromSetAside")
     .mockImplementation(() => null);
@@ -19,6 +19,7 @@ describe("Function processDiscardsLine()", () => {
     jest.clearAllMocks();
     deck = new Deck("", false, "", "pNick", "pName", []);
   });
+
   // Case discard from hand
   it("should handle discarding cards from hand correctly", () => {
     // Arrange
@@ -38,8 +39,7 @@ describe("Function processDiscardsLine()", () => {
     expect(discardFromLibrary).not.toBeCalled();
   });
 
-  // Case discard from library (deck)
-  it("should discard from the library when caused by Vassal", () => {
+  it("should discard from the library when latestPlay is a Vassal", () => {
     // Arrange
     deck.latestPlay = "Vassal";
     const cards = ["Silver"];
@@ -55,31 +55,29 @@ describe("Function processDiscardsLine()", () => {
     expect(discard).not.toBeCalled();
   });
 
-  it("should discard from setAside when cause by Bandit", () => { // This will fail until we get a reveals handler
+  it("should discard from setAside when latestPlay is a Bandit", () => {
     // Arrange
     deck.latestPlay = "Bandit";
     const cards = ["Smithy"];
     const numberOfCards = [1];
 
-    // Act - Simulate discarding from library with Vassal.
+    // Act - Simulate discarding from library with Bandit.
     deck.processDiscardsLine(cards, numberOfCards);
 
     // Assert
-
     expect(discardFromSetAside).toBeCalledTimes(1);
     expect(discardFromSetAside).toBeCalledWith("Smithy");
     expect(discard).not.toBeCalled();
     expect(discardFromLibrary).not.toBeCalled();
   });
 
-  // Case discard from set aside zone
-  it("should discarding cards from the set aside zone correctly", () => {
+  it("should from aside when latestPlay is a Library", () => {
     // Arrange
     deck.latestPlay = "Library";
     const cards = ["Chapel", "Poacher"];
     const numberOfCards = [1, 2];
 
-    // Act - simulate discarding 3 cards by playing a Library.
+    // Act - simulate discarding 3 cards with a Library.
     deck.processDiscardsLine(cards, numberOfCards);
 
     expect(discardFromSetAside).toBeCalledTimes(3);

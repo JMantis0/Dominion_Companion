@@ -1,37 +1,41 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function topDeckFromGraveyard() ", () => {
+describe("Method topDeckFromGraveyard() ", () => {
+  // Instantiate Deck object
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on method dependencies
+  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
+  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+
+  afterEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", []);
+    jest.clearAllMocks();
+  });
+
   it("should remove an instance of the provided card from graveyard, and add it to library", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const graveyard = ["Harbinger", "Library", "Estate", "Silver"];
-    const library = ["Sentry", "Vassal"];
-    const card = "Harbinger";
-    deck.setGraveyard(graveyard);
-    deck.setLibrary(library);
-    const expectedGraveyard = ["Library", "Estate", "Silver"];
-    const expectedLibrary = ["Sentry", "Vassal", "Harbinger"];
+    deck.graveyard = ["Harbinger", "Library", "Estate", "Silver"];
+    deck.library = ["Sentry", "Vassal"];
 
-    // Act
-    deck.topDeckFromGraveyard(card);
-    const resultLibrary = deck.getLibrary();
-    const resultGraveyard = deck.getGraveyard();
+    // Act - Simulate topdecking a Harbinger from graveyard.
+    deck.topDeckFromGraveyard("Harbinger");
 
     // Assert
-    expect(resultGraveyard).toStrictEqual(expectedGraveyard);
-    expect(resultLibrary).toStrictEqual(expectedLibrary);
+    expect(deck.graveyard).toStrictEqual(["Library", "Estate", "Silver"]);
+    expect(deck.library).toStrictEqual(["Sentry", "Vassal", "Harbinger"]);
+    expect(setLibrary).toBeCalledTimes(1);
+    expect(setLibrary).toBeCalledWith(["Sentry", "Vassal", "Harbinger"]);
+    expect(setGraveyard).toBeCalledTimes(1);
+    expect(setGraveyard).toBeCalledWith(["Library", "Estate", "Silver"]);
   });
 
   it("should throw an error if the provided card is not in graveyard", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const graveyard = ["Harbinger", "Library", "Estate", "Silver"];
-    deck.setGraveyard(graveyard);
-    const card = "Pot of Greed";
+    deck.graveyard = ["Harbinger", "Library", "Estate", "Silver"];
 
     // Act and Assert
-    expect(() => deck.topDeckFromGraveyard(card)).toThrowError(
+    expect(() => deck.topDeckFromGraveyard("Pot of Greed")).toThrowError(
       "No Pot of Greed in discard pile."
     );
   });

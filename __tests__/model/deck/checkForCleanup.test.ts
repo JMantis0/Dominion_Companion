@@ -1,7 +1,7 @@
 import { it, describe, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function checkForCleanup()", () => {
+describe("Method checkForCleanup()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
   // Spy on function dependency.

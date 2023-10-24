@@ -2,13 +2,15 @@ import { describe, it, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
-describe("Function update()", () => {
-  const deck = new Deck("", false, "", "pName", "pNick", [
+describe("Method update()", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", [
     "Sentry",
     "Witch",
     "Copper",
     "Curse",
   ]);
+  // Spy on method dependencies
   const setTreasurePopped = jest.spyOn(Deck.prototype, "setTreasurePopped");
   const logEntryAppliesToThisDeck = jest.spyOn(
     Deck.prototype,

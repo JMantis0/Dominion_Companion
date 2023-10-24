@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function checkForShuffle()", () => {
+describe("Method checkForShuffle()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
 

@@ -166,7 +166,9 @@ export class BaseDeck {
    * @param card - The The given card.
    */
   addCardToEntireDeck(card: string) {
-    this.setEntireDeck(this.entireDeck.concat(card));
+    const entireDeckCopy = this.entireDeck.slice();
+    entireDeckCopy.push(card);
+    this.setEntireDeck(entireDeckCopy);
   }
 
   /**
@@ -174,7 +176,9 @@ export class BaseDeck {
    * @param line
    */
   addLogToLogArchive(line: string) {
-    this.setLogArchive(this.logArchive.concat(line));
+    const logArchiveCopy = this.logArchive.slice();
+    logArchiveCopy.push(line);
+    this.setLogArchive(logArchiveCopy);
   }
 
   /**

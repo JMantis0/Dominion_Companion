@@ -1,10 +1,10 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function drawLookedAtCardIfNeeded()", () => {
+describe("Method drawLookedAtCardIfNeeded()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies
+  // Spy on method dependencies
   const libraryTriggeredPreviousLineDraw = jest.spyOn(
     Deck.prototype,
     "libraryTriggeredPreviousLineDraw"

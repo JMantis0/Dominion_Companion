@@ -1,14 +1,17 @@
 import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function trashFromHand() ", () => {
+describe("Method trashFromHand() ", () => {
+  // Instantiate Deck objext
   let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on method dependencies
   const setTrash = jest.spyOn(Deck.prototype, "setTrash");
   const removeCardFromEntireDeck = jest.spyOn(
     Deck.prototype,
     "removeCardFromEntireDeck"
   );
   const setHand = jest.spyOn(Deck.prototype, "setHand");
+  
   afterEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
     jest.clearAllMocks();

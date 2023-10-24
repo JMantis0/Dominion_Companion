@@ -2,8 +2,10 @@ import { it, describe, expect, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 import { afterEach } from "node:test";
 
-describe("Function getRepeatBuyGainCounts()", () => {
+describe("Method getRepeatBuyGainCounts()", () => {
+  // Instantiate BaseDeck object.
   let deck = new BaseDeck("", false, "", "pNick", "pName", []);
+  // Spy on method dependency
   const setLogArchive = jest.spyOn(BaseDeck.prototype, "setLogArchive");
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", []);
@@ -16,17 +18,16 @@ describe("Function getRepeatBuyGainCounts()", () => {
       "pNick buys and gains 2 Golds.",
     ];
     deck.lastEntryProcessed = "pNick buys and gains 2 Golds.";
-    const line = "pNick buys and gains 3 Golds.";
-    const expectedDifference = 1;
-    const expectedLogArchive = ["pNick plays 2 Golds. (+$6)"];
-    // Act
-    const resultDifference = deck.getRepeatBuyGainCounts(line, deck.logArchive);
-    const resultLogArchive = deck.getLogArchive();
-    // Assert
-    expect(resultDifference).toEqual(expectedDifference);
-    expect(resultLogArchive).toStrictEqual(expectedLogArchive);
+    // Act and Assert - Simulate playing a third Gold immediately after playing 2 Golds.
+    expect(
+      deck.getRepeatBuyGainCounts(
+        "pNick buys and gains 3 Golds.",
+        deck.logArchive
+      )
+    ).toEqual(1);
+    expect(deck.logArchive).toStrictEqual(["pNick plays 2 Golds. (+$6)"]);
     expect(setLogArchive).toBeCalledTimes(1);
-    expect(setLogArchive).toBeCalledWith(expectedLogArchive);
+    expect(setLogArchive).toBeCalledWith(["pNick plays 2 Golds. (+$6)"]);
   });
 
   it("should work even if the difference is greater than 1", () => {
@@ -36,29 +37,26 @@ describe("Function getRepeatBuyGainCounts()", () => {
     ];
     // Arrange
     deck.lastEntryProcessed = "pNick buys and gains an Artisan.";
-    const line = "pNick buys and gains 4 Artisans.";
-    const expectedDifference = 3;
-    const expectedLogArchive = ["pNick plays 8 Golds. (+$24)"];
 
-    // Act
-    const resultDifference = deck.getRepeatBuyGainCounts(line, deck.logArchive);
-    const resultLogArchive = deck.getLogArchive();
-
-    // Assert
-    expect(resultDifference).toEqual(expectedDifference);
-    expect(resultLogArchive).toStrictEqual(expectedLogArchive);
+    // Act and Assert - simulate playing 3 Artisans in one line immediately after purchasing one Artisan.
+    expect(
+      deck.getRepeatBuyGainCounts(
+        "pNick buys and gains 4 Artisans.",
+        deck.logArchive
+      )
+    ).toEqual(3);
+    expect(deck.logArchive).toStrictEqual(["pNick plays 8 Golds. (+$24)"]);
     expect(setLogArchive).toBeCalledTimes(1);
-    expect(setLogArchive).toBeCalledWith(expectedLogArchive);
+    expect(setLogArchive).toBeCalledWith(["pNick plays 8 Golds. (+$24)"]);
   });
 
   it("should throw an error when the logArchive is empty", () => {
     // Arrange
     deck.logArchive = [];
-    const line = "Game #132083560, unrated.";
 
     // Act and Assert
     expect(() =>
-      deck.getRepeatBuyGainCounts(line, deck.logArchive)
+      deck.getRepeatBuyGainCounts("Game #132083560, unrated.", deck.logArchive)
     ).toThrowError("Empty logArchive.");
   });
 });

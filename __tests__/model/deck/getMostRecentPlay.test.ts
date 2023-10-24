@@ -1,7 +1,7 @@
 import { it, describe, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function getMostRecentPlay()", () => {
+describe("Method getMostRecentPlay()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
   // Spy on function dependency

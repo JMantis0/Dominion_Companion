@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function checkForBuyAndGain", () => {
+describe("Method checkForBuyAndGain", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
   
   afterEach(() => {

@@ -1,10 +1,10 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function updateArchives()", () => {
+describe("Method updateArchives()", () => {
   // Instantiate BaseDeck object.
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  // Spy on function dependencies.
+  // Spy on method dependencies.
   const setLastEntryProcessed = jest.spyOn(
     BaseDeck.prototype,
     "setLastEntryProcessed"

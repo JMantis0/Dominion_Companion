@@ -1,10 +1,11 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function processTopDecksLine()", () => {
+describe("Method processTopDecksLine()", () => {
+  // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
 
-  // Mock function dependencies
+  // Spy on method dependencies
   const topDeckFromGraveyard = jest
     .spyOn(Deck.prototype, "topDeckFromGraveyard")
     .mockImplementation(() => null);
@@ -14,11 +15,13 @@ describe("Function processTopDecksLine()", () => {
   const topDeckFromSetAside = jest
     .spyOn(Deck.prototype, "topDeckFromSetAside")
     .mockImplementation(() => null);
+
   afterEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
     jest.clearAllMocks();
   });
-  it("should handle top decking caused by an Artisan correctly", () => {
+
+  it("should move cards topdecked by an Artisan from hand.", () => {
     // Arrange deck state
     deck.latestPlay = "Artisan";
 
@@ -26,7 +29,7 @@ describe("Function processTopDecksLine()", () => {
     const cards = ["Bandit"];
     const numberOfCards = [1];
 
-    // Act - Simulate top decking a card with an Artisan
+    // Act - Simulate top decking a card with an Artisan.
     deck.processTopDecksLine(cards, numberOfCards);
 
     // Assert
@@ -36,15 +39,15 @@ describe("Function processTopDecksLine()", () => {
     expect(topDeckFromSetAside).not.toBeCalled();
   });
 
-  it("should handle top decking caused by a Harbinger correctly", () => {
+  it("should move cards topdecked by a Harbinger from graveyard.", () => {
     // Arrange deck state
-    deck.latestPlay = "Harbinger"
+    deck.latestPlay = "Harbinger";
 
     // Arguments for function being tested.
     const cards = ["Poacher"];
     const numberOfCards = [1];
 
-    // Act - Simulate top decking a card with an Artisan
+    // Act - Simulate top decking a card with a Harbinger.
     deck.processTopDecksLine(cards, numberOfCards);
 
     // Assert
@@ -54,18 +57,17 @@ describe("Function processTopDecksLine()", () => {
     expect(topDeckFromSetAside).not.toBeCalled();
   });
 
-  it("should handle top decking caused by a Sentry correctly", () => {
+  it("should move cards topdecked by a Sentry from setAside.", () => {
     // Arrange deck state
-    deck.latestPlay = "Sentry"
+    deck.latestPlay = "Sentry";
     // Arguments for function being tested.
     const cards = ["Vassal"];
     const numberOfCards = [1];
 
-    // Act - Simulate top decking a card with an Artisan
+    // Act - Simulate top decking a card with an Sentry.
     deck.processTopDecksLine(cards, numberOfCards);
 
     // Assert
-
     expect(topDeckFromSetAside).toBeCalledTimes(1);
     expect(topDeckFromSetAside).toBeCalledWith("Vassal");
     expect(topDeckFromHand).not.toBeCalled();

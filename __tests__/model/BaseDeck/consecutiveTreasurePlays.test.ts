@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Function consecutiveTreasurePlays", () => {
+describe("Method consecutiveTreasurePlays", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
   const checkForTreasurePlayLine = jest.spyOn(
     BaseDeck.prototype,

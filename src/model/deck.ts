@@ -253,7 +253,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (this.debug) console.group("Cleaning up:");
     const handCopy = this.hand.slice();
     const inPlayCopy = this.inPlay.slice();
-    const graveYardCopy = this.graveyard.slice();
+    const graveyardCopy = this.graveyard.slice();
     let i = this.inPlay.length - 1;
     let j = this.hand.length - 1;
     for (i; i >= 0; i--) {
@@ -261,18 +261,18 @@ export class Deck extends BaseDeck implements StoreDeck {
         console.info(
           `Moving ${this.inPlay[i]} from in play into into discard pile.`
         );
-      graveYardCopy.push(this.inPlay[i]);
+      graveyardCopy.push(this.inPlay[i]);
       inPlayCopy.splice(i, 1);
     }
     for (j; j >= 0; j--) {
       if (this.debug)
         console.info(`Moving ${this.hand[j]} from hand into discard pile.`);
-      graveYardCopy.push(this.hand[j]);
+      graveyardCopy.push(this.hand[j]);
       handCopy.splice(j, 1);
     }
     this.setHand(handCopy);
     this.setInPlay(inPlayCopy);
-    this.setGraveyard(graveYardCopy);
+    this.setGraveyard(graveyardCopy);
     if (this.debug) console.groupEnd();
   }
 
@@ -424,9 +424,9 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   gain(card: string) {
     if (this.debug) console.info(`Gaining ${card} into discard pile.`);
-    const graveYardCopy = this.graveyard.slice();
-    graveYardCopy.push(card);
-    this.setGraveyard(graveYardCopy);
+    const graveyardCopy = this.graveyard.slice();
+    graveyardCopy.push(card);
+    this.setGraveyard(graveyardCopy);
     this.addCardToEntireDeck(card);
   }
 
@@ -543,12 +543,16 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   play(card: string) {
     const index = this.hand.indexOf(card);
-    if (index > -1) {
-      if (this.debug) console.info(`Playing ${card} from hand into play.`);
-      this.inPlay.push(card);
-      this.hand.splice(index, 1);
-    } else {
+    if (index < 0) {
       throw new Error(`No ${card} in hand.`);
+    } else {
+      if (this.debug) console.info(`Playing ${card} from hand into play.`);
+      const inPlayCopy = this.inPlay.slice();
+      const handCopy = this.hand.slice();
+      inPlayCopy.push(card);
+      handCopy.splice(index, 1);
+      this.setInPlay(inPlayCopy);
+      this.setHand(handCopy);
     }
   }
 
@@ -561,13 +565,17 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   playFromDiscard(card: string) {
     const index = this.graveyard.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in discard pile.`);
+    } else {
       if (this.debug)
         console.info(`Playing ${card} from discard pile into play.`);
-      this.inPlay.push(card);
-      this.graveyard.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in discard pile.`);
+      const inPlayCopy = this.inPlay.slice();
+      const graveyardCopy = this.graveyard.slice();
+      inPlayCopy.push(card);
+      graveyardCopy.splice(index, 1);
+      this.setInPlay(inPlayCopy);
+      this.setGraveyard(graveyardCopy);
     }
   }
 
@@ -575,9 +583,9 @@ export class Deck extends BaseDeck implements StoreDeck {
    * Update function.  Calls the appropriate process line function to update
    * the deck state.
    * @param line - The current line being processed.
-   * @param act - The act from the current line. ie: draws, discards
+   * @param act - The act from the current line. ie: draws, discards.
    * @param cards - The array of cards collected from the line.
-   * @param numberOfCards - The array of card amounts collected from the line
+   * @param numberOfCards - The array of card amounts collected from the line.
    */
   processDeckChanges(
     line: string,
@@ -613,6 +621,10 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "reveals":
         this.processRevealsLine(cards, numberOfCards);
         break;
+      // case "aside with Library":
+      // Placing this switch case here as a reminder that this
+      // act exists, and needs to exist for the function
+      // libraryTriggeredPreviousLineDraw to work correctly.
     }
   }
 
@@ -649,8 +661,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     // This first section collects 3 booleans which serve
     // as sufficient context to determine whether or not
     // to perform a cleanup before drawing any cards.
-    // This check happens at the end of every turn,
-    // when a player draws Their new hand.
     const cleanupNeeded = this.checkForCleanUp(line);
     const shuffleOccurred = this.checkForShuffle();
     const cellarDraws = this.checkForCellarDraw();
@@ -716,6 +726,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Copper",
             "Silver",
             "Gold",
+            "Curse",
           ];
           if (this.debug) console.log("It's a library look");
           if (cardsToDrawNow.includes(cards[i])) {
@@ -810,13 +821,34 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   setAsideFromLibrary(card: string) {
     const index = this.library.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in library.`);
+    } else {
       if (this.debug)
         console.info(`Setting aside a ${card} with ${this.latestPlay}.`);
-      this.setAside.push(card);
-      this.library.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in library.`);
+      const setAsideCopy = this.setAside.slice();
+      const libraryCopy = this.library.slice();
+      setAsideCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setSetAside(setAsideCopy);
+      this.setLibrary(libraryCopy);
+    }
+  }
+
+  /**
+   * Update function.  Uses the value of field method to determine whether a
+   * shuffle call is needed.  If a shuffle call is needed, performs a check
+   * for whether a cleanup is needed, and performs the cleanup before
+   * shuffling.
+   * @param line - The current line being processed.
+   */
+  shuffleAndCleanUpIfNeeded(line: string) {
+    if (this.waitToShuffle) {
+      if (this.ifCleanUpNeeded(line)) {
+        this.cleanup();
+      }
+      this.shuffleGraveYardIntoLibrary();
+      this.setWaitToShuffle(false);
     }
   }
 
@@ -827,14 +859,18 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   shuffleGraveYardIntoLibrary() {
     let i = this.graveyard.length - 1;
+    const libraryCopy = this.library.slice();
+    const graveyardCopy = this.graveyard.slice();
     for (i; i >= 0; i--) {
       if (this.debug)
         console.info(
           `Shuffling ${this.graveyard[i]} from discard pile into library`
         );
-      this.library.push(this.graveyard[i]);
-      this.graveyard.splice(i, 1);
+      libraryCopy.push(this.graveyard[i]);
+      graveyardCopy.splice(i, 1);
     }
+    this.setLibrary(libraryCopy);
+    this.setGraveyard(graveyardCopy);
   }
 
   /**
@@ -846,12 +882,16 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   topDeckFromGraveyard(card: string) {
     const index = this.graveyard.indexOf(card);
-    if (index > -1) {
-      if (this.debug) console.info(`Top decking ${card} from discard pile.`);
-      this.library.push(card);
-      this.graveyard.splice(index, 1);
-    } else {
+    if (index < 0) {
       throw new Error(`No ${card} in discard pile.`);
+    } else {
+      if (this.debug) console.info(`Top decking ${card} from discard pile.`);
+      const libraryCopy = this.library.slice();
+      const graveyardCopy = this.graveyard.slice();
+      libraryCopy.push(card);
+      graveyardCopy.splice(index, 1);
+      this.setLibrary(libraryCopy);
+      this.setGraveyard(graveyardCopy);
     }
   }
 
@@ -863,13 +903,17 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   topDeckFromHand(card: string) {
     const index = this.hand.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in hand.`);
+    } else {
       if (this.debug)
         console.info(`Top decking ${this.hand[index]} from hand.`);
-      this.library.push(this.hand[index]);
-      this.hand.splice(index, 1);
-    } else {
-      throw new Error(`No ${card} in hand.`);
+      const libraryCopy = this.library.slice();
+      const handCopy = this.hand.slice();
+      libraryCopy.push(card);
+      handCopy.splice(index, 1);
+      this.setLibrary(libraryCopy);
+      this.setHand(handCopy);
     }
   }
 
@@ -885,12 +929,12 @@ export class Deck extends BaseDeck implements StoreDeck {
       throw new Error(`No ${card} in setAside.`);
     } else {
       if (this.debug) console.info(`Top decking ${card} from setAside.`);
-      // Remove card from setAside.
-      const newSetAside = this.setAside.slice();
-      newSetAside.splice(index, 1);
-      this.setSetAside(newSetAside);
-      // Add card to library.
-      this.setLibrary(this.library.concat(card));
+      const libraryCopy = this.library.slice();
+      const setAsideCopy = this.setAside.slice();
+      libraryCopy.push(card);
+      setAsideCopy.splice(index, 1);
+      this.setLibrary(libraryCopy);
+      this.setSetAside(setAsideCopy);
     }
   }
 
@@ -906,37 +950,13 @@ export class Deck extends BaseDeck implements StoreDeck {
       throw new Error(`No ${card} in hand.`);
     } else {
       if (this.debug) console.info(`Trashing ${card} from hand.`);
-      // Remove card from entireDeck
+      const trashCopy = this.trash.slice();
+      const handCopy = this.hand.slice();
+      trashCopy.push(card);
+      handCopy.splice(index, 1);
+      this.setTrash(trashCopy);
+      this.setHand(handCopy);
       this.removeCardFromEntireDeck(card);
-      // Add card to trash
-      this.setTrash(this.trash.concat(card));
-      // Remove card from hand
-      const newHand = this.hand.slice();
-      newHand.splice(index, 1);
-      this.setHand(newHand);
-    }
-  }
-
-  /**
-   * Checks if the given card is in the setAside zone.  If so
-   * removes one instance of the card from the entireDeck and one from
-   * setAside. Then it  adds it one instance to the trash zone.
-   * @param card - The given card.
-   */
-  trashFromSetAside(card: string): void {
-    const index = this.setAside.indexOf(card);
-    if (index < 0) {
-      throw new Error(`No ${card} in setAside.`);
-    } else {
-      if (this.debug) console.info(`Trashing ${card} from setAside.`);
-      // Remove from entireDeck
-      this.removeCardFromEntireDeck(card);
-      // Add card to trash
-      this.setTrash(this.trash.concat(card));
-      // Remove card from setAside
-      const newSetAside = this.setAside.slice();
-      newSetAside.splice(index, 1);
-      this.setSetAside(newSetAside);
     }
   }
 
@@ -953,24 +973,35 @@ export class Deck extends BaseDeck implements StoreDeck {
     } else {
       if (this.debug)
         console.info(`Trashing ${this.library[index]} from library.`);
-      // Remove card from entireDeck
+      const trashCopy = this.trash.slice();
+      const libraryCopy = this.library.slice();
+      trashCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setTrash(trashCopy);
+      this.setLibrary(libraryCopy);
       this.removeCardFromEntireDeck(card);
-      // Add card to trash
-      this.setTrash(this.trash.concat(card));
-      // Remove card from library
-      const newLibrary = this.library.slice();
-      newLibrary.splice(index, 1);
-      this.setLibrary(newLibrary);
     }
   }
 
-  shuffleAndCleanUpIfNeeded(line: string) {
-    if (this.waitToShuffle) {
-      if (this.ifCleanUpNeeded(line)) {
-        this.cleanup();
-      }
-      this.shuffleGraveYardIntoLibrary();
-      this.setWaitToShuffle(false);
+  /**
+   * Checks if the given card is in the setAside zone.  If so
+   * removes one instance of the card from the entireDeck and one from
+   * setAside. Then it  adds it one instance to the trash zone.
+   * @param card - The given card.
+   */
+  trashFromSetAside(card: string): void {
+    const index = this.setAside.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in setAside.`);
+    } else {
+      if (this.debug) console.info(`Trashing ${card} from setAside.`);
+      const trashCopy = this.trash.slice();
+      const setAsideCopy = this.setAside.slice();
+      trashCopy.push(card);
+      setAsideCopy.splice(index, 1);
+      this.setTrash(trashCopy);
+      this.setSetAside(setAsideCopy);
+      this.removeCardFromEntireDeck(card);
     }
   }
 

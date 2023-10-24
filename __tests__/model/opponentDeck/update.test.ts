@@ -1,9 +1,10 @@
 import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 
-describe("Function update", () => {
+describe("Method update", () => {
+  // Instantiate Deck object.
   let deck = new OpponentDeck("", false, "", "oName", "oNick", []);
-  // Mock function dependencies
+  // Spy on method dependencies
   const logEntryAppliesToThisDeck = jest.spyOn(
     OpponentDeck.prototype,
     "logEntryAppliesToThisDeck"
@@ -43,7 +44,7 @@ describe("Function update", () => {
     expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
     expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
     expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(true);
-    expect(consecutiveTreasurePlays).not.toBeCalled()
+    expect(consecutiveTreasurePlays).not.toBeCalled();
     expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
     expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(getActCardsAndCounts).toBeCalledWith(log[0]);
