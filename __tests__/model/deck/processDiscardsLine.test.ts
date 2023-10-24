@@ -4,7 +4,7 @@ import { Deck } from "../../../src/model/deck";
 describe("Method processDiscardsLine()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on dependency function.
+  // Spy on dependent methods.
   const discardFromSetAside = jest
     .spyOn(Deck.prototype, "discardFromSetAside")
     .mockImplementation(() => null);

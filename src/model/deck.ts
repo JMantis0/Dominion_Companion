@@ -661,8 +661,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     // This first section collects 3 booleans which serve
     // as sufficient context to determine whether or not
     // to perform a cleanup before drawing any cards.
-    // This check happens at the end of every turn,
-    // when a player draws Their new hand.
     const cleanupNeeded = this.checkForCleanUp(line);
     const shuffleOccurred = this.checkForShuffle();
     const cellarDraws = this.checkForCellarDraw();

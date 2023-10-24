@@ -1,14 +1,27 @@
-import { describe, it, expect, jest } from "@jest/globals";
+import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processDrawsLine", () => {
+  // Instantiate Deck object.
+  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Spy on method dependencies.
+  const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
+  const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
+  const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
+  const cleanup = jest.spyOn(Deck.prototype, "cleanup");
+  const draw = jest.spyOn(Deck.prototype, "draw");
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", []);
+  });
+
   // Case where there are 5 draws taking place on one line and a shuffle occurred
   // on the previous line: no cleanup should occur.
   it("should not cleanup before drawing if lastLineProcessed is a shuffle", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const library = ["Copper", "Copper", "Silver", "Gold", "Merchant"];
-    const logArchive = [
+    deck.library = ["Copper", "Copper", "Silver", "Gold", "Merchant"];
+    deck.logArchive = [
       "pNick plays a Merchant.",
       "pNick draws an Estate.",
       "pNick gets +1 Action.",
@@ -18,17 +31,7 @@ describe("Method processDrawsLine", () => {
       "pNick buys and gains a Gold.",
       "pNick shuffles their deck.",
     ];
-    const lastEntryProcessed = "pNick shuffles their deck.";
-    deck.setLibrary(library);
-    deck.setLogArchive(logArchive);
-    deck.setLastEntryProcessed(lastEntryProcessed);
-
-    // Mock dependency functions
-    const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
-    const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
-    const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
-    const cleanup = jest.spyOn(Deck.prototype, "cleanup");
-    const draw = jest.spyOn(Deck.prototype, "draw");
+    deck.lastEntryProcessed = "pNick shuffles their deck.";
 
     // Arguments for function being tested
     const line = "pNick draws 2 Coppers, a Silver, a Gold, and a Merchant.";
@@ -62,9 +65,8 @@ describe("Method processDrawsLine", () => {
   // they were caused by playing a Cellar: no cleanup should occur.
   it("should not cleanup before drawing if draws are caused by a Cellar", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const library = ["Copper", "Copper", "Silver", "Gold", "Estate"];
-    const logArchive = [
+    deck.library = ["Copper", "Copper", "Silver", "Gold", "Estate"];
+    deck.logArchive = [
       "pNick plays a Laboratory.",
       "pNick draws a Cellar and a Merchant.",
       "pNick gets +1 Action.",
@@ -72,18 +74,8 @@ describe("Method processDrawsLine", () => {
       "pNick gets +1 Action.",
       "pNick discards a Copper, 2 Silvers, a Cellar, and a Merchant.",
     ];
-    const lastEntryProcessed =
+    deck.lastEntryProcessed =
       "pNick discards a Copper, 2 Silvers, a Cellar, and a Merchant.";
-    deck.setLibrary(library);
-    deck.setLogArchive(logArchive);
-    deck.setLastEntryProcessed(lastEntryProcessed);
-
-    // Mock dependency functions
-    const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
-    const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
-    const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
-    const cleanup = jest.spyOn(Deck.prototype, "cleanup");
-    const draw = jest.spyOn(Deck.prototype, "draw");
 
     // Arguments for function being tested
     const line = "pNick draws 2 Coppers, a Silver, a Gold, and an Estate.";
@@ -117,9 +109,8 @@ describe("Method processDrawsLine", () => {
   // (5 draws, no shuffle, no Cellar play)
   it("should cleanup correctly before drawing", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const library = ["Copper", "Copper", "Estate", "Estate", "Bureaucrat"];
-    const logArchive = [
+    deck.library = ["Copper", "Copper", "Estate", "Estate", "Bureaucrat"];
+    deck.logArchive = [
       "Turn 3 - Lord Rattington",
       "L plays 3 Coppers. (+$3)",
       "L buys and gains a Silver.",
@@ -128,17 +119,7 @@ describe("Method processDrawsLine", () => {
       "pNick plays a Silver and 3 Coppers. (+$5)",
       "pNick buys and gains a Festival.",
     ];
-    const lastEntryProcessed = "pNick buys and gains a Festival.";
-    deck.setLibrary(library);
-    deck.setLogArchive(logArchive);
-    deck.setLastEntryProcessed(lastEntryProcessed);
-
-    // Mock dependency functions
-    const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
-    const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
-    const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
-    const cleanup = jest.spyOn(Deck.prototype, "cleanup");
-    const draw = jest.spyOn(Deck.prototype, "draw");
+    deck.lastEntryProcessed = "pNick buys and gains a Festival.";
 
     // Arguments for the function being tested
     const line = "pNick draws 2 Coppers, 2 Estates, and a Bureaucrat.";
@@ -171,9 +152,8 @@ describe("Method processDrawsLine", () => {
   // being drawn.
   it("should not cleanup when there are not exactly 5 draws occurring", () => {
     // Arrange
-    const deck = new Deck("", false, "", "pName", "pNick", []);
-    const library = ["Cellar", "Merchant"];
-    const logArchive = [
+    deck.library = ["Cellar", "Merchant"];
+    deck.logArchive = [
       "L plays a Silver, a Gold, and a Copper. (+$6)",
       "L buys and gains a Duchy.",
       "L shuffles their deck.",
@@ -181,17 +161,7 @@ describe("Method processDrawsLine", () => {
       "Turn 16 - GoodBeard",
       "pNick plays a Laboratory.",
     ];
-    const lastEntryProcessed = "pNick plays a Laboratory.";
-    deck.setLibrary(library);
-    deck.setLogArchive(logArchive);
-    deck.setLastEntryProcessed(lastEntryProcessed);
-
-    // Mock dependency functions
-    const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
-    const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
-    const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
-    const cleanup = jest.spyOn(Deck.prototype, "cleanup");
-    const draw = jest.spyOn(Deck.prototype, "draw");
+    deck.lastEntryProcessed = "pNick plays a Laboratory.";
 
     // Arguments for the function being tested
     const line = "pNick draws a Cellar and a Merchant.";
