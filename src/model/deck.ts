@@ -621,9 +621,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "reveals":
         this.processRevealsLine(cards, numberOfCards);
         break;
-      case "aside with Library":
-      // No need to take action here, but this placing this switch case
-      // here as a reminder that this act exists, and needs to exist for the function
+      // case "aside with Library":
+      // Placing this switch case here as a reminder that this
+      // act exists, and needs to exist for the function
       // libraryTriggeredPreviousLineDraw to work correctly.
     }
   }
