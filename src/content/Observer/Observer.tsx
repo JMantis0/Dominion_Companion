@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useEffect } from "react";
 import { Deck } from "../../model/deck";
 import {
-  areNewLogsToSend,
   arePlayerInfoElementsPresent,
   baseKingdomCardCheck,
   createPlayerDecks,
@@ -15,6 +14,10 @@ import {
   getUndispatchedLogs,
   isGameLogPresent,
   isKingdomElementPresent,
+  processLogMutations,
+  areNewLogsToSend,
+  getNewLogsAndUpdateDecks,
+  dispatchUpdatedDecksToRedux,
 } from "../../utils/utils";
 import {
   setOpponentDeck,
@@ -232,46 +235,23 @@ const Observer: FunctionComponent = () => {
   const logObserverFunc: MutationCallback = (
     mutationList: MutationRecord[]
   ) => {
-    for (const mutation of mutationList) {
-      if (mutation.type === "childList") {
-        const addedNodes = mutation.addedNodes;
-        if (addedNodes.length > 0) {
-          const lastAddedNode: HTMLElement = addedNodes[
-            addedNodes.length - 1
-          ] as HTMLElement;
-          const lastAddedNodeText = lastAddedNode.innerText;
-          if (lastAddedNodeText.length > 0) {
-            if (areNewLogsToSend(logsProcessed, getGameLog())) {
-              gameLog = getGameLog();
-              const newLogsToDispatch = getUndispatchedLogs(
-                logsProcessed,
-                gameLog
-              )
-                .split("\n")
-                .slice();
-              decks.get(playerName)?.update(newLogsToDispatch);
-              dispatch(
-                setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
-              );
-              decks.get(opponentName)?.update(newLogsToDispatch);
-              dispatch(
-                setOpponentDeck(
-                  JSON.parse(JSON.stringify(decks.get(opponentName)))
-                )
-              );
-              // remove premoves
-              if (
-                gameLog
-                  .split("\n")
-                  [gameLog.split("\n").length - 1].match("Premoves") !== null
-              ) {
-                gameLog = gameLog.split("\n").slice(0, -1).join("\n");
-              }
-              logsProcessed = gameLog;
-            }
-          }
-        }
-      }
+    const newLogsProcessed = processLogMutations(
+      mutationList,
+      areNewLogsToSend,
+      logsProcessed,
+      getGameLog,
+      getNewLogsAndUpdateDecks,
+      getUndispatchedLogs,
+      decks,
+      playerName,
+      opponentName,
+      dispatchUpdatedDecksToRedux,
+      dispatch,
+      setPlayerDeck,
+      setOpponentDeck
+    );
+    if (newLogsProcessed) {
+      logsProcessed = newLogsProcessed;
     }
   };
 

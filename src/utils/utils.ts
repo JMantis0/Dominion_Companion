@@ -607,7 +607,8 @@ const getErrorMessage = (error: unknown) => {
 };
 
 /**
- * Gets and returns the game log element's innerText.
+ * Gets and returns the game log element's innerText, removing the
+ * last line if it matches 'Premoves'.
  * Purpose: Update the global gameLog variable.
  * @returns The string of innerText of the game-log element.
  */
@@ -615,7 +616,13 @@ const getGameLog = (): string => {
   const gameLogElement = document.getElementsByClassName(
     "game-log"
   )[0] as HTMLElement;
-  const gameLog = gameLogElement.innerText;
+  let gameLog = gameLogElement.innerText;
+  if (
+    gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
+    null
+  ) {
+    gameLog = gameLog.split("\n").slice(0, -1).join("\n");
+  }
   return gameLog;
 };
 
@@ -632,6 +639,29 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
     "log-line"
   ) as HTMLCollectionOf<HTMLElement>;
   return logLineCollection;
+};
+
+const getNewLogsAndUpdateDecks = (
+  gameLog: string,
+  getUndispatchedLogs: Function,
+  logsProcessed: string,
+  deckMap: Map<string, Deck | OpponentDeck>,
+  playerName: string,
+  opponentName: string
+): { playerStoreDeck: StoreDeck; opponentStoreDeck: OpponentStoreDeck } => {
+  try {
+    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+      .split("\n")
+      .slice();
+    deckMap.get(playerName)?.update(newLogsToDispatch);
+    deckMap.get(opponentName)?.update(newLogsToDispatch);
+  } catch (e) {
+    console.log(e);
+  }
+  return {
+    playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
+    opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
+  };
 };
 
 /**
@@ -882,9 +912,6 @@ const getUndispatchedLogs = (
     dispatchedArr = [];
   }
   const gameLogArr = gameLog.split("\n").slice();
-  if (gameLogArr[gameLogArr.length - 1].match("Premoves") !== null) {
-    gameLogArr.pop();
-  }
   if (dispatchedArr.length > gameLogArr.length) {
     throw new Error("More dispatched logs than game logs");
   } else if (dispatchedArr.length < gameLogArr.length) {
@@ -1192,6 +1219,84 @@ const onTurnToggleButtonClick = (
 ) => {
   dispatch(setPinnedTurnToggleButton(buttonName));
   dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Important log element mutation processing function.  Used in the MutationCallback function for the
+ * client game-log element.  Every mutation in the game log will trigger this function.  It
+ * filters out mutations that do not include any relevant log changes.  Then it
+ * checks to see if any of the logs are new.  If they are new, it gets them, and 
+ * updates the decks with the new logs. Finally it dispatches the set actions for
+ * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
+ * is so that the logsProcessed global may be updated in the Observer component.
+ * @param mutationList - MutationRecord[] from the Mutation Observer
+ * @param areNewLogsToSend - Function to check for new logs (See this file)
+ * @param logsProcessed - The global from the Observer component containing the logs already processed by the decks.
+ * @param getGameLog - Function to get the game-log text from the client DOM
+ * @param getNewLogsAndUpdateDecks - Function to get the new logs and update the deck states.
+ * @param getUndispatchedLogs - Function to get logs that have not been updated into the decks.
+ * @param decks - The Deck Map.
+ * @param playerName - Name of the player, used to access the Deck Map.
+ * @param opponentName - Name of th opponent, used to access the Deck Map.
+ * @param dispatchUpdatedDecksToRedux - Function that updates the redux state with new deck data.
+ * @param dispatch - Redux dispatcher.
+ * @param setPlayerDeck - Redux ActionCreator for setting player deck.
+ * @param setOpponentDeck - Redux ActionCreator for setting opponent deck.
+ * @returns - Nothing if no undispatched logs were found.  The game log if new logs were found.
+ */
+const processLogMutations = (
+  mutationList: MutationRecord[],
+  areNewLogsToSend: Function,
+  logsProcessed: string,
+  getGameLog: Function,
+  getNewLogsAndUpdateDecks: Function,
+  getUndispatchedLogs: Function,
+  decks: Map<string, Deck | OpponentDeck>,
+  playerName: string,
+  opponentName: string,
+  dispatchUpdatedDecksToRedux: Function,
+  dispatch: Dispatch<AnyAction>,
+  setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
+  setOpponentDeck: ActionCreatorWithPayload<
+    OpponentStoreDeck,
+    "content/setOpponentDeck"
+  >
+): string | void => {
+  console.log("Inside new func, mutationList is");
+  console.log(mutationList);
+  for (const mutation of mutationList) {
+    if (mutation.type === "childList") {
+      const addedNodes = mutation.addedNodes;
+      if (addedNodes.length > 0) {
+        const lastAddedNode: HTMLElement = addedNodes[
+          addedNodes.length - 1
+        ] as HTMLElement;
+        const lastAddedNodeText = lastAddedNode.innerText;
+        if (lastAddedNodeText.length > 0) {
+          if (areNewLogsToSend(logsProcessed, getGameLog())) {
+            const gameLog = getGameLog();
+            const { playerStoreDeck, opponentStoreDeck } =
+              getNewLogsAndUpdateDecks(
+                gameLog,
+                getUndispatchedLogs,
+                logsProcessed,
+                decks,
+                playerName,
+                opponentName
+              );
+            dispatchUpdatedDecksToRedux(
+              dispatch,
+              setPlayerDeck,
+              setOpponentDeck,
+              playerStoreDeck,
+              opponentStoreDeck
+            );
+            return gameLog;
+          }
+        }
+      }
+    }
+  }
 };
 
 /**
@@ -1820,6 +1925,7 @@ export {
   getErrorMessage,
   getGameLog,
   getLogScrollContainerLogLines,
+  getNewLogsAndUpdateDecks,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerInfoElements,
   getPlayerNameAbbreviations,
@@ -1846,6 +1952,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  processLogMutations,
   product_Range,
   sortHistoryDeckView,
   sortMainViewer,
