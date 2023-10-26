@@ -6,6 +6,7 @@ import { SetStateAction } from "react";
 import type {
   CardCounts,
   ErrorWithMessage,
+  OpponentStoreDeck,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
@@ -383,6 +384,29 @@ const cumulativeHyperGeometricProbability = (
     );
   }
   return cumulativeProb;
+};
+
+/**
+ * Dispatches the setPlayerDeck and setOpponentDeck actions with the given StoreDeck and OpponentStoreDeck
+ * as payloads.
+ * @param dispatch - Redux dispatcher.
+ * @param setPlayerDeck - Reducer from contentSlice that sets player deck state.
+ * @param setOpponentDeck - Reducer from contentSlice that sets opponent deck state.
+ * @param playerStoreDeck - The JSON version of playerDeck.
+ * @param opponentStoreDeck - The JSON version of opponentDeck.
+ */
+const dispatchUpdatedDecksToRedux = (
+  dispatch: Dispatch<AnyAction>,
+  setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
+  setOpponentDeck: ActionCreatorWithPayload<
+    OpponentStoreDeck,
+    "content/setOpponentDeck"
+  >,
+  playerStoreDeck: StoreDeck,
+  opponentStoreDeck: OpponentStoreDeck
+): void => {
+  dispatch(setPlayerDeck(playerStoreDeck));
+  dispatch(setOpponentDeck(opponentStoreDeck));
 };
 
 /**
@@ -1789,6 +1813,7 @@ export {
   createEmptySplitMapsObject,
   createPlayerDecks,
   cumulativeHyperGeometricProbability,
+  dispatchUpdatedDecksToRedux,
   getClientKingdom,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,

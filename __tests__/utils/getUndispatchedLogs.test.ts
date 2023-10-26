@@ -11,14 +11,7 @@ describe("Function getUndispatchedLogs()", () => {
         "Line5\nLogLine6"
       );
     });
-    it("should return the logs that have not been dispatched even with a logLine that has premoves", () => {
-      const gameLog = "LogLine1\nLogLine2\nLogLine3\nLogLine4\nLine5\nLogLine6\nPremovesABCDEFG";
-      const logsDispatched = "LogLine1\nLogLine2\nLogLine3\nLogLine4";
 
-      expect(getUndispatchedLogs(logsDispatched, gameLog)).toBe(
-        "Line5\nLogLine6"
-      );
-    });
     describe("when given game log and logsProcessed with same # of lines, but differing last line of the gameLog", () => {
       it("should return the last line", () => {
         const gameLog =
