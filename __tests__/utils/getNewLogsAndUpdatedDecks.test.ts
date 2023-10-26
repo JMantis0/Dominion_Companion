@@ -41,9 +41,9 @@ describe("Function getNewLogsAndUpdateDecks", () => {
 
     // Act - Simulate getting new log entry within the log observer mutation callback and updating the decks.
     const { playerStoreDeck, opponentStoreDeck } = getNewLogsAndUpdateDecks(
+      logsProcessed,
       gameLog,
       getUndispatchedLogsMock,
-      logsProcessed,
       deckMap,
       "pName",
       "oName"
@@ -79,9 +79,9 @@ describe("Function getNewLogsAndUpdateDecks", () => {
 
     // Act - Simulate getting new log entries within the log observer mutation callback and updating the decks.
     const { playerStoreDeck, opponentStoreDeck } = getNewLogsAndUpdateDecks(
+      logsProcessed,
       gameLog,
       getUndispatchedLogsMock,
-      logsProcessed,
       deckMap,
       "pName",
       "oName"

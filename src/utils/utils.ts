@@ -109,10 +109,6 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   let areNewLogs: boolean;
   const procArr = logsProcessed.split("\n").slice();
   const gLogArr = gameLog.split("\n").slice();
-  // remove premoves (innerText of the game-log element places all the premoves text on one line)
-  if (gLogArr[gLogArr.length - 1].match("Premoves") !== null) {
-    gLogArr.pop();
-  }
   const lastGameLogEntry = gLogArr.slice().pop();
   if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
     areNewLogs = false;
@@ -642,9 +638,9 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
 };
 
 const getNewLogsAndUpdateDecks = (
+  logsProcessed: string,
   gameLog: string,
   getUndispatchedLogs: Function,
-  logsProcessed: string,
   deckMap: Map<string, Deck | OpponentDeck>,
   playerName: string,
   opponentName: string
@@ -1225,7 +1221,7 @@ const onTurnToggleButtonClick = (
  * Important log element mutation processing function.  Used in the MutationCallback function for the
  * client game-log element.  Every mutation in the game log will trigger this function.  It
  * filters out mutations that do not include any relevant log changes.  Then it
- * checks to see if any of the logs are new.  If they are new, it gets them, and 
+ * checks to see if any of the logs are new.  If they are new, it gets them, and
  * updates the decks with the new logs. Finally it dispatches the set actions for
  * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
  * is so that the logsProcessed global may be updated in the Observer component.
@@ -1262,8 +1258,6 @@ const processLogMutations = (
     "content/setOpponentDeck"
   >
 ): string | void => {
-  console.log("Inside new func, mutationList is");
-  console.log(mutationList);
   for (const mutation of mutationList) {
     if (mutation.type === "childList") {
       const addedNodes = mutation.addedNodes;
@@ -1277,9 +1271,9 @@ const processLogMutations = (
             const gameLog = getGameLog();
             const { playerStoreDeck, opponentStoreDeck } =
               getNewLogsAndUpdateDecks(
+                logsProcessed,
                 gameLog,
                 getUndispatchedLogs,
-                logsProcessed,
                 decks,
                 playerName,
                 opponentName
@@ -1777,134 +1771,6 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
     return new Error(String(maybeError));
   }
 };
-
-// Deprecated
-// /**
-//  * Returns a string expressing the probability of the next draw being a certain card.  If
-//  * there are no cards in the library, it will calculate the probability from the cards in
-//  * the discard pile.
-//  * Purpose: Used by SortableViewer as a prop value for FullListCardRow.tsx
-//  * @param libAmount - The amount of that card in the deck.
-//  * @param libLength - The total amount of cards in the deck.
-//  * @param discAmount - The amount of that card in the discard pile.
-//  * @param discLength - The total amount of cards in the discard pile.
-//  * @returns A string expressing the probability as a percentage.
-//  */
-// const calculateDrawProbability = (
-//   libAmount: number,
-//   libLength: number,
-//   discAmount: number,
-//   discLength: number
-// ): string => {
-//   let probability: string;
-//   if (libLength === 0) {
-//     if (discAmount === undefined) {
-//       probability = "0.0%";
-//     } else {
-//       probability =
-//         ((discAmount / discLength) * 100).toFixed(1).toString() + "%";
-//     }
-//   } else {
-//     probability = ((libAmount / libLength) * 100).toFixed(1).toString() + "%";
-//   }
-//   return probability;
-// };
-
-// DEPRECATED
-// /**
-//  * Returns the <player-info> element for the player.
-//  * @param playerInfoElements - the collection of all <player-info> elements
-//  * @returns - The <player-info> element for the non-opponent player.
-//  */
-// const getHeroPlayerInfoElement = (
-//   playerInfoElements: HTMLCollectionOf<HTMLElement>
-// ): HTMLElement | undefined => {
-//   let heroPlayerInfoEl: HTMLElement;
-//   const transformElementMap: Map<number, HTMLElement> = new Map();
-//   for (let element of playerInfoElements) {
-//     const transform: string = element.style.transform;
-//     const yTransForm: number = parseFloat(
-//       transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
-//     );
-//     transformElementMap.set(yTransForm, element);
-//   }
-//   heroPlayerInfoEl = [...transformElementMap.entries()].reduce((prev, curr) => {
-//     return prev[0] > curr[0] ? prev : curr;
-//   })[1];
-
-//   return heroPlayerInfoEl;
-// };
-
-// DEPRECATED
-// /**
-//  * Checks to see if the line is special type of log that
-//  * requires extra processing.
-//  * Purpose: Control flow for content script.
-//  * @param line - The line being processed.
-//  * @returns Boolean for if the line is a treasure line.
-//  */
-// const isATreasurePlayLogEntry = (line: string): boolean => {
-//   let isATreasurePlay: boolean;
-//   isATreasurePlay =
-//     line.match(/Coppers?|Silvers?|Golds?/) !== null &&
-//     line.match("plays") !== null;
-//   return isATreasurePlay;
-// };
-
-// DEPRECATED
-// /**
-//  * Function that closes the CustomSelect when added to a click event listener for the document itself.  Deprecated after
-//  * it was decided to let the select stay open.
-//  * @param event
-//  * @param setSelectOpen
-//  */
-// const nonOptionClick = (
-//   event: MouseEvent,
-//   dispatch: Dispatch<AnyAction>,
-//   setSelectOpen: ActionCreatorWithPayload<boolean, "content/setSelectOpen">
-// ) => {
-//   const element = event.target as HTMLElement;
-//   const parent = element.parentElement;
-//   const parentId = parent === null ? "null" : parent.id;
-//   if (
-//     parentId !== "option-container" &&
-//     element.id !== "select-button" &&
-//     element.id !== "thumb-track"
-//   ) {
-//     dispatch(setSelectOpen(false));
-//   }
-// };
-
-//  DEPRECATED
-// /**
-//  * Deprecated, not currently being used
-//  * @param sortParam
-//  * @param unsortedMap
-//  * @returns
-//  */
-// const sortByAmountInZone = (
-//   sortParam: string,
-//   unsortedMap: Map<string, CardCounts>
-// ): Map<string, CardCounts> => {
-//   const mapCopy = new Map(unsortedMap);
-//   const sortedMap: Map<string, CardCounts> = new Map();
-//   switch (sortParam) {
-//     case "probability":
-//       {
-//         [...mapCopy.entries()]
-//           .sort((entryA, entryB) => {
-//             return entryB[1].zoneCount - entryA[1].zoneCount;
-//           })
-//           .forEach((entry) => {
-//             const [card, cardCounts] = entry;
-//             sortedMap.set(card, cardCounts);
-//           });
-//       }
-//       break;
-//     default:
-//   }
-//   return sortedMap;
-// };
 
 export {
   addResizableAndCustomHandleToCustomSelectScrollBars,
