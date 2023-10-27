@@ -1220,7 +1220,7 @@ const onTurnToggleButtonClick = (
 /**
  * Important log element mutation processing function.  Used in the MutationCallback function for the
  * client game-log element.  Every mutation in the game log will trigger this function.  It
- * filters out mutations that do not include any relevant log changes.  Then it
+ * filters out mutations that do not include any relevant log changes.  Then, it
  * checks to see if any of the logs are new.  If they are new, it gets them, and
  * updates the decks with the new logs. Finally it dispatches the set actions for
  * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
