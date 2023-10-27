@@ -18,6 +18,7 @@ import {
   areNewLogsToSend,
   getNewLogsAndUpdateDecks,
   dispatchUpdatedDecksToRedux,
+  getTimeOutElements,
 } from "../../utils/utils";
 import {
   setOpponentDeck,
@@ -259,10 +260,8 @@ const Observer: FunctionComponent = () => {
    * At the end of a game, determines the results of the game, and updates the
    */
   const gameEndObserverFunc: MutationCallback = () => {
-    const timeOutElements = document
-      .getElementsByTagName("game-ended-notification")[0]
-      .getElementsByClassName("timeout");
-    const gameEndMessage = (timeOutElements[0] as HTMLElement).innerText;
+    const timeOutElements = getTimeOutElements();
+    const gameEndMessage = timeOutElements[0].innerText;
     let gameEndReason: string = "None";
     if (timeOutElements[1] !== undefined) {
       gameEndReason = (timeOutElements[1] as HTMLElement).innerText;

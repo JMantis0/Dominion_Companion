@@ -461,51 +461,6 @@ const getCountsFromArray = (
 };
 
 /**
- * Classic function that returns the probability of getting a certain number of successes from a set of elements.
- * @param populationSize  - Size of the population
- * @param populationSuccesses - Number of successes in the population
- * @param sampleSize - The sample size to be picked at random from the population
- * @param sampleSuccesses - The number of successes in the sample.
- * @returns - The probability that there will be  exactly the given number of successes in a sample.
- */
-const hyperGeometricProbability = (
-  populationSize: number,
-  populationSuccesses: number,
-  sampleSize: number,
-  sampleSuccesses: number
-): number => {
-  let hyperGeometricProbability: number;
-  /**
-   * Hypergeometric formula has the following restrictions:
-   * 0 <= x <= n
-   * x <= k
-   * n - x <= N - k
-   * Probability for any set of parameter values outside these restrictions have a probability of 0
-   * The first 4 if/else below code in these restrictions.
-   */
-  if (!(0 <= sampleSuccesses)) {
-    hyperGeometricProbability = 0;
-  } else if (!(sampleSuccesses <= sampleSize)) {
-    hyperGeometricProbability = 0;
-  } else if (!(sampleSuccesses <= populationSuccesses)) {
-    hyperGeometricProbability = 0;
-  } else if (
-    !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
-  ) {
-    hyperGeometricProbability = 0;
-  } else {
-    hyperGeometricProbability =
-      (combinations(populationSuccesses, sampleSuccesses) *
-        combinations(
-          populationSize - populationSuccesses,
-          sampleSize - sampleSuccesses
-        )) /
-      combinations(populationSize, sampleSize);
-  }
-  return hyperGeometricProbability;
-};
-
-/**
  * Function returns the hypergeometric and cumulative hypergeometric probabilities that the given card will be drawn in the next
  * given number of draws.
  * @param deck - The player's StoreDeck.
@@ -645,15 +600,11 @@ const getNewLogsAndUpdateDecks = (
   playerName: string,
   opponentName: string
 ): { playerStoreDeck: StoreDeck; opponentStoreDeck: OpponentStoreDeck } => {
-  try {
-    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
-      .split("\n")
-      .slice();
-    deckMap.get(playerName)?.update(newLogsToDispatch);
-    deckMap.get(opponentName)?.update(newLogsToDispatch);
-  } catch (e) {
-    console.log(e);
-  }
+  const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+    .split("\n")
+    .slice();
+  deckMap.get(playerName)?.update(newLogsToDispatch);
+  deckMap.get(opponentName)?.update(newLogsToDispatch);
   return {
     playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
     opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
@@ -886,6 +837,14 @@ const getRowColor = (cardName: string): string => {
   return color;
 };
 
+const getTimeOutElements = (): HTMLCollectionOf<HTMLElement> => {
+  let timeOutElements: HTMLCollectionOf<HTMLElement>;
+  timeOutElements = document
+    .getElementsByTagName("game-ended-notification")[0]
+    .getElementsByClassName("timeout") as HTMLCollectionOf<HTMLElement>;
+  return timeOutElements;
+};
+
 /**
  * Compares the logs that have been processed with the current
  * game log.  Gets the logs that have not been processed and
@@ -924,6 +883,51 @@ const getUndispatchedLogs = (
     }
   }
   return undispatchedLogs!;
+};
+
+/**
+ * Classic function that returns the probability of getting a certain number of successes from a set of elements.
+ * @param populationSize  - Size of the population
+ * @param populationSuccesses - Number of successes in the population
+ * @param sampleSize - The sample size to be picked at random from the population
+ * @param sampleSuccesses - The number of successes in the sample.
+ * @returns - The probability that there will be  exactly the given number of successes in a sample.
+ */
+const hyperGeometricProbability = (
+  populationSize: number,
+  populationSuccesses: number,
+  sampleSize: number,
+  sampleSuccesses: number
+): number => {
+  let hyperGeometricProbability: number;
+  /**
+   * Hypergeometric formula has the following restrictions:
+   * 0 <= x <= n
+   * x <= k
+   * n - x <= N - k
+   * Probability for any set of parameter values outside these restrictions have a probability of 0
+   * The first 4 if/else below code in these restrictions.
+   */
+  if (!(0 <= sampleSuccesses)) {
+    hyperGeometricProbability = 0;
+  } else if (!(sampleSuccesses <= sampleSize)) {
+    hyperGeometricProbability = 0;
+  } else if (!(sampleSuccesses <= populationSuccesses)) {
+    hyperGeometricProbability = 0;
+  } else if (
+    !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
+  ) {
+    hyperGeometricProbability = 0;
+  } else {
+    hyperGeometricProbability =
+      (combinations(populationSuccesses, sampleSuccesses) *
+        combinations(
+          populationSize - populationSuccesses,
+          sampleSize - sampleSuccesses
+        )) /
+      combinations(populationSize, sampleSize);
+  }
+  return hyperGeometricProbability;
 };
 
 /**
@@ -1800,6 +1804,7 @@ export {
   getRatedGameBoolean,
   getResult,
   getRowColor,
+  getTimeOutElements,
   getUndispatchedLogs,
   hyperGeometricProbability,
   isErrorWithMessage,
