@@ -6,6 +6,7 @@ import { SetStateAction } from "react";
 import type {
   CardCounts,
   ErrorWithMessage,
+  OpponentStoreDeck,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
@@ -108,10 +109,6 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   let areNewLogs: boolean;
   const procArr = logsProcessed.split("\n").slice();
   const gLogArr = gameLog.split("\n").slice();
-  // remove premoves (innerText of the game-log element places all the premoves text on one line)
-  if (gLogArr[gLogArr.length - 1].match("Premoves") !== null) {
-    gLogArr.pop();
-  }
   const lastGameLogEntry = gLogArr.slice().pop();
   if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
     areNewLogs = false;
@@ -386,6 +383,29 @@ const cumulativeHyperGeometricProbability = (
 };
 
 /**
+ * Dispatches the setPlayerDeck and setOpponentDeck actions with the given StoreDeck and OpponentStoreDeck
+ * as payloads.
+ * @param dispatch - Redux dispatcher.
+ * @param setPlayerDeck - Reducer from contentSlice that sets player deck state.
+ * @param setOpponentDeck - Reducer from contentSlice that sets opponent deck state.
+ * @param playerStoreDeck - The JSON version of playerDeck.
+ * @param opponentStoreDeck - The JSON version of opponentDeck.
+ */
+const dispatchUpdatedDecksToRedux = (
+  dispatch: Dispatch<AnyAction>,
+  setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
+  setOpponentDeck: ActionCreatorWithPayload<
+    OpponentStoreDeck,
+    "content/setOpponentDeck"
+  >,
+  playerStoreDeck: StoreDeck,
+  opponentStoreDeck: OpponentStoreDeck
+): void => {
+  dispatch(setPlayerDeck(playerStoreDeck));
+  dispatch(setOpponentDeck(opponentStoreDeck));
+};
+
+/**
  * Gets the kingdom-viewer-group element from the DOM and iterates through the
  * name-layer elements within it.  Extracts the innerText of each name-layer and
  * pushes it to an array of strings.  Then adds default strings to the array, and
@@ -583,7 +603,8 @@ const getErrorMessage = (error: unknown) => {
 };
 
 /**
- * Gets and returns the game log element's innerText.
+ * Gets and returns the game log element's innerText, removing the
+ * last line if it matches 'Premoves'.
  * Purpose: Update the global gameLog variable.
  * @returns The string of innerText of the game-log element.
  */
@@ -591,7 +612,13 @@ const getGameLog = (): string => {
   const gameLogElement = document.getElementsByClassName(
     "game-log"
   )[0] as HTMLElement;
-  const gameLog = gameLogElement.innerText;
+  let gameLog = gameLogElement.innerText;
+  if (
+    gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
+    null
+  ) {
+    gameLog = gameLog.split("\n").slice(0, -1).join("\n");
+  }
   return gameLog;
 };
 
@@ -608,6 +635,29 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
     "log-line"
   ) as HTMLCollectionOf<HTMLElement>;
   return logLineCollection;
+};
+
+const getNewLogsAndUpdateDecks = (
+  logsProcessed: string,
+  gameLog: string,
+  getUndispatchedLogs: Function,
+  deckMap: Map<string, Deck | OpponentDeck>,
+  playerName: string,
+  opponentName: string
+): { playerStoreDeck: StoreDeck; opponentStoreDeck: OpponentStoreDeck } => {
+  try {
+    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+      .split("\n")
+      .slice();
+    deckMap.get(playerName)?.update(newLogsToDispatch);
+    deckMap.get(opponentName)?.update(newLogsToDispatch);
+  } catch (e) {
+    console.log(e);
+  }
+  return {
+    playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
+    opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
+  };
 };
 
 /**
@@ -858,9 +908,6 @@ const getUndispatchedLogs = (
     dispatchedArr = [];
   }
   const gameLogArr = gameLog.split("\n").slice();
-  if (gameLogArr[gameLogArr.length - 1].match("Premoves") !== null) {
-    gameLogArr.pop();
-  }
   if (dispatchedArr.length > gameLogArr.length) {
     throw new Error("More dispatched logs than game logs");
   } else if (dispatchedArr.length < gameLogArr.length) {
@@ -1168,6 +1215,82 @@ const onTurnToggleButtonClick = (
 ) => {
   dispatch(setPinnedTurnToggleButton(buttonName));
   dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Important log element mutation processing function.  Used in the MutationCallback function for the
+ * client game-log element.  Every mutation in the game log will trigger this function.  It
+ * filters out mutations that do not include any relevant log changes.  Then, it
+ * checks to see if any of the logs are new.  If they are new, it gets them, and
+ * updates the decks with the new logs. Finally it dispatches the set actions for
+ * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
+ * is so that the logsProcessed global may be updated in the Observer component.
+ * @param mutationList - MutationRecord[] from the Mutation Observer
+ * @param areNewLogsToSend - Function to check for new logs (See this file)
+ * @param logsProcessed - The global from the Observer component containing the logs already processed by the decks.
+ * @param getGameLog - Function to get the game-log text from the client DOM
+ * @param getNewLogsAndUpdateDecks - Function to get the new logs and update the deck states.
+ * @param getUndispatchedLogs - Function to get logs that have not been updated into the decks.
+ * @param decks - The Deck Map.
+ * @param playerName - Name of the player, used to access the Deck Map.
+ * @param opponentName - Name of th opponent, used to access the Deck Map.
+ * @param dispatchUpdatedDecksToRedux - Function that updates the redux state with new deck data.
+ * @param dispatch - Redux dispatcher.
+ * @param setPlayerDeck - Redux ActionCreator for setting player deck.
+ * @param setOpponentDeck - Redux ActionCreator for setting opponent deck.
+ * @returns - Nothing if no undispatched logs were found.  The game log if new logs were found.
+ */
+const processLogMutations = (
+  mutationList: MutationRecord[],
+  areNewLogsToSend: Function,
+  logsProcessed: string,
+  getGameLog: Function,
+  getNewLogsAndUpdateDecks: Function,
+  getUndispatchedLogs: Function,
+  decks: Map<string, Deck | OpponentDeck>,
+  playerName: string,
+  opponentName: string,
+  dispatchUpdatedDecksToRedux: Function,
+  dispatch: Dispatch<AnyAction>,
+  setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
+  setOpponentDeck: ActionCreatorWithPayload<
+    OpponentStoreDeck,
+    "content/setOpponentDeck"
+  >
+): string | void => {
+  for (const mutation of mutationList) {
+    if (mutation.type === "childList") {
+      const addedNodes = mutation.addedNodes;
+      if (addedNodes.length > 0) {
+        const lastAddedNode: HTMLElement = addedNodes[
+          addedNodes.length - 1
+        ] as HTMLElement;
+        const lastAddedNodeText = lastAddedNode.innerText;
+        if (lastAddedNodeText.length > 0) {
+          if (areNewLogsToSend(logsProcessed, getGameLog())) {
+            const gameLog = getGameLog();
+            const { playerStoreDeck, opponentStoreDeck } =
+              getNewLogsAndUpdateDecks(
+                logsProcessed,
+                gameLog,
+                getUndispatchedLogs,
+                decks,
+                playerName,
+                opponentName
+              );
+            dispatchUpdatedDecksToRedux(
+              dispatch,
+              setPlayerDeck,
+              setOpponentDeck,
+              playerStoreDeck,
+              opponentStoreDeck
+            );
+            return gameLog;
+          }
+        }
+      }
+    }
+  }
 };
 
 /**
@@ -1649,134 +1772,6 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
   }
 };
 
-// Deprecated
-// /**
-//  * Returns a string expressing the probability of the next draw being a certain card.  If
-//  * there are no cards in the library, it will calculate the probability from the cards in
-//  * the discard pile.
-//  * Purpose: Used by SortableViewer as a prop value for FullListCardRow.tsx
-//  * @param libAmount - The amount of that card in the deck.
-//  * @param libLength - The total amount of cards in the deck.
-//  * @param discAmount - The amount of that card in the discard pile.
-//  * @param discLength - The total amount of cards in the discard pile.
-//  * @returns A string expressing the probability as a percentage.
-//  */
-// const calculateDrawProbability = (
-//   libAmount: number,
-//   libLength: number,
-//   discAmount: number,
-//   discLength: number
-// ): string => {
-//   let probability: string;
-//   if (libLength === 0) {
-//     if (discAmount === undefined) {
-//       probability = "0.0%";
-//     } else {
-//       probability =
-//         ((discAmount / discLength) * 100).toFixed(1).toString() + "%";
-//     }
-//   } else {
-//     probability = ((libAmount / libLength) * 100).toFixed(1).toString() + "%";
-//   }
-//   return probability;
-// };
-
-// DEPRECATED
-// /**
-//  * Returns the <player-info> element for the player.
-//  * @param playerInfoElements - the collection of all <player-info> elements
-//  * @returns - The <player-info> element for the non-opponent player.
-//  */
-// const getHeroPlayerInfoElement = (
-//   playerInfoElements: HTMLCollectionOf<HTMLElement>
-// ): HTMLElement | undefined => {
-//   let heroPlayerInfoEl: HTMLElement;
-//   const transformElementMap: Map<number, HTMLElement> = new Map();
-//   for (let element of playerInfoElements) {
-//     const transform: string = element.style.transform;
-//     const yTransForm: number = parseFloat(
-//       transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
-//     );
-//     transformElementMap.set(yTransForm, element);
-//   }
-//   heroPlayerInfoEl = [...transformElementMap.entries()].reduce((prev, curr) => {
-//     return prev[0] > curr[0] ? prev : curr;
-//   })[1];
-
-//   return heroPlayerInfoEl;
-// };
-
-// DEPRECATED
-// /**
-//  * Checks to see if the line is special type of log that
-//  * requires extra processing.
-//  * Purpose: Control flow for content script.
-//  * @param line - The line being processed.
-//  * @returns Boolean for if the line is a treasure line.
-//  */
-// const isATreasurePlayLogEntry = (line: string): boolean => {
-//   let isATreasurePlay: boolean;
-//   isATreasurePlay =
-//     line.match(/Coppers?|Silvers?|Golds?/) !== null &&
-//     line.match("plays") !== null;
-//   return isATreasurePlay;
-// };
-
-// DEPRECATED
-// /**
-//  * Function that closes the CustomSelect when added to a click event listener for the document itself.  Deprecated after
-//  * it was decided to let the select stay open.
-//  * @param event
-//  * @param setSelectOpen
-//  */
-// const nonOptionClick = (
-//   event: MouseEvent,
-//   dispatch: Dispatch<AnyAction>,
-//   setSelectOpen: ActionCreatorWithPayload<boolean, "content/setSelectOpen">
-// ) => {
-//   const element = event.target as HTMLElement;
-//   const parent = element.parentElement;
-//   const parentId = parent === null ? "null" : parent.id;
-//   if (
-//     parentId !== "option-container" &&
-//     element.id !== "select-button" &&
-//     element.id !== "thumb-track"
-//   ) {
-//     dispatch(setSelectOpen(false));
-//   }
-// };
-
-//  DEPRECATED
-// /**
-//  * Deprecated, not currently being used
-//  * @param sortParam
-//  * @param unsortedMap
-//  * @returns
-//  */
-// const sortByAmountInZone = (
-//   sortParam: string,
-//   unsortedMap: Map<string, CardCounts>
-// ): Map<string, CardCounts> => {
-//   const mapCopy = new Map(unsortedMap);
-//   const sortedMap: Map<string, CardCounts> = new Map();
-//   switch (sortParam) {
-//     case "probability":
-//       {
-//         [...mapCopy.entries()]
-//           .sort((entryA, entryB) => {
-//             return entryB[1].zoneCount - entryA[1].zoneCount;
-//           })
-//           .forEach((entry) => {
-//             const [card, cardCounts] = entry;
-//             sortedMap.set(card, cardCounts);
-//           });
-//       }
-//       break;
-//     default:
-//   }
-//   return sortedMap;
-// };
-
 export {
   addResizableAndCustomHandleToCustomSelectScrollBars,
   addResizableAndDraggableToPrimaryFrame,
@@ -1789,12 +1784,14 @@ export {
   createEmptySplitMapsObject,
   createPlayerDecks,
   cumulativeHyperGeometricProbability,
+  dispatchUpdatedDecksToRedux,
   getClientKingdom,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
   getGameLog,
   getLogScrollContainerLogLines,
+  getNewLogsAndUpdateDecks,
   getPlayerAndOpponentNameByComparingElementPosition,
   getPlayerInfoElements,
   getPlayerNameAbbreviations,
@@ -1821,6 +1818,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  processLogMutations,
   product_Range,
   sortHistoryDeckView,
   sortMainViewer,

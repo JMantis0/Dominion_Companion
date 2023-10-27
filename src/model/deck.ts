@@ -162,7 +162,6 @@ export class Deck extends BaseDeck implements StoreDeck {
       }
     } else {
       libraryLook = false;
-      // throw new Error("Current line is not a looks at line.");
     }
     return libraryLook;
   }
@@ -308,19 +307,17 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   discardFromLibrary(card: string) {
     const index = this.library.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in library.`);
+    } else {
       if (this.debug)
-        console.info(
-          `Discarding ${this.library[index]} from library into discard pile.`
-        );
+        console.info(`Discarding ${card} from library into discard pile.`);
       const graveyardCopy = this.graveyard.slice();
       const libraryCopy = this.library.slice();
       graveyardCopy.push(card);
       libraryCopy.splice(index, 1);
       this.setGraveyard(graveyardCopy);
       this.setLibrary(libraryCopy);
-    } else {
-      throw new Error(`No ${card} in library.`);
     }
   }
 
@@ -330,7 +327,9 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   discardFromSetAside(card: string) {
     const index = this.setAside.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in setAside.`);
+    } else {
       if (this.debug) console.log(`Discarding ${card} from setAside`);
       const graveyardCopy = this.graveyard.slice();
       const setAsideCopy = this.setAside.slice();
@@ -338,8 +337,6 @@ export class Deck extends BaseDeck implements StoreDeck {
       setAsideCopy.splice(index, 1);
       this.setGraveyard(graveyardCopy);
       this.setSetAside(setAsideCopy);
-    } else {
-      throw new Error(`No ${card} in setAside.`);
     }
   }
 
@@ -351,7 +348,9 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   draw(card: string) {
     const index = this.library.indexOf(card);
-    if (index > -1) {
+    if (index < 0) {
+      throw new Error(`No ${card} in library.`);
+    } else {
       if (this.debug) console.info(`Drawing ${card} from library into hand.`);
       const handCopy = this.hand.slice();
       const libraryCopy = this.library.slice();
@@ -359,8 +358,6 @@ export class Deck extends BaseDeck implements StoreDeck {
       libraryCopy.splice(index, 1);
       this.setHand(handCopy);
       this.setLibrary(libraryCopy);
-    } else {
-      throw new Error(`No ${card} in library.`);
     }
   }
 
@@ -512,6 +509,49 @@ export class Deck extends BaseDeck implements StoreDeck {
     const cleanUp = this.checkForCleanUp(entry);
     const cellarDraws = this.checkForCellarDraw();
     return cleanUp && !cellarDraws;
+  }
+
+  /**
+   * Function called when checking for source of a gain.  Returns whether
+   * or not the gain was from an Artisan.
+   * @returns - boolean for whether the card was gained by Artisan.
+   */
+  isArtisanGain(): boolean {
+    return (
+      this.lastEntryProcessed.match(this.playerNick + " plays an Artisan") !==
+      null
+    );
+  }
+  
+  /**
+   * Function called when checking for source of a gain.  Returns whether
+   * or not the gain was from an Bureaucrat.
+   * @returns - boolean for whether the card was gained by Bureaucrat.
+   */
+  isBureaucratGain(): boolean {
+    return (
+      this.lastEntryProcessed.match(this.playerNick + " plays a Bureaucrat") !==
+      null
+    );
+  }
+
+  /**
+   * Function returns boolean for whether the gain on the given line is 
+   * gained by a Mine.
+   * @param line = The current line being processed
+   */
+  isMineGain(): boolean {
+    let mineGain: boolean = true;
+    if (this.lastEntryProcessed.match(/ trashes an? /) === null) {
+      mineGain = false;
+    } else if (
+      this.logArchive[this.logArchive.length - 2].match(
+        `${this.playerNick} plays a Mine`
+      ) === null
+    ) {
+      mineGain = false;
+    }
+    return mineGain;
   }
 
   /**
@@ -681,12 +721,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to gain.
    */
   processGainsLine(line: string, cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (mostRecentPlay === "Bureaucrat") {
+        if (this.isBureaucratGain()) {
           this.gainIntoLibrary(cards[i]);
-        } else if (mostRecentPlay === "Mine" || mostRecentPlay === "Artisan") {
+        } else if (this.isArtisanGain() || this.isMineGain()) {
           this.gainIntoHand(cards[i]);
         } else {
           const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
