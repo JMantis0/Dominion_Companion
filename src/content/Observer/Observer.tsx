@@ -19,6 +19,7 @@ import {
   getNewLogsAndUpdateDecks,
   dispatchUpdatedDecksToRedux,
   getTimeOutElements,
+  setDecksGameResults,
 } from "../../utils/utils";
 import {
   setOpponentDeck,
@@ -27,6 +28,7 @@ import {
   setSavedGames,
   setBaseOnly,
 } from "../../redux/contentSlice";
+import { Observer as Obs } from "../../model/Observer";
 import type { SavedGame } from "../../utils";
 import { useDispatch } from "react-redux";
 import { OpponentDeck } from "../../model/opponentDeck";
@@ -37,12 +39,6 @@ import { EmptyDeck } from "../../model/emptyDeck";
 import { getResult } from "../../utils/utils";
 import $ from "jquery";
 
-/**
- * Sets up a MutationObserver on the ".game-log" element in the Dominion Client DOM, and
- * invokes the update() method on Deck objects when new logs are collected.
- * @param param0
- * @returns
- */
 /**
  * Content global variable - Stores the value of the player name.
  * Use - invoking Deck object constructor
@@ -264,7 +260,7 @@ const Observer: FunctionComponent = () => {
     const gameEndMessage = timeOutElements[0].innerText;
     let gameEndReason: string = "None";
     if (timeOutElements[1] !== undefined) {
-      gameEndReason = (timeOutElements[1] as HTMLElement).innerText;
+      gameEndReason = timeOutElements[1].innerText;
     }
     if (gameEndMessage === "The game has ended.") {
       let [victor, defeated] = getResult(
@@ -273,21 +269,19 @@ const Observer: FunctionComponent = () => {
         opponentName,
         gameEndReason
       );
-      if (victor === playerName) {
-        decks.get(playerName)!.setGameResult("Victory");
-        decks.get(opponentName)!.setGameResult("Defeat");
-      } else if (defeated === playerName) {
-        decks.get(opponentName)!.setGameResult("Victory");
-        decks.get(playerName)!.setGameResult("Defeat");
-      } else {
-        decks.get(playerName)!.setGameResult("Tie");
-        decks.get(opponentName)!.setGameResult("Tie");
-      }
-      dispatch(
-        setPlayerDeck(JSON.parse(JSON.stringify(decks.get(playerName))))
+      decks = setDecksGameResults(
+        victor,
+        defeated,
+        playerName,
+        opponentName,
+        decks
       );
-      dispatch(
-        setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
+      dispatchUpdatedDecksToRedux(
+        dispatch,
+        setPlayerDeck,
+        setOpponentDeck,
+        JSON.parse(JSON.stringify(decks.get(playerName))),
+        JSON.parse(JSON.stringify(decks.get(opponentName)))
       );
       saveGameData(gameLog, decks);
     }
@@ -514,13 +508,17 @@ const Observer: FunctionComponent = () => {
     saveGameData(gameLog, decks);
   };
 
+  const observer = new Obs()
+
   useEffect(() => {
     addEventListener("beforeunload", saveBeforeUnload);
+    addEventListener("beforeunload", observer.saveBeforeUnload);
     initInterval = setInterval(initIntervalFunction, 1000);
+    observer.initInterval = setInterval(observer.initIntervalFunction,1000)
     return () => {
-      clearInterval(initInterval);
-      clearInterval(resetInterval);
-      removeEventListener("beforeunload", saveBeforeUnload);
+      clearInterval(observer.initInterval);
+      clearInterval(observer.resetInterval);
+      removeEventListener("beforeunload", observer.saveBeforeUnload);
     };
   }, []);
 
@@ -538,13 +536,13 @@ const Observer: FunctionComponent = () => {
       </button>
       <button
         className="top-[50%] whitespace-nowrap relative ml-[200px]"
-        onClick={() => saveGameData(gameLog, decks)}
+        onClick={() => observer.saveGameData(gameLog, decks)}
       >
         Save Data
       </button>
       <button
         className="top-[50%] whitespace-nowrap relative ml-[200px]"
-        onClick={() => showSavedData()}
+        onClick={() => observer.showSavedData()}
       >
         show saved Data
       </button>
@@ -571,7 +569,7 @@ const Observer: FunctionComponent = () => {
             setOpponentDeck(JSON.parse(JSON.stringify(decks.get(opponentName))))
           );
           logsProcessed = gameLog;
-          saveGameData(gameLog, decks);
+          observer.saveGameData(gameLog, decks);
         }}
       >
         Reset Game
