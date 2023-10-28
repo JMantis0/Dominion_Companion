@@ -244,6 +244,20 @@ export class Deck extends BaseDeck implements StoreDeck {
           vassalPlay = true;
         }
       } catch (e) {
+        if (
+          toErrorWithMessage(e).message ===
+          "Previous line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "Previous line paddingLeft property does not end with %."
+          );
+        else if (
+          toErrorWithMessage(e).message ===
+          "Current line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "Current line paddingLeft property does not end with %."
+          );
         console.log(e);
         console.log(toErrorWithMessage(e).message);
         console.log(

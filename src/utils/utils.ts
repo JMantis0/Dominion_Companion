@@ -808,6 +808,7 @@ const getResult = (
     victor = "None: tie";
     defeated = "None: tie";
   }
+
   return [victor, defeated];
 };
 
@@ -1318,6 +1319,36 @@ const product_Range = (a: number, b: number): number => {
 };
 
 /**
+ * Sets the given results to the given decks and returns the updated decks.
+ * @param victor - The name of the winner of the game.
+ * @param defeated - The name of the loser of the game.
+ * @param playerName - The player's name.
+ * @param opponentName - The opponent's name
+ * @param decks - The map containing the decks.
+ * @returns - The updated decks.
+ */
+const setDecksGameResults = (
+  victor: string,
+  defeated: string,
+  playerName: string,
+  opponentName: string,
+  decks: Map<string, Deck | OpponentDeck>
+): Map<string, Deck | OpponentDeck> => {
+  let updatedDecks = new Map(decks);
+  if (victor === playerName) {
+    updatedDecks.get(playerName)!.setGameResult("Victory");
+    updatedDecks.get(opponentName)!.setGameResult("Defeat");
+  } else if (defeated === playerName) {
+    updatedDecks.get(opponentName)!.setGameResult("Victory");
+    updatedDecks.get(playerName)!.setGameResult("Defeat");
+  } else {
+    updatedDecks.get(playerName)!.setGameResult("Tie");
+    updatedDecks.get(opponentName)!.setGameResult("Tie");
+  }
+  return updatedDecks;
+};
+
+/**
  * Returns a sorted map.  Sorts by the sortParam and sortType.
  * @param sortParam - The category to sort on.
  * @param unsortedMap - The unsorted map.
@@ -1825,6 +1856,7 @@ export {
   onTurnToggleButtonClick,
   processLogMutations,
   product_Range,
+  setDecksGameResults,
   sortHistoryDeckView,
   sortMainViewer,
   sortTwoCardsByAmount,
