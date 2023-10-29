@@ -1,12 +1,9 @@
 import { AnyAction, Dispatch } from "redux";
-import { Deck } from "../model/deck";
-import { OpponentDeck } from "../model/opponentDeck";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { SetStateAction } from "react";
 import type {
   CardCounts,
   ErrorWithMessage,
-  OpponentStoreDeck,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
@@ -95,94 +92,6 @@ const addResizableAndDraggableToPrimaryFrame = ($: JQueryStatic) => {
         "/ui-icons_ffffff_256x240.png);"
     );
   }
-};
-
-/**
- * Compares the logs that have been processed with current game log to
- * check if there are any unprocessed logs.
- * Purpose: Control flow for updating Deck state.
- * @param logsProcessed - The logs that have already been processed into the Decks.
- * @param gameLog - The current game log.
- * @returns Boolean for whether there are new logs to be processed.
- */
-const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
-  let areNewLogs: boolean;
-  const procArr = logsProcessed.split("\n").slice();
-  const gLogArr = gameLog.split("\n").slice();
-  const lastGameLogEntry = gLogArr.slice().pop();
-  if (isLogEntryBuyWithoutGain(lastGameLogEntry!) || isMerchantBonusLine(lastGameLogEntry!)) {
-    areNewLogs = false;
-  } else if (procArr.length > gLogArr.length) {
-    throw new Error("Processed logs Larger than game log");
-  } else if (gLogArr.length > procArr.length) {
-    areNewLogs = true;
-  } else if (procArr.slice().pop() !== gLogArr.slice().pop()) {
-    areNewLogs = true;
-  } else areNewLogs = false;
-  return areNewLogs;
-};
-
-/**
- * Checks for presence of <player-info-name> elements in the DOM.
- * Purpose: Control flow of content script.
- * @returns The boolean for whether the <player-info-name> elements are present in the dome.
- */
-const arePlayerInfoElementsPresent = (): boolean => {
-  const playerElements = document.getElementsByTagName(
-    "player-info-name"
-  ) as HTMLCollectionOf<HTMLElement>;
-  const playerElementsPresent = playerElements.length > 0;
-  return playerElementsPresent;
-};
-
-/**
- * Function takes the current kingdom and checks it for any cards that are not in the base set.
- * @param kingdom - A kingdom from the client
- * @returns - A boolean, false if the kingdom contains cards outside of the base set, true otherwise.
- */
-const baseKingdomCardCheck = (kingdom: string[]): boolean => {
-  let baseOnly: boolean = true;
-  const baseCards = [
-    "Cellar",
-    "Chapel",
-    "Moat",
-    "Harbinger",
-    "Merchant",
-    "Vassal",
-    "Village",
-    "Workshop",
-    "Bureaucrat",
-    "Gardens",
-    "Militia",
-    "Moneylender",
-    "Poacher",
-    "Remodel",
-    "Smithy",
-    "Throne Room",
-    "Bandit",
-    "Council Room",
-    "Festival",
-    "Laboratory",
-    "Library",
-    "Market",
-    "Mine",
-    "Sentry",
-    "Witch",
-    "Artisan",
-    "Copper",
-    "Silver",
-    "Gold",
-    "Province",
-    "Duchy",
-    "Estate",
-    "Curse",
-  ];
-  for (let i = 0; i < kingdom.length; i++) {
-    if (!baseCards.includes(kingdom[i])) {
-      baseOnly = false;
-    }
-  }
-  return baseOnly;
 };
 
 /**
@@ -307,55 +216,6 @@ const createEmptySplitMapsObject = (): SplitMaps => {
 };
 
 /**
- * Creates a Deck map object, and creates a Deck instance for the player and
- * a deck for the opponent, and adds the decks to the map using the
- * playerNames as a key.  The params are required to call Deck's constructor.
- * Purpose: To initialize the global decks variable.
- * @param playerName - The player name.
- * @param playerNick - The player abbreviation used in logs.
- * @param opponentName - The opponent name.
- * @param opponentNick - The opponent abbreviation used in logs.
- * @param kingdom - The array of kingdom cards.
- * @returns Map object that contains both the player deck and opponent deck.
- */
-const createPlayerDecks = (
-  gameTitle: string,
-  ratedGame: boolean,
-  playerName: string,
-  playerNick: string,
-  playerRating: string,
-  opponentName: string,
-  opponentNick: string,
-  opponentRating: string,
-  kingdom: Array<string>
-): Map<string, Deck | OpponentDeck> => {
-  let deckMap: Map<string, Deck | OpponentDeck> = new Map();
-  deckMap.set(
-    playerName,
-    new Deck(
-      gameTitle,
-      ratedGame,
-      playerRating,
-      playerName,
-      playerNick,
-      kingdom
-    )
-  );
-  deckMap.set(
-    opponentName,
-    new OpponentDeck(
-      gameTitle,
-      ratedGame,
-      opponentRating,
-      opponentName,
-      opponentNick,
-      kingdom
-    )
-  );
-  return deckMap;
-};
-
-/**
  * Function returns the cumulative hypergeometric probability of a sample that contains the number
  * of given success or more than the number of given successes.
  * @param populationSize  - Size of the population
@@ -380,62 +240,6 @@ const cumulativeHyperGeometricProbability = (
     );
   }
   return cumulativeProb;
-};
-
-/**
- * Dispatches the setPlayerDeck and setOpponentDeck actions with the given StoreDeck and OpponentStoreDeck
- * as payloads.
- * @param dispatch - Redux dispatcher.
- * @param setPlayerDeck - Reducer from contentSlice that sets player deck state.
- * @param setOpponentDeck - Reducer from contentSlice that sets opponent deck state.
- * @param playerStoreDeck - The JSON version of playerDeck.
- * @param opponentStoreDeck - The JSON version of opponentDeck.
- */
-const dispatchUpdatedDecksToRedux = (
-  dispatch: Dispatch<AnyAction>,
-  setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
-  setOpponentDeck: ActionCreatorWithPayload<
-    OpponentStoreDeck,
-    "content/setOpponentDeck"
-  >,
-  playerStoreDeck: StoreDeck,
-  opponentStoreDeck: OpponentStoreDeck
-): void => {
-  dispatch(setPlayerDeck(playerStoreDeck));
-  dispatch(setOpponentDeck(opponentStoreDeck));
-};
-
-/**
- * Gets the kingdom-viewer-group element from the DOM and iterates through the
- * name-layer elements within it.  Extracts the innerText of each name-layer and
- * pushes it to an array of strings.  Then adds default strings to the array, and
- * returns the array.
- * Purpose: To initialize the global variable kingdom.
- * @returns The array of strings containing the kingdom card available in the current game.
- */
-const getClientKingdom = (): Array<string> => {
-  let kingdom: Array<string>;
-  let cards = [];
-  const kingdomViewerGroupElement = document.getElementsByClassName(
-    "kingdom-viewer-group"
-  )[0];
-  if (kingdomViewerGroupElement !== undefined) {
-    for (let elt of document
-      .getElementsByClassName("kingdom-viewer-group")[0]
-      .getElementsByClassName("name-layer") as HTMLCollectionOf<HTMLElement>) {
-      const card = elt.innerText.trim();
-      cards.push(card);
-    }
-  } else {
-    throw Error("The kingdom-viewer-group element is not present in the DOM");
-  }
-  ["Province", "Gold", "Duchy", "Silver", "Estate", "Copper", "Curse"].forEach(
-    (card) => {
-      cards.push(card);
-    }
-  );
-  kingdom = cards;
-  return kingdom;
 };
 
 /**
@@ -592,147 +396,6 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
   return logLineCollection;
 };
 
-const getNewLogsAndUpdateDecks = (
-  logsProcessed: string,
-  gameLog: string,
-  getUndispatchedLogs: Function,
-  deckMap: Map<string, Deck | OpponentDeck>,
-  playerName: string,
-  opponentName: string
-): { playerStoreDeck: StoreDeck; opponentStoreDeck: OpponentStoreDeck } => {
-  const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
-    .split("\n")
-    .slice();
-  deckMap.get(playerName)?.update(newLogsToDispatch);
-  deckMap.get(opponentName)?.update(newLogsToDispatch);
-  return {
-    playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
-    opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
-  };
-};
-
-/**
- * Gets the <player-info-name> elements from the DOM, and compares their
- * css properties to determine which contains the player name and which
- * Contains the opponentName, then returns those names.
- * Purpose: Initializing the global variable playerName and opponentName.
- * @param playerInfoElements - Collection of <player-info> elements.
- * @returns An array containing the playerName and opponentName as strings.
- */
-const getPlayerAndOpponentNameByComparingElementPosition = (
-  playerInfoElements: HTMLCollectionOf<HTMLElement>
-): Array<string> => {
-  let playerName: string;
-  let opponentName: string;
-  const nameTransformMap: Map<string, number> = new Map();
-  for (let element of playerInfoElements) {
-    const nameElement = element.getElementsByTagName(
-      "player-info-name"
-    )[0] as HTMLElement;
-    const nomen: string = nameElement.innerText;
-    const transform: string = element.style.transform;
-    const yTransForm: number = parseFloat(
-      transform.split(" ")[1].replace("translateY(", "").replace("px)", "")
-    );
-    nameTransformMap.set(nomen, yTransForm);
-  }
-  //  Compare the yTransform values.  The greatest one gets assigned to player.
-  playerName = [...nameTransformMap.entries()].reduce((prev, current) => {
-    return prev[1] > current[1] ? prev : current;
-  })[0];
-  opponentName = [...nameTransformMap.entries()].reduce((prev, current) => {
-    return prev[1] < current[1] ? prev : current;
-  })[0];
-  // similarly, we can assign the elements to reference variables...
-  return [playerName, opponentName];
-};
-
-/**
- * Gets the <player-info elements> from the DOM and returns them.
- * Purpose: Part of initializing the global variables playerName and opponentName.
- * Used by viewer
- * @returns HTMLCollection<HTMLElement> of <player-info-elements>:
- */
-const getPlayerInfoElements = (): HTMLCollectionOf<HTMLElement> => {
-  const playerInfoElements: HTMLCollectionOf<HTMLElement> =
-    document.getElementsByTagName(
-      "player-info"
-    ) as HTMLCollectionOf<HTMLElement>;
-  return playerInfoElements;
-};
-
-/**
- * Uses the gameLog and player name to determine the player
- * and opponent abbreviations used in the game log, and returns
- * them.
- * Purpose: Initialize the global variables playerNick and opponentNick.
- * @param gameLog - The gameLog global variable.
- * @param playerName - The playerName global variable.
- * @returns Array of two strings, the player nickname and opponent nickname.
- */
-const getPlayerNameAbbreviations = (
-  gameLog: string,
-  playerName: string
-): Array<string> => {
-  let playerNick: string = "";
-  let opponentNick: string = "";
-  const gameLogArr = gameLog.split("\n");
-  let n1: string;
-  let n2: string;
-  let i: number = 0;
-  for (i; i < gameLogArr.length; i++) {
-    if (gameLogArr[i].match(" starts with ") !== null) {
-      break;
-    }
-  }
-  if (i !== gameLogArr.length) {
-    n1 = gameLogArr[i]; // n1 player is the player going first.
-    n2 = gameLogArr[i + 2];
-    for (i = 0; i <= Math.min(n1.length, n2.length); i++) {
-      if (n1[i].toLowerCase() !== n2[i].toLowerCase()) {
-        n1 = n1.substring(0, i + 1).trim();
-        n2 = n2.substring(0, i + 1).trim();
-        break;
-      }
-    }
-    if (playerName.substring(0, n1.length) == n1) {
-      playerNick = n1;
-      opponentNick = n2;
-    } else {
-      playerNick = n2;
-      opponentNick = n1;
-    }
-  }
-  return [playerNick, opponentNick];
-};
-
-/**
- * Gets the player ratings for rated games and returns them.
- * @param playerName
- * @param opponentName
- * @param gameLog
- * @returns - An array of the player ratings.
- * To do - make it work for multiple opponents.
- */
-const getPlayerRatings = (
-  playerName: string,
-  opponentName: string,
-  gameLog: string
-): string[] => {
-  let playerRating: string = "Rating Not Found";
-  let opponentRating: string = "Rating Not Found";
-  let logArray = gameLog.split("\n");
-  for (let i = 0; i < logArray.length; i++) {
-    const entry = logArray[i];
-    if (entry.match(playerName + ": ") !== null) {
-      playerRating = entry.substring(entry.lastIndexOf(" ") + 1);
-    } else if (entry.match(opponentName + ": ") !== null) {
-      opponentRating = entry.substring(entry.lastIndexOf(" ") + 1);
-    }
-  }
-  return [playerRating, opponentRating];
-};
-
 /**
  * Function gets boolean for whether the primary frame is hidden or not.
  * @returns - boolean.
@@ -743,73 +406,6 @@ const getPrimaryFrameStatus = (): boolean | undefined => {
     .getElementById("primaryFrame")
     ?.classList.contains("hidden");
   return status;
-};
-
-/**
- * Checks to see if the game is rated or unrated.
- * @param firstGameLogLine - First log entry of the game log.
- * @returns - Boolean for whether the game is rated or unrated.
- */
-const getRatedGameBoolean = (firstGameLogLine: string): boolean => {
-  let ratedGame: boolean;
-  if (firstGameLogLine.match(/ rated\./) !== null) {
-    ratedGame = true;
-  } else if (firstGameLogLine.match(/ unrated\./) !== null) {
-    ratedGame = false;
-  } else {
-    throw new Error("Invalid firstGameLogLine " + firstGameLogLine);
-  }
-  return ratedGame;
-};
-
-/**
- * Gets the winner and loser of the game.
- * @param decks - the Map of participating decks.
- * @param playerName
- * @param opponentName
- * @param gameEndReason
- * @returns String array [victor, defeated]
- */
-const getResult = (
-  decks: Map<string, Deck | OpponentDeck>,
-  playerName: string,
-  opponentName: string,
-  gameEndReason: string
-): string[] => {
-  let victor: string;
-  let defeated: string;
-  if (gameEndReason === `${playerName} has resigned.`) {
-    victor = opponentName;
-    defeated = playerName;
-  } else if (gameEndReason === `${opponentName} has resigned.`) {
-    victor = playerName;
-    defeated = opponentName;
-  } else if (
-    decks.get(opponentName)!.currentVP < decks.get(playerName)!.currentVP
-  ) {
-    victor = playerName;
-    defeated = opponentName;
-  } else if (
-    decks.get(opponentName)!.currentVP > decks.get(playerName)!.currentVP
-  ) {
-    victor = opponentName;
-    defeated = playerName;
-  } else if (
-    decks.get(opponentName)!.gameTurn > decks.get(playerName)!.gameTurn
-  ) {
-    victor = playerName;
-    defeated = opponentName;
-  } else if (
-    decks.get(opponentName)!.gameTurn < decks.get(playerName)!.gameTurn
-  ) {
-    victor = opponentName;
-    defeated = playerName;
-  } else {
-    victor = "None: tie";
-    defeated = "None: tie";
-  }
-
-  return [victor, defeated];
 };
 
 /**
@@ -836,54 +432,6 @@ const getRowColor = (cardName: string): string => {
     color = reactionClass;
   } else color = actionClass;
   return color;
-};
-
-const getTimeOutElements = (): HTMLCollectionOf<HTMLElement> => {
-  let timeOutElements: HTMLCollectionOf<HTMLElement>;
-  timeOutElements = document
-    .getElementsByTagName("game-ended-notification")[0]
-    .getElementsByClassName("timeout") as HTMLCollectionOf<HTMLElement>;
-  return timeOutElements;
-};
-
-/**
- * Compares the logs that have been processed with the current
- * game log.  Gets the logs that have not been processed and
- * returns them.
- * Purpose: To get the new logs that are needed to update Deck state.
- * @param logsDispatched - Logs that have been processed into the Decks
- * @param gameLog - The entire game log.
- * @returns The logs that are present in the game log that have not yet been
- * processed into the Deck states.
- */
-const getUndispatchedLogs = (
-  logsDispatched: string,
-  gameLog: string
-): string => {
-  let undispatchedLogs: string;
-  let dispatchedArr: string[];
-  if (logsDispatched !== "" && logsDispatched !== undefined) {
-    dispatchedArr = logsDispatched.split("\n").slice();
-  } else {
-    dispatchedArr = [];
-  }
-  const gameLogArr = gameLog.split("\n").slice();
-  if (dispatchedArr.length > gameLogArr.length) {
-    throw new Error("More dispatched logs than game logs");
-  } else if (dispatchedArr.length < gameLogArr.length) {
-    const numberOfUndispatchedLines = gameLogArr.length - dispatchedArr.length;
-    undispatchedLogs = gameLogArr.slice(-numberOfUndispatchedLines).join("\n");
-  } else {
-    const lastGameLogLine = gameLogArr[gameLogArr.length - 1];
-    const lastLogsDispatchedLine = dispatchedArr[dispatchedArr.length - 1];
-    if (lastGameLogLine === lastLogsDispatchedLine) {
-      undispatchedLogs = "No new logs";
-      throw new Error("Equal # lines and last line also equal");
-    } else {
-      undispatchedLogs = lastGameLogLine;
-    }
-  }
-  return undispatchedLogs!;
 };
 
 /**
@@ -944,57 +492,6 @@ const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
     "message" in error &&
     typeof (error as Record<string, unknown>).message === "string"
   );
-};
-
-/**
- * Checks for presence of game-log element in the DOM.
- * Purpose: Control flow of content script.
- * @returns  The boolean for whether the game-log is present.
- */
-const isGameLogPresent = (): boolean => {
-  const gameLogElementCollection = document.getElementsByClassName("game-log");
-  const gameLogElementCount = gameLogElementCollection.length;
-  const gameLogPresent = gameLogElementCount > 0;
-  return gameLogPresent;
-};
-
-/**
- * Checks for presence of kingdom-viewer-group element in the dom.
- * Purpose: Control flow for content script.
- * @returns The boolean for presence of the kingdom-viewer-group element.
- */
-const isKingdomElementPresent = (): boolean => {
-  let kingdomPresent: boolean;
-  kingdomPresent =
-    document.getElementsByClassName("kingdom-viewer-group").length > 0;
-  return kingdomPresent;
-};
-
-/**
- * Used in control flow for whether new logs should be collected.
- * The client will create buy-lines and then quickly remove them.
- * This function is used to ensure these do not trigger log collections.
- * @param logLine - The most recent line in the game-log;
- * @returns - Boolean for whether the most recent line is a
- */
-const isLogEntryBuyWithoutGain = (logLine: string): boolean => {
-  let isBuyWithoutGain: boolean;
-  if (logLine.match(" buys ") !== null && logLine.match(" gains ") === null) {
-    isBuyWithoutGain = true;
-  } else {
-    isBuyWithoutGain = false;
-  }
-  return isBuyWithoutGain;
-};
-
-/**
- * Checks to see if the line is a Merchant bonus line.  Used to control ignore certain logs
- * from triggering areNewLogsToSend().
- * @param logLine - the given line.
- * @returns - boolean for whether the given line is a 'Merchant Bonus' line.
- */
-const isMerchantBonusLine = (logLine: string): boolean => {
-  return logLine.match(/ gets \+\$\d+\. \(Merchant\)/) !== null;
 };
 
 /**
@@ -1232,86 +729,6 @@ const onTurnToggleButtonClick = (
   dispatch(setTurnToggleButton(buttonName));
 };
 
-
-// Deprecated after converting Observer.tsx component to Observer class.
-// /**
-//  * Important log element mutation processing function.  Used in the MutationCallback function for the
-//  * client game-log element.  Every mutation in the game log will trigger this function.  It
-//  * filters out mutations that do not include any relevant log changes.  Then, it
-//  * checks to see if any of the logs are new.  If they are new, it gets them, and
-//  * updates the decks with the new logs. Finally it dispatches the set actions for
-//  * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
-//  * is so that the logsProcessed global may be updated in the Observer component.
-//  * @param mutationList - MutationRecord[] from the Mutation Observer
-//  * @param areNewLogsToSend - Function to check for new logs (See this file)
-//  * @param logsProcessed - The global from the Observer component containing the logs already processed by the decks.
-//  * @param getGameLog - Function to get the game-log text from the client DOM
-//  * @param getNewLogsAndUpdateDecks - Function to get the new logs and update the deck states.
-//  * @param getUndispatchedLogs - Function to get logs that have not been updated into the decks.
-//  * @param decks - The Deck Map.
-//  * @param playerName - Name of the player, used to access the Deck Map.
-//  * @param opponentName - Name of th opponent, used to access the Deck Map.
-//  * @param dispatchUpdatedDecksToRedux - Function that updates the redux state with new deck data.
-//  * @param dispatch - Redux dispatcher.
-//  * @param setPlayerDeck - Redux ActionCreator for setting player deck.
-//  * @param setOpponentDeck - Redux ActionCreator for setting opponent deck.
-//  * @returns - Nothing if no undispatched logs were found.  The game log if new logs were found.
-//  */
-// const processLogMutations = (
-//   mutationList: MutationRecord[],
-//   areNewLogsToSend: Function,
-//   logsProcessed: string,
-//   getGameLog: Function,
-//   getNewLogsAndUpdateDecks: Function,
-//   getUndispatchedLogs: Function,
-//   decks: Map<string, Deck | OpponentDeck>,
-//   playerName: string,
-//   opponentName: string,
-//   dispatchUpdatedDecksToRedux: Function,
-//   dispatch: Dispatch<AnyAction>,
-//   setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
-//   setOpponentDeck: ActionCreatorWithPayload<
-//     OpponentStoreDeck,
-//     "content/setOpponentDeck"
-//   >
-// ): string | void => {
-//   Array.from(mutationList).forEach((mutation, idx) => {
-//     console.group(`mutation ${idx}`);
-//     if (mutation.addedNodes.length > 0) {
-//       Array.from(mutation.addedNodes).forEach((node, idx) => {
-//         const el = node as HTMLElement;
-//         console.log(`Added${idx} ${el.innerText}`);
-//       });
-//     }
-//     if (mutation.removedNodes.length > 0) {
-//       Array.from(mutation.removedNodes).forEach((node, idx) => {
-//         const el = node as HTMLElement;
-//         console.log(`Removed ${idx} ${el.innerText}`);
-//       });
-//     }
-//     console.groupEnd();
-//   });
-//   if (areNewLogsToSend(logsProcessed, getGameLog())) {
-//     const gameLog = getGameLog();
-//     const { playerStoreDeck, opponentStoreDeck } = getNewLogsAndUpdateDecks(
-//       logsProcessed,
-//       gameLog,
-//       getUndispatchedLogs,
-//       decks,
-//       playerName,
-//       opponentName
-//     );
-//     dispatchUpdatedDecksToRedux(
-//       dispatch,
-//       setPlayerDeck,
-//       setOpponentDeck,
-//       playerStoreDeck,
-//       opponentStoreDeck
-//     );
-//     return gameLog;
-//   }
-// };
-
 /**
  * Helper function for combining combination operations.
  * returns the product of all the integers from a to b
@@ -1330,36 +747,6 @@ const product_Range = (a: number, b: number): number => {
     prd *= i;
   }
   return prd;
-};
-
-/**
- * Sets the given results to the given decks and returns the updated decks.
- * @param victor - The name of the winner of the game.
- * @param defeated - The name of the loser of the game.
- * @param playerName - The player's name.
- * @param opponentName - The opponent's name
- * @param decks - The map containing the decks.
- * @returns - The updated decks.
- */
-const setDecksGameResults = (
-  victor: string,
-  defeated: string,
-  playerName: string,
-  opponentName: string,
-  decks: Map<string, Deck | OpponentDeck>
-): Map<string, Deck | OpponentDeck> => {
-  let updatedDecks = new Map(decks);
-  if (victor === playerName) {
-    updatedDecks.get(playerName)!.setGameResult("Victory");
-    updatedDecks.get(opponentName)!.setGameResult("Defeat");
-  } else if (defeated === playerName) {
-    updatedDecks.get(opponentName)!.setGameResult("Victory");
-    updatedDecks.get(playerName)!.setGameResult("Defeat");
-  } else {
-    updatedDecks.get(playerName)!.setGameResult("Tie");
-    updatedDecks.get(opponentName)!.setGameResult("Tie");
-  }
-  return updatedDecks;
 };
 
 /**
@@ -1824,39 +1211,20 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
 export {
   addResizableAndCustomHandleToCustomSelectScrollBars,
   addResizableAndDraggableToPrimaryFrame,
-  areNewLogsToSend,
-  arePlayerInfoElementsPresent,
-  baseKingdomCardCheck,
   chromeListenerUseEffectHandler,
   combinations,
   combineDeckListMapAndZoneListMap,
   createEmptySplitMapsObject,
-  createPlayerDecks,
   cumulativeHyperGeometricProbability,
-  dispatchUpdatedDecksToRedux,
-  getClientKingdom,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
   getGameLog,
   getLogScrollContainerLogLines,
-  getNewLogsAndUpdateDecks,
-  getPlayerAndOpponentNameByComparingElementPosition,
-  getPlayerInfoElements,
-  getPlayerNameAbbreviations,
-  getPlayerRatings,
   getPrimaryFrameStatus,
-  getRatedGameBoolean,
-  getResult,
   getRowColor,
-  getTimeOutElements,
-  getUndispatchedLogs,
   hyperGeometricProbability,
   isErrorWithMessage,
-  isGameLogPresent,
-  isKingdomElementPresent,
-  isLogEntryBuyWithoutGain,
-  isMerchantBonusLine,
   onMouseEnterOption,
   onMouseEnterTurnButton,
   onMouseLeaveOption,
@@ -1870,7 +1238,6 @@ export {
   onToggleSelect,
   onTurnToggleButtonClick,
   product_Range,
-  setDecksGameResults,
   sortHistoryDeckView,
   sortMainViewer,
   sortTwoCardsByAmount,

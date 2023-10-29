@@ -1,6 +1,5 @@
 /*global chrome*/
 import React, { useEffect } from "react";
-// import "jquery-ui-bundle/jquery-ui.css";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -16,10 +15,10 @@ import {
   chromeListenerUseEffectHandler,
   getPrimaryFrameStatus,
 } from "../../utils/utils";
-import { ClientObserver } from "../../utils/Observer";
+import { Observer } from "../../utils/Observer";
 import $ from "jquery";
 import "jqueryui/jquery-ui.css";
-import DevDisplay from "./DevDisplay/DevDisplay";
+// import DevDisplay from "./DevDisplay/DevDisplay";
 
 const PrimaryFrame = () => {
   const dispatch = useDispatch();
@@ -34,8 +33,8 @@ const PrimaryFrame = () => {
     (state: RootState) => state.content.primaryFrameTab
   );
   useEffect(() => {
-    addEventListener("beforeunload", ClientObserver.saveBeforeUnload);
-    ClientObserver.initInterval = setInterval(ClientObserver.initIntervalFunction, 1000);
+    addEventListener("beforeunload", Observer.saveBeforeUnload);
+    Observer.initInterval = setInterval(Observer.initIntervalFunction, 1000);
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
@@ -44,9 +43,9 @@ const PrimaryFrame = () => {
         getPrimaryFrameStatus
       );
     return () => {
-      clearInterval(ClientObserver.initInterval);
-      clearInterval(ClientObserver.resetInterval);
-      removeEventListener("beforeunload", ClientObserver.saveBeforeUnload);
+      clearInterval(Observer.initInterval);
+      clearInterval(Observer.resetInterval);
+      removeEventListener("beforeunload", Observer.saveBeforeUnload);
       if (chrome.runtime !== undefined)
         chromeListenerUseEffectHandler(
           "Remove",
@@ -122,7 +121,7 @@ const PrimaryFrame = () => {
                   <div className="p-1 mr-2">
                     <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                       <MainDeckViewer />
-                      <DevDisplay/>
+                      {/* <DevDisplay/> */}
                     </div>
                     <div
                       className={primaryFrameTab !== "Discard" ? "hidden" : ""}
