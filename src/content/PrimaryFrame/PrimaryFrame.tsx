@@ -16,9 +16,10 @@ import {
   chromeListenerUseEffectHandler,
   getPrimaryFrameStatus,
 } from "../../utils/utils";
+import { ClientObserver } from "../../utils/Observer";
 import $ from "jquery";
 import "jqueryui/jquery-ui.css";
-// import DevDisplay from "./DevDisplay/DevDisplay";
+import DevDisplay from "./DevDisplay/DevDisplay";
 
 const PrimaryFrame = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,8 @@ const PrimaryFrame = () => {
     (state: RootState) => state.content.primaryFrameTab
   );
   useEffect(() => {
+    addEventListener("beforeunload", ClientObserver.saveBeforeUnload);
+    ClientObserver.initInterval = setInterval(ClientObserver.initIntervalFunction, 1000);
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
@@ -41,6 +44,9 @@ const PrimaryFrame = () => {
         getPrimaryFrameStatus
       );
     return () => {
+      clearInterval(ClientObserver.initInterval);
+      clearInterval(ClientObserver.resetInterval);
+      removeEventListener("beforeunload", ClientObserver.saveBeforeUnload);
       if (chrome.runtime !== undefined)
         chromeListenerUseEffectHandler(
           "Remove",
@@ -116,7 +122,7 @@ const PrimaryFrame = () => {
                   <div className="p-1 mr-2">
                     <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                       <MainDeckViewer />
-                      {/* <DevDisplay/> */}
+                      <DevDisplay/>
                     </div>
                     <div
                       className={primaryFrameTab !== "Discard" ? "hidden" : ""}

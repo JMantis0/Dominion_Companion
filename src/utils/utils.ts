@@ -110,7 +110,7 @@ const areNewLogsToSend = (logsProcessed: string, gameLog: string): boolean => {
   const procArr = logsProcessed.split("\n").slice();
   const gLogArr = gameLog.split("\n").slice();
   const lastGameLogEntry = gLogArr.slice().pop();
-  if (isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
+  if (isLogEntryBuyWithoutGain(lastGameLogEntry!) || isMerchantBonusLine(lastGameLogEntry!)) {
     areNewLogs = false;
   } else if (procArr.length > gLogArr.length) {
     throw new Error("Processed logs Larger than game log");
@@ -988,6 +988,16 @@ const isLogEntryBuyWithoutGain = (logLine: string): boolean => {
 };
 
 /**
+ * Checks to see if the line is a Merchant bonus line.  Used to control ignore certain logs
+ * from triggering areNewLogsToSend().
+ * @param logLine - the given line.
+ * @returns - boolean for whether the given line is a 'Merchant Bonus' line.
+ */
+const isMerchantBonusLine = (logLine: string): boolean => {
+  return logLine.match(/ gets \+\$\d+\. \(Merchant\)/) !== null;
+};
+
+/**
  * Function that is called by mouseEnter events on an option (it's actually a div) in the CustomSelect.
  * Sets the topCardsLookAmount to the value of the 'option' that the mouse is entering.
  * @param cardAmount - Value of the option that the mouse is entering.
@@ -1222,81 +1232,85 @@ const onTurnToggleButtonClick = (
   dispatch(setTurnToggleButton(buttonName));
 };
 
-/**
- * Important log element mutation processing function.  Used in the MutationCallback function for the
- * client game-log element.  Every mutation in the game log will trigger this function.  It
- * filters out mutations that do not include any relevant log changes.  Then, it
- * checks to see if any of the logs are new.  If they are new, it gets them, and
- * updates the decks with the new logs. Finally it dispatches the set actions for
- * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
- * is so that the logsProcessed global may be updated in the Observer component.
- * @param mutationList - MutationRecord[] from the Mutation Observer
- * @param areNewLogsToSend - Function to check for new logs (See this file)
- * @param logsProcessed - The global from the Observer component containing the logs already processed by the decks.
- * @param getGameLog - Function to get the game-log text from the client DOM
- * @param getNewLogsAndUpdateDecks - Function to get the new logs and update the deck states.
- * @param getUndispatchedLogs - Function to get logs that have not been updated into the decks.
- * @param decks - The Deck Map.
- * @param playerName - Name of the player, used to access the Deck Map.
- * @param opponentName - Name of th opponent, used to access the Deck Map.
- * @param dispatchUpdatedDecksToRedux - Function that updates the redux state with new deck data.
- * @param dispatch - Redux dispatcher.
- * @param setPlayerDeck - Redux ActionCreator for setting player deck.
- * @param setOpponentDeck - Redux ActionCreator for setting opponent deck.
- * @returns - Nothing if no undispatched logs were found.  The game log if new logs were found.
- */
-const processLogMutations = (
-  mutationList: MutationRecord[],
-  areNewLogsToSend: Function,
-  logsProcessed: string,
-  getGameLog: Function,
-  getNewLogsAndUpdateDecks: Function,
-  getUndispatchedLogs: Function,
-  decks: Map<string, Deck | OpponentDeck>,
-  playerName: string,
-  opponentName: string,
-  dispatchUpdatedDecksToRedux: Function,
-  dispatch: Dispatch<AnyAction>,
-  setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
-  setOpponentDeck: ActionCreatorWithPayload<
-    OpponentStoreDeck,
-    "content/setOpponentDeck"
-  >
-): string | void => {
-  for (const mutation of mutationList) {
-    if (mutation.type === "childList") {
-      const addedNodes = mutation.addedNodes;
-      if (addedNodes.length > 0) {
-        const lastAddedNode: HTMLElement = addedNodes[
-          addedNodes.length - 1
-        ] as HTMLElement;
-        const lastAddedNodeText = lastAddedNode.innerText;
-        if (lastAddedNodeText.length > 0) {
-          if (areNewLogsToSend(logsProcessed, getGameLog())) {
-            const gameLog = getGameLog();
-            const { playerStoreDeck, opponentStoreDeck } =
-              getNewLogsAndUpdateDecks(
-                logsProcessed,
-                gameLog,
-                getUndispatchedLogs,
-                decks,
-                playerName,
-                opponentName
-              );
-            dispatchUpdatedDecksToRedux(
-              dispatch,
-              setPlayerDeck,
-              setOpponentDeck,
-              playerStoreDeck,
-              opponentStoreDeck
-            );
-            return gameLog;
-          }
-        }
-      }
-    }
-  }
-};
+
+// Deprecated after converting Observer.tsx component to Observer class.
+// /**
+//  * Important log element mutation processing function.  Used in the MutationCallback function for the
+//  * client game-log element.  Every mutation in the game log will trigger this function.  It
+//  * filters out mutations that do not include any relevant log changes.  Then, it
+//  * checks to see if any of the logs are new.  If they are new, it gets them, and
+//  * updates the decks with the new logs. Finally it dispatches the set actions for
+//  * the updated decks to redux.  Finally, if any new logs were processed the new gameLog
+//  * is so that the logsProcessed global may be updated in the Observer component.
+//  * @param mutationList - MutationRecord[] from the Mutation Observer
+//  * @param areNewLogsToSend - Function to check for new logs (See this file)
+//  * @param logsProcessed - The global from the Observer component containing the logs already processed by the decks.
+//  * @param getGameLog - Function to get the game-log text from the client DOM
+//  * @param getNewLogsAndUpdateDecks - Function to get the new logs and update the deck states.
+//  * @param getUndispatchedLogs - Function to get logs that have not been updated into the decks.
+//  * @param decks - The Deck Map.
+//  * @param playerName - Name of the player, used to access the Deck Map.
+//  * @param opponentName - Name of th opponent, used to access the Deck Map.
+//  * @param dispatchUpdatedDecksToRedux - Function that updates the redux state with new deck data.
+//  * @param dispatch - Redux dispatcher.
+//  * @param setPlayerDeck - Redux ActionCreator for setting player deck.
+//  * @param setOpponentDeck - Redux ActionCreator for setting opponent deck.
+//  * @returns - Nothing if no undispatched logs were found.  The game log if new logs were found.
+//  */
+// const processLogMutations = (
+//   mutationList: MutationRecord[],
+//   areNewLogsToSend: Function,
+//   logsProcessed: string,
+//   getGameLog: Function,
+//   getNewLogsAndUpdateDecks: Function,
+//   getUndispatchedLogs: Function,
+//   decks: Map<string, Deck | OpponentDeck>,
+//   playerName: string,
+//   opponentName: string,
+//   dispatchUpdatedDecksToRedux: Function,
+//   dispatch: Dispatch<AnyAction>,
+//   setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
+//   setOpponentDeck: ActionCreatorWithPayload<
+//     OpponentStoreDeck,
+//     "content/setOpponentDeck"
+//   >
+// ): string | void => {
+//   Array.from(mutationList).forEach((mutation, idx) => {
+//     console.group(`mutation ${idx}`);
+//     if (mutation.addedNodes.length > 0) {
+//       Array.from(mutation.addedNodes).forEach((node, idx) => {
+//         const el = node as HTMLElement;
+//         console.log(`Added${idx} ${el.innerText}`);
+//       });
+//     }
+//     if (mutation.removedNodes.length > 0) {
+//       Array.from(mutation.removedNodes).forEach((node, idx) => {
+//         const el = node as HTMLElement;
+//         console.log(`Removed ${idx} ${el.innerText}`);
+//       });
+//     }
+//     console.groupEnd();
+//   });
+//   if (areNewLogsToSend(logsProcessed, getGameLog())) {
+//     const gameLog = getGameLog();
+//     const { playerStoreDeck, opponentStoreDeck } = getNewLogsAndUpdateDecks(
+//       logsProcessed,
+//       gameLog,
+//       getUndispatchedLogs,
+//       decks,
+//       playerName,
+//       opponentName
+//     );
+//     dispatchUpdatedDecksToRedux(
+//       dispatch,
+//       setPlayerDeck,
+//       setOpponentDeck,
+//       playerStoreDeck,
+//       opponentStoreDeck
+//     );
+//     return gameLog;
+//   }
+// };
 
 /**
  * Helper function for combining combination operations.
@@ -1842,6 +1856,7 @@ export {
   isGameLogPresent,
   isKingdomElementPresent,
   isLogEntryBuyWithoutGain,
+  isMerchantBonusLine,
   onMouseEnterOption,
   onMouseEnterTurnButton,
   onMouseLeaveOption,
@@ -1854,7 +1869,6 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
-  processLogMutations,
   product_Range,
   setDecksGameResults,
   sortHistoryDeckView,

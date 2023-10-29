@@ -258,20 +258,37 @@ export class Deck extends BaseDeck implements StoreDeck {
           throw new Error(
             "Current line paddingLeft property does not end with %."
           );
+        let logScrollElementInnerText: string[] = [];
+        Array.from(logScrollElement).forEach((el) => {
+          logScrollElementInnerText.push(el.innerText);
+        });
         console.log(e);
         console.log(toErrorWithMessage(e).message);
-        console.log(
+
+        console.error(
           `Error in checkForVassalPlay.  Tried to access the ${len}th and ${
             len - 1
           }th element of the log scroll element.`
         );
+
         console.log(
           "The logScrollElement has length " + logScrollElement.length
         );
         console.log("the logScrollElement is ", logScrollElement);
+        console.log(
+          "The logs scroll element's innerTexts has length ",
+          logScrollElementInnerText.length
+        );
+        console.log(
+          "The logs scroll element's innerTexts is ",
+          logScrollElementInnerText
+        );
         console.log("The logArchive is ", this.logArchive);
         console.log(
           "Was expecting to compare the paddingLeft of the last line of the logSCroll element with the 2nd last line of the logScroll Element."
+        );
+        console.log(
+          "Compare the logArchive to the innerTexts of the game log.  Identify where the difference lies."
         );
       }
     }
@@ -610,6 +627,7 @@ export class Deck extends BaseDeck implements StoreDeck {
 
     return needToDrawCardLookedAtFromPreviousLine;
   }
+
   /**
    * Checks hand field array to see if card is there.  If yes, removes one
    * instance of that card from the hand field and then adds one

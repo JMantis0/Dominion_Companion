@@ -33,7 +33,7 @@ describe("Function areNewLogsToSend()", () => {
     const gameLog = "Log1\nLog2\nLog3\nLog4notthesame";
     expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(true);
   });
-  
+
   it("should return false when both processed and game logs are empty", () => {
     const logsProcessed = "";
     const gameLog = "";
@@ -43,6 +43,12 @@ describe("Function areNewLogsToSend()", () => {
   it("should return false when processed logs and game logs are the same", () => {
     const logsProcessed = "Log1\nLog2\nLog3\nLog4\n";
     const gameLog = "Log1\nLog2\nLog3\nLog4\n";
+    expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
+  });
+
+  it("should return false when the last line of the gameLog is a 'Merchant Bonus line'", () => {
+    const logsProcessed = "Log1\nLog2\nLog3\nLog4\n";
+    const gameLog = "Log1\nLog2\nLog3\nLog4\nPlayer gets +$3. (Merchant)";
     expect(areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
   });
 });
