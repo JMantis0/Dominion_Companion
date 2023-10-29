@@ -35,31 +35,124 @@ import { store } from "../redux/store";
 import { AnyAction, Dispatch } from "redux";
 
 export class ClientObserver {
+  /**
+   * Stores the value of the player name.
+   * Use - invoking Deck object constructor
+   */
   static playerName: string = "";
+  /**
+   * Stores the value of the player's abbreviated name used in the client ".game-log" element.
+   * Use - invoking Deck object constructor
+   */
   static playerNick: string = "";
+  /**
+   * Stores the value of the opponent name.
+   * Use - invoking Deck object constructor
+   */
   static opponentName: string = "";
+  /**
+   * Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
+   * Use - invoking Deck object constructor
+   */
   static opponentNick: string = "";
+  /**
+   * Use - Flow control.
+   * False value means the 'gameLog' global is not yet initialized.
+   * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
+   */
   static logInitialized: boolean = false;
+  /**
+   *
+   * Use - Flow control
+   * False value means the 'kingdom' global is not yet initialized.
+   * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
+   */
   static kingdomInitialized: boolean = false;
+  /**
+   * Use - Flow control.
+   * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
+   * True value means they each hold the appropriate string collected from the elements in the client DOM.
+   */
   static playersInitialized: boolean = false;
+  /**
+   *
+   * Use - Flow control.
+   * False value means the Deck objects that will be used to track the game state are not yet created.
+   * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
+   * object has been assigned to the value of the 'opponentDeck' global variable.
+   */
   static playerDeckInitialized: boolean = false;
+  /**
+   * Holds the value of which logs have already been sent to the Deck objects.
+   * Use - Flow control.
+   * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
+   * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
+   * processed by the Decks.
+   */
   static logsProcessed: string = "";
+  /**
+   * Holds the value of the ".game-log" innerText from the client DOM.
+   * Use 1 - When new content is detected in the client ".game-log" element, this variable is updated to contain the value
+   * that element's innerText.
+   * Use 2 - Control flow for the content script: the value of this variable is compared to the 'logsProcessed' global
+   * to determine which logs to use when invoking the Deck objects' update() methods.
+   */
   static gameLog: string = "";
+  /**
+   * Holds the value of whether or not the current game is rated.
+   * Use - Deck constructor invocation.
+   */
   static ratedGame: boolean = true;
+  /**
+   * Rating of the player of the player deck
+   */
   static playerRating: string = "";
+  /**
+   * Rating of the player of opponent deck.
+   */
   static opponentRating: string = "";
+  /**
+   *
+   * Holds the values of the Deck objects.  The playerName and opponentName are used as the
+   * keys for the corresponding Deck objects
+   * Use - The decks track the game state for players. The update() method is
+   * invoked on these Deck objects.
+   */
   static decks: Map<string, Deck | OpponentDeck> = new Map();
+  /**
+   * Holds the strings that define the cards available in the current game.
+   * Use - invoking Deck object constructor
+   */
   static kingdom: Array<string> = [];
+  /**
+   * The current version of the extension does not support games that include
+   * cards outside of the base set.  This variable will hold the value of true if the current kingdom is base set only.
+   * It will hold false if the kingdom contains non-base cards.  The variable is used to disable extension features
+   * if unsupported cards are detected.
+   */
   static baseOnly: boolean = true;
+  /**
+   * Holds identifier for the initInterval - When no game is active, used to set an interval to periodically check if a game has become active,
+   */
   static initInterval: NodeJS.Timeout | number;
+  /**
+   * Holds identifier for the resetInterval - When a game is active, used to set an interval to periodically check if the game is still active,
+   * and if the game is not active, executes a game reset.
+   */
   static resetInterval: NodeJS.Timeout | number;
+  /**
+   * Mutation Observers identifiers - Used to detect changes in the DOM.
+   */
   static gameLogObserver: MutationObserver;
   static gameEndObserver: MutationObserver;
   static undoObserver: MutationObserver;
+  // Redux dispatcher.
   static dispatch: Dispatch<AnyAction> = store.dispatch;
 
+
+
   /**
-   * At the end of a game, determines the results of the game, and updates the
+   * At the end of a game, determines the results of the game, and updates the decks with the results.
    */
   static gameEndObserverFunc() {
     const timeOutElements = getTimeOutElements();
@@ -86,8 +179,12 @@ export class ClientObserver {
         ClientObserver.dispatch,
         setPlayerDeck,
         setOpponentDeck,
-        JSON.parse(JSON.stringify(ClientObserver.decks.get(ClientObserver.playerName))),
-        JSON.parse(JSON.stringify(ClientObserver.decks.get(ClientObserver.opponentName)))
+        JSON.parse(
+          JSON.stringify(ClientObserver.decks.get(ClientObserver.playerName))
+        ),
+        JSON.parse(
+          JSON.stringify(ClientObserver.decks.get(ClientObserver.opponentName))
+        )
       );
       ClientObserver.saveGameData(ClientObserver.gameLog, ClientObserver.decks);
     }
@@ -119,7 +216,7 @@ export class ClientObserver {
     if (!ClientObserver.logInitialized) {
       console.log("Checking for log presence...");
       if (isGameLogPresent()) {
-        console.log("Gamelog present, initializing...");
+        console.log("Game log present, initializing...");
         ClientObserver.gameLog = getGameLog();
         ClientObserver.ratedGame = getRatedGameBoolean(
           ClientObserver.gameLog.split("\n")[0]
@@ -136,14 +233,18 @@ export class ClientObserver {
             getPlayerInfoElements()
           );
         [ClientObserver.playerNick, ClientObserver.opponentNick] =
-          getPlayerNameAbbreviations(ClientObserver.gameLog, ClientObserver.playerName);
+          getPlayerNameAbbreviations(
+            ClientObserver.gameLog,
+            ClientObserver.playerName
+          );
         ClientObserver.playersInitialized = true;
         if (ClientObserver.ratedGame) {
-          [ClientObserver.playerRating, ClientObserver.opponentRating] = getPlayerRatings(
-            ClientObserver.playerName,
-            ClientObserver.opponentName,
-            ClientObserver.gameLog
-          );
+          [ClientObserver.playerRating, ClientObserver.opponentRating] =
+            getPlayerRatings(
+              ClientObserver.playerName,
+              ClientObserver.opponentName,
+              ClientObserver.gameLog
+            );
         }
       }
     }
@@ -164,12 +265,18 @@ export class ClientObserver {
     }
     if (!ClientObserver.playerDeckInitialized) {
       console.log("Checking decks presence");
-      if (ClientObserver.playersInitialized && ClientObserver.kingdomInitialized) {
+      if (
+        ClientObserver.playersInitialized &&
+        ClientObserver.kingdomInitialized
+      ) {
         console.log("Decks not created... initializing decks.");
         ClientObserver.decks = createPlayerDecks(
           ClientObserver.gameLog
             .split("\n")[0]
-            .substring(0, ClientObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1),
+            .substring(
+              0,
+              ClientObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1
+            ),
           ClientObserver.ratedGame,
           ClientObserver.playerName,
           ClientObserver.playerNick,
@@ -204,7 +311,9 @@ export class ClientObserver {
         ClientObserver.gameEndObserver = new MutationObserver(
           ClientObserver.gameEndObserverFunc
         );
-        ClientObserver.undoObserver = new MutationObserver(ClientObserver.undoObserverFunc);
+        ClientObserver.undoObserver = new MutationObserver(
+          ClientObserver.undoObserverFunc
+        );
         const gameLogElement = document.getElementsByClassName("game-log")[0];
         const gameEndElement = document.getElementsByTagName(
           "game-ended-notification"
@@ -230,25 +339,41 @@ export class ClientObserver {
         ) // Initial dispatch
           .split("\n")
           .slice();
-        ClientObserver.decks.get(ClientObserver.playerName)?.update(newLogsToDispatch);
+        ClientObserver.decks
+          .get(ClientObserver.playerName)
+          ?.update(newLogsToDispatch);
         ClientObserver.dispatch(
           setPlayerDeck(
-            JSON.parse(JSON.stringify(ClientObserver.decks.get(ClientObserver.playerName)))
+            JSON.parse(
+              JSON.stringify(
+                ClientObserver.decks.get(ClientObserver.playerName)
+              )
+            )
           )
         );
-        ClientObserver.decks.get(ClientObserver.opponentName)?.update(newLogsToDispatch);
+        ClientObserver.decks
+          .get(ClientObserver.opponentName)
+          ?.update(newLogsToDispatch);
         ClientObserver.dispatch(
           setOpponentDeck(
             JSON.parse(
-              JSON.stringify(ClientObserver.decks.get(ClientObserver.opponentName))
+              JSON.stringify(
+                ClientObserver.decks.get(ClientObserver.opponentName)
+              )
             )
           )
         );
         ClientObserver.logsProcessed = ClientObserver.gameLog;
-        ClientObserver.saveGameData(ClientObserver.gameLog, ClientObserver.decks);
+        ClientObserver.saveGameData(
+          ClientObserver.gameLog,
+          ClientObserver.decks
+        );
       }
       clearInterval(ClientObserver.initInterval);
-      ClientObserver.resetInterval = setInterval(resetCheckIntervalFunction, 1000);
+      ClientObserver.resetInterval = setInterval(
+        resetCheckIntervalFunction,
+        1000
+      );
     }
   }
 
@@ -311,7 +436,8 @@ export class ClientObserver {
       ClientObserver.gameLogObserver.disconnect();
     if (ClientObserver.gameEndObserver !== undefined)
       ClientObserver.gameEndObserver.disconnect();
-    if (ClientObserver.undoObserver !== undefined) ClientObserver.undoObserver.disconnect();
+    if (ClientObserver.undoObserver !== undefined)
+      ClientObserver.undoObserver.disconnect();
   }
 
   static resetDeckState() {
@@ -378,7 +504,10 @@ export class ClientObserver {
     }
     if (gameLogRemoved && gameLogAdded) {
       clearInterval(ClientObserver.resetInterval);
-      ClientObserver.initInterval = setInterval(ClientObserver.initIntervalFunction, 1000);
+      ClientObserver.initInterval = setInterval(
+        ClientObserver.initIntervalFunction,
+        1000
+      );
     }
   }
 
@@ -388,7 +517,9 @@ export class ClientObserver {
   ) {
     const savedGame: SavedGame = {
       logArchive: gameLog,
-      playerDeck: JSON.parse(JSON.stringify(decks.get(ClientObserver.playerName))),
+      playerDeck: JSON.parse(
+        JSON.stringify(decks.get(ClientObserver.playerName))
+      ),
       opponentDeck: JSON.parse(
         JSON.stringify(decks.get(ClientObserver.opponentName))
       ),
