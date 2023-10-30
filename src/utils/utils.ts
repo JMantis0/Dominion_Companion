@@ -361,26 +361,7 @@ const getErrorMessage = (error: unknown) => {
   return toErrorWithMessage(error).message;
 };
 
-/**
- * Gets and returns the game log element's innerText, removing the
- * last line if it matches 'Premoves'.
- * Purpose: Update the global gameLog variable.
- * @returns The string of innerText of the game-log element.
- */
-const getGameLog = (): string => {
-  const gameLogElement = document.getElementsByClassName(
-    "game-log"
-  )[0] as HTMLElement;
-  let gameLog = gameLogElement.innerText;
-  if (
-    gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
-    null
-  ) {
-    gameLog = gameLog.split("\n").slice(0, -1).join("\n");
-  }
-  return gameLog;
-};
-
+// To Do: Move this to Deck class.
 /**
  * Used by decks to eliminate ambiguity for certain Vassal activity.
  * @returns - A collection of all the div's in the log-scroll-container with the class 'log-line'
@@ -1219,7 +1200,6 @@ export {
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
-  getGameLog,
   getLogScrollContainerLogLines,
   getPrimaryFrameStatus,
   getRowColor,

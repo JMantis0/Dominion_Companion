@@ -2,9 +2,9 @@
  * @jest-environment jsdom
  */
 import { describe, it, expect } from "@jest/globals";
-import { getTimeOutElements } from "../../src/utils/utils";
+import { DOMObserver } from "../../../src/utils/DOMObserver";
 
-describe("Fimctopm getTimeOutElements", () => {
+describe("getTimeOutElements", () => {
   it("should return the children of the <game-end-notification> element that have the class 'timeout'", () => {
     // Arrange innerHTML to simulate a window that appears when the game has ended.
     document.body.innerHTML = `
@@ -22,8 +22,9 @@ describe("Fimctopm getTimeOutElements", () => {
           </game-ended-notification>`;
 
     // Act - get the timeOutElements
-    const timeOutElements = getTimeOutElements();
+    const timeOutElements = DOMObserver.getTimeOutElements();
 
+    // Assert
     expect(timeOutElements.length).toBe(2);
     expect(timeOutElements[0].innerHTML).toBe("The game has ended.");
     expect(timeOutElements[0].classList.contains("timeout")).toBe(true);

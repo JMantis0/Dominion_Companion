@@ -15,7 +15,7 @@ import {
   chromeListenerUseEffectHandler,
   getPrimaryFrameStatus,
 } from "../../utils/utils";
-import { Observer } from "../../utils/Observer";
+import { DOMObserver } from "../../utils/DOMObserver";
 import $ from "jquery";
 import "jqueryui/jquery-ui.css";
 // import DevDisplay from "./DevDisplay/DevDisplay";
@@ -33,8 +33,8 @@ const PrimaryFrame = () => {
     (state: RootState) => state.content.primaryFrameTab
   );
   useEffect(() => {
-    addEventListener("beforeunload", Observer.saveBeforeUnload);
-    Observer.initInterval = setInterval(Observer.initIntervalFunction, 1000);
+    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    DOMObserver.initInterval = setInterval(DOMObserver.initIntervalFunction, 1000);
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
@@ -43,9 +43,9 @@ const PrimaryFrame = () => {
         getPrimaryFrameStatus
       );
     return () => {
-      clearInterval(Observer.initInterval);
-      clearInterval(Observer.resetInterval);
-      removeEventListener("beforeunload", Observer.saveBeforeUnload);
+      clearInterval(DOMObserver.initInterval);
+      clearInterval(DOMObserver.resetInterval);
+      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
       if (chrome.runtime !== undefined)
         chromeListenerUseEffectHandler(
           "Remove",

@@ -1,10 +1,7 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import {
-  getNewLogsAndUpdateDecks,
-  getUndispatchedLogs,
-} from "../../src/utils/utils";
-import { OpponentDeck } from "../../src/model/opponentDeck";
-import { Deck } from "../../src/model/deck";
+import { DOMObserver } from "../../../src/utils/DOMObserver";
+import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { Deck } from "../../../src/model/deck";
 import { afterEach } from "node:test";
 
 describe("Function getNewLogsAndUpdateDecks", () => {
@@ -15,11 +12,11 @@ describe("Function getNewLogsAndUpdateDecks", () => {
   deckMap.set(oDeck.playerName, oDeck);
   deckMap.set(pDeck.playerName, pDeck);
   const getUndispatchedLogsMock = jest.fn() as jest.MockedFunction<
-    typeof getUndispatchedLogs
+    typeof DOMObserver.getUndispatchedLogs
   >;
   getUndispatchedLogsMock.mockImplementation(
     (logsProcessed: string, gameLog: string) =>
-      getUndispatchedLogs(logsProcessed, gameLog)
+      DOMObserver.getUndispatchedLogs(logsProcessed, gameLog)
   ); // Mocking with actual implementation
   const updateOpponentDeck = jest.spyOn(OpponentDeck.prototype, "update");
   const updateDeck = jest.spyOn(Deck.prototype, "update");
@@ -40,7 +37,7 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     const gameLog = "Log1\nLog2\nLog3";
 
     // Act - Simulate getting new log entry within the log observer mutation callback and updating the decks.
-    const { playerStoreDeck, opponentStoreDeck } = getNewLogsAndUpdateDecks(
+    const { playerStoreDeck, opponentStoreDeck } = DOMObserver.getNewLogsAndUpdateDecks(
       logsProcessed,
       gameLog,
       getUndispatchedLogsMock,
@@ -78,7 +75,7 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     const gameLog = "Log1\nLog2\nLog3\nLog4";
 
     // Act - Simulate getting new log entries within the log observer mutation callback and updating the decks.
-    const { playerStoreDeck, opponentStoreDeck } = getNewLogsAndUpdateDecks(
+    const { playerStoreDeck, opponentStoreDeck } = DOMObserver.getNewLogsAndUpdateDecks(
       logsProcessed,
       gameLog,
       getUndispatchedLogsMock,

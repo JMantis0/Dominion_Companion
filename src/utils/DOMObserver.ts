@@ -14,62 +14,43 @@ import { store } from "../redux/store";
 import { AnyAction, Dispatch } from "redux";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 
-export class Observer {
+export class DOMObserver {
   /**
-   * Stores the value of the player name.
-   * Use - invoking Deck object constructor
+   * The current version of the extension does not support games that include
+   * cards outside of the base set.  This variable will hold the value of true if the current kingdom is base set only.
+   * It will hold false if the kingdom contains non-base cards.  The variable is used to disable extension features
+   * if unsupported cards are detected.
    */
-  static playerName: string = "";
+  static baseOnly: boolean = true;
+  static getBaseOnly() {
+    return DOMObserver.baseOnly;
+  }
+  static setBaseOnly(baseOnly: boolean): void {
+    DOMObserver.baseOnly = baseOnly;
+  }
   /**
-   * Stores the value of the player's abbreviated name used in the client ".game-log" element.
-   * Use - invoking Deck object constructor
+   * Holds the values of the Deck objects.  The playerName and opponentName are used as the
+   * keys for the corresponding Deck objects
+   * Use - The decks track the game state for players. The update() method is
+   * invoked on these Deck objects.
    */
-  static playerNick: string = "";
+  static decks: Map<string, Deck | OpponentDeck> = new Map();
+  static getDecks(): Map<string, Deck | OpponentDeck> {
+    return DOMObserver.decks;
+  }
+  static setDecks(decks: Map<string, Deck | OpponentDeck>): void {
+    DOMObserver.decks = decks;
+  }
   /**
-   * Stores the value of the opponent name.
-   * Use - invoking Deck object constructor
+   * Redux dispatcher.
    */
-  static opponentName: string = "";
-  /**
-   * Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
-   * Use - invoking Deck object constructor
-   */
-  static opponentNick: string = "";
-  /**
-   * Use - Flow control.
-   * False value means the 'gameLog' global is not yet initialized.
-   * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
-   */
-  static logInitialized: boolean = false;
-  /**
-   *
-   * Use - Flow control
-   * False value means the 'kingdom' global is not yet initialized.
-   * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
-   */
-  static kingdomInitialized: boolean = false;
-  /**
-   * Use - Flow control.
-   * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
-   * True value means they each hold the appropriate string collected from the elements in the client DOM.
-   */
-  static playersInitialized: boolean = false;
-  /**
-   *
-   * Use - Flow control.
-   * False value means the Deck objects that will be used to track the game state are not yet created.
-   * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
-   * object has been assigned to the value of the 'opponentDeck' global variable.
-   */
-  static playerDeckInitialized: boolean = false;
-  /**
-   * Holds the value of which logs have already been sent to the Deck objects.
-   * Use - Flow control.
-   * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
-   * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
-   * processed by the Decks.
-   */
-  static logsProcessed: string = "";
+  static dispatch: Dispatch<AnyAction> = store.dispatch;
+  static getDispatch(): Dispatch<AnyAction> {
+    return DOMObserver.dispatch;
+  }
+  static setDispatch(dispatch: Dispatch<AnyAction>): void {
+    DOMObserver.dispatch = dispatch;
+  }
   /**
    * Holds the value of the ".game-log" innerText from the client DOM.
    * Use 1 - When new content is detected in the client ".game-log" element, this variable is updated to contain the value
@@ -78,56 +59,215 @@ export class Observer {
    * to determine which logs to use when invoking the Deck objects' update() methods.
    */
   static gameLog: string = "";
+  static getGameLog(): string {
+    return DOMObserver.gameLog;
+  }
+  static setGameLog(gameLog: string): void {
+    DOMObserver.gameLog = gameLog;
+  }
+
+  /**
+   * Use - Flow control.
+   * False value means the Deck objects that will be used to track the game state are not yet created.
+   * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
+   * object has been assigned to the value of the 'opponentDeck' global variable.
+   */
+  static decksInitialized: boolean = false;
+  static getDecksInitialized(): boolean {
+    return DOMObserver.decksInitialized;
+  }
+  static setDecksInitialized(decksInitialized: boolean): void {
+    DOMObserver.decksInitialized = decksInitialized;
+  }
+  /**
+   * Game log MutationObserver.  Detects changes in the game-log and triggers deck updates.
+   */
+  static gameLogObserver: MutationObserver;
+  static getGameLogObserver(): MutationObserver {
+    return DOMObserver.gameLogObserver;
+  }
+  static setGameLogObserver(gameLogObserver: MutationObserver) {
+    DOMObserver.gameLogObserver = gameLogObserver;
+  }
+  /**
+   * Game end MutationObserver.  Detects changes in the game end element, and triggers
+   * the game end handler,
+   */
+  static gameEndObserver: MutationObserver;
+  static getGameEndObserver(): MutationObserver {
+    return DOMObserver.gameEndObserver;
+  }
+  static setGameEndObserver(gameEndObserver: MutationObserver): void {
+    DOMObserver.gameEndObserver = gameEndObserver;
+  }
+  /**
+   * Use - Flow control.
+   * False value means the 'gameLog' global is not yet initialized.
+   * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
+   */
+  static logInitialized: boolean = false;
+  static getLogInitialized(): boolean {
+    return DOMObserver.logInitialized;
+  }
+  static setLogInitialized(logInitialized: boolean): void {
+    DOMObserver.logInitialized = logInitialized;
+  }
+  /**
+   * Holds identifier for the initInterval - When no game is active, used to set an interval to periodically check if a game has become active,
+   */
+  static initInterval: NodeJS.Timeout | number;
+  static getInitInterval(): NodeJS.Timeout | number {
+    return DOMObserver.initInterval;
+  }
+  static setInitInterval(initInterval: NodeJS.Timeout | number) {
+    DOMObserver.initInterval = initInterval;
+  }
+  /**
+   * Holds the value of which logs have already been sent to the Deck objects.
+   * Use - Flow control.
+   * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
+   * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
+   * processed by the Decks.
+   */
+  static logsProcessed: string = "";
+  static getLogsProcessed(): string {
+    return DOMObserver.logsProcessed;
+  }
+  static setLogsProcessed(logsProcessed: string): void {
+    DOMObserver.logsProcessed = logsProcessed;
+  }
+  /**
+   * Holds the strings that define the cards available in the current game.
+   * Use - invoking Deck object constructor
+   */
+  static kingdom: string[] = [];
+  static getKingdom(): string[] {
+    return DOMObserver.kingdom;
+  }
+  static setKingdom(kingdom: string[]) {
+    DOMObserver.kingdom = kingdom;
+  }
+  /**
+   * Use - Flow control
+   * False value means the 'kingdom' global is not yet initialized.
+   * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
+   */
+  static kingdomInitialized: boolean = false;
+  static getKingdomInitialized(): boolean {
+    return DOMObserver.kingdomInitialized;
+  }
+  static setKingdomInitialized(kingdomInitialized: boolean): void {
+    DOMObserver.kingdomInitialized = kingdomInitialized;
+  }
+  /**
+   * Stores the value of the opponent name.
+   * Use - invoking Deck object constructor
+   */
+  static opponentName: string = "";
+  static getOpponentName(): string {
+    return DOMObserver.opponentName;
+  }
+  static setOpponentName(opponentName: string): void {
+    DOMObserver.opponentName = opponentName;
+  }
+  /**
+   * Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
+   * Use - invoking Deck object constructor
+   */
+  static opponentNick: string = "";
+  static getOpponentNick(): string {
+    return DOMObserver.opponentNick;
+  }
+  static setOpponentNick(opponentNick: string): void {
+    DOMObserver.opponentNick = opponentNick;
+  }
+  /**
+   * Rating of the player of opponent deck.
+   */
+  static opponentRating: string = "";
+  static getOpponentRating(): string {
+    return DOMObserver.opponentRating;
+  }
+  static setOpponentRating(opponentRating: string): void {
+    DOMObserver.opponentRating = opponentRating;
+  }
+  /**
+   * Use - Flow control.
+   * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
+   * True value means they each hold the appropriate string collected from the elements in the client DOM.
+   */
+  static playersInitialized: boolean = false;
+  static getPlayersInitialized(): boolean {
+    return DOMObserver.playersInitialized;
+  }
+  static setPlayersInitialized(playersInitialized: boolean): void {
+    DOMObserver.playersInitialized = playersInitialized;
+  }
+  /**
+   * Stores the value of the player name.
+   * Use - invoking Deck object constructor
+   */
+  static playerName: string = "";
+  static getPlayerName(): string {
+    return DOMObserver.playerName;
+  }
+  static setPlayerName(playerName: string): void {
+    DOMObserver.playerName = playerName;
+  }
+  /**
+   * Stores the value of the player's abbreviated name used in the client ".game-log" element.
+   * Use - invoking Deck object constructor
+   */
+  static playerNick: string = "";
+  static getPlayerNick(): string {
+    return DOMObserver.playerNick;
+  }
+  static setPlayerNick(playerNick: string): void {
+    DOMObserver.playerNick = playerNick;
+  }
+  /**
+   * Rating of the player of the player deck
+   */
+  static playerRating: string = "";
+  static getPlayerRating(): string {
+    return DOMObserver.playerRating;
+  }
+  static setPlayerRating(playerRating: string): void {
+    DOMObserver.playerRating = playerRating;
+  }
   /**
    * Holds the value of whether or not the current game is rated.
    * Use - Deck constructor invocation.
    */
   static ratedGame: boolean = true;
-  /**
-   * Rating of the player of the player deck
-   */
-  static playerRating: string = "";
-  /**
-   * Rating of the player of opponent deck.
-   */
-  static opponentRating: string = "";
-  /**
-   *
-   * Holds the values of the Deck objects.  The playerName and opponentName are used as the
-   * keys for the corresponding Deck objects
-   * Use - The decks track the game state for players. The update() method is
-   * invoked on these Deck objects.
-   */
-  static decks: Map<string, Deck | OpponentDeck> = new Map();
-  /**
-   * Holds the strings that define the cards available in the current game.
-   * Use - invoking Deck object constructor
-   */
-  static kingdom: Array<string> = [];
-  /**
-   * The current version of the extension does not support games that include
-   * cards outside of the base set.  This variable will hold the value of true if the current kingdom is base set only.
-   * It will hold false if the kingdom contains non-base cards.  The variable is used to disable extension features
-   * if unsupported cards are detected.
-   */
-  static baseOnly: boolean = true;
-  /**
-   * Holds identifier for the initInterval - When no game is active, used to set an interval to periodically check if a game has become active,
-   */
-  static initInterval: NodeJS.Timeout | number;
+  static getRatedGame(): boolean {
+    return DOMObserver.ratedGame;
+  }
+  static setRatedGame(ratedGame: boolean): void {
+    DOMObserver.ratedGame = ratedGame;
+  }
   /**
    * Holds identifier for the resetInterval - When a game is active, used to set an interval to periodically check if the game is still active,
    * and if the game is not active, executes a game reset.
    */
   static resetInterval: NodeJS.Timeout | number;
+  static getResetInterval(): NodeJS.Timeout | number {
+    return DOMObserver.resetInterval;
+  }
+  static setResetInterval(resetInterval: NodeJS.Timeout | number): void {
+    DOMObserver.resetInterval = resetInterval;
+  }
   /**
-   * Mutation Observers identifiers - Used to detect changes in the DOM.
+   * Undo / rewind mutation observer.  Detects changes in the game log container and triggers
+   * the undo / rewind handler.
    */
-  static gameLogObserver: MutationObserver;
-  static gameEndObserver: MutationObserver;
   static undoObserver: MutationObserver;
-  // Redux dispatcher.
-  static dispatch: Dispatch<AnyAction> = store.dispatch;
+  static getUndoObserver(): MutationObserver {
+    return DOMObserver.undoObserver;
+  }
+  static setUndoObserver(undoObserver: MutationObserver): void {
+    DOMObserver.undoObserver = undoObserver;
+  }
 
   /**
    * Compares the logs that have been processed with current game log to
@@ -143,8 +283,8 @@ export class Observer {
     const gLogArr = gameLog.split("\n").slice();
     const lastGameLogEntry = gLogArr.slice().pop();
     if (
-      Observer.isLogEntryBuyWithoutGain(lastGameLogEntry!) ||
-      Observer.isMerchantBonusLine(lastGameLogEntry!)
+      DOMObserver.isLogEntryBuyWithoutGain(lastGameLogEntry!) ||
+      DOMObserver.isMerchantBonusLine(lastGameLogEntry!)
     ) {
       areNewLogs = false;
     } else if (procArr.length > gLogArr.length) {
@@ -296,34 +436,38 @@ export class Observer {
    * At the end of a game, determines the results of the game, and updates the decks with the results.
    */
   static gameEndObserverFunc() {
-    const timeOutElements = Observer.getTimeOutElements();
+    const timeOutElements = DOMObserver.getTimeOutElements();
     const gameEndMessage = timeOutElements[0].innerText;
     let gameEndReason: string = "None";
     if (timeOutElements[1] !== undefined) {
       gameEndReason = timeOutElements[1].innerText;
     }
     if (gameEndMessage === "The game has ended.") {
-      let [victor, defeated] = Observer.getResult(
-        Observer.decks,
-        Observer.playerName,
-        Observer.opponentName,
+      let [victor, defeated] = DOMObserver.getResult(
+        DOMObserver.decks,
+        DOMObserver.playerName,
+        DOMObserver.opponentName,
         gameEndReason
       );
-      Observer.decks = Observer.setDecksGameResults(
+      DOMObserver.decks = DOMObserver.setDecksGameResults(
         victor,
         defeated,
-        Observer.playerName,
-        Observer.opponentName,
-        Observer.decks
+        DOMObserver.playerName,
+        DOMObserver.opponentName,
+        DOMObserver.decks
       );
-      Observer.dispatchUpdatedDecksToRedux(
-        Observer.dispatch,
+      DOMObserver.dispatchUpdatedDecksToRedux(
+        DOMObserver.dispatch,
         setPlayerDeck,
         setOpponentDeck,
-        JSON.parse(JSON.stringify(Observer.decks.get(Observer.playerName))),
-        JSON.parse(JSON.stringify(Observer.decks.get(Observer.opponentName)))
+        JSON.parse(
+          JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
+        ),
+        JSON.parse(
+          JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
+        )
       );
-      Observer.saveGameData(Observer.gameLog, Observer.decks);
+      DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
     }
   }
 
@@ -374,10 +518,13 @@ export class Observer {
    * Purpose: Update the global gameLog variable.
    * @returns The string of innerText of the game-log element.
    */
-  static getGameLog(): string {
+  static getClientGameLog(): string {
     const gameLogElement = document.getElementsByClassName(
       "game-log"
     )[0] as HTMLElement;
+    if (gameLogElement === undefined) {
+      throw new Error("No game-log element present in the DOM.");
+    }
     let gameLog = gameLogElement.innerText;
     if (
       gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
@@ -399,8 +546,8 @@ export class Observer {
     const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
       .split("\n")
       .slice();
-    deckMap.get(playerName)?.update(newLogsToDispatch);
-    deckMap.get(opponentName)?.update(newLogsToDispatch);
+    deckMap.get(playerName)!.update(newLogsToDispatch);
+    deckMap.get(opponentName)!.update(newLogsToDispatch);
     return {
       playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
       opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
@@ -454,6 +601,9 @@ export class Observer {
       document.getElementsByTagName(
         "player-info"
       ) as HTMLCollectionOf<HTMLElement>;
+    if (playerInfoElements.length === 0) {
+      throw new Error("No <player-info> elements found in the DOM.");
+    }
     return playerInfoElements;
   }
 
@@ -541,7 +691,7 @@ export class Observer {
     } else if (firstGameLogLine.match(/ unrated\./) !== null) {
       ratedGame = false;
     } else {
-      throw new Error("Invalid firstGameLogLine " + firstGameLogLine);
+      throw new Error("Unable to determine if game is rated.");
     }
     return ratedGame;
   }
@@ -641,7 +791,7 @@ export class Observer {
       const lastLogsDispatchedLine = dispatchedArr[dispatchedArr.length - 1];
       if (lastGameLogLine === lastLogsDispatchedLine) {
         undispatchedLogs = "No new logs";
-        throw new Error("Equal # lines and last line also equal");
+        throw new Error("No new logs.");
       } else {
         undispatchedLogs = lastGameLogLine;
       }
@@ -654,10 +804,10 @@ export class Observer {
    */
   static initialized() {
     return (
-      Observer.logInitialized &&
-      Observer.playersInitialized &&
-      Observer.kingdomInitialized &&
-      Observer.playerDeckInitialized
+      DOMObserver.logInitialized &&
+      DOMObserver.playersInitialized &&
+      DOMObserver.kingdomInitialized &&
+      DOMObserver.decksInitialized
     );
   }
 
@@ -671,144 +821,157 @@ export class Observer {
    */
   static initIntervalFunction() {
     console.log("Init interval function.");
-    Observer.resetGame();
-    if (!Observer.logInitialized) {
+    DOMObserver.resetGame();
+    if (!DOMObserver.logInitialized) {
       console.log("Checking for log presence...");
-      if (Observer.isGameLogPresent()) {
+      if (DOMObserver.isGameLogPresent()) {
         console.log("Game log present, initializing...");
-        Observer.gameLog = Observer.getGameLog();
-        Observer.ratedGame = Observer.getRatedGameBoolean(
-          Observer.gameLog.split("\n")[0]
+        DOMObserver.gameLog = DOMObserver.getClientGameLog();
+        DOMObserver.ratedGame = DOMObserver.getRatedGameBoolean(
+          DOMObserver.gameLog.split("\n")[0]
         );
-        Observer.logInitialized = true;
+        DOMObserver.logInitialized = true;
       }
     }
-    if (!Observer.playersInitialized) {
+    if (!DOMObserver.playersInitialized) {
       console.log("Checking for player elements presence...");
-      if (Observer.arePlayerInfoElementsPresent()) {
+      if (DOMObserver.arePlayerInfoElementsPresent()) {
         console.log("playerElements present, initializing...");
-        [Observer.playerName, Observer.opponentName] =
-          Observer.getPlayerAndOpponentNameByComparingElementPosition(
-            Observer.getPlayerInfoElements()
+        [DOMObserver.playerName, DOMObserver.opponentName] =
+          DOMObserver.getPlayerAndOpponentNameByComparingElementPosition(
+            DOMObserver.getPlayerInfoElements()
           );
-        [Observer.playerNick, Observer.opponentNick] =
-          Observer.getPlayerNameAbbreviations(
-            Observer.gameLog,
-            Observer.playerName
+        [DOMObserver.playerNick, DOMObserver.opponentNick] =
+          DOMObserver.getPlayerNameAbbreviations(
+            DOMObserver.gameLog,
+            DOMObserver.playerName
           );
-        Observer.playersInitialized = true;
-        if (Observer.ratedGame) {
-          [Observer.playerRating, Observer.opponentRating] =
-            Observer.getPlayerRatings(
-              Observer.playerName,
-              Observer.opponentName,
-              Observer.gameLog
+        DOMObserver.playersInitialized = true;
+        if (DOMObserver.ratedGame) {
+          [DOMObserver.playerRating, DOMObserver.opponentRating] =
+            DOMObserver.getPlayerRatings(
+              DOMObserver.playerName,
+              DOMObserver.opponentName,
+              DOMObserver.gameLog
             );
         }
       }
     }
-    if (!Observer.kingdomInitialized) {
+    if (!DOMObserver.kingdomInitialized) {
       console.log("Checking for kingdom presence...");
-      if (Observer.isKingdomElementPresent()) {
+      if (DOMObserver.isKingdomElementPresent()) {
         console.log("Kingdom present, initializing...");
-        Observer.kingdom = Observer.getClientKingdom();
-        Observer.baseOnly = Observer.baseKingdomCardCheck(Observer.kingdom);
-        Observer.dispatch(setBaseOnly(Observer.baseOnly));
-        if (!Observer.baseOnly) {
+        DOMObserver.kingdom = DOMObserver.getClientKingdom();
+        DOMObserver.baseOnly = DOMObserver.baseKingdomCardCheck(
+          DOMObserver.kingdom
+        );
+        DOMObserver.dispatch(setBaseOnly(DOMObserver.baseOnly));
+        if (!DOMObserver.baseOnly) {
           console.error(
             "Game is not intended for cards outside of the Base Set"
           );
         }
-        Observer.kingdomInitialized = true;
+        DOMObserver.kingdomInitialized = true;
       }
     }
-    if (!Observer.playerDeckInitialized) {
+    if (!DOMObserver.decksInitialized) {
       console.log("Checking decks presence");
-      if (Observer.playersInitialized && Observer.kingdomInitialized) {
+      if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
         console.log("Decks not created... initializing decks.");
-        Observer.decks = Observer.createPlayerDecks(
-          Observer.gameLog
+        DOMObserver.decks = DOMObserver.createPlayerDecks(
+          DOMObserver.gameLog
             .split("\n")[0]
-            .substring(0, Observer.gameLog.split("\n")[0].lastIndexOf(" ") - 1),
-          Observer.ratedGame,
-          Observer.playerName,
-          Observer.playerNick,
-          Observer.playerRating,
-          Observer.opponentName,
-          Observer.opponentNick,
-          Observer.opponentRating,
-          Observer.kingdom
+            .substring(
+              0,
+              DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1
+            ),
+          DOMObserver.ratedGame,
+          DOMObserver.playerName,
+          DOMObserver.playerNick,
+          DOMObserver.playerRating,
+          DOMObserver.opponentName,
+          DOMObserver.opponentNick,
+          DOMObserver.opponentRating,
+          DOMObserver.kingdom
         );
-        Observer.playerDeckInitialized = true;
+        DOMObserver.decksInitialized = true;
       }
     }
 
     const resetCheckIntervalFunction = () => {
-      if (!Observer.isGameLogPresent()) {
-        clearInterval(Observer.resetInterval);
-        Observer.initInterval = setInterval(
-          Observer.initIntervalFunction,
+      if (!DOMObserver.isGameLogPresent()) {
+        clearInterval(DOMObserver.resetInterval);
+        DOMObserver.initInterval = setInterval(
+          DOMObserver.initIntervalFunction,
           1000
         );
       }
     };
 
-    if (Observer.initialized()) {
+    if (DOMObserver.initialized()) {
       console.log("Fields initialized...");
-      Observer.resetDeckState();
-      if (Observer.baseOnly) {
-        Observer.dispatch(setGameActiveStatus(true));
-        Observer.gameLogObserver = new MutationObserver(
-          Observer.logObserverFunc
+      DOMObserver.resetDeckState();
+      if (DOMObserver.baseOnly) {
+        DOMObserver.dispatch(setGameActiveStatus(true));
+        DOMObserver.gameLogObserver = new MutationObserver(
+          DOMObserver.logObserverFunc
         );
-        Observer.gameEndObserver = new MutationObserver(
-          Observer.gameEndObserverFunc
+        DOMObserver.gameEndObserver = new MutationObserver(
+          DOMObserver.gameEndObserverFunc
         );
-        Observer.undoObserver = new MutationObserver(Observer.undoObserverFunc);
+        DOMObserver.undoObserver = new MutationObserver(
+          DOMObserver.undoObserverFunc
+        );
         const gameLogElement = document.getElementsByClassName("game-log")[0];
         const gameEndElement = document.getElementsByTagName(
           "game-ended-notification"
         )[0];
         const logContainerElement =
           document.getElementsByClassName("log-container")[0];
-        Observer.undoObserver.observe(logContainerElement, {
+        DOMObserver.undoObserver.observe(logContainerElement, {
           childList: true,
         });
-        Observer.gameLogObserver.observe(gameLogElement, {
+        DOMObserver.gameLogObserver.observe(gameLogElement, {
           childList: true,
           characterData: true,
           characterDataOldValue: true,
           subtree: true,
         });
-        Observer.gameEndObserver.observe(gameEndElement, {
+        DOMObserver.gameEndObserver.observe(gameEndElement, {
           childList: true,
           subtree: true,
         });
-        const newLogsToDispatch = Observer.getUndispatchedLogs(
-          Observer.logsProcessed,
-          Observer.gameLog
+        const newLogsToDispatch = DOMObserver.getUndispatchedLogs(
+          DOMObserver.logsProcessed,
+          DOMObserver.gameLog
         ) // Initial dispatch
           .split("\n")
           .slice();
-        Observer.decks.get(Observer.playerName)?.update(newLogsToDispatch);
-        Observer.dispatch(
+        DOMObserver.decks
+          .get(DOMObserver.playerName)
+          ?.update(newLogsToDispatch);
+        DOMObserver.dispatch(
           setPlayerDeck(
-            JSON.parse(JSON.stringify(Observer.decks.get(Observer.playerName)))
-          )
-        );
-        Observer.decks.get(Observer.opponentName)?.update(newLogsToDispatch);
-        Observer.dispatch(
-          setOpponentDeck(
             JSON.parse(
-              JSON.stringify(Observer.decks.get(Observer.opponentName))
+              JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
             )
           )
         );
-        Observer.logsProcessed = Observer.gameLog;
-        Observer.saveGameData(Observer.gameLog, Observer.decks);
+        DOMObserver.decks
+          .get(DOMObserver.opponentName)
+          ?.update(newLogsToDispatch);
+        DOMObserver.dispatch(
+          setOpponentDeck(
+            JSON.parse(
+              JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
+            )
+          )
+        );
+        DOMObserver.logsProcessed = DOMObserver.gameLog;
+        DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
       }
-      clearInterval(Observer.initInterval);
-      Observer.resetInterval = setInterval(resetCheckIntervalFunction, 1000);
+      clearInterval(DOMObserver.initInterval);
+      DOMObserver.resetInterval = setInterval(resetCheckIntervalFunction, 1000);
     }
   }
 
@@ -879,26 +1042,29 @@ export class Observer {
    */
   static logObserverFunc() {
     if (
-      Observer.areNewLogsToSend(Observer.logsProcessed, Observer.getGameLog())
+      DOMObserver.areNewLogsToSend(
+        DOMObserver.logsProcessed,
+        DOMObserver.getClientGameLog()
+      )
     ) {
-      const gameLog = Observer.getGameLog();
+      const gameLog = DOMObserver.getClientGameLog();
       const { playerStoreDeck, opponentStoreDeck } =
-        Observer.getNewLogsAndUpdateDecks(
-          Observer.logsProcessed,
+        DOMObserver.getNewLogsAndUpdateDecks(
+          DOMObserver.logsProcessed,
           gameLog,
-          Observer.getUndispatchedLogs,
-          Observer.decks,
-          Observer.playerName,
-          Observer.opponentName
+          DOMObserver.getUndispatchedLogs,
+          DOMObserver.decks,
+          DOMObserver.playerName,
+          DOMObserver.opponentName
         );
-      Observer.dispatchUpdatedDecksToRedux(
-        Observer.dispatch,
+      DOMObserver.dispatchUpdatedDecksToRedux(
+        DOMObserver.dispatch,
         setPlayerDeck,
         setOpponentDeck,
         playerStoreDeck,
         opponentStoreDeck
       );
-      Observer.logsProcessed = gameLog;
+      DOMObserver.logsProcessed = gameLog;
     }
   }
 
@@ -908,31 +1074,32 @@ export class Observer {
    * 2) Disconnects the mutation observer
    */
   static resetGame() {
-    Observer.playersInitialized = false;
-    Observer.logInitialized = false;
-    Observer.kingdomInitialized = false;
-    Observer.playerDeckInitialized = false;
-    Observer.logsProcessed;
-    Observer.logsProcessed = "";
-    Observer.gameLog = "";
-    Observer.playerName = "";
-    Observer.opponentName = "";
-    Observer.decks = new Map();
-    Observer.kingdom = [];
-    Observer.baseOnly = true;
-    Observer.dispatch(setBaseOnly(true));
-    if (Observer.gameLogObserver !== undefined)
-      Observer.gameLogObserver.disconnect();
-    if (Observer.gameEndObserver !== undefined)
-      Observer.gameEndObserver.disconnect();
-    if (Observer.undoObserver !== undefined) Observer.undoObserver.disconnect();
+    DOMObserver.playersInitialized = false;
+    DOMObserver.logInitialized = false;
+    DOMObserver.kingdomInitialized = false;
+    DOMObserver.decksInitialized = false;
+    DOMObserver.logsProcessed;
+    DOMObserver.logsProcessed = "";
+    DOMObserver.gameLog = "";
+    DOMObserver.playerName = "";
+    DOMObserver.opponentName = "";
+    DOMObserver.decks = new Map();
+    DOMObserver.kingdom = [];
+    DOMObserver.baseOnly = true;
+    DOMObserver.dispatch(setBaseOnly(true));
+    if (DOMObserver.gameLogObserver !== undefined)
+      DOMObserver.gameLogObserver.disconnect();
+    if (DOMObserver.gameEndObserver !== undefined)
+      DOMObserver.gameEndObserver.disconnect();
+    if (DOMObserver.undoObserver !== undefined)
+      DOMObserver.undoObserver.disconnect();
   }
 
   static resetDeckState() {
-    Observer.dispatch(
+    DOMObserver.dispatch(
       setOpponentDeck(JSON.parse(JSON.stringify(new EmptyOpponentDeck())))
     );
-    Observer.dispatch(
+    DOMObserver.dispatch(
       setPlayerDeck(JSON.parse(JSON.stringify(new EmptyDeck())))
     );
   }
@@ -943,7 +1110,7 @@ export class Observer {
    * @param event - The BeforeUnloadEvent
    */
   static saveBeforeUnload() {
-    Observer.saveGameData(Observer.gameLog, Observer.decks);
+    DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
   }
 
   static showSavedData() {
@@ -991,8 +1158,11 @@ export class Observer {
       if (gameLogRemoved && gameLogAdded) break;
     }
     if (gameLogRemoved && gameLogAdded) {
-      clearInterval(Observer.resetInterval);
-      Observer.initInterval = setInterval(Observer.initIntervalFunction, 1000);
+      clearInterval(DOMObserver.resetInterval);
+      DOMObserver.initInterval = setInterval(
+        DOMObserver.initIntervalFunction,
+        1000
+      );
     }
   }
 
@@ -1002,9 +1172,9 @@ export class Observer {
   ) {
     const savedGame: SavedGame = {
       logArchive: gameLog,
-      playerDeck: JSON.parse(JSON.stringify(decks.get(Observer.playerName))),
+      playerDeck: JSON.parse(JSON.stringify(decks.get(DOMObserver.playerName))),
       opponentDeck: JSON.parse(
-        JSON.stringify(decks.get(Observer.opponentName))
+        JSON.stringify(decks.get(DOMObserver.opponentName))
       ),
       dateTime: new Date().toString(),
       logHtml: document.getElementsByClassName("game-log")[0].innerHTML,
@@ -1023,7 +1193,7 @@ export class Observer {
         [title]: savedGame,
       });
       chrome.storage.local.get([...gameKeys]).then((result) => {
-        Observer.dispatch(setSavedGames(result));
+        DOMObserver.dispatch(setSavedGames(result));
       });
     });
   }
