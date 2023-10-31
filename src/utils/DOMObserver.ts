@@ -22,35 +22,20 @@ export class DOMObserver {
    * if unsupported cards are detected.
    */
   static baseOnly: boolean = true;
-  static getBaseOnly() {
-    return DOMObserver.baseOnly;
-  }
-  static setBaseOnly(baseOnly: boolean): void {
-    DOMObserver.baseOnly = baseOnly;
-  }
   /**
    * Holds the values of the Deck objects.  The playerName and opponentName are used as the
    * keys for the corresponding Deck objects
    * Use - The decks track the game state for players. The update() method is
    * invoked on these Deck objects.
    */
-  static decks: Map<string, Deck | OpponentDeck> = new Map();
-  static getDecks(): Map<string, Deck | OpponentDeck> {
-    return DOMObserver.decks;
-  }
-  static setDecks(decks: Map<string, Deck | OpponentDeck>): void {
-    DOMObserver.decks = decks;
-  }
+  static decks: Map<string, Deck | OpponentDeck> = new Map([
+    ["", new Deck("", false, "", "", "", [])],
+    ["", new OpponentDeck("", false, "", "", "", [])],
+  ]);
   /**
    * Redux dispatcher.
    */
   static dispatch: Dispatch<AnyAction> = store.dispatch;
-  static getDispatch(): Dispatch<AnyAction> {
-    return DOMObserver.dispatch;
-  }
-  static setDispatch(dispatch: Dispatch<AnyAction>): void {
-    DOMObserver.dispatch = dispatch;
-  }
   /**
    * Holds the value of the ".game-log" innerText from the client DOM.
    * Use 1 - When new content is detected in the client ".game-log" element, this variable is updated to contain the value
@@ -59,13 +44,6 @@ export class DOMObserver {
    * to determine which logs to use when invoking the Deck objects' update() methods.
    */
   static gameLog: string = "";
-  static getGameLog(): string {
-    return DOMObserver.gameLog;
-  }
-  static setGameLog(gameLog: string): void {
-    DOMObserver.gameLog = gameLog;
-  }
-
   /**
    * Use - Flow control.
    * False value means the Deck objects that will be used to track the game state are not yet created.
@@ -73,57 +51,25 @@ export class DOMObserver {
    * object has been assigned to the value of the 'opponentDeck' global variable.
    */
   static decksInitialized: boolean = false;
-  static getDecksInitialized(): boolean {
-    return DOMObserver.decksInitialized;
-  }
-  static setDecksInitialized(decksInitialized: boolean): void {
-    DOMObserver.decksInitialized = decksInitialized;
-  }
-  /**
-   * Game log MutationObserver.  Detects changes in the game-log and triggers deck updates.
-   */
-  static gameLogObserver: MutationObserver | undefined;
-  static getGameLogObserver(): MutationObserver | undefined {
-    return DOMObserver.gameLogObserver;
-  }
-  static setGameLogObserver(gameLogObserver: MutationObserver | undefined) {
-    DOMObserver.gameLogObserver = gameLogObserver;
-  }
   /**
    * Game end MutationObserver.  Detects changes in the game end element, and triggers
    * the game end handler,
    */
   static gameEndObserver: MutationObserver | undefined;
-  static getGameEndObserver(): MutationObserver | undefined {
-    return DOMObserver.gameEndObserver;
-  }
-  static setGameEndObserver(
-    gameEndObserver: MutationObserver | undefined
-  ): void {
-    DOMObserver.gameEndObserver = gameEndObserver;
-  }
+  /**
+   * Game log MutationObserver.  Detects changes in the game-log and triggers deck updates.
+   */
+  static gameLogObserver: MutationObserver | undefined;
   /**
    * Use - Flow control.
    * False value means the 'gameLog' global is not yet initialized.
    * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
    */
   static logInitialized: boolean = false;
-  static getLogInitialized(): boolean {
-    return DOMObserver.logInitialized;
-  }
-  static setLogInitialized(logInitialized: boolean): void {
-    DOMObserver.logInitialized = logInitialized;
-  }
   /**
    * Holds identifier for the initInterval - When no game is active, used to set an interval to periodically check if a game has become active,
    */
   static initInterval: NodeJS.Timeout | number;
-  static getInitInterval(): NodeJS.Timeout | number {
-    return DOMObserver.initInterval;
-  }
-  static setInitInterval(initInterval: NodeJS.Timeout | number) {
-    DOMObserver.initInterval = initInterval;
-  }
   /**
    * Holds the value of which logs have already been sent to the Deck objects.
    * Use - Flow control.
@@ -132,138 +78,195 @@ export class DOMObserver {
    * processed by the Decks.
    */
   static logsProcessed: string = "";
-  static getLogsProcessed(): string {
-    return DOMObserver.logsProcessed;
-  }
-  static setLogsProcessed(logsProcessed: string): void {
-    DOMObserver.logsProcessed = logsProcessed;
-  }
   /**
    * Holds the strings that define the cards available in the current game.
    * Use - invoking Deck object constructor
    */
   static kingdom: string[] = [];
-  static getKingdom(): string[] {
-    return DOMObserver.kingdom;
-  }
-  static setKingdom(kingdom: string[]) {
-    DOMObserver.kingdom = kingdom;
-  }
   /**
    * Use - Flow control
    * False value means the 'kingdom' global is not yet initialized.
    * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
    */
   static kingdomInitialized: boolean = false;
-  static getKingdomInitialized(): boolean {
-    return DOMObserver.kingdomInitialized;
-  }
-  static setKingdomInitialized(kingdomInitialized: boolean): void {
-    DOMObserver.kingdomInitialized = kingdomInitialized;
-  }
   /**
    * Stores the value of the opponent name.
    * Use - invoking Deck object constructor
    */
   static opponentName: string = "";
-  static getOpponentName(): string {
-    return DOMObserver.opponentName;
-  }
-  static setOpponentName(opponentName: string): void {
-    DOMObserver.opponentName = opponentName;
-  }
   /**
    * Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
    * Use - invoking Deck object constructor
    */
   static opponentNick: string = "";
-  static getOpponentNick(): string {
-    return DOMObserver.opponentNick;
-  }
-  static setOpponentNick(opponentNick: string): void {
-    DOMObserver.opponentNick = opponentNick;
-  }
   /**
    * Rating of the player of opponent deck.
    */
   static opponentRating: string = "";
-  static getOpponentRating(): string {
-    return DOMObserver.opponentRating;
-  }
-  static setOpponentRating(opponentRating: string): void {
-    DOMObserver.opponentRating = opponentRating;
-  }
   /**
    * Use - Flow control.
    * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
    * True value means they each hold the appropriate string collected from the elements in the client DOM.
    */
   static playersInitialized: boolean = false;
+  /**
+   * Stores the value of the player name.
+   * Use - invoking Deck object constructor
+   */
+  static playerName: string = "";
+  /**
+   * Stores the value of the player's abbreviated name used in the client ".game-log" element.
+   * Use - invoking Deck object constructor
+   */
+  static playerNick: string = "";
+  /**
+   * Rating of the player of the player deck
+   */
+  static playerRating: string = "";
+  /**
+   * Holds the value of whether or not the current game is rated.
+   * Use - Deck constructor invocation.
+   */
+  static ratedGame: boolean = true;
+  /**
+   * Holds identifier for the resetInterval - When a game is active, used to set an interval to periodically check if the game is still active,
+   * and if the game is not active, executes a game reset.
+   */
+  static resetInterval: NodeJS.Timeout | number;
+  /**
+   * Undo / rewind mutation observer.  Detects changes in the game log container and triggers
+   * the undo / rewind handler.
+   */
+  static undoObserver: MutationObserver | undefined;
+
+  static getBaseOnly() {
+    return DOMObserver.baseOnly;
+  }
+  static setBaseOnly(baseOnly: boolean): void {
+    DOMObserver.baseOnly = baseOnly;
+  }
+  static getDecks(): Map<string, Deck | OpponentDeck> {
+    return DOMObserver.decks;
+  }
+  static setDecks(decks: Map<string, Deck | OpponentDeck>): void {
+    DOMObserver.decks = decks;
+  }
+  static getDispatch(): Dispatch<AnyAction>  {
+    return DOMObserver.dispatch;
+  }
+  static setDispatch(dispatch: Dispatch<AnyAction> ): void {
+    DOMObserver.dispatch = dispatch;
+  }
+  static getGameLog(): string {
+    return DOMObserver.gameLog;
+  }
+  static setGameLog(gameLog: string): void {
+    DOMObserver.gameLog = gameLog;
+  }
+  static getDecksInitialized(): boolean {
+    return DOMObserver.decksInitialized;
+  }
+  static setDecksInitialized(decksInitialized: boolean): void {
+    DOMObserver.decksInitialized = decksInitialized;
+  }
+  static getGameEndObserver(): MutationObserver | undefined {
+    return DOMObserver.gameEndObserver;
+  }
+  static setGameEndObserver(
+    gameEndObserver: MutationObserver | undefined
+  ): void {
+    DOMObserver.gameEndObserver = gameEndObserver;
+  }
+  static getGameLogObserver(): MutationObserver | undefined {
+    return DOMObserver.gameLogObserver;
+  }
+  static setGameLogObserver(gameLogObserver: MutationObserver | undefined) {
+    DOMObserver.gameLogObserver = gameLogObserver;
+  }
+  static getLogInitialized(): boolean {
+    return DOMObserver.logInitialized;
+  }
+  static setLogInitialized(logInitialized: boolean): void {
+    DOMObserver.logInitialized = logInitialized;
+  }
+  static getInitInterval(): NodeJS.Timeout | number {
+    return DOMObserver.initInterval;
+  }
+  static setInitInterval(initInterval: NodeJS.Timeout | number) {
+    DOMObserver.initInterval = initInterval;
+  }
+  static getLogsProcessed(): string {
+    return DOMObserver.logsProcessed;
+  }
+  static setLogsProcessed(logsProcessed: string): void {
+    DOMObserver.logsProcessed = logsProcessed;
+  }
+  static getKingdom(): string[] {
+    return DOMObserver.kingdom;
+  }
+  static setKingdom(kingdom: string[]) {
+    DOMObserver.kingdom = kingdom;
+  }
+  static getKingdomInitialized(): boolean {
+    return DOMObserver.kingdomInitialized;
+  }
+  static setKingdomInitialized(kingdomInitialized: boolean): void {
+    DOMObserver.kingdomInitialized = kingdomInitialized;
+  }
+  static getOpponentName(): string {
+    return DOMObserver.opponentName;
+  }
+  static setOpponentName(opponentName: string): void {
+    DOMObserver.opponentName = opponentName;
+  }
+  static getOpponentNick(): string {
+    return DOMObserver.opponentNick;
+  }
+  static setOpponentNick(opponentNick: string): void {
+    DOMObserver.opponentNick = opponentNick;
+  }
+  static getOpponentRating(): string {
+    return DOMObserver.opponentRating;
+  }
+  static setOpponentRating(opponentRating: string): void {
+    DOMObserver.opponentRating = opponentRating;
+  }
   static getPlayersInitialized(): boolean {
     return DOMObserver.playersInitialized;
   }
   static setPlayersInitialized(playersInitialized: boolean): void {
     DOMObserver.playersInitialized = playersInitialized;
   }
-  /**
-   * Stores the value of the player name.
-   * Use - invoking Deck object constructor
-   */
-  static playerName: string = "";
   static getPlayerName(): string {
     return DOMObserver.playerName;
   }
   static setPlayerName(playerName: string): void {
     DOMObserver.playerName = playerName;
   }
-  /**
-   * Stores the value of the player's abbreviated name used in the client ".game-log" element.
-   * Use - invoking Deck object constructor
-   */
-  static playerNick: string = "";
   static getPlayerNick(): string {
     return DOMObserver.playerNick;
   }
   static setPlayerNick(playerNick: string): void {
     DOMObserver.playerNick = playerNick;
   }
-  /**
-   * Rating of the player of the player deck
-   */
-  static playerRating: string = "";
   static getPlayerRating(): string {
     return DOMObserver.playerRating;
   }
   static setPlayerRating(playerRating: string): void {
     DOMObserver.playerRating = playerRating;
   }
-  /**
-   * Holds the value of whether or not the current game is rated.
-   * Use - Deck constructor invocation.
-   */
-  static ratedGame: boolean = true;
   static getRatedGame(): boolean {
     return DOMObserver.ratedGame;
   }
   static setRatedGame(ratedGame: boolean): void {
     DOMObserver.ratedGame = ratedGame;
   }
-  /**
-   * Holds identifier for the resetInterval - When a game is active, used to set an interval to periodically check if the game is still active,
-   * and if the game is not active, executes a game reset.
-   */
-  static resetInterval: NodeJS.Timeout | number;
   static getResetInterval(): NodeJS.Timeout | number {
     return DOMObserver.resetInterval;
   }
   static setResetInterval(resetInterval: NodeJS.Timeout | number): void {
     DOMObserver.resetInterval = resetInterval;
   }
-  /**
-   * Undo / rewind mutation observer.  Detects changes in the game log container and triggers
-   * the undo / rewind handler.
-   */
-  static undoObserver: MutationObserver | undefined;
   static getUndoObserver(): MutationObserver | undefined {
     return DOMObserver.undoObserver;
   }
