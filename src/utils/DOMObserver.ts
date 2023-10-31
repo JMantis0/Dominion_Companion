@@ -1074,18 +1074,17 @@ export class DOMObserver {
    * 2) Disconnects the mutation observer
    */
   static resetGame() {
-    DOMObserver.playersInitialized = false;
-    DOMObserver.logInitialized = false;
-    DOMObserver.kingdomInitialized = false;
-    DOMObserver.decksInitialized = false;
-    DOMObserver.logsProcessed;
-    DOMObserver.logsProcessed = "";
-    DOMObserver.gameLog = "";
-    DOMObserver.playerName = "";
-    DOMObserver.opponentName = "";
-    DOMObserver.decks = new Map();
-    DOMObserver.kingdom = [];
-    DOMObserver.baseOnly = true;
+    DOMObserver.setPlayersInitialized(false);
+    DOMObserver.setLogInitialized(false);
+    DOMObserver.setKingdomInitialized(false);
+    DOMObserver.setDecksInitialized(false);
+    DOMObserver.setLogsProcessed("");
+    DOMObserver.setGameLog("");
+    DOMObserver.setPlayerName("");
+    DOMObserver.setOpponentName("");
+    DOMObserver.setDecks(new Map());
+    DOMObserver.setKingdom([]);
+    DOMObserver.setBaseOnly(true);
     DOMObserver.dispatch(setBaseOnly(true));
     if (DOMObserver.gameLogObserver !== undefined)
       DOMObserver.gameLogObserver.disconnect();
@@ -1122,48 +1121,6 @@ export class DOMObserver {
         console.log("History Records: ", result);
       });
     });
-  }
-
-  /**
-   * Observes the log container element.  It is the parent element of game-log.  The function
-   * watches to see if it's child element game-log is removed and added in a single mutation list.
-   * If so, it means an undo or rewind has taken place, and the function clears the reset interval
-   * resets the init interval, effectively rewinding the extension.
-   *
-   * @param mutationList
-   */
-  static undoObserverFunc(mutationList: MutationRecord[]) {
-    let gameLogRemoved: boolean = false;
-    let gameLogAdded: boolean = false;
-    for (let j = 0; j < mutationList.length; j++) {
-      const mutation = mutationList[j];
-      if (mutation.removedNodes.length > 0) {
-        for (let i = 0; i < mutation.removedNodes.length; i++) {
-          let htmlNode = mutation.removedNodes[i].cloneNode() as HTMLElement;
-          if (htmlNode.className === "game-log") {
-            gameLogRemoved = true;
-            break;
-          }
-        }
-      }
-      if (mutation.addedNodes.length > 0) {
-        for (let i = 0; i < mutation.addedNodes.length; i++) {
-          let htmlNode = mutation.addedNodes[i].cloneNode() as HTMLElement;
-          if (htmlNode.className === "game-log") {
-            gameLogAdded = true;
-            break;
-          }
-        }
-      }
-      if (gameLogRemoved && gameLogAdded) break;
-    }
-    if (gameLogRemoved && gameLogAdded) {
-      clearInterval(DOMObserver.resetInterval);
-      DOMObserver.initInterval = setInterval(
-        DOMObserver.initIntervalFunction,
-        1000
-      );
-    }
   }
 
   static async saveGameData(
@@ -1226,5 +1183,47 @@ export class DOMObserver {
       updatedDecks.get(opponentName)!.setGameResult("Tie");
     }
     return updatedDecks;
+  }
+
+  /**
+   * Observes the log container element.  It is the parent element of game-log.  The function
+   * watches to see if it's child element game-log is removed and added in a single mutation list.
+   * If so, it means an undo or rewind has taken place, and the function clears the reset interval
+   * resets the init interval, effectively rewinding the extension.
+   *
+   * @param mutationList
+   */
+  static undoObserverFunc(mutationList: MutationRecord[]) {
+    let gameLogRemoved: boolean = false;
+    let gameLogAdded: boolean = false;
+    for (let j = 0; j < mutationList.length; j++) {
+      const mutation = mutationList[j];
+      if (mutation.removedNodes.length > 0) {
+        for (let i = 0; i < mutation.removedNodes.length; i++) {
+          let htmlNode = mutation.removedNodes[i].cloneNode() as HTMLElement;
+          if (htmlNode.className === "game-log") {
+            gameLogRemoved = true;
+            break;
+          }
+        }
+      }
+      if (mutation.addedNodes.length > 0) {
+        for (let i = 0; i < mutation.addedNodes.length; i++) {
+          let htmlNode = mutation.addedNodes[i].cloneNode() as HTMLElement;
+          if (htmlNode.className === "game-log") {
+            gameLogAdded = true;
+            break;
+          }
+        }
+      }
+      if (gameLogRemoved && gameLogAdded) break;
+    }
+    if (gameLogRemoved && gameLogAdded) {
+      clearInterval(DOMObserver.resetInterval);
+      DOMObserver.initInterval = setInterval(
+        DOMObserver.initIntervalFunction,
+        1000
+      );
+    }
   }
 }
