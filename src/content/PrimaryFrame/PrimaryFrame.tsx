@@ -1,6 +1,5 @@
 /*global chrome*/
 import React, { useEffect } from "react";
-// import "jquery-ui-bundle/jquery-ui.css";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -16,6 +15,7 @@ import {
   chromeListenerUseEffectHandler,
   getPrimaryFrameStatus,
 } from "../../utils/utils";
+import { DOMObserver } from "../../utils/DOMObserver";
 import $ from "jquery";
 import "jqueryui/jquery-ui.css";
 // import DevDisplay from "./DevDisplay/DevDisplay";
@@ -33,6 +33,8 @@ const PrimaryFrame = () => {
     (state: RootState) => state.content.primaryFrameTab
   );
   useEffect(() => {
+    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    DOMObserver.initInterval = setInterval(DOMObserver.initIntervalFunction, 1000);
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
@@ -41,6 +43,9 @@ const PrimaryFrame = () => {
         getPrimaryFrameStatus
       );
     return () => {
+      clearInterval(DOMObserver.initInterval);
+      clearInterval(DOMObserver.resetInterval);
+      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
       if (chrome.runtime !== undefined)
         chromeListenerUseEffectHandler(
           "Remove",

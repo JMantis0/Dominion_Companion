@@ -1,10 +1,13 @@
 import { expect, describe, it, jest } from "@jest/globals";
 import { AnyAction, Dispatch } from "redux";
-import { setOpponentDeck, setPlayerDeck } from "../../src/redux/contentSlice";
-import { OpponentStoreDeck, StoreDeck } from "../../src/utils";
-import { Deck } from "../../src/model/deck";
-import { OpponentDeck } from "../../src/model/opponentDeck";
-import { dispatchUpdatedDecksToRedux } from "../../src/utils/utils";
+import {
+  setOpponentDeck,
+  setPlayerDeck,
+} from "../../../src/redux/contentSlice";
+import { OpponentStoreDeck, StoreDeck } from "../../../src/utils";
+import { Deck } from "../../../src/model/deck";
+import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { DOMObserver } from "../../../src/utils/DOMObserver";
 
 describe("Function dispatchUpdatedDecksToRedux()", () => {
   // Arrange
@@ -30,8 +33,7 @@ describe("Function dispatchUpdatedDecksToRedux()", () => {
 
   it("should dispatch the setPlayerDeck and setOpponentDeck actions with the provided decks.", () => {
     // Act - simulate dispatching the actions with the provided decks.
-
-    dispatchUpdatedDecksToRedux(
+    DOMObserver.dispatchUpdatedDecksToRedux(
       dispatchMock,
       setPlayerDeck,
       setOpponentDeck,
