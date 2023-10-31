@@ -82,22 +82,24 @@ export class DOMObserver {
   /**
    * Game log MutationObserver.  Detects changes in the game-log and triggers deck updates.
    */
-  static gameLogObserver: MutationObserver;
-  static getGameLogObserver(): MutationObserver {
+  static gameLogObserver: MutationObserver | undefined;
+  static getGameLogObserver(): MutationObserver | undefined {
     return DOMObserver.gameLogObserver;
   }
-  static setGameLogObserver(gameLogObserver: MutationObserver) {
+  static setGameLogObserver(gameLogObserver: MutationObserver | undefined) {
     DOMObserver.gameLogObserver = gameLogObserver;
   }
   /**
    * Game end MutationObserver.  Detects changes in the game end element, and triggers
    * the game end handler,
    */
-  static gameEndObserver: MutationObserver;
-  static getGameEndObserver(): MutationObserver {
+  static gameEndObserver: MutationObserver | undefined;
+  static getGameEndObserver(): MutationObserver | undefined {
     return DOMObserver.gameEndObserver;
   }
-  static setGameEndObserver(gameEndObserver: MutationObserver): void {
+  static setGameEndObserver(
+    gameEndObserver: MutationObserver | undefined
+  ): void {
     DOMObserver.gameEndObserver = gameEndObserver;
   }
   /**
@@ -261,11 +263,11 @@ export class DOMObserver {
    * Undo / rewind mutation observer.  Detects changes in the game log container and triggers
    * the undo / rewind handler.
    */
-  static undoObserver: MutationObserver;
-  static getUndoObserver(): MutationObserver {
+  static undoObserver: MutationObserver | undefined;
+  static getUndoObserver(): MutationObserver | undefined {
     return DOMObserver.undoObserver;
   }
-  static setUndoObserver(undoObserver: MutationObserver): void {
+  static setUndoObserver(undoObserver: MutationObserver | undefined): void {
     DOMObserver.undoObserver = undoObserver;
   }
 
