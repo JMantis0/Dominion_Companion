@@ -461,51 +461,6 @@ const getCountsFromArray = (
 };
 
 /**
- * Classic function that returns the probability of getting a certain number of successes from a set of elements.
- * @param populationSize  - Size of the population
- * @param populationSuccesses - Number of successes in the population
- * @param sampleSize - The sample size to be picked at random from the population
- * @param sampleSuccesses - The number of successes in the sample.
- * @returns - The probability that there will be  exactly the given number of successes in a sample.
- */
-const hyperGeometricProbability = (
-  populationSize: number,
-  populationSuccesses: number,
-  sampleSize: number,
-  sampleSuccesses: number
-): number => {
-  let hyperGeometricProbability: number;
-  /**
-   * Hypergeometric formula has the following restrictions:
-   * 0 <= x <= n
-   * x <= k
-   * n - x <= N - k
-   * Probability for any set of parameter values outside these restrictions have a probability of 0
-   * The first 4 if/else below code in these restrictions.
-   */
-  if (!(0 <= sampleSuccesses)) {
-    hyperGeometricProbability = 0;
-  } else if (!(sampleSuccesses <= sampleSize)) {
-    hyperGeometricProbability = 0;
-  } else if (!(sampleSuccesses <= populationSuccesses)) {
-    hyperGeometricProbability = 0;
-  } else if (
-    !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
-  ) {
-    hyperGeometricProbability = 0;
-  } else {
-    hyperGeometricProbability =
-      (combinations(populationSuccesses, sampleSuccesses) *
-        combinations(
-          populationSize - populationSuccesses,
-          sampleSize - sampleSuccesses
-        )) /
-      combinations(populationSize, sampleSize);
-  }
-  return hyperGeometricProbability;
-};
-
-/**
  * Function returns the hypergeometric and cumulative hypergeometric probabilities that the given card will be drawn in the next
  * given number of draws.
  * @param deck - The player's StoreDeck.
@@ -645,15 +600,11 @@ const getNewLogsAndUpdateDecks = (
   playerName: string,
   opponentName: string
 ): { playerStoreDeck: StoreDeck; opponentStoreDeck: OpponentStoreDeck } => {
-  try {
-    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
-      .split("\n")
-      .slice();
-    deckMap.get(playerName)?.update(newLogsToDispatch);
-    deckMap.get(opponentName)?.update(newLogsToDispatch);
-  } catch (e) {
-    console.log(e);
-  }
+  const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+    .split("\n")
+    .slice();
+  deckMap.get(playerName)?.update(newLogsToDispatch);
+  deckMap.get(opponentName)?.update(newLogsToDispatch);
   return {
     playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
     opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
@@ -857,6 +808,7 @@ const getResult = (
     victor = "None: tie";
     defeated = "None: tie";
   }
+
   return [victor, defeated];
 };
 
@@ -884,6 +836,14 @@ const getRowColor = (cardName: string): string => {
     color = reactionClass;
   } else color = actionClass;
   return color;
+};
+
+const getTimeOutElements = (): HTMLCollectionOf<HTMLElement> => {
+  let timeOutElements: HTMLCollectionOf<HTMLElement>;
+  timeOutElements = document
+    .getElementsByTagName("game-ended-notification")[0]
+    .getElementsByClassName("timeout") as HTMLCollectionOf<HTMLElement>;
+  return timeOutElements;
 };
 
 /**
@@ -924,6 +884,51 @@ const getUndispatchedLogs = (
     }
   }
   return undispatchedLogs!;
+};
+
+/**
+ * Classic function that returns the probability of getting a certain number of successes from a set of elements.
+ * @param populationSize  - Size of the population
+ * @param populationSuccesses - Number of successes in the population
+ * @param sampleSize - The sample size to be picked at random from the population
+ * @param sampleSuccesses - The number of successes in the sample.
+ * @returns - The probability that there will be  exactly the given number of successes in a sample.
+ */
+const hyperGeometricProbability = (
+  populationSize: number,
+  populationSuccesses: number,
+  sampleSize: number,
+  sampleSuccesses: number
+): number => {
+  let hyperGeometricProbability: number;
+  /**
+   * Hypergeometric formula has the following restrictions:
+   * 0 <= x <= n
+   * x <= k
+   * n - x <= N - k
+   * Probability for any set of parameter values outside these restrictions have a probability of 0
+   * The first 4 if/else below code in these restrictions.
+   */
+  if (!(0 <= sampleSuccesses)) {
+    hyperGeometricProbability = 0;
+  } else if (!(sampleSuccesses <= sampleSize)) {
+    hyperGeometricProbability = 0;
+  } else if (!(sampleSuccesses <= populationSuccesses)) {
+    hyperGeometricProbability = 0;
+  } else if (
+    !(sampleSize - sampleSuccesses <= populationSize - populationSuccesses)
+  ) {
+    hyperGeometricProbability = 0;
+  } else {
+    hyperGeometricProbability =
+      (combinations(populationSuccesses, sampleSuccesses) *
+        combinations(
+          populationSize - populationSuccesses,
+          sampleSize - sampleSuccesses
+        )) /
+      combinations(populationSize, sampleSize);
+  }
+  return hyperGeometricProbability;
 };
 
 /**
@@ -1311,6 +1316,36 @@ const product_Range = (a: number, b: number): number => {
     prd *= i;
   }
   return prd;
+};
+
+/**
+ * Sets the given results to the given decks and returns the updated decks.
+ * @param victor - The name of the winner of the game.
+ * @param defeated - The name of the loser of the game.
+ * @param playerName - The player's name.
+ * @param opponentName - The opponent's name
+ * @param decks - The map containing the decks.
+ * @returns - The updated decks.
+ */
+const setDecksGameResults = (
+  victor: string,
+  defeated: string,
+  playerName: string,
+  opponentName: string,
+  decks: Map<string, Deck | OpponentDeck>
+): Map<string, Deck | OpponentDeck> => {
+  let updatedDecks = new Map(decks);
+  if (victor === playerName) {
+    updatedDecks.get(playerName)!.setGameResult("Victory");
+    updatedDecks.get(opponentName)!.setGameResult("Defeat");
+  } else if (defeated === playerName) {
+    updatedDecks.get(opponentName)!.setGameResult("Victory");
+    updatedDecks.get(playerName)!.setGameResult("Defeat");
+  } else {
+    updatedDecks.get(playerName)!.setGameResult("Tie");
+    updatedDecks.get(opponentName)!.setGameResult("Tie");
+  }
+  return updatedDecks;
 };
 
 /**
@@ -1800,6 +1835,7 @@ export {
   getRatedGameBoolean,
   getResult,
   getRowColor,
+  getTimeOutElements,
   getUndispatchedLogs,
   hyperGeometricProbability,
   isErrorWithMessage,
@@ -1820,6 +1856,7 @@ export {
   onTurnToggleButtonClick,
   processLogMutations,
   product_Range,
+  setDecksGameResults,
   sortHistoryDeckView,
   sortMainViewer,
   sortTwoCardsByAmount,

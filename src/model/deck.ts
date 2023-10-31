@@ -1,4 +1,7 @@
-import { getLogScrollContainerLogLines } from "../utils/utils";
+import {
+  getLogScrollContainerLogLines,
+  toErrorWithMessage,
+} from "../utils/utils";
 import type { StoreDeck } from "../utils";
 import { BaseDeck } from "./baseDeck";
 
@@ -201,43 +204,75 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (vassalPlayInLogs) {
       // try {
       let logScrollElement = getLogScrollContainerLogLines();
-      let currentLinePaddingNumber: number;
-      let currentLinePaddingPercentage: string;
-      currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
-      if (
-        currentLinePaddingPercentage[
-          currentLinePaddingPercentage.length - 1
-        ] === "%"
-      ) {
-        currentLinePaddingNumber = parseFloat(
-          currentLinePaddingPercentage.slice(
-            0,
+      try {
+        let currentLinePaddingNumber: number;
+        let currentLinePaddingPercentage: string;
+        currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
+        if (
+          currentLinePaddingPercentage[
             currentLinePaddingPercentage.length - 1
-          )
-        );
-      } else
-        throw new Error(
-          "Current line paddingLeft property does not end with %."
-        );
-      let previousLinePaddingNumber: number;
-      let previousLinePaddingPercentage: string;
-      previousLinePaddingPercentage =
-        logScrollElement[len - 1].style.paddingLeft;
-      if (previousLinePaddingPercentage.slice(-1) === "%") {
-        previousLinePaddingNumber = parseFloat(
-          previousLinePaddingPercentage.slice(
-            0,
-            previousLinePaddingPercentage.length - 1
-          )
-        );
-      } else
-        throw new Error(
+          ] === "%"
+        ) {
+          currentLinePaddingNumber = parseFloat(
+            currentLinePaddingPercentage.slice(
+              0,
+              currentLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Current line paddingLeft property does not end with %."
+          );
+        let previousLinePaddingNumber: number;
+        let previousLinePaddingPercentage: string;
+        previousLinePaddingPercentage =
+          logScrollElement[len - 1].style.paddingLeft;
+        if (previousLinePaddingPercentage.slice(-1) === "%") {
+          previousLinePaddingNumber = parseFloat(
+            previousLinePaddingPercentage.slice(
+              0,
+              previousLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Previous line paddingLeft property does not end with %."
+          );
+        if (currentLinePaddingNumber < previousLinePaddingNumber) {
+          vassalPlay = false;
+        } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
+          vassalPlay = true;
+        }
+      } catch (e) {
+        if (
+          toErrorWithMessage(e).message ===
           "Previous line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "Previous line paddingLeft property does not end with %."
+          );
+        else if (
+          toErrorWithMessage(e).message ===
+          "Current line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "Current line paddingLeft property does not end with %."
+          );
+        console.log(e);
+        console.log(toErrorWithMessage(e).message);
+        console.log(
+          `Error in checkForVassalPlay.  Tried to access the ${len}th and ${
+            len - 1
+          }th element of the log scroll element.`
         );
-      if (currentLinePaddingNumber < previousLinePaddingNumber) {
-        vassalPlay = false;
-      } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
-        vassalPlay = true;
+        console.log(
+          "The logScrollElement has length " + logScrollElement.length
+        );
+        console.log("the logScrollElement is ", logScrollElement);
+        console.log("The logArchive is ", this.logArchive);
+        console.log(
+          "Was expecting to compare the paddingLeft of the last line of the logSCroll element with the 2nd last line of the logScroll Element."
+        );
       }
     }
     return vassalPlay;
@@ -522,7 +557,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       null
     );
   }
-  
+
   /**
    * Function called when checking for source of a gain.  Returns whether
    * or not the gain was from an Bureaucrat.
@@ -536,7 +571,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
-   * Function returns boolean for whether the gain on the given line is 
+   * Function returns boolean for whether the gain on the given line is
    * gained by a Mine.
    * @param line = The current line being processed
    */
