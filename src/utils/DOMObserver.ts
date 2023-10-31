@@ -151,10 +151,10 @@ export class DOMObserver {
   static setDecks(decks: Map<string, Deck | OpponentDeck>): void {
     DOMObserver.decks = decks;
   }
-  static getDispatch(): Dispatch<AnyAction>  {
+  static getDispatch(): Dispatch<AnyAction> {
     return DOMObserver.dispatch;
   }
-  static setDispatch(dispatch: Dispatch<AnyAction> ): void {
+  static setDispatch(dispatch: Dispatch<AnyAction>): void {
     DOMObserver.dispatch = dispatch;
   }
   static getGameLog(): string {
@@ -803,6 +803,7 @@ export class DOMObserver {
     }
     return undispatchedLogs!;
   }
+
   /**
    * Control flow function.
    * @returns boolean, true if all four of the globals within are true.
@@ -827,80 +828,67 @@ export class DOMObserver {
   static initIntervalFunction() {
     console.log("Init interval function.");
     DOMObserver.resetGame();
-    if (!DOMObserver.logInitialized) {
-      console.log("Checking for log presence...");
-      if (DOMObserver.isGameLogPresent()) {
-        console.log("Game log present, initializing...");
-        DOMObserver.gameLog = DOMObserver.getClientGameLog();
-        DOMObserver.ratedGame = DOMObserver.getRatedGameBoolean(
-          DOMObserver.gameLog.split("\n")[0]
+
+    console.log("Checking for log presence...");
+    DOMObserver.logInitializer();
+
+    console.log("Checking for player elements presence...");
+    if (DOMObserver.arePlayerInfoElementsPresent()) {
+      console.log("playerElements present, initializing...");
+      [DOMObserver.playerName, DOMObserver.opponentName] =
+        DOMObserver.getPlayerAndOpponentNameByComparingElementPosition(
+          DOMObserver.getPlayerInfoElements()
         );
-        DOMObserver.logInitialized = true;
-      }
-    }
-    if (!DOMObserver.playersInitialized) {
-      console.log("Checking for player elements presence...");
-      if (DOMObserver.arePlayerInfoElementsPresent()) {
-        console.log("playerElements present, initializing...");
-        [DOMObserver.playerName, DOMObserver.opponentName] =
-          DOMObserver.getPlayerAndOpponentNameByComparingElementPosition(
-            DOMObserver.getPlayerInfoElements()
-          );
-        [DOMObserver.playerNick, DOMObserver.opponentNick] =
-          DOMObserver.getPlayerNameAbbreviations(
-            DOMObserver.gameLog,
-            DOMObserver.playerName
-          );
-        DOMObserver.playersInitialized = true;
-        if (DOMObserver.ratedGame) {
-          [DOMObserver.playerRating, DOMObserver.opponentRating] =
-            DOMObserver.getPlayerRatings(
-              DOMObserver.playerName,
-              DOMObserver.opponentName,
-              DOMObserver.gameLog
-            );
-        }
-      }
-    }
-    if (!DOMObserver.kingdomInitialized) {
-      console.log("Checking for kingdom presence...");
-      if (DOMObserver.isKingdomElementPresent()) {
-        console.log("Kingdom present, initializing...");
-        DOMObserver.kingdom = DOMObserver.getClientKingdom();
-        DOMObserver.baseOnly = DOMObserver.baseKingdomCardCheck(
-          DOMObserver.kingdom
+      [DOMObserver.playerNick, DOMObserver.opponentNick] =
+        DOMObserver.getPlayerNameAbbreviations(
+          DOMObserver.gameLog,
+          DOMObserver.playerName
         );
-        DOMObserver.dispatch(setBaseOnly(DOMObserver.baseOnly));
-        if (!DOMObserver.baseOnly) {
-          console.error(
-            "Game is not intended for cards outside of the Base Set"
+      if (DOMObserver.ratedGame) {
+        [DOMObserver.playerRating, DOMObserver.opponentRating] =
+          DOMObserver.getPlayerRatings(
+            DOMObserver.playerName,
+            DOMObserver.opponentName,
+            DOMObserver.gameLog
           );
-        }
-        DOMObserver.kingdomInitialized = true;
       }
+      DOMObserver.playersInitialized = true;
     }
-    if (!DOMObserver.decksInitialized) {
-      console.log("Checking decks presence");
-      if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
-        console.log("Decks not created... initializing decks.");
-        DOMObserver.decks = DOMObserver.createPlayerDecks(
-          DOMObserver.gameLog
-            .split("\n")[0]
-            .substring(
-              0,
-              DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1
-            ),
-          DOMObserver.ratedGame,
-          DOMObserver.playerName,
-          DOMObserver.playerNick,
-          DOMObserver.playerRating,
-          DOMObserver.opponentName,
-          DOMObserver.opponentNick,
-          DOMObserver.opponentRating,
-          DOMObserver.kingdom
-        );
-        DOMObserver.decksInitialized = true;
+
+    console.log("Checking for kingdom presence...");
+    if (DOMObserver.isKingdomElementPresent()) {
+      console.log("Kingdom present, initializing...");
+      DOMObserver.kingdom = DOMObserver.getClientKingdom();
+      DOMObserver.baseOnly = DOMObserver.baseKingdomCardCheck(
+        DOMObserver.kingdom
+      );
+      DOMObserver.dispatch(setBaseOnly(DOMObserver.baseOnly));
+      if (!DOMObserver.baseOnly) {
+        console.error("Game is not intended for cards outside of the Base Set");
       }
+      DOMObserver.kingdomInitialized = true;
+    }
+
+    console.log("Checking decks presence");
+    if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
+      console.log("Decks not created... initializing decks.");
+      DOMObserver.decks = DOMObserver.createPlayerDecks(
+        DOMObserver.gameLog
+          .split("\n")[0]
+          .substring(
+            0,
+            DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1
+          ),
+        DOMObserver.ratedGame,
+        DOMObserver.playerName,
+        DOMObserver.playerNick,
+        DOMObserver.playerRating,
+        DOMObserver.opponentName,
+        DOMObserver.opponentNick,
+        DOMObserver.opponentRating,
+        DOMObserver.kingdom
+      );
+      DOMObserver.decksInitialized = true;
     }
 
     const resetCheckIntervalFunction = () => {
@@ -1029,6 +1017,20 @@ export class DOMObserver {
    */
   static isMerchantBonusLine(logLine: string): boolean {
     return logLine.match(/ gets \+\$\d+\. \(Merchant\)/) !== null;
+  }
+
+  /**
+   * Initialization function.  Checks the DOM for the presence of a game-log element and
+   * if present initializes the gameLog and ratedGame fields.
+   */
+  static logInitializer(): void {
+    if (DOMObserver.isGameLogPresent()) {
+      DOMObserver.setGameLog(DOMObserver.getClientGameLog());
+      DOMObserver.setRatedGame(
+        DOMObserver.getRatedGameBoolean(DOMObserver.gameLog.split("\n")[0])
+      );
+      DOMObserver.setLogInitialized(true);
+    }
   }
 
   /**
