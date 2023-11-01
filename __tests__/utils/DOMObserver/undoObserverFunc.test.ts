@@ -35,9 +35,10 @@ describe("undoObserverCallback", () => {
       const logContainer = document.createElement("div");
       document.body.appendChild(logContainer);
       logContainer.appendChild(gameLogElement);
+      //Create observer to watch the logContainer
       const mockObserver = new MutationObserver(
         (mutationList: MutationRecord[]) => {
-          // Collect the MutationRecord[] to be used in the test.
+          // Collect the MutationRecord[] to be used in the test within mutation callback.
           mutationListMock = mutationList;
         }
       );

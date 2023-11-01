@@ -1,7 +1,9 @@
+import { GameResult } from "../utils";
+
 export class EmptyDeck {
   gameTitle: string = "";
   gameTurn: number = NaN;
-  gameResult: string = "";
+  gameResult: GameResult = "Unfinished";
   ratedGame: boolean = false;
   rating: string = "";
   entireDeck: Array<string> = [];
