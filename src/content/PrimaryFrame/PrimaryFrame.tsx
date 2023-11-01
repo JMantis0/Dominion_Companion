@@ -34,7 +34,7 @@ const PrimaryFrame = () => {
   );
   useEffect(() => {
     addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-    DOMObserver.initInterval = setInterval(DOMObserver.initIntervalFunction, 1000);
+    DOMObserver.initInterval = setInterval(DOMObserver.initIntervalCallback, 1000);
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
