@@ -33,9 +33,21 @@ export class DOMObserver {
     ["", new OpponentDeck("", false, "", "", "", [])],
   ]);
   /**
+   * Use - Flow control.
+   * False value means the Deck objects that will be used to track the game state are not yet created.
+   * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
+   * object has been assigned to the value of the 'opponentDeck' global variable.
+   */
+  static decksInitialized: boolean = false;
+  /**
    * Redux dispatcher.
    */
   static dispatch: Dispatch<AnyAction> = store.dispatch;
+  /**
+   * Game end MutationObserver.  Detects changes in the game end element, and triggers
+   * the game end handler,
+   */
+  static gameEndObserver: MutationObserver | undefined;
   /**
    * Holds the value of the ".game-log" innerText from the client DOM.
    * Use 1 - When new content is detected in the client ".game-log" element, this variable is updated to contain the value
@@ -45,39 +57,13 @@ export class DOMObserver {
    */
   static gameLog: string = "";
   /**
-   * Use - Flow control.
-   * False value means the Deck objects that will be used to track the game state are not yet created.
-   * True value means a Deck object has been assigned to the value of the 'playerDeck' and another Deck
-   * object has been assigned to the value of the 'opponentDeck' global variable.
-   */
-  static decksInitialized: boolean = false;
-  /**
-   * Game end MutationObserver.  Detects changes in the game end element, and triggers
-   * the game end handler,
-   */
-  static gameEndObserver: MutationObserver | undefined;
-  /**
    * Game log MutationObserver.  Detects changes in the game-log and triggers deck updates.
    */
   static gameLogObserver: MutationObserver | undefined;
   /**
-   * Use - Flow control.
-   * False value means the 'gameLog' global is not yet initialized.
-   * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
-   */
-  static logInitialized: boolean = false;
-  /**
    * Holds identifier for the initInterval - When no game is active, used to set an interval to periodically check if a game has become active,
    */
   static initInterval: NodeJS.Timeout | number;
-  /**
-   * Holds the value of which logs have already been sent to the Deck objects.
-   * Use - Flow control.
-   * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
-   * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
-   * processed by the Decks.
-   */
-  static logsProcessed: string = "";
   /**
    * Holds the strings that define the cards available in the current game.
    * Use - invoking Deck object constructor
@@ -89,6 +75,20 @@ export class DOMObserver {
    * True value means the 'kingdom' global holds an array of string collected from the ".kingdom-viewer" element in the client).
    */
   static kingdomInitialized: boolean = false;
+  /**
+   * Use - Flow control.
+   * False value means the 'gameLog' global is not yet initialized.
+   * True value means the 'gameLog' global holds a value collected from the ".game-log" element in the client).
+   */
+  static logInitialized: boolean = false;
+  /**
+   * Holds the value of which logs have already been sent to the Deck objects.
+   * Use - Flow control.
+   * Every time more logs are sent to the Deck object's update method, this variable is updated to include those
+   * logs.  This variable is used to control logic by comparing possible new logs to those that have already been
+   * processed by the Decks.
+   */
+  static logsProcessed: string = "";
   /**
    * Stores the value of the opponent name.
    * Use - invoking Deck object constructor
@@ -151,23 +151,17 @@ export class DOMObserver {
   static setDecks(decks: Map<string, Deck | OpponentDeck>): void {
     DOMObserver.decks = decks;
   }
-  static getDispatch(): Dispatch<AnyAction> {
-    return DOMObserver.dispatch;
-  }
-  static setDispatch(dispatch: Dispatch<AnyAction>): void {
-    DOMObserver.dispatch = dispatch;
-  }
-  static getGameLog(): string {
-    return DOMObserver.gameLog;
-  }
-  static setGameLog(gameLog: string): void {
-    DOMObserver.gameLog = gameLog;
-  }
   static getDecksInitialized(): boolean {
     return DOMObserver.decksInitialized;
   }
   static setDecksInitialized(decksInitialized: boolean): void {
     DOMObserver.decksInitialized = decksInitialized;
+  }
+  static getDispatch(): Dispatch<AnyAction> {
+    return DOMObserver.dispatch;
+  }
+  static setDispatch(dispatch: Dispatch<AnyAction>): void {
+    DOMObserver.dispatch = dispatch;
   }
   static getGameEndObserver(): MutationObserver | undefined {
     return DOMObserver.gameEndObserver;
@@ -177,29 +171,23 @@ export class DOMObserver {
   ): void {
     DOMObserver.gameEndObserver = gameEndObserver;
   }
+  static getGameLog(): string {
+    return DOMObserver.gameLog;
+  }
+  static setGameLog(gameLog: string): void {
+    DOMObserver.gameLog = gameLog;
+  }
   static getGameLogObserver(): MutationObserver | undefined {
     return DOMObserver.gameLogObserver;
   }
   static setGameLogObserver(gameLogObserver: MutationObserver | undefined) {
     DOMObserver.gameLogObserver = gameLogObserver;
   }
-  static getLogInitialized(): boolean {
-    return DOMObserver.logInitialized;
-  }
-  static setLogInitialized(logInitialized: boolean): void {
-    DOMObserver.logInitialized = logInitialized;
-  }
   static getInitInterval(): NodeJS.Timeout | number {
     return DOMObserver.initInterval;
   }
   static setInitInterval(initInterval: NodeJS.Timeout | number) {
     DOMObserver.initInterval = initInterval;
-  }
-  static getLogsProcessed(): string {
-    return DOMObserver.logsProcessed;
-  }
-  static setLogsProcessed(logsProcessed: string): void {
-    DOMObserver.logsProcessed = logsProcessed;
   }
   static getKingdom(): string[] {
     return DOMObserver.kingdom;
@@ -212,6 +200,18 @@ export class DOMObserver {
   }
   static setKingdomInitialized(kingdomInitialized: boolean): void {
     DOMObserver.kingdomInitialized = kingdomInitialized;
+  }
+  static getLogInitialized(): boolean {
+    return DOMObserver.logInitialized;
+  }
+  static setLogInitialized(logInitialized: boolean): void {
+    DOMObserver.logInitialized = logInitialized;
+  }
+  static getLogsProcessed(): string {
+    return DOMObserver.logsProcessed;
+  }
+  static setLogsProcessed(logsProcessed: string): void {
+    DOMObserver.logsProcessed = logsProcessed;
   }
   static getOpponentName(): string {
     return DOMObserver.opponentName;
@@ -563,6 +563,17 @@ export class DOMObserver {
     return gameLog;
   }
 
+  /**
+   * Method gets new logs from the DOM, invokes the update method on the current decks with the new logs,
+   * then returns the updated decks.
+   * @param logsProcessed - value of logsProcessed Field
+   * @param gameLog - value of gameLog field
+   * @param getUndispatchedLogs - static method
+   * @param deckMap - value of the decks field
+   * @param playerName - value of the playerName field
+   * @param opponentName - value of the opponentName field
+   * @returns StoreDeck and OpponentStoreDeck for the updated decks.
+   */
   static getNewLogsAndUpdateDecks(
     logsProcessed: string,
     gameLog: string,
@@ -966,6 +977,11 @@ export class DOMObserver {
     return logLine.match(/ gets \+\$\d+\. \(Merchant\)/) !== null;
   }
 
+  /**
+   * Initializer method.  If the kingdom element is present in the DOM,
+   * sets the kingdom, baseOnly, and kingdomInitialized fields, and dispatches the
+   * setBaseOnly redux action.
+   */
   static kingdomInitializer(): void {
     if (DOMObserver.isKingdomElementPresent()) {
       console.log("Kingdom present, initializing...");
@@ -981,6 +997,10 @@ export class DOMObserver {
     }
   }
 
+  /**
+   * Initializer method. If the game log element is present in the DOM,
+   * sets the gameLog, ratedGame, and logInitialized fields.
+   */
   static logInitializer(): void {
     if (DOMObserver.isGameLogPresent()) {
       DOMObserver.setGameLog(DOMObserver.getClientGameLog());
