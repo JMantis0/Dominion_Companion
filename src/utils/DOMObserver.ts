@@ -414,6 +414,29 @@ export class DOMObserver {
     return deckMap;
   }
 
+  static deckMapInitializer(): void {
+    if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
+      console.log("Decks not created... initializing decks.");
+      const gameTitle = DOMObserver.gameLog
+        .split("\n")[0]
+        .substring(0, DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1);
+      DOMObserver.setDecks(
+        DOMObserver.createPlayerDecks(
+          gameTitle,
+          DOMObserver.ratedGame,
+          DOMObserver.playerName,
+          DOMObserver.playerNick,
+          DOMObserver.playerRating,
+          DOMObserver.opponentName,
+          DOMObserver.opponentNick,
+          DOMObserver.opponentRating,
+          DOMObserver.kingdom
+        )
+      );
+      DOMObserver.decksInitialized = true;
+    }
+  }
+
   /**
    * Dispatches the setPlayerDeck and setOpponentDeck actions with the given StoreDeck and OpponentStoreDeck
    * as payloads.
@@ -833,63 +856,13 @@ export class DOMObserver {
     DOMObserver.logInitializer();
 
     console.log("Checking for player elements presence...");
-    if (DOMObserver.arePlayerInfoElementsPresent()) {
-      console.log("playerElements present, initializing...");
-      [DOMObserver.playerName, DOMObserver.opponentName] =
-        DOMObserver.getPlayerAndOpponentNameByComparingElementPosition(
-          DOMObserver.getPlayerInfoElements()
-        );
-      [DOMObserver.playerNick, DOMObserver.opponentNick] =
-        DOMObserver.getPlayerNameAbbreviations(
-          DOMObserver.gameLog,
-          DOMObserver.playerName
-        );
-      if (DOMObserver.ratedGame) {
-        [DOMObserver.playerRating, DOMObserver.opponentRating] =
-          DOMObserver.getPlayerRatings(
-            DOMObserver.playerName,
-            DOMObserver.opponentName,
-            DOMObserver.gameLog
-          );
-      }
-      DOMObserver.playersInitialized = true;
-    }
+    DOMObserver.playersInitializer();
 
     console.log("Checking for kingdom presence...");
-    if (DOMObserver.isKingdomElementPresent()) {
-      console.log("Kingdom present, initializing...");
-      DOMObserver.kingdom = DOMObserver.getClientKingdom();
-      DOMObserver.baseOnly = DOMObserver.baseKingdomCardCheck(
-        DOMObserver.kingdom
-      );
-      DOMObserver.dispatch(setBaseOnly(DOMObserver.baseOnly));
-      if (!DOMObserver.baseOnly) {
-        console.error("Game is not intended for cards outside of the Base Set");
-      }
-      DOMObserver.kingdomInitialized = true;
-    }
+    DOMObserver.kingdomInitializer();
 
     console.log("Checking decks presence");
-    if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
-      console.log("Decks not created... initializing decks.");
-      DOMObserver.decks = DOMObserver.createPlayerDecks(
-        DOMObserver.gameLog
-          .split("\n")[0]
-          .substring(
-            0,
-            DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1
-          ),
-        DOMObserver.ratedGame,
-        DOMObserver.playerName,
-        DOMObserver.playerNick,
-        DOMObserver.playerRating,
-        DOMObserver.opponentName,
-        DOMObserver.opponentNick,
-        DOMObserver.opponentRating,
-        DOMObserver.kingdom
-      );
-      DOMObserver.decksInitialized = true;
-    }
+    DOMObserver.deckMapInitializer();
 
     const resetCheckIntervalFunction = () => {
       if (!DOMObserver.isGameLogPresent()) {
@@ -906,34 +879,8 @@ export class DOMObserver {
       DOMObserver.resetDeckState();
       if (DOMObserver.baseOnly) {
         DOMObserver.dispatch(setGameActiveStatus(true));
-        DOMObserver.gameLogObserver = new MutationObserver(
-          DOMObserver.logObserverFunc
-        );
-        DOMObserver.gameEndObserver = new MutationObserver(
-          DOMObserver.gameEndObserverFunc
-        );
-        DOMObserver.undoObserver = new MutationObserver(
-          DOMObserver.undoObserverFunc
-        );
-        const gameLogElement = document.getElementsByClassName("game-log")[0];
-        const gameEndElement = document.getElementsByTagName(
-          "game-ended-notification"
-        )[0];
-        const logContainerElement =
-          document.getElementsByClassName("log-container")[0];
-        DOMObserver.undoObserver.observe(logContainerElement, {
-          childList: true,
-        });
-        DOMObserver.gameLogObserver.observe(gameLogElement, {
-          childList: true,
-          characterData: true,
-          characterDataOldValue: true,
-          subtree: true,
-        });
-        DOMObserver.gameEndObserver.observe(gameEndElement, {
-          childList: true,
-          subtree: true,
-        });
+        DOMObserver.mutationObserverInitializer();
+
         const newLogsToDispatch = DOMObserver.getUndispatchedLogs(
           DOMObserver.logsProcessed,
           DOMObserver.gameLog
@@ -1019,10 +966,21 @@ export class DOMObserver {
     return logLine.match(/ gets \+\$\d+\. \(Merchant\)/) !== null;
   }
 
-  /**
-   * Initialization function.  Checks the DOM for the presence of a game-log element and
-   * if present initializes the gameLog and ratedGame fields.
-   */
+  static kingdomInitializer(): void {
+    if (DOMObserver.isKingdomElementPresent()) {
+      console.log("Kingdom present, initializing...");
+      DOMObserver.setKingdom(DOMObserver.getClientKingdom());
+      DOMObserver.setBaseOnly(
+        DOMObserver.baseKingdomCardCheck(DOMObserver.kingdom)
+      );
+      DOMObserver.dispatch(setBaseOnly(DOMObserver.baseOnly));
+      if (!DOMObserver.baseOnly) {
+        console.log("Game is not intended for cards outside of the Base Set");
+      }
+      DOMObserver.setKingdomInitialized(true);
+    }
+  }
+
   static logInitializer(): void {
     if (DOMObserver.isGameLogPresent()) {
       DOMObserver.setGameLog(DOMObserver.getClientGameLog());
@@ -1072,6 +1030,71 @@ export class DOMObserver {
         opponentStoreDeck
       );
       DOMObserver.logsProcessed = gameLog;
+    }
+  }
+
+  /**
+   * Initializes the MutationObservers with the appropriate callbacks and begins observing the
+   * game-log, game-ended, and log-container elements.
+   */
+  static mutationObserverInitializer(): void {
+    DOMObserver.setGameLogObserver(
+      new MutationObserver(DOMObserver.logObserverFunc)
+    );
+    DOMObserver.setGameEndObserver(
+      new MutationObserver(DOMObserver.gameEndObserverFunc)
+    );
+    DOMObserver.setUndoObserver(
+      new MutationObserver(DOMObserver.undoObserverFunc)
+    );
+    const gameLogElement = document.getElementsByClassName("game-log")[0];
+    const gameEndElement = document.getElementsByTagName(
+      "game-ended-notification"
+    )[0];
+    const logContainerElement =
+      document.getElementsByClassName("log-container")[0];
+    DOMObserver.undoObserver!.observe(logContainerElement, {
+      childList: true,
+      subtree: true,
+    });
+    DOMObserver.gameLogObserver!.observe(gameLogElement, {
+      childList: true,
+      subtree: true,
+    });
+    DOMObserver.gameEndObserver!.observe(gameEndElement, {
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  /**
+   * Initialization method.  Checks the DOM for the presence of a player-info elements and
+   * if present initializes the player and opponent related fields
+   */
+  static playersInitializer(): void {
+    if (DOMObserver.arePlayerInfoElementsPresent()) {
+      const [playerName, opponentName] =
+        DOMObserver.getPlayerAndOpponentNameByComparingElementPosition(
+          DOMObserver.getPlayerInfoElements()
+        );
+      DOMObserver.setPlayerName(playerName);
+      DOMObserver.setOpponentName(opponentName);
+      const [playerNick, opponentNick] = DOMObserver.getPlayerNameAbbreviations(
+        DOMObserver.gameLog,
+        DOMObserver.playerName
+      );
+      DOMObserver.setPlayerNick(playerNick);
+      DOMObserver.setOpponentNick(opponentNick);
+      if (DOMObserver.ratedGame) {
+        const [playerRating, opponentRating] = DOMObserver.getPlayerRatings(
+          DOMObserver.playerName,
+          DOMObserver.opponentName,
+          DOMObserver.gameLog
+        );
+        DOMObserver.setPlayerRating(playerRating);
+        DOMObserver.setOpponentRating(opponentRating);
+      }
+      DOMObserver.setPlayersInitialized(true);
     }
   }
 

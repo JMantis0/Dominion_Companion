@@ -1,6 +1,5 @@
-import { describe, it, expect, jest } from "@jest/globals";
+import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
-import { afterEach } from "node:test";
 describe("logInitializer", () => {
   // Mock dependencies
   const isGameLogPresent = jest.spyOn(DOMObserver, "isGameLogPresent");
