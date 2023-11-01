@@ -58,7 +58,7 @@ describe("undoObserverCallback", () => {
       expect(clearInterval).toBeCalledWith(DOMObserver.resetInterval);
       expect(setInterval).toBeCalledTimes(1);
       expect(setInterval).toBeCalledWith(
-        DOMObserver.initIntervalFunction,
+        DOMObserver.initIntervalCallback,
         1000
       );
     });

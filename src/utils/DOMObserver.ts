@@ -6,13 +6,13 @@ import {
   setSavedGames,
 } from "../redux/contentSlice";
 import { OpponentStoreDeck, SavedGame, StoreDeck } from ".";
-import { Deck } from "../model/deck";
-import { EmptyDeck } from "../model/emptyDeck";
-import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import { OpponentDeck } from "../model/opponentDeck";
 import { store } from "../redux/store";
 import { AnyAction, Dispatch } from "redux";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { Deck } from "../model/deck";
+import { EmptyDeck } from "../model/emptyDeck";
+import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 
 export class DOMObserver {
   /**
@@ -414,6 +414,11 @@ export class DOMObserver {
     return deckMap;
   }
 
+
+  /**
+   * Initialization method. Creates the player deck and opponent deck using
+   * the information stored in the class fields.
+   */
   static deckMapInitializer(): void {
     if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
       console.log("Decks not created... initializing decks.");
@@ -839,7 +844,7 @@ export class DOMObserver {
   }
 
   /**
-   * Control flow function.
+   * Control flow method.
    * @returns boolean, true if all four of the globals within are true.
    */
   static initialized() {
@@ -859,70 +864,30 @@ export class DOMObserver {
    * and finally the React root is
    * appended to the client DOM.
    */
-  static initIntervalFunction() {
-    console.log("Init interval function.");
+  static initIntervalCallback() {
     DOMObserver.resetGame();
-
-    console.log("Checking for log presence...");
     DOMObserver.logInitializer();
-
-    console.log("Checking for player elements presence...");
     DOMObserver.playersInitializer();
-
-    console.log("Checking for kingdom presence...");
     DOMObserver.kingdomInitializer();
-
-    console.log("Checking decks presence");
     DOMObserver.deckMapInitializer();
-
-    const resetCheckIntervalFunction = () => {
-      if (!DOMObserver.isGameLogPresent()) {
-        clearInterval(DOMObserver.resetInterval);
-        DOMObserver.initInterval = setInterval(
-          DOMObserver.initIntervalFunction,
-          1000
-        );
-      }
-    };
-
     if (DOMObserver.initialized()) {
-      console.log("Fields initialized...");
       DOMObserver.resetDeckState();
       if (DOMObserver.baseOnly) {
+        // Set redux active game status
         DOMObserver.dispatch(setGameActiveStatus(true));
+        // Initialize Mutation Observers
         DOMObserver.mutationObserverInitializer();
-
-        const newLogsToDispatch = DOMObserver.getUndispatchedLogs(
-          DOMObserver.logsProcessed,
-          DOMObserver.gameLog
-        ) // Initial dispatch
-          .split("\n")
-          .slice();
-        DOMObserver.decks
-          .get(DOMObserver.playerName)
-          ?.update(newLogsToDispatch);
-        DOMObserver.dispatch(
-          setPlayerDeck(
-            JSON.parse(
-              JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
-            )
-          )
-        );
-        DOMObserver.decks
-          .get(DOMObserver.opponentName)
-          ?.update(newLogsToDispatch);
-        DOMObserver.dispatch(
-          setOpponentDeck(
-            JSON.parse(
-              JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
-            )
-          )
-        );
-        DOMObserver.logsProcessed = DOMObserver.gameLog;
+        // Execute the logObserverFunc to initialize the very first
+        // decks update.
+        DOMObserver.logObserverFunc();
+        // Save the initial game data.
         DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
       }
       clearInterval(DOMObserver.initInterval);
-      DOMObserver.resetInterval = setInterval(resetCheckIntervalFunction, 1000);
+      DOMObserver.resetInterval = setInterval(
+        DOMObserver.resetCheckIntervalCallback,
+        1000
+      );
     }
   }
 
@@ -954,7 +919,7 @@ export class DOMObserver {
   /**
    * Used in control flow for whether new logs should be collected.
    * The client will create buy-lines and then quickly remove them.
-   * This function is used to ensure these do not trigger log collections.
+   * This method is used to ensure these do not trigger log collections.
    * @param logLine - The most recent line in the game-log;
    * @returns - Boolean for whether the most recent line is a
    */
@@ -1012,15 +977,15 @@ export class DOMObserver {
   }
 
   /**
-   * Mutation observer function for the Mutation Observer to use
+   * Mutation observer method for the Mutation Observer to use
    * when observing the ".game-log element" in the Client.
    * Use - When a mutation of time "childList" occurs in the ".game-log" element
-   * of the client DOM, this function triggers.
+   * of the client DOM, this method triggers.
    * Logic ensures that action is only taken if the mutation created added nodes,
    * and only if the last of the added nodes has an innerText value.
    * If the last added node has an innerText value, then another logic checks
-   * if there are any new logs using the areNewLogsToSend() function.  If there
-   * are new logs, they are obtained with the getUndispatchedLogs() function and
+   * if there are any new logs using the areNewLogsToSend() method.  If there
+   * are new logs, they are obtained with the getUndispatchedLogs() method and
    * the Deck objects' update() methods are invoked using the new logs as an argument,
    * and finally, the global variable 'logsProcessed' is updated.
    * @param mutationList
@@ -1119,7 +1084,7 @@ export class DOMObserver {
   }
 
   /**
-   * Reset function.
+   * Reset method.
    * 1) Sets all content globals to their initial state, and
    * 2) Disconnects the mutation observer
    */
@@ -1154,7 +1119,7 @@ export class DOMObserver {
   }
 
   /**
-   * Callback function used for the 'beforeunload' event listener.
+   * Callback method used for the 'beforeunload' event listener.
    * Added on render, removed on unmount.
    * @param event - The BeforeUnloadEvent
    */
@@ -1162,10 +1127,12 @@ export class DOMObserver {
     DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
   }
 
+  /**
+   * Console log method, displays the data saved in chrome local storage.
+   */
   static showSavedData() {
     chrome.storage.local.get(["gameKeys"]).then(async (result) => {
       console.log("gameKeys: ", result);
-
       let gameKeys = result.gameKeys;
       await chrome.storage.local.get([...gameKeys]).then((result) => {
         console.log("History Records: ", result);
@@ -1173,6 +1140,25 @@ export class DOMObserver {
     });
   }
 
+  /**
+   * Callback for the resetInterval.  If it detects the game log is present, it clears itself
+   * starts the initInterval.
+   */
+  static resetCheckIntervalCallback() {
+    if (!DOMObserver.isGameLogPresent()) {
+      clearInterval(DOMObserver.resetInterval);
+      DOMObserver.initInterval = setInterval(
+        DOMObserver.initIntervalCallback,
+        1000
+      );
+    }
+  }
+
+  /**
+   * Saves the game to chrome local storage to be used by the History features.
+   * @param gameLog - value of the ameLog field.
+   * @param decks - value of decks field.
+   */
   static async saveGameData(
     gameLog: string,
     decks: Map<string, Deck | OpponentDeck>
@@ -1236,9 +1222,9 @@ export class DOMObserver {
   }
 
   /**
-   * Observes the log container element.  It is the parent element of game-log.  The function
+   * Observes the log container element.  It is the parent element of game-log.  The method
    * watches to see if it's child element game-log is removed and added in a single mutation list.
-   * If so, it means an undo or rewind has taken place, and the function clears the reset interval
+   * If so, it means an undo or rewind has taken place, and the method clears the reset interval
    * resets the init interval, effectively rewinding the extension.
    *
    * @param mutationList
@@ -1271,7 +1257,7 @@ export class DOMObserver {
     if (gameLogRemoved && gameLogAdded) {
       clearInterval(DOMObserver.resetInterval);
       DOMObserver.initInterval = setInterval(
-        DOMObserver.initIntervalFunction,
+        DOMObserver.initIntervalCallback,
         1000
       );
     }
