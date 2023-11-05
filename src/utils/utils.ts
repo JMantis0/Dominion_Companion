@@ -24,39 +24,46 @@ const addResizableAndCustomHandleToCustomSelectScrollBars = (
   selectScrollbarsElement: JQuery<HTMLElement>,
   handleId: string
 ) => {
-  // Create handle and attach it to the given element
-  const customHandle: HTMLElement = document.createElement("div");
-  selectScrollbarsElement.append(customHandle!);
+  try {
+    // Create handle and attach it to the given element
+    const customHandle: HTMLElement = document.createElement("div");
+    selectScrollbarsElement.append(customHandle!);
 
-  // add the classes required for the handle by jQueryUI
-  customHandle.setAttribute(
-    "class",
-    "ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
-  );
-  customHandle.setAttribute("id", handleId);
-  // Wrap the element in a jQuery object...
-  const selectScrollJQueryUIObject: JQuery<HTMLElement> = $(
-    selectScrollbarsElement
-  );
-  //and add the Resizable widget with the custom handle created earlier
-  selectScrollJQueryUIObject.resizable({
-    handles: { s: $(customHandle) },
-  });
-  // Configure style to put icon in the proper bottom right position of the element.
-  customHandle!.setAttribute(
-    "style",
-    "z-index: 90; left: unset; cursor: s-resize;"
-  );
-  // Configure the style attribute to link handle to the Resizable icon resource.
-  if (chrome.runtime !== null && chrome.runtime !== undefined) {
-    const customHandleStyle = customHandle!.getAttribute("style");
+    // add the classes required for the handle by jQueryUI
+    customHandle.setAttribute(
+      "class",
+      "ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
+    );
+    customHandle.setAttribute("id", handleId);
+    // Wrap the element in a jQuery object...
+    const selectScrollJQueryUIObject: JQuery<HTMLElement> = $(
+      selectScrollbarsElement
+    );
+    //and add the Resizable widget with the custom handle created earlier
+    selectScrollJQueryUIObject.resizable({
+      handles: { s: $(customHandle) },
+    });
+    // Configure style to put icon in the proper bottom right position of the element.
     customHandle!.setAttribute(
       "style",
-      customHandleStyle +
-        "background-image: url(chrome-extension://" +
-        chrome.runtime.id +
-        "/ui-icons_ffffff_256x240.png);"
+      "z-index: 90; left: unset; cursor: s-resize;"
     );
+    // Configure the style attribute to link handle to the Resizable icon resource.
+    if (chrome.runtime !== null && chrome.runtime !== undefined) {
+      const customHandleStyle = customHandle!.getAttribute("style");
+      customHandle!.setAttribute(
+        "style",
+        customHandleStyle +
+          "background-image: url(chrome-extension://" +
+          chrome.runtime.id +
+          "/ui-icons_ffffff_256x240.png);"
+      );
+    }
+  } catch (e) {
+    console.log(
+      "There was an error.  If you're seeing this message you probably tried to execute this function in a testing environment"
+    );
+    console.log(getErrorMessage(e));
   }
 };
 
@@ -65,32 +72,39 @@ const addResizableAndCustomHandleToCustomSelectScrollBars = (
  * The fix for getting Resizable handle icons to appear in extension context is also here.
  */
 const addResizableAndDraggableToPrimaryFrame = ($: JQueryStatic) => {
-  $("#primaryFrame").draggable({}).resizable({
-    handles: "n, e, s, w, ne, nw, se, sw",
-  });
-  const primaryFrameResizableHandle = document.querySelector(
-    "#primaryFrame > .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
-  );
-  // Give the PrimaryFrame resizable handle an id for disambiguation.
-  primaryFrameResizableHandle?.setAttribute(
-    "id",
-    "primary-frame-resizable-handle"
-  );
-  // Configure style to pull icon inward away from the frame border.
-  primaryFrameResizableHandle?.setAttribute(
-    "style",
-    "bottom: 8px; right: 8px; z-index:90;"
-  );
-  // Configure the style attribute to link handle to the Resizable icon resource.
-  if (chrome.runtime !== null && chrome.runtime !== undefined) {
-    const handleStyle = primaryFrameResizableHandle?.getAttribute("style");
-    primaryFrameResizableHandle!.setAttribute(
-      "style",
-      handleStyle +
-        "background-image: url(chrome-extension://" +
-        chrome.runtime.id +
-        "/ui-icons_ffffff_256x240.png);"
+  try {
+    $("#primaryFrame").draggable({}).resizable({
+      handles: "n, e, s, w, ne, nw, se, sw",
+    });
+    const primaryFrameResizableHandle = document.querySelector(
+      "#primaryFrame > .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
     );
+    // Give the PrimaryFrame resizable handle an id for disambiguation.
+    primaryFrameResizableHandle?.setAttribute(
+      "id",
+      "primary-frame-resizable-handle"
+    );
+    // Configure style to pull icon inward away from the frame border.
+    primaryFrameResizableHandle?.setAttribute(
+      "style",
+      "bottom: 8px; right: 8px; z-index:90;"
+    );
+    // Configure the style attribute to link handle to the Resizable icon resource.
+    if (chrome.runtime !== null && chrome.runtime !== undefined) {
+      const handleStyle = primaryFrameResizableHandle?.getAttribute("style");
+      primaryFrameResizableHandle!.setAttribute(
+        "style",
+        handleStyle +
+          "background-image: url(chrome-extension://" +
+          chrome.runtime.id +
+          "/ui-icons_ffffff_256x240.png);"
+      );
+    }
+  } catch (e) {
+    console.log(
+      "There was an error.  If you're seeing this message you probably tried to execute this function in a testing environment"
+    );
+    console.log(getErrorMessage(e));
   }
 };
 
