@@ -841,7 +841,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   processPlaysLine(line: string, cards: string[], numberOfCards: number[]) {
     const throneRoomPlay = line.match(" again.");
-    const vassalPlay = this.checkForVassalPlay();
+    const treasurePlay = this.checkForTreasurePlayLine(line);
+    let vassalPlay = false;
+    if (!treasurePlay) {
+      vassalPlay = this.checkForVassalPlay();
+    }
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (throneRoomPlay) {
@@ -1104,18 +1108,10 @@ export class Deck extends BaseDeck implements StoreDeck {
   update(log: Array<string>) {
     log.forEach((line) => {
       this.setTreasurePopped(false);
-      if (!this.logEntryAppliesToThisDeck(line)) {
-        // Inside this if, log entries apply to an opponent deck.
-        if (this.consecutiveTreasurePlays(line)) {
-          //  When playing with no animations this will remove duplicate treasure play logs from the logArchive.
-          this.getConsecutiveTreasurePlayCounts(line);
-        }
-      }
-      // Inside this else, log entries apply to this deck.
-      else {
+      const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+      if (this.logEntryAppliesToThisDeck(line)) {
         this.shuffleAndCleanUpIfNeeded(line);
         if (this.debug) console.group(line);
-        const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
         this.drawLookedAtCardIfNeeded(act);
         this.processDeckChanges(line, act, cards, numberOfCards);
       }

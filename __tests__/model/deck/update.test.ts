@@ -9,6 +9,7 @@ describe("Method update()", () => {
     "Witch",
     "Copper",
     "Curse",
+    "Vassal",
   ]);
   // Spy on method dependencies
   const setTreasurePopped = jest.spyOn(Deck.prototype, "setTreasurePopped");
@@ -48,6 +49,13 @@ describe("Method update()", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    deck = new Deck("", false, "", "pName", "pNick", [
+      "Sentry",
+      "Witch",
+      "Copper",
+      "Curse",
+      "Vassal",
+    ]);
   });
 
   it("should correctly handle single log lines that are consecutive treasure plays that do not apply to the deck", () => {
@@ -70,7 +78,7 @@ describe("Method update()", () => {
     expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
     expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(log[0]);
     expect(shuffleAndCleanUpIfNeeded).not.toBeCalled();
-    expect(getActCardsAndCounts).not.toBeCalled();
+    expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(drawLookedAtCardIfNeeded).not.toBeCalled();
     expect(processDeckChanges).not.toBeCalled();
     expect(updateArchives).toBeCalledTimes(1);
@@ -99,7 +107,7 @@ describe("Method update()", () => {
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
     expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
     expect(shuffleAndCleanUpIfNeeded).not.toBeCalled();
-    expect(getActCardsAndCounts).not.toBeCalled();
+    expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(drawLookedAtCardIfNeeded).not.toBeCalled();
     expect(processDeckChanges).not.toBeCalled();
     expect(updateArchives).toBeCalledTimes(1);
@@ -160,9 +168,10 @@ describe("Method update()", () => {
     expect(shuffleAndCleanUpIfNeeded).toBeCalledTimes(2);
     expect(shuffleAndCleanUpIfNeeded).nthCalledWith(1, log[0]);
     expect(shuffleAndCleanUpIfNeeded).nthCalledWith(2, log[1]);
-    expect(getActCardsAndCounts).toBeCalledTimes(2);
+    expect(getActCardsAndCounts).toBeCalledTimes(3);
     expect(getActCardsAndCounts).nthCalledWith(1, log[0]);
     expect(getActCardsAndCounts).nthCalledWith(2, log[1]);
+    expect(getActCardsAndCounts).nthCalledWith(3, log[2]);
     expect(processDeckChanges).toBeCalledTimes(2);
     expect(processDeckChanges).nthCalledWith(
       1,
@@ -185,5 +194,24 @@ describe("Method update()", () => {
     expect(updateVP).toBeCalledTimes(3);
     expect(getMostRecentPlay).toBeCalledTimes(3);
     expect(setLatestPlay).toBeCalledTimes(3);
+  });
+
+  it("should correctly identify and remove repeat buy gains done by an opponent", () => {
+    deck.logArchive = [
+      "b gets +2 Actions.",
+      "b gets +1 Buy.",
+      "b gets +$2.",
+      "b plays 3 Coppers. (+$3)",
+      "b buys and gains a Vassal.",
+    ];
+    deck.lastEntryProcessed = "b buys and gains a Vassal.";
+    deck.update(["b buys and gains 2 Vassals."]);
+    expect(deck.logArchive).toStrictEqual([
+      "b gets +2 Actions.",
+      "b gets +1 Buy.",
+      "b gets +$2.",
+      "b plays 3 Coppers. (+$3)",
+      "b buys and gains 2 Vassals.",
+    ]);
   });
 });
