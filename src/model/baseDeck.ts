@@ -2,7 +2,7 @@ import { GameResult } from "../utils";
 
 export class BaseDeck {
   currentVP: number = 3;
-  debug: boolean = true;
+  debug: boolean = false;
   entireDeck: Array<string> = [];
   gameResult: GameResult;
   gameTitle: string;
