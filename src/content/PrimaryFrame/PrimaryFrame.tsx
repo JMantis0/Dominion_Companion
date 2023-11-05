@@ -34,7 +34,10 @@ const PrimaryFrame = () => {
   );
   useEffect(() => {
     addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-    DOMObserver.initInterval = setInterval(DOMObserver.initIntervalCallback, 1000);
+    DOMObserver.initInterval = setInterval(
+      DOMObserver.initIntervalCallback,
+      1000
+    );
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
@@ -119,21 +122,21 @@ const PrimaryFrame = () => {
                   )}
                 >
                   <div className="p-1 mr-2">
-                    <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
+                    <div  data-testid="deck-viewer" className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                       <MainDeckViewer />
                       {/* <DevDisplay/> */}
                     </div>
-                    <div
+                    <div data-testid="discard-viewer" 
                       className={primaryFrameTab !== "Discard" ? "hidden" : ""}
                     >
                       <DiscardZoneViewer />
                     </div>
-                    <div
+                    <div data-testid="opponent-viewer" 
                       className={primaryFrameTab !== "Opponent" ? "hidden" : ""}
                     >
                       <OpponentViewer />
                     </div>
-                    <div
+                    <div data-testid="trash-viewer" 
                       className={primaryFrameTab !== "Trash" ? "hidden" : ""}
                     >
                       <TrashZoneViewer />

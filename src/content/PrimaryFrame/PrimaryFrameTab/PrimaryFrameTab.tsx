@@ -36,6 +36,7 @@ const PrimaryFrameTab: FunctionComponent<PrimaryFrameTabProps> = ({
   const unSelected = position === "Top" ? "border-b-2" : "border-t-2";
   return (
     <button
+      role="button"
       className={`col-span-${colSpan} border-box h-full text-xs whitespace-nowrap w-full border-x ${
         selectedTab === title ? selected : unSelected
       } ${pinnedTab === title ? "text-lime-500" : null}`}
