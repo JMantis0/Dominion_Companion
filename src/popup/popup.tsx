@@ -88,28 +88,44 @@ const Popup = () => {
 
   return (
     <React.Fragment>
-      <div className="grid grid-cols-12 grid-rows-4 gap-4 w-[200px] h-[300px] border-2 backdrop-blur-sm bg-black/[.85] text-white">
-        <h2 className={`col-span-12 text-center m-auto`}>Dom-View</h2>
-        <div className="col-span-2"></div>
-        <button
-          className={`col-span-8 border-2  ${
-            toggleState === "OFF" ? "bg-green-900" : "bg-green-600"
-          }`}
-          onClick={handleToggleOn}
-        >
-          ON
-        </button>
-        <div className="col-span-2"></div>
-        <div className="col-span-2"></div>
-        <button
-          className={`border-2 col-span-8 ${
-            toggleState === "ON" ? "bg-red-900" : "bg-red-600"
-          }`}
-          onClick={handleToggleOff}
-        >
-          OFF
-        </button>
-        <div className="col-span-2"></div>
+      <div className="grid grid-cols-12 grid-rows-4 gap-4 w-[400px] h-[300px] border-2 backdrop-blur-sm bg-black/[.85] text-white">
+        <div className="col-span-6">
+          <div>
+            Thank you for using the Dominion Companion. This extension is
+            designed help players make informed game decisions.{" "}
+          </div>
+          <br></br>
+          <div>
+            The Viewer is draggable and resizable, so position it as you desire.
+            It can also be turned on an off here. A 'How to use' guide can be
+            found here:
+          </div>
+        </div>
+        <div className="col-span-6 grid grid-cols-12">
+          <h2 className={`col-span-12 text-center m-auto text-xs`}>
+            Dominion Companion
+          </h2>
+          <div className="col-span-2"></div>
+          <button
+            className={`col-span-8 border-2  ${
+              toggleState === "OFF" ? "bg-green-900" : "bg-green-600"
+            }`}
+            onClick={handleToggleOn}
+          >
+            ON
+          </button>
+          <div className="col-span-2"></div>
+          <div className="col-span-2"></div>
+          <button
+            className={`border-2 col-span-8 ${
+              toggleState === "ON" ? "bg-red-900" : "bg-red-600"
+            }`}
+            onClick={handleToggleOff}
+          >
+            OFF
+          </button>
+          <div className="col-span-2"></div>
+        </div>
       </div>
       <button
         onClick={() => {
@@ -118,7 +134,7 @@ const Popup = () => {
       >
         History
       </button>
-      <button
+      {/* <button
         onClick={() => {
           (async () => {
             let tab: chrome.tabs.Tab | undefined = undefined;
@@ -148,7 +164,7 @@ const Popup = () => {
         }}
       >
         Get hidden state
-      </button>
+      </button> */}
     </React.Fragment>
   );
 };
