@@ -4,9 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "watch": "webpack --watch --progress --config webpack.common.js",
+    "watch": "webpack --watch --progress --config webpack.dev.js",
     "start": "react-scripts start",
-    "build": "webpack --config webpack.common.js",
+    "build": "webpack --config webpack.prod.js",
     "jest:all": "jest ./__tests__/content --all --runInBand",
     "jest:watch": "jest ./__tests__/content --watch --runInBand",
     "typedoc": "typedoc"
@@ -31,6 +31,7 @@
     "@types/react-redux": "^7.1.25",
     "autoprefixer": "^10.4.13",
     "babel-jest": "^29.7.0",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
@@ -60,7 +61,6 @@
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@reduxjs/toolkit": "^1.9.2",
-    "copy-webpack-plugin": "^11.0.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
     "react": "^18.2.0",
