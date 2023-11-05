@@ -5,13 +5,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import type { PreloadedState } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import fs from "fs";
-import path from "path"
-import type { store, RootState } from "../../src/redux/store";
+import path from "path";
+import type { store, RootState } from "../../../src/redux/store";
 // As a basic setup, import your same slice reducers
-import contentSlice from "../../src/redux/contentSlice";
-import optionsSlice from "../../src/redux/optionsSlice";
-import { initialState as initialContentState } from "../../src/redux/contentSlice";
-import { initialState as initialOptionsState } from "../../src/redux/optionsSlice";
+import contentSlice from "../../../src/redux/contentSlice";
+import optionsSlice from "../../../src/redux/optionsSlice";
+import { initialState as initialContentState } from "../../../src/redux/contentSlice";
+import { initialState as initialOptionsState } from "../../../src/redux/optionsSlice";
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
@@ -64,9 +64,30 @@ export const renderWithProvidersAndCSS = (
 
   // Add CSS to the document head
   const style = document.createElement("style");
-  style.innerHTML = fs.readFileSync(path.resolve(__dirname, "./output.css"), "utf8");
+  style.innerHTML = fs.readFileSync(
+    path.resolve(__dirname, "./output.css"),
+    "utf8"
+  );
   document.head.appendChild(style);
 
   // Return an object with the store and all of RTL's query functions
   return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
+};
+
+export const renderWithCSS = (
+  ui: React.ReactElement,
+  options?: Omit<RenderOptions, "wrapper">
+) => {
+  const wrapper = ({ children }: PropsWithChildren<{}>): JSX.Element => {
+    return <React.Fragment>{children}</React.Fragment>;
+  };
+
+  const style = document.createElement("style");
+  style.innerHTML = fs.readFileSync(
+    path.resolve(__dirname, "./output.css"),
+    "utf8"
+  );
+  document.head.appendChild(style);
+
+  return { ...render(ui, { wrapper, ...options }) };
 };

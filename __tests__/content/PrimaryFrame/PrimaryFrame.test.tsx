@@ -3,18 +3,18 @@
  */
 import "@testing-library/jest-dom/jest-globals";
 import React from "react";
-import PrimaryFrame from "../../src/content/PrimaryFrame/PrimaryFrame";
+import PrimaryFrame from "../../../src/content/PrimaryFrame/PrimaryFrame";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import { it, expect, describe, afterEach } from "@jest/globals";
-import { renderWithProviders, renderWithProvidersAndCSS } from "./test-utils";
+import { renderWithProviders, renderWithProvidersAndCSS } from "../assets/test-utils";
 import {
   setBaseOnly,
   setGameActiveStatus,
   setOpponentDeck,
   setPlayerDeck,
-} from "../../src/redux/contentSlice";
-import { Deck } from "../../src/model/deck";
-import { OpponentDeck } from "../../src/model/opponentDeck";
+} from "../../../src/redux/contentSlice";
+import { Deck } from "../../../src/model/deck";
+import { OpponentDeck } from "../../../src/model/opponentDeck";
 
 describe("PrimaryFrame", () => {
   afterEach(() => {
