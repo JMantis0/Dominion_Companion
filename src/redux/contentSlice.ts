@@ -36,7 +36,7 @@ export interface ContentState {
   selectScrollPosition: number;
 }
 
-const initialState: ContentState = {
+export const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
   sortButtonState: {

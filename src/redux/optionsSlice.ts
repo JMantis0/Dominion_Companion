@@ -10,7 +10,7 @@ import type {
   SavedGames,
 } from "../utils";
 
-interface OptionsState {
+export interface OptionsState {
   playerDeck: StoreDeck;
   opponentDeck: OpponentStoreDeck;
   sortButtonState: SortButtonState;
@@ -22,19 +22,7 @@ interface OptionsState {
   gameDateTitle: string;
 }
 
-interface OptionsState {
-  playerDeck: StoreDeck;
-  opponentDeck: OpponentStoreDeck;
-  sortButtonState: SortButtonState;
-  savedGames: SavedGames;
-  logHtml: string;
-  gameKeys: string[];
-  selectedRecord: number;
-  modalSwitch: boolean;
-  gameDateTitle: string;
-}
-
-const initialState: OptionsState = {
+export const initialState: OptionsState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
   sortButtonState: {
