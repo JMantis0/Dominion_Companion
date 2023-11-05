@@ -65,7 +65,7 @@ export const renderWithProvidersAndCSS = (
   // Add CSS to the document head
   const style = document.createElement("style");
   style.innerHTML = fs.readFileSync(
-    path.resolve(__dirname, "./output.css"),
+    path.resolve(__dirname, "./content.css"),
     "utf8"
   );
   document.head.appendChild(style);
@@ -84,7 +84,7 @@ export const renderWithCSS = (
 
   const style = document.createElement("style");
   style.innerHTML = fs.readFileSync(
-    path.resolve(__dirname, "./output.css"),
+    path.resolve(__dirname, "./content.css"),
     "utf8"
   );
   document.head.appendChild(style);
