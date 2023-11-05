@@ -49,7 +49,7 @@ const MainDeckViewer = () => {
 
   return (
     <div className="outer-shell">
-      <div className={`text-xs text-white`}>
+      <div className={`text-xs text-white pointer-events-none`}>
         {pd.playerName}'s Deck: {pd.entireDeck.length} cards.
       </div>
       <MainDeckViewHeader />

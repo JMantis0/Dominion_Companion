@@ -14,7 +14,7 @@ const ZoneCardRow: FunctionComponent<ZoneCardRowProps> = ({
     <React.Fragment>
       <div
         className={
-          "text-xs grid grid-cols-12 last:border border-x even:border-y"
+          "text-xs grid grid-cols-12 last:border border-x even:border-y pointer-events-none"
         }
       >
         <div className={color + " col-span-1"}></div>

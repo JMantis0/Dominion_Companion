@@ -68,16 +68,6 @@ const PrimaryFrame = () => {
   return (
     <React.Fragment>
       <div>
-        <button
-          className={"text-white mt-[-41px]"}
-          onClick={() => {
-            $("#primaryFrame").toggle("blind");
-            console.log("Click on Header");
-          }}
-        >
-          CollapseButton
-        </button>
-
         <div id="primaryFrame" className={hidden ? "hidden " + style : style}>
           <div
             className={`backdrop-blur-sm bg-black/[.85] h-full w-fill overflow-hidden pt-[40px] pb-[20px] border-8 border-double border-gray-300 box-border pb-[44px]`}
@@ -170,9 +160,9 @@ const PrimaryFrame = () => {
                 </div>
               </React.Fragment>
             ) : baseOnly ? (
-              <div className="text-white">No active game.</div>
+              <div className="text-white pointer-events-none text-center m-auto">No active game.</div>
             ) : (
-              <div className="text-white">
+              <div className="text-white pointer-events-none text-center m-auto">
                 Only Base Set cards supported. Non-base cards detected in
                 Kingdom{" "}
                 {pd.kingdom.map((card) => {
