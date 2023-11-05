@@ -122,21 +122,21 @@ const PrimaryFrame = () => {
                   )}
                 >
                   <div className="p-1 mr-2">
-                    <div  data-testid="deck-viewer" className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
+                    <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                       <MainDeckViewer />
                       {/* <DevDisplay/> */}
                     </div>
-                    <div data-testid="discard-viewer" 
+                    <div
                       className={primaryFrameTab !== "Discard" ? "hidden" : ""}
                     >
                       <DiscardZoneViewer />
                     </div>
-                    <div data-testid="opponent-viewer" 
+                    <div
                       className={primaryFrameTab !== "Opponent" ? "hidden" : ""}
                     >
                       <OpponentViewer />
                     </div>
-                    <div data-testid="trash-viewer" 
+                    <div
                       className={primaryFrameTab !== "Trash" ? "hidden" : ""}
                     >
                       <TrashZoneViewer />
