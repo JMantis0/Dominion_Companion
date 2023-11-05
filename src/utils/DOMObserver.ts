@@ -420,7 +420,6 @@ export class DOMObserver {
    */
   static deckMapInitializer(): void {
     if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
-      console.log("Decks not created... initializing decks.");
       const gameTitle = DOMObserver.gameLog
         .split("\n")[0]
         .substring(0, DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1);
@@ -948,7 +947,6 @@ export class DOMObserver {
    */
   static kingdomInitializer(): void {
     if (DOMObserver.isKingdomElementPresent()) {
-      console.log("Kingdom present, initializing...");
       DOMObserver.setKingdom(DOMObserver.getClientKingdom());
       DOMObserver.setBaseOnly(
         DOMObserver.baseKingdomCardCheck(DOMObserver.kingdom)
