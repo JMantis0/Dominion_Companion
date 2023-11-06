@@ -49,12 +49,12 @@ const MainDeckViewer = () => {
 
   return (
     <div className="outer-shell">
-      <div className={`text-xs text-white pointer-events-none`}>
+      <div className={`text-xs text-white`}>
         {pd.playerName}'s Deck: {pd.entireDeck.length} cards.
       </div>
-      <MainDeckViewHeader />
       <div className="grid grid-cols-12">
         <div className={"col-span-10"}>
+          <MainDeckViewHeader />
           {Array.from(libraryMap.keys()).map((card, idx) => {
             return (
               <FullListCardRow

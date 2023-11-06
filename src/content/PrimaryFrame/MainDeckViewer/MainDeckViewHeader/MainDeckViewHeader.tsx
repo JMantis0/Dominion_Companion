@@ -11,7 +11,7 @@ const MainDeckViewHeader = () => {
 
   return (
     <React.Fragment>
-      <div className={"text-xs text-white grid grid-cols-12 "}>
+      <div className={"text-xs text-white grid grid-cols-10 col-span-10"}>
         <div className="col-span-3 whitespace-nowrap">
           <SortButton
             title="Card"
