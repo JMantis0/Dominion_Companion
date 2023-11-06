@@ -83,6 +83,7 @@ export class OpponentDeck extends BaseDeck {
    */
   update(log: Array<string>) {
     log.forEach((line) => {
+      if (this.debug) console.group(line);
       this.treasurePopped = false;
       if (!this.logEntryAppliesToThisDeck(line)) {
         // Inside this if, log entries do not apply to this deck.  They are either
@@ -95,7 +96,6 @@ export class OpponentDeck extends BaseDeck {
       // inside this else, log entries apply to this deck.
       else {
         //Clean up before shuffling if needed.
-        if (this.debug) console.group(line);
         const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
         this.processDeckChanges(line, act, cards, numberOfCards);
       }
