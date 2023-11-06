@@ -5,7 +5,7 @@ import {
   setPlayerDeck,
   setSavedGames,
 } from "../redux/contentSlice";
-import { OpponentStoreDeck, SavedGame, StoreDeck } from ".";
+import { OpponentStoreDeck, SavedGame, SavedGames, StoreDeck } from ".";
 import { OpponentDeck } from "../model/opponentDeck";
 import { store } from "../redux/store";
 import { AnyAction, Dispatch } from "redux";
@@ -414,14 +414,12 @@ export class DOMObserver {
     return deckMap;
   }
 
-
   /**
    * Initialization method. Creates the player deck and opponent deck using
    * the information stored in the class fields.
    */
   static deckMapInitializer(): void {
     if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
-      console.log("Decks not created... initializing decks.");
       const gameTitle = DOMObserver.gameLog
         .split("\n")[0]
         .substring(0, DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1);
@@ -949,7 +947,6 @@ export class DOMObserver {
    */
   static kingdomInitializer(): void {
     if (DOMObserver.isKingdomElementPresent()) {
-      console.log("Kingdom present, initializing...");
       DOMObserver.setKingdom(DOMObserver.getClientKingdom());
       DOMObserver.setBaseOnly(
         DOMObserver.baseKingdomCardCheck(DOMObserver.kingdom)
@@ -1128,19 +1125,6 @@ export class DOMObserver {
   }
 
   /**
-   * Console log method, displays the data saved in chrome local storage.
-   */
-  static showSavedData() {
-    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      console.log("gameKeys: ", result);
-      let gameKeys = result.gameKeys;
-      await chrome.storage.local.get([...gameKeys]).then((result) => {
-        console.log("History Records: ", result);
-      });
-    });
-  }
-
-  /**
    * Callback for the resetInterval.  If it detects the game log is present, it clears itself
    * starts the initInterval.
    */
@@ -1173,22 +1157,27 @@ export class DOMObserver {
       logHtml: document.getElementsByClassName("game-log")[0].innerHTML,
     };
     const title: string = savedGame.playerDeck.gameTitle;
-    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      let gameKeys = result.gameKeys;
-      if (gameKeys === undefined) {
-        gameKeys = [];
-        gameKeys.push(title);
-      } else if (!gameKeys.includes(title)) {
-        gameKeys.push(title);
-      }
-      await chrome.storage.local.set({ gameKeys: gameKeys });
-      await chrome.storage.local.set({
-        [title]: savedGame,
-      });
-      chrome.storage.local.get([...gameKeys]).then((result) => {
-        DOMObserver.dispatch(setSavedGames(result));
-      });
+
+    // Get the current gameKeys in storage.
+    const gameKeysResult = await chrome.storage.local.get(["gameKeys"]);
+    let gameKeys = gameKeysResult.gameKeys;
+    // Add the gameKey for the game being saved
+    if (gameKeys === undefined) {
+      gameKeys = [];
+      gameKeys.push(title);
+    } else if (!gameKeys.includes(title)) {
+      gameKeys.push(title);
+    }
+    // Save the new gameKeys to chrome local storage.
+    await chrome.storage.local.set({ gameKeys: gameKeys });
+    // Save the new game to chrome local storage.
+    await chrome.storage.local.set({
+      [title]: savedGame,
     });
+    const allSavedGames: SavedGames = await chrome.storage.local.get([
+      ...gameKeys,
+    ]);
+    DOMObserver.dispatch(setSavedGames(allSavedGames));
   }
 
   /**

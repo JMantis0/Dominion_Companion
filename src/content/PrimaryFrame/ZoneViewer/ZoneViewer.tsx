@@ -60,7 +60,7 @@ const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
           );
         })
       ) : (
-        <div className="text-white">{title} is empty.</div>
+        <div className="text-white pointer-events-none">{title} is empty.</div>
       )}
     </div>
   );

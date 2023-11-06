@@ -25,7 +25,7 @@ const PrimaryFrameHeader = () => {
 
   return (
     <div
-      className="text-xs mt-[-41px] text-white grid grid-cols-12 "
+      className="text-xs mt-[-41px] text-white grid grid-cols-12 pointer-events-none"
       id="header"
     >
       <div

@@ -6,6 +6,7 @@ import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
 import type {
   OpponentStoreDeck,
   PrimaryFrameTabType,
+  SavedGames,
   SortButtonState,
   StoreDeck,
 } from "../utils";
@@ -23,7 +24,7 @@ export interface ContentState {
   setAsideSortState: SortButtonState;
   viewerHidden: boolean;
   gameActiveStatus: boolean;
-  savedGames: any;
+  savedGames: SavedGames;
   baseOnly: boolean;
   primaryFrameTab: PrimaryFrameTabType;
   pinnedPrimaryFrameTab: PrimaryFrameTabType;
@@ -35,7 +36,7 @@ export interface ContentState {
   selectScrollPosition: number;
 }
 
-const initialState: ContentState = {
+export const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
   sortButtonState: {
@@ -75,8 +76,8 @@ const initialState: ContentState = {
   savedGames: {
     none: {
       logArchive: "none",
-      playerDeck: JSON.stringify(new EmptyDeck()),
-      opponentDeck: JSON.stringify(new EmptyOpponentDeck()),
+      playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
+      opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
       dateTime: "none",
       logHtml: "none",
     },
@@ -135,7 +136,7 @@ export const contentSlice = createSlice({
     setGameActiveStatus: (state, action: PayloadAction<boolean>) => {
       state.gameActiveStatus = action.payload;
     },
-    setSavedGames: (state, action: PayloadAction<any>) => {
+    setSavedGames: (state, action: PayloadAction<SavedGames>) => {
       state.savedGames = action.payload;
     },
     setBaseOnly: (state, action: PayloadAction<boolean>) => {

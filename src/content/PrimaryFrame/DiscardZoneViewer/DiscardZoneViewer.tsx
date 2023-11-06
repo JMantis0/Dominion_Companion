@@ -13,13 +13,18 @@ const DiscardZoneViewer = () => {
     (state: RootState) => state.content.discardSortState
   );
   return (
-    <ZoneViewer
-      deck={pd}
-      zone={discardZone}
-      title="Discard Pile"
-      sortButtonState={dzSortState}
-      sortDispatchFunc={setDiscardSortState}
-    />
+    <React.Fragment>
+      <div className={`text-xs text-white pointer-events-none`}>
+        {pd.playerName}'s discard pile: {pd.entireDeck.length} cards.
+      </div>
+      <ZoneViewer
+        deck={pd}
+        zone={discardZone}
+        title="Discard Pile"
+        sortButtonState={dzSortState}
+        sortDispatchFunc={setDiscardSortState}
+      />
+    </React.Fragment>
   );
 };
 export default DiscardZoneViewer;

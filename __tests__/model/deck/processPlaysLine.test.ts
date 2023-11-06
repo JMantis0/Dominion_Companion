@@ -69,4 +69,15 @@ describe("Method processRevealsLine()", () => {
     expect(playFromDiscard).not.toBeCalled();
     expect(play).not.toBeCalled();
   });
+
+  it("should not check for vassal plays if the line is playing a treasure", () => {
+    //  Arrange a scenario where the card being played is a treasure.
+    const line = "pNick plays a Copper.";
+    const cards = ["Copper"];
+    const numberOfCards = [1];
+
+    // Act - Simulate playing a Copper from hand
+    deck.processPlaysLine(line, cards, numberOfCards);
+    expect(checkForVassalPlay).not.toBeCalled();
+  });
 });

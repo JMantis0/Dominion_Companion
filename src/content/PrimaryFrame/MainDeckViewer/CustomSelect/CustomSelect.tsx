@@ -29,6 +29,7 @@ import {
   onOptionClick,
   onToggleSelect,
   addResizableAndCustomHandleToCustomSelectScrollBars,
+  // getErrorMessage,
 } from "../../../../utils/utils";
 import $ from "jquery";
 library.add(faAngleUp, faAngleDown, faCircle);
@@ -77,11 +78,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         "scrollbar-handle"
       );
     }
-    return () => {
-      document.getElementById("scrollbar-handle")?.remove();
-      const selectScrollElement = document.getElementById("select-scrollbars")!;
-      $(selectScrollElement).resizable("destroy");
-    };
   }, []);
 
   useEffect(() => {

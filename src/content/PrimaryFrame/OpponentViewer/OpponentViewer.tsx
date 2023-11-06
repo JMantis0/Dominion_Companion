@@ -11,7 +11,7 @@ const OpponentViewer = () => {
   );
   return (
     <React.Fragment>
-      <div className={`text-xs text-white`}>
+      <div className={`text-xs text-white pointer-events-none`}>
         {od.playerName}'s Deck: {od.entireDeck.length} cards.
       </div>
       <ZoneViewer

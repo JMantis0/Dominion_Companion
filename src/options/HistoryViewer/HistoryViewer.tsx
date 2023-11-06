@@ -108,7 +108,7 @@ const HistoryViewer = () => {
                   })
               ) : (
                 <div key={-1}>
-                  <div>no game history</div>
+                  <div>No game history.  Play games with the Dominion Companion extension to begin a history.</div>
                 </div>
               )}
             </div>
