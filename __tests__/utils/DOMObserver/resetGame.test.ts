@@ -10,17 +10,15 @@ import {
   jest,
 } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
-import {
-  ContentState,
+import contentSlice, {
   setBaseOnly,
   setError,
 } from "../../../src/redux/contentSlice";
-import { AnyAction, ThunkMiddleware } from "@reduxjs/toolkit";
-import { ToolkitStore } from "@reduxjs/toolkit/dist/configureStore";
-import { OptionsState } from "../../../src/redux/optionsSlice";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
-import { store } from "../../../src/redux/store";
 import { Deck } from "../../../src/model/deck";
+import { DOMStore } from "../../../src/utils";
+import { configureStore } from "@reduxjs/toolkit";
+import optionsSlice from "../../../src/redux/optionsSlice";
 
 describe("resetGame", () => {
   // Spy on the MutationObserver method disconnect
@@ -29,26 +27,18 @@ describe("resetGame", () => {
     "disconnect"
   );
   // Declare a storeMock.
-  let storeMock: ToolkitStore<
-    {
-      content: ContentState;
-      options: OptionsState;
-    },
-    AnyAction,
-    [
-      ThunkMiddleware<
-        {
-          content: ContentState;
-          options: OptionsState;
-        },
-        AnyAction
-      >
-    ]
-  >;
+  let storeMock: DOMStore;
 
   beforeEach(() => {
-    // Instantiate a storeMock.
-    storeMock = store;
+    // Create a new store instance for DOMObserver
+    storeMock = configureStore({
+      reducer: { content: contentSlice, options: optionsSlice },
+      middleware: [],
+    });
+    // Set DOMObserver to use the mock store and mock dispatch
+    DOMObserver.setStore(storeMock);
+    DOMObserver.setDispatch(storeMock.dispatch);
+    
     // Populate the DOMObserver fields and redux state with values that need to be reset by resetGame.
     DOMObserver.undoObserver = undefined;
     DOMObserver.gameEndObserver = undefined;
@@ -89,7 +79,6 @@ describe("resetGame", () => {
   });
 
   it("should set the 'initialized' fields to false, assign empty strings to the logsProcessed, gameLog, playerName, and opponentName fields, assign a new Map to the decks field, set the kingdom to an empty array, set baseOnly to true, dispatch the setBaseOnly ActionCreator with payload of true, and disconnect the any mutation observers", () => {
-    
     // Arrangement takes place in the above beforeEach clause.
     // Act - Simulate reset the game when no MutationObservers are assigned.
     DOMObserver.resetGame();

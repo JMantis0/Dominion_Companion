@@ -1,43 +1,32 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
-import {
-  ContentState,
+import contentSlice, {
   setOpponentDeck,
   setPlayerDeck,
 } from "../../../src/redux/contentSlice";
 import { EmptyOpponentDeck } from "../../../src/model/emptyOpponentDeck";
 import { EmptyDeck } from "../../../src/model/emptyDeck";
-import { ToolkitStore } from "@reduxjs/toolkit/dist/configureStore";
-import { OptionsState } from "../../../src/redux/optionsSlice";
-import { AnyAction } from "redux";
-import { ThunkMiddleware } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit/dist/configureStore";
+import optionsSlice from "../../../src/redux/optionsSlice";
 import { store } from "../../../src/redux/store";
 import { Deck } from "../../../src/model/deck";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { DOMStore } from "../../../src/utils";
 
 describe("resetReduxDeckState", () => {
   // Mock dependencies
   // Declare a storeMock.
-  let storeMock: ToolkitStore<
-    {
-      content: ContentState;
-      options: OptionsState;
-    },
-    AnyAction,
-    [
-      ThunkMiddleware<
-        {
-          content: ContentState;
-          options: OptionsState;
-        },
-        AnyAction
-      >
-    ]
-  >;
+  let storeMock: DOMStore;
 
   beforeEach(() => {
-    // Instantiate a storeMock.
-    storeMock = store;
+    // Create a new store instance for DOMObserver
+    storeMock = configureStore({
+      reducer: { content: contentSlice, options: optionsSlice },
+      middleware: [],
+    });
+    // Set DOMObserver to use the mock store and mock dispatch
+    DOMObserver.setStore(storeMock);
+    DOMObserver.setDispatch(storeMock.dispatch);
     // Populate the store with decks that will be reset.
     storeMock.dispatch(
       setPlayerDeck(

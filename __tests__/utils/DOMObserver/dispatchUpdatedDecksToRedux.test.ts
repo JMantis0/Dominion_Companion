@@ -1,49 +1,48 @@
-import { expect, describe, it, jest } from "@jest/globals";
-import { AnyAction, Dispatch } from "redux";
-import {
-  setOpponentDeck,
-  setPlayerDeck,
-} from "../../../src/redux/contentSlice";
-import { OpponentStoreDeck, StoreDeck } from "../../../src/utils";
+import { expect, describe, it, beforeEach } from "@jest/globals";
+import contentSlice from "../../../src/redux/contentSlice";
+import { DOMStore } from "../../../src/utils";
 import { Deck } from "../../../src/model/deck";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
+import { configureStore } from "@reduxjs/toolkit";
+import optionsSlice from "../../../src/redux/optionsSlice";
 
 describe("Function dispatchUpdatedDecksToRedux()", () => {
-  // Arrange
-  const dispatchMock: Dispatch<AnyAction> = jest.fn() as jest.MockedFunction<
-    Dispatch<AnyAction>
-  >;
-  const playerStoreDeck = new Deck(
-    "",
-    false,
-    "",
-    "pName",
-    "pNick",
-    []
-  ) as StoreDeck;
-  const opponentStoreDeck = new OpponentDeck(
-    "",
-    false,
-    "",
-    "oName",
-    "oNick",
-    []
-  ) as OpponentStoreDeck;
+  // Declare reference for storeMock
+  let storeMock: DOMStore;
+  beforeEach(() => {
+    // Create a new store instance for DOMObserver
+    storeMock = configureStore({
+      reducer: { content: contentSlice, options: optionsSlice },
+      middleware: [],
+    });
+    // Set DOMObserver to use the mock store and mock dispatch
+    DOMObserver.setStore(storeMock);
+    DOMObserver.setDispatch(storeMock.dispatch);
+  });
 
   it("should dispatch the setPlayerDeck and setOpponentDeck actions with the provided decks.", () => {
-    // Act - simulate dispatching the actions with the provided decks.
-    DOMObserver.dispatchUpdatedDecksToRedux(
-      dispatchMock,
-      setPlayerDeck,
-      setOpponentDeck,
-      playerStoreDeck,
-      opponentStoreDeck
+    // Arrange
+    const playerStoreDeck = JSON.parse(
+      JSON.stringify(
+        new Deck("", false, "", "pName", "pNick", ["Card1", "Card2"])
+      )
+    );
+    const opponentStoreDeck = JSON.parse(
+      JSON.stringify(
+        new OpponentDeck("", false, "", "oName", "oNick", ["Card1", "Card2"])
+      )
     );
 
-    // Assert
-    expect(dispatchMock).toBeCalledTimes(2);
-    expect(dispatchMock).nthCalledWith(1, setPlayerDeck(playerStoreDeck));
-    expect(dispatchMock).nthCalledWith(2, setOpponentDeck(opponentStoreDeck));
+    // Act - simulate dispatching the actions with the provided decks.
+    DOMObserver.dispatchUpdatedDecksToRedux(playerStoreDeck, opponentStoreDeck);
+
+    // Assert - Verify the redux state contains the new StoreDeck data.
+    expect(storeMock.getState().content.playerDeck).toStrictEqual(
+      playerStoreDeck
+    );
+    expect(storeMock.getState().content.opponentDeck).toStrictEqual(
+      opponentStoreDeck
+    );
   });
 });
