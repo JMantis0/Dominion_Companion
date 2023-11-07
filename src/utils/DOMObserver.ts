@@ -7,6 +7,7 @@ import {
   setSavedGames,
 } from "../redux/contentSlice";
 import {
+  DOMStore,
   ErrorWithMessage,
   OpponentStoreDeck,
   SavedGame,
@@ -16,7 +17,6 @@ import {
 import { OpponentDeck } from "../model/opponentDeck";
 import { store } from "../redux/store";
 import { AnyAction, Dispatch } from "redux";
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { Deck } from "../model/deck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
@@ -113,7 +113,7 @@ export class DOMObserver {
   static opponentRating: string = "";
   /**
    * Use - Flow control.
-   * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
+   * False value means the 'playerName', 'playerNick', 'opponentName', an d 'opponentNick' fields are not initialized.
    * True value means they each hold the appropriate string collected from the elements in the client DOM.
    */
   static playersInitialized: boolean = false;
@@ -141,6 +141,12 @@ export class DOMObserver {
    * and if the game is not active, executes a game reset.
    */
   static resetInterval: NodeJS.Timeout | number;
+
+  /**
+   * The redux store to be used by the DOMObserver.
+   */
+  static store: DOMStore = store;
+
   /**
    * Undo / rewind mutation observer.  Detects changes in the game log container and triggers
    * the undo / rewind handler.
@@ -274,6 +280,12 @@ export class DOMObserver {
   }
   static setResetInterval(resetInterval: NodeJS.Timeout | number): void {
     DOMObserver.resetInterval = resetInterval;
+  }
+  static getStore(): DOMStore {
+    return DOMObserver.store;
+  }
+  static setStore(store: DOMStore) {
+    DOMObserver.store = store;
   }
   static getUndoObserver(): MutationObserver | undefined {
     return DOMObserver.undoObserver;
@@ -458,17 +470,11 @@ export class DOMObserver {
    * @param opponentStoreDeck - The JSON version of opponentDeck.
    */
   static dispatchUpdatedDecksToRedux(
-    dispatch: Dispatch<AnyAction>,
-    setPlayerDeck: ActionCreatorWithPayload<StoreDeck, "content/setPlayerDeck">,
-    setOpponentDeck: ActionCreatorWithPayload<
-      OpponentStoreDeck,
-      "content/setOpponentDeck"
-    >,
     playerStoreDeck: StoreDeck,
     opponentStoreDeck: OpponentStoreDeck
   ): void {
-    dispatch(setPlayerDeck(playerStoreDeck));
-    dispatch(setOpponentDeck(opponentStoreDeck));
+    DOMObserver.dispatch(setPlayerDeck(playerStoreDeck));
+    DOMObserver.dispatch(setOpponentDeck(opponentStoreDeck));
   }
 
   /**
@@ -496,9 +502,6 @@ export class DOMObserver {
         DOMObserver.decks
       );
       DOMObserver.dispatchUpdatedDecksToRedux(
-        DOMObserver.dispatch,
-        setPlayerDeck,
-        setOpponentDeck,
         JSON.parse(
           JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
         ),
@@ -1026,9 +1029,6 @@ export class DOMObserver {
           DOMObserver.opponentName
         );
       DOMObserver.dispatchUpdatedDecksToRedux(
-        DOMObserver.dispatch,
-        setPlayerDeck,
-        setOpponentDeck,
         playerStoreDeck,
         opponentStoreDeck
       );
