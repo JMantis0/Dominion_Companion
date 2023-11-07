@@ -4,11 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "watch": "webpack --watch --progress --config webpack.dev.js",
+    "watch": "set NODE_ENVIRONMENT=dev && webpack --watch --progress --config webpack.dev.js",
     "start": "react-scripts start",
-    "build": "webpack --config webpack.prod.js",
-    "jest:all": "jest ./__tests__/content --all --runInBand",
-    "jest:watch": "jest ./__tests__/content --watch --runInBand",
+    "build": "set NODE_ENVIRONMENT=prod && webpack --config webpack.prod.js",
     "typedoc": "typedoc"
   },
   "devDependencies": {

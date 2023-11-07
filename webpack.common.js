@@ -3,6 +3,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const tailwindcss = require("tailwindcss");
 const autoprefixer = require("autoprefixer");
+const webpack = require("webpack");
 
 module.exports = {
   mode: "development",
@@ -69,6 +70,11 @@ module.exports = {
           to: path.resolve("dist"),
         },
       ],
+    }),
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENVIRONMENT": JSON.stringify(
+        process.env.NODE_ENVIRONMENT
+      ),
     }),
     ...getHtmlPlugins(["popup", "options"]),
   ],
