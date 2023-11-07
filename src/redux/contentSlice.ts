@@ -34,6 +34,7 @@ export interface ContentState {
   pinnedTopCardsLookAmount: number;
   selectOpen: boolean;
   selectScrollPosition: number;
+  error: string | null;
 }
 
 export const initialState: ContentState = {
@@ -91,6 +92,7 @@ export const initialState: ContentState = {
   pinnedTopCardsLookAmount: 1,
   selectOpen: false,
   selectScrollPosition: 0,
+  error: null,
 };
 
 export const contentSlice = createSlice({
@@ -172,6 +174,9 @@ export const contentSlice = createSlice({
     setSelectScrollPosition: (state, action: PayloadAction<number>) => {
       state.selectScrollPosition = action.payload;
     },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
   },
 });
 
@@ -198,6 +203,7 @@ export const {
   setPinnedTopCardsLookAmount,
   setSelectOpen,
   setSelectScrollPosition,
+  setError,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;

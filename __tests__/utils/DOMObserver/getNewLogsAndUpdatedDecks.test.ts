@@ -21,6 +21,7 @@ describe("Function getNewLogsAndUpdateDecks", () => {
   const updateOpponentDeck = jest.spyOn(OpponentDeck.prototype, "update");
   const updateDeck = jest.spyOn(Deck.prototype, "update");
   const mapGet = jest.spyOn(Map.prototype, "get");
+  const handleDeckError = jest.spyOn(DOMObserver, "handleDeckError");
 
   afterEach(() => {
     oDeck = new OpponentDeck("", false, "", "oName", "oNick", []);
@@ -37,14 +38,15 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     const gameLog = "Log1\nLog2\nLog3";
 
     // Act - Simulate getting new log entry within the log observer mutation callback and updating the decks.
-    const { playerStoreDeck, opponentStoreDeck } = DOMObserver.getNewLogsAndUpdateDecks(
-      logsProcessed,
-      gameLog,
-      getUndispatchedLogsMock,
-      deckMap,
-      "pName",
-      "oName"
-    );
+    const { playerStoreDeck, opponentStoreDeck } =
+      DOMObserver.getNewLogsAndUpdateDecks(
+        logsProcessed,
+        gameLog,
+        getUndispatchedLogsMock,
+        deckMap,
+        "pName",
+        "oName"
+      );
 
     // Assert
     expect(getUndispatchedLogsMock).toBeCalledTimes(1);
@@ -75,14 +77,15 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     const gameLog = "Log1\nLog2\nLog3\nLog4";
 
     // Act - Simulate getting new log entries within the log observer mutation callback and updating the decks.
-    const { playerStoreDeck, opponentStoreDeck } = DOMObserver.getNewLogsAndUpdateDecks(
-      logsProcessed,
-      gameLog,
-      getUndispatchedLogsMock,
-      deckMap,
-      "pName",
-      "oName"
-    );
+    const { playerStoreDeck, opponentStoreDeck } =
+      DOMObserver.getNewLogsAndUpdateDecks(
+        logsProcessed,
+        gameLog,
+        getUndispatchedLogsMock,
+        deckMap,
+        "pName",
+        "oName"
+      );
 
     // Assert
     expect(getUndispatchedLogsMock).toBeCalledTimes(1);
@@ -105,5 +108,53 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     expect(updateOpponentDeck).toBeCalledWith(["Log3", "Log4"]);
     expect(playerStoreDeck).toStrictEqual(JSON.parse(JSON.stringify(pDeck)));
     expect(opponentStoreDeck).toStrictEqual(JSON.parse(JSON.stringify(oDeck)));
+  });
+
+  it("should catch an error thrown by a deck's update method and call the DOMObserver errorHandler.", () => {
+    // Arrange
+    // Mock Implement update to throw an error.
+    const error = new Error("Test error");
+    updateDeck.mockImplementation(() => {
+      throw error;
+    });
+
+    const logsProcessed = "Log1\nLog2";
+    const gameLog = "Log1\nLog2\nLog3\nLog4";
+
+    // Act - Simulate an error being thrown by the player deck's update method..
+    DOMObserver.getNewLogsAndUpdateDecks(
+      logsProcessed,
+      gameLog,
+      getUndispatchedLogsMock,
+      deckMap,
+      "pName",
+      "oName"
+    );
+
+    expect(handleDeckError).toBeCalled();
+  });
+
+  it("should catch an error thrown by a opponent deck's update method and call the DOMObserver errorHandler.", () => {
+    // Arrange
+    // Mock Implement update to throw an error.
+    const error = new Error("Test error");
+    updateOpponentDeck.mockImplementation(() => {
+      throw error;
+    });
+
+    const logsProcessed = "Log1\nLog2";
+    const gameLog = "Log1\nLog2\nLog3\nLog4";
+
+    // Act - Simulate an error being thrown by the player deck's update method..
+    DOMObserver.getNewLogsAndUpdateDecks(
+      logsProcessed,
+      gameLog,
+      getUndispatchedLogsMock,
+      deckMap,
+      "pName",
+      "oName"
+    );
+
+    expect(handleDeckError).toBeCalled();
   });
 });

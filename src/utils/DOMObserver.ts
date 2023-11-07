@@ -1,11 +1,18 @@
 import {
   setBaseOnly,
+  setError,
   setGameActiveStatus,
   setOpponentDeck,
   setPlayerDeck,
   setSavedGames,
 } from "../redux/contentSlice";
-import { OpponentStoreDeck, SavedGame, SavedGames, StoreDeck } from ".";
+import {
+  ErrorWithMessage,
+  OpponentStoreDeck,
+  SavedGame,
+  SavedGames,
+  StoreDeck,
+} from ".";
 import { OpponentDeck } from "../model/opponentDeck";
 import { store } from "../redux/store";
 import { AnyAction, Dispatch } from "redux";
@@ -13,6 +20,7 @@ import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 import { Deck } from "../model/deck";
 import { EmptyDeck } from "../model/emptyDeck";
 import { EmptyOpponentDeck } from "../model/emptyOpponentDeck";
+import { toErrorWithMessage } from "./utils";
 
 export class DOMObserver {
   /**
@@ -588,8 +596,12 @@ export class DOMObserver {
     const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
       .split("\n")
       .slice();
-    deckMap.get(playerName)!.update(newLogsToDispatch);
-    deckMap.get(opponentName)!.update(newLogsToDispatch);
+    try {
+      deckMap.get(playerName)!.update(newLogsToDispatch);
+      deckMap.get(opponentName)!.update(newLogsToDispatch);
+    } catch (error) {
+      DOMObserver.handleDeckError(toErrorWithMessage(error));
+    }
     return {
       playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
       opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
@@ -842,6 +854,15 @@ export class DOMObserver {
   }
 
   /**
+   * Dispatches ActionCreator setError with the given error's message as payload.
+   * PrimaryFrame component uses this redux value to render error details in the viewer.
+   * @param error - an error from a deck's update method.
+   */
+  static handleDeckError(error: ErrorWithMessage) {
+    store.dispatch(setError(error.message));
+  }
+
+  /**
    * Control flow method.
    * @returns boolean, true if all four of the globals within are true.
    */
@@ -869,7 +890,7 @@ export class DOMObserver {
     DOMObserver.kingdomInitializer();
     DOMObserver.deckMapInitializer();
     if (DOMObserver.initialized()) {
-      DOMObserver.resetDeckState();
+      DOMObserver.resetReduxDeckState();
       if (DOMObserver.baseOnly) {
         // Set redux active game status
         DOMObserver.dispatch(setGameActiveStatus(true));
@@ -1097,16 +1118,23 @@ export class DOMObserver {
     DOMObserver.setDecks(new Map());
     DOMObserver.setKingdom([]);
     DOMObserver.setBaseOnly(true);
+    DOMObserver.dispatch(setError(null));
     DOMObserver.dispatch(setBaseOnly(true));
-    if (DOMObserver.gameLogObserver !== undefined)
+    if (DOMObserver.gameLogObserver !== undefined) {
       DOMObserver.gameLogObserver.disconnect();
-    if (DOMObserver.gameEndObserver !== undefined)
+      DOMObserver.setGameLogObserver(undefined);
+    }
+    if (DOMObserver.gameEndObserver !== undefined) {
       DOMObserver.gameEndObserver.disconnect();
-    if (DOMObserver.undoObserver !== undefined)
+      DOMObserver.setGameEndObserver(undefined);
+    }
+    if (DOMObserver.undoObserver !== undefined) {
       DOMObserver.undoObserver.disconnect();
+      DOMObserver.setUndoObserver(undefined);
+    }
   }
 
-  static resetDeckState() {
+  static resetReduxDeckState() {
     DOMObserver.dispatch(
       setOpponentDeck(JSON.parse(JSON.stringify(new EmptyOpponentDeck())))
     );
@@ -1138,6 +1166,17 @@ export class DOMObserver {
     }
   }
 
+  /**
+   * Clears the resetInterval an and begins the initInterval.  Invoked
+   * by clicking the Fix/Reset button in the PrimaryFrame component.
+   */
+  static restartDOMObserver() {
+    clearInterval(DOMObserver.resetInterval);
+    DOMObserver.initInterval = setInterval(
+      DOMObserver.initIntervalCallback,
+      1000
+    );
+  }
   /**
    * Saves the game to chrome local storage to be used by the History features.
    * @param gameLog - value of the ameLog field.

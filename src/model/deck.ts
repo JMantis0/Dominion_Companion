@@ -1,4 +1,5 @@
 import {
+  getErrorMessage,
   getLogScrollContainerLogLines,
   toErrorWithMessage,
 } from "../utils/utils";
@@ -249,14 +250,14 @@ export class Deck extends BaseDeck implements StoreDeck {
           "Previous line paddingLeft property does not end with %."
         )
           throw new Error(
-            "Previous line paddingLeft property does not end with %."
+            "CheckForVassalPlay error: Previous line paddingLeft property does not end with %."
           );
         else if (
           toErrorWithMessage(e).message ===
           "Current line paddingLeft property does not end with %."
         )
           throw new Error(
-            "Current line paddingLeft property does not end with %."
+            "CheckForVassalPlay error: Current line paddingLeft property does not end with %."
           );
         let logScrollElementInnerText: string[] = [];
         Array.from(logScrollElement).forEach((el) => {
@@ -290,6 +291,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         console.log(
           "Compare the logArchive to the innerTexts of the game log.  Identify where the difference lies."
         );
+        throw new Error("CheckForVassalPlay error: " + getErrorMessage(e));
       }
     }
     return vassalPlay;
@@ -1107,6 +1109,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   update(log: Array<string>) {
     log.forEach((line) => {
+      // throw new Error("yarg");
       if (this.debug) console.group(line);
       this.setTreasurePopped(false);
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);

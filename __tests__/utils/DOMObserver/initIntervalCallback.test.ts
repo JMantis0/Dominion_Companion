@@ -24,7 +24,7 @@ describe("initIntervalCallback", () => {
     .mockImplementation(() => {});
   const initialized = jest.spyOn(DOMObserver, "initialized");
   const resetDeckState = jest
-    .spyOn(DOMObserver, "resetDeckState")
+    .spyOn(DOMObserver, "resetReduxDeckState")
     .mockImplementation(() => {});
   const dispatch = jest.spyOn(DOMObserver, "dispatch");
   const mutationObserverInitializer = jest
