@@ -90,7 +90,7 @@ describe("saveGameData function", () => {
     mockGet.mockResolvedValueOnce(response1).mockResolvedValueOnce(response2);
     mockSet.mockResolvedValue(null);
 
-    // Call the functio
+    // Call the function
     await DOMObserver.saveGameData(gameLog, decks);
     const expectedSavedGame = {
       logArchive: gameLog,

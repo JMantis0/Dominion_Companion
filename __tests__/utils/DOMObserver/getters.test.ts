@@ -6,6 +6,9 @@ import { DOMObserver } from "../../../src/utils/DOMObserver";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 import { Deck } from "../../../src/model/deck";
 import { store } from "../../../src/redux/store";
+import { configureStore } from "@reduxjs/toolkit";
+import contentSlice, { setError } from "../../../src/redux/contentSlice";
+import optionsSlice from "../../../src/redux/optionsSlice";
 
 describe("getters", () => {
   it("should return field values correctly", () => {
@@ -42,16 +45,12 @@ describe("getters", () => {
       ])
     );
 
-    // dispatch field
-    expect(d.getDispatch()).toBe(store.dispatch);
-
-    // gameLog field
-    d.gameLog = "Log1\nLog2\nLog3";
-    expect(d.getGameLog()).toBe("Log1\nLog2\nLog3");
-
     // decksInitialized field
     d.decksInitialized = true;
     expect(d.getDecksInitialized()).toBe(true);
+
+    // dispatch field
+    expect(d.getDispatch()).toBe(store.dispatch);
 
     // gameEndObserver field
     const nullCallback2 = () => {
@@ -63,6 +62,10 @@ describe("getters", () => {
       new MutationObserver(nullCallback2)
     );
 
+    // gameLog field
+    d.gameLog = "Log1\nLog2\nLog3";
+    expect(d.getGameLog()).toBe("Log1\nLog2\nLog3");
+
     // gameLogObserver field
     const nullCallback = () => null;
     d.gameLogObserver = new MutationObserver(nullCallback);
@@ -70,17 +73,9 @@ describe("getters", () => {
       new MutationObserver(nullCallback)
     );
 
-    // logsInitialized field
-    d.logInitialized = true;
-    expect(d.getLogInitialized()).toBe(true);
-
     // initInterval field
     d.initInterval = 12345;
     expect(d.getInitInterval()).toBe(12345);
-
-    // logsProcessed field
-    d.logsProcessed = "Log1\nLog2\nLog3\nLog4";
-    expect(d.getLogsProcessed()).toBe("Log1\nLog2\nLog3\nLog4");
 
     // kingdom fields
     d.kingdom = ["Card1", "Card2"];
@@ -89,6 +84,14 @@ describe("getters", () => {
     // kingdomInitialized field
     d.kingdomInitialized = true;
     expect(d.getKingdomInitialized()).toBe(true);
+
+    // logsInitialized field
+    d.logInitialized = true;
+    expect(d.getLogInitialized()).toBe(true);
+
+    // logsProcessed field
+    d.logsProcessed = "Log1\nLog2\nLog3\nLog4";
+    expect(d.getLogsProcessed()).toBe("Log1\nLog2\nLog3\nLog4");
 
     // opponentName field
     d.opponentName = "Peter Piper";
@@ -125,6 +128,17 @@ describe("getters", () => {
     // resetInterval field
     d.resetInterval = 555;
     expect(d.getResetInterval()).toBe(555);
+
+    // store field
+    const storeMock = configureStore({
+      reducer: { content: contentSlice, options: optionsSlice },
+      middleware: [],
+    });
+    // Set DOMObserver to use the mock store and mock dispatch
+    d.store = storeMock;
+    // Change the store state to verify the store getter is working.
+    storeMock.dispatch(setError("MockError"));
+    expect(d.store).toStrictEqual(storeMock);
 
     // undoObserver field
     const nullCallback3 = () => {

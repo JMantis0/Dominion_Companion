@@ -166,6 +166,7 @@ export class BaseDeck {
    * @param card - The The given card.
    */
   addCardToEntireDeck(card: string) {
+    if (this.debug) console.info(`Gaining ${card} into deck.`);
     const entireDeckCopy = this.entireDeck.slice();
     entireDeckCopy.push(card);
     this.setEntireDeck(entireDeckCopy);

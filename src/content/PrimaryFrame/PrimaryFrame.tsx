@@ -32,6 +32,7 @@ const PrimaryFrame = () => {
   const primaryFrameTab = useSelector(
     (state: RootState) => state.content.primaryFrameTab
   );
+  const error = useSelector((state: RootState) => state.content.error);
   useEffect(() => {
     addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
     DOMObserver.initInterval = setInterval(
@@ -75,6 +76,26 @@ const PrimaryFrame = () => {
             {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
               <React.Fragment>
                 <PrimaryFrameHeader />
+                <div
+                  className={
+                    error !== null
+                      ? "text-white text-xs bg-red-800 m-auto grid place-items-center"
+                      : "hidden"
+                  }
+                >
+                  {error}
+                  <br></br>
+                  <button
+                    className={
+                      "animate-bounce border-2 border-black bg-gray-600 rounded-md w-1/4 m-auto"
+                    }
+                    onClick={() => {
+                      DOMObserver.restartDOMObserver();
+                    }}
+                  >
+                    Fix
+                  </button>
+                </div>
                 <main className="text-white grid grid-cols-12 mb-[10px] border-t-2">
                   <PrimaryFrameTab
                     title="Deck"
@@ -160,7 +181,9 @@ const PrimaryFrame = () => {
                 </div>
               </React.Fragment>
             ) : baseOnly ? (
-              <div className="text-white pointer-events-none text-center m-auto">No active game.</div>
+              <div className="text-white pointer-events-none text-center m-auto">
+                No active game.
+              </div>
             ) : (
               <div className="text-white pointer-events-none text-center m-auto">
                 Only Base Set cards supported. Non-base cards detected in

@@ -9,6 +9,5 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 const openOptionsPage = () => {
-  console.log("Opening options from service worker.")
   chrome.runtime.openOptionsPage();
 };

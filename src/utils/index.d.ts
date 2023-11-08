@@ -1,4 +1,12 @@
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import {
+  ActionCreatorWithPayload,
+  AnyAction,
+  MiddlewareArray,
+  ThunkMiddleware,
+} from "@reduxjs/toolkit";
+import { ToolkitStore } from "@reduxjs/toolkit/dist/configureStore";
+import { ContentState } from "../redux/contentSlice";
+import { OptionsState } from "../redux/optionsSlice";
 
 /**
  * Custom object literal type.  One property holds value for the total amount of cards
@@ -10,10 +18,31 @@ interface CardCounts {
   zoneCount: number;
 }
 
+// Type for the redux store.  This type allows for an empty middleware array for faster testing.
+type DOMStore = ToolkitStore<
+  {
+    content: ContentState;
+    options: OptionsState;
+  },
+  AnyAction,
+  | MiddlewareArray<
+      [
+        ThunkMiddleware<
+          {
+            content: ContentState;
+            options: OptionsState;
+          },
+          AnyAction
+        >
+      ]
+    >
+  | never[]
+>;
+
 /**
  * Interface used for handling unknown objects that *might* be an error.
  */
-interface ErrorWithMessage {
+interface ErrorWithMessage extends Error {
   message: string;
 }
 
@@ -123,6 +152,7 @@ interface StoreDeck {
 
 export {
   CardCounts,
+  DOMStore,
   ErrorWithMessage,
   GameResult,
   OpponentStoreDeck,

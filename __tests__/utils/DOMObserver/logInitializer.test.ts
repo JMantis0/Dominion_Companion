@@ -1,50 +1,62 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+/**
+ * @jest-environment jsdom
+ */
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
 describe("logInitializer", () => {
-  // Mock dependencies
-  const isGameLogPresent = jest.spyOn(DOMObserver, "isGameLogPresent");
-  const getClientGameLog = jest.spyOn(DOMObserver, "getClientGameLog");
-  const getRatedGameBoolean = jest.spyOn(DOMObserver, "getRatedGameBoolean");
-  const setGameLog = jest.spyOn(DOMObserver, "setGameLog");
-  const setRatedGame = jest.spyOn(DOMObserver, "setRatedGame");
-  const setLogInitialized = jest.spyOn(DOMObserver, "setRatedGame");
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-  it("should set the ratedGame and gameLog fiends if the game log is present, and return true", () => {});
-  // Arrange Mock a scenario where the game-log element is present n the DOM.
-  isGameLogPresent.mockImplementation(() => true);
-  getClientGameLog.mockImplementation(() => "Log1\nLog2\nLog3\nLog4");
-  getRatedGameBoolean.mockImplementation(() => true);
+  let gameLogElement: HTMLElement;
+  describe("should check if the game-log element is in the document, and then...", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      document.body.innerHTML = "";
+    });
 
-  // Act - Simulate calling the logInitializer when the game log element is present in the DOM.
-  DOMObserver.logInitializer();
+    it("if the game log is present, it should set the DOMObserver field values, gameLog, ratedGame, and logInitialized", () => {
+      // Arrange - add the game-log element to the document.
+      gameLogElement = document.createElement("div");
+      gameLogElement.classList.add("game-log");
+      gameLogElement.innerText =
+        "Game #133465515, rated.\nCard Pool: level 1\nL starts with 7 Coppers.\nL starts with 3 Estates.\nG starts with 7 Coppers.\nG starts with 3 Estates.";
+      document.body.appendChild(gameLogElement);
 
-  // Assert
-  expect(isGameLogPresent.mock.results[0].value).toBe(true);
-  expect(getClientGameLog).toBeCalledTimes(1);
-  expect(getRatedGameBoolean).toBeCalledTimes(1);
-  expect(getRatedGameBoolean).toBeCalledWith("Log1");
-  expect(setGameLog).toBeCalledTimes(1);
-  expect(setGameLog).toBeCalledWith("Log1\nLog2\nLog3\nLog4");
-  expect(setRatedGame).toBeCalledTimes(1);
-  expect(setRatedGame).toBeCalledWith(true);
-  expect(setLogInitialized).toBeCalledTimes(1);
-  expect(setLogInitialized).toBeCalledWith(true);
+      // Act - Call logInitializer
+      DOMObserver.logInitializer();
 
-  it("should return false if the game log is not present", () => {
-    isGameLogPresent.mockImplementation(() => false);
+      // Verify gameLogField was set correctly.
+      expect(DOMObserver.gameLog).toBe(
+        "Game #133465515, rated.\nCard Pool: level 1\nL starts with 7 Coppers.\nL starts with 3 Estates.\nG starts with 7 Coppers.\nG starts with 3 Estates."
+      );
+      // Verify ratedGame field was set correctly.
+      expect(DOMObserver.ratedGame).toBe(true);
+      // Verify logInitialized set correctly.
+      expect(DOMObserver.logInitialized).toBe(true);
+    });
 
-    // Act - Simulate calling the logInitializer when the game log element is not present in the DOM.
-    DOMObserver.logInitializer();
+    it("if the game log is not present, it should not change any DOMObserver fields.", () => {
+      // Arrange - Do not add the game-log element to the document.
 
-    // Assert
-    expect(isGameLogPresent).toBeCalledTimes(1);
-    expect(isGameLogPresent.mock.results[0].value).toBe(false);
-    expect(getClientGameLog).not.toBeCalled();
-    expect(getRatedGameBoolean).not.toBeCalled();
-    expect(setGameLog).not.toBeCalled();
-    expect(setRatedGame).not.toBeCalled();
-    expect(setLogInitialized).not.toBeCalled();
+      // Set DOMObserver fields;
+      DOMObserver.gameLog = "This game log should not change.";
+      DOMObserver.ratedGame = true;
+      DOMObserver.logInitialized = false;
+
+      // Spy on setter dependencies to ensure they are not called
+      const setGameLog = jest.spyOn(DOMObserver, "setGameLog");
+      const setRatedGame = jest.spyOn(DOMObserver, "setRatedGame");
+      const setLogInitialized = jest.spyOn(DOMObserver, "setRatedGame");
+
+      // Act - Simulate calling the logInitializer when the game log element is not present in the DOM.
+      DOMObserver.logInitializer();
+
+      // Assert
+      // Verify the fields did not change.
+      expect(DOMObserver.gameLog).toBe("This game log should not change.");
+      expect(DOMObserver.ratedGame).toBe(true);
+      expect(DOMObserver.logInitialized).toBe(false);
+      // Verify the setters for the fields were not called.
+      expect(setGameLog).not.toBeCalled();
+      expect(setRatedGame).not.toBeCalled();
+      expect(setLogInitialized).not.toBeCalled();
+    });
   });
 });

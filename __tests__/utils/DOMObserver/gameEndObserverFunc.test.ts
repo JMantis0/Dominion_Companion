@@ -1,84 +1,108 @@
 /**
  * @jest-environment jsdom
  */
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
-import {
-  setOpponentDeck,
-  setPlayerDeck,
-} from "../../../src/redux/contentSlice";
+
+import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { Deck } from "../../../src/model/deck";
+import { DOMStore } from "../../../src/utils";
+import { configureStore } from "@reduxjs/toolkit";
+import contentSlice from "../../../src/redux/contentSlice";
+import optionsSlice from "../../../src/redux/optionsSlice";
 
 describe("gameEndObserverFunc", () => {
   // Mock dependencies
-  const getTimeOutElements = jest.spyOn(DOMObserver, "getTimeOutElements");
-  const getResult = jest
-    .spyOn(DOMObserver, "getResult")
-    .mockImplementation(() => ["Victor", "Defeated"]);
-  const setDecksGameResults = jest.spyOn(DOMObserver, "setDecksGameResults");
-  const dispatchUpdatedDecksToRedux = jest.spyOn(
-    DOMObserver,
-    "dispatchUpdatedDecksToRedux"
-  );
+  let gameEndElement: HTMLElement;
+  let timeOutElement1: HTMLElement;
+  let timeOutElement2: HTMLElement;
+  let decks: Map<string, Deck | OpponentDeck>;
+  let pDeck: Deck;
+  let oDeck: OpponentDeck;
+  let storeMock: DOMStore;
+
   const saveGameData = jest
     .spyOn(DOMObserver, "saveGameData")
     .mockImplementation(() => {
       return new Promise<void>(() => null);
     });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     document.body.innerHTML = "";
+    pDeck = new Deck("", false, " ", "pName", "pNick", []);
+    oDeck = new OpponentDeck("", false, " ", "oName", "oNick", []);
+    decks = new Map();
+    decks.set("pName", pDeck);
+    decks.set("oName", oDeck);
+    // Create a new store instance for DOMObserver
+    storeMock = configureStore({
+      reducer: { content: contentSlice, options: optionsSlice },
+      middleware: [],
+    });
+    // Set DOMObserver to use the mock store and mock dispatch
+    DOMObserver.decks = decks;
+    DOMObserver.playerName = "pName";
+    DOMObserver.opponentName = "oName";
+    DOMObserver.setStore(storeMock);
+    DOMObserver.setDispatch(storeMock.dispatch);
+    jest.clearAllMocks();
   });
 
   it("should collect game end details and call dependencies accordingly when the game end message is 'The game has ended.'", () => {
     // Arrange
-    const gameEndElement = document.createElement("game-ended-notification");
+    gameEndElement = document.createElement("game-ended-notification");
     // Create timeOutElements that will be added to the game end element
-    const timeoutElement1 = document.createElement("div");
-    timeoutElement1.setAttribute("class", "timeout");
-    timeoutElement1.innerText = "The game has ended.";
-    const timeoutElement2 = document.createElement("div");
-    timeoutElement2.setAttribute("class", "timeout");
-    timeoutElement2.innerText = "Mock Game End Reason";
-    gameEndElement.appendChild(timeoutElement1);
-    gameEndElement.appendChild(timeoutElement2);
+    timeOutElement1 = document.createElement("div");
+    timeOutElement1.setAttribute("class", "timeout");
+    timeOutElement1.innerText = "The game has ended.";
+    timeOutElement2 = document.createElement("div");
+    timeOutElement2.setAttribute("class", "timeout");
+    timeOutElement2.innerText = "Mock Game End Reason";
+    gameEndElement.appendChild(timeOutElement1);
+    gameEndElement.appendChild(timeOutElement2);
     document.body.appendChild(gameEndElement);
 
-    // Act - Simulate a mutation in the game end element
+    // Mock result 3 game results.
+    jest
+      .spyOn(DOMObserver, "getResult")
+      .mockReturnValueOnce(["pName", "oName"])
+      .mockReturnValueOnce(["oName", "pName"])
+      .mockReturnValueOnce(["None: tie", "None:tie"]);
+
+    // Act - Simulate game end with player as the victor.
     DOMObserver.gameEndObserverFunc();
-    
-    // Assert
-    expect(getTimeOutElements).toBeCalledTimes(1);
-    expect(getResult).toBeCalledTimes(1);
-    expect(getResult).toBeCalledWith(
-      DOMObserver.decks,
-      DOMObserver.playerName,
-      DOMObserver.opponentName,
-      "Mock Game End Reason"
+
+    // Assert - Verify Redux state and decks properly updated
+    expect(storeMock.getState().content.playerDeck.gameResult).toBe("Victory");
+    expect(storeMock.getState().content.opponentDeck.gameResult).toBe("Defeat");
+    expect(saveGameData).toBeCalledWith(DOMObserver.gameLog, DOMObserver.decks);
+
+    // 2nd act - Simulate game end with opponent as the victor.
+    DOMObserver.gameEndObserverFunc();
+
+    // Assert - Verify Redux state and decks properly updated
+    expect(storeMock.getState().content.playerDeck.gameResult).toBe("Defeat");
+    expect(storeMock.getState().content.opponentDeck.gameResult).toBe(
+      "Victory"
     );
-    expect(setDecksGameResults).toBeCalledTimes(1);
-    expect(setDecksGameResults).toBeCalledWith(
-      "Victor",
-      "Defeated",
-      DOMObserver.playerName,
-      DOMObserver.opponentName,
-      DOMObserver.decks
-    );
-    expect(dispatchUpdatedDecksToRedux).toBeCalledTimes(1);
-    expect(dispatchUpdatedDecksToRedux).toBeCalledWith(
-      DOMObserver.dispatch!,
-      setPlayerDeck,
-      setOpponentDeck,
-      JSON.parse(JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))),
-      JSON.parse(
-        JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
-      )
-    );
-    expect(saveGameData).toBeCalledTimes(1);
+    expect(saveGameData).toBeCalledWith(DOMObserver.gameLog, DOMObserver.decks);
+
+    // 3rd act - Simulate game end with a tie.
+    DOMObserver.gameEndObserverFunc();
+
+    // Assert - Verify Redux state and decks properly updated
+    expect(storeMock.getState().content.playerDeck.gameResult).toBe("Tie");
+    expect(storeMock.getState().content.opponentDeck.gameResult).toBe("Tie");
     expect(saveGameData).toBeCalledWith(DOMObserver.gameLog, DOMObserver.decks);
   });
 
   it("should not collect game end details or call dependencies  when the game end message is not 'The game has ended.'", () => {
+    const getResult = jest.spyOn(DOMObserver, "getResult");
+    const setDecksGameResults = jest.spyOn(DOMObserver, "setDecksGameResults");
+    const dispatchUpdatedDecksToRedux = jest.spyOn(
+      DOMObserver,
+      "dispatchUpdatedDecksToRedux"
+    );
     // Arrange
     const gameEndElement = document.createElement("game-ended-notification");
     // Create timeOutElements that will be added to the game end element
@@ -95,7 +119,6 @@ describe("gameEndObserverFunc", () => {
     DOMObserver.gameEndObserverFunc();
 
     // Assert
-    expect(getTimeOutElements).toBeCalledTimes(1);
     expect(getResult).not.toBeCalled();
     expect(setDecksGameResults).not.toBeCalled();
     expect(dispatchUpdatedDecksToRedux).not.toBeCalled();

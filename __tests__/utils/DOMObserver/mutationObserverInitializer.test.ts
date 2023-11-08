@@ -4,12 +4,13 @@
 import { describe, it, expect, jest } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
 describe("mutationObserverInitializer", () => {
-  // Mock dependencies
-  const setGameLogObserver = jest.spyOn(DOMObserver, "setGameLogObserver");
-  const setGameEndObserver = jest.spyOn(DOMObserver, "setGameEndObserver");
-  const setUndoObserver = jest.spyOn(DOMObserver, "setUndoObserver");
+  // Spy on the MutationObserver's observe method
   const observe = jest.spyOn(MutationObserver.prototype, "observe");
-  
+  // Declare references for the MutationObservers
+  let undoObserver: MutationObserver;
+  let gameEndObserver: MutationObserver;
+  let gameLogObserver: MutationObserver;
+
   it("should assign new mutation observers and invoke their observe methods on the correct DOM elements.", () => {
     // Arrange - Create mock elements to be observed and append them to the DOM
     const gameLogElement = document.createElement("div");
@@ -21,23 +22,17 @@ describe("mutationObserverInitializer", () => {
     logContainerElement.setAttribute("class", "log-container");
     document.body.appendChild(logContainerElement);
 
+    undoObserver = new MutationObserver(DOMObserver.undoObserverFunc);
+    gameEndObserver = new MutationObserver(DOMObserver.gameEndObserverFunc);
+    gameLogObserver = new MutationObserver(DOMObserver.logObserverFunc);
+
     // Act - Simulate calling the mutationObserverInitializer
     DOMObserver.mutationObserverInitializer();
 
     // Assert
-    expect(setGameLogObserver).toBeCalledTimes(1);
-    expect(setGameLogObserver).toBeCalledWith(
-      new MutationObserver(DOMObserver.logObserverFunc)
-    );
-    expect(setGameEndObserver).toBeCalledTimes(1);
-    expect(setGameEndObserver).toBeCalledWith(
-      new MutationObserver(DOMObserver.gameEndObserverFunc)
-    );
-    expect(setUndoObserver).toBeCalledTimes(1);
-    expect(setUndoObserver).toBeCalledWith(
-      new MutationObserver(DOMObserver.undoObserverFunc)
-    );
-    expect(observe).toBeCalledTimes(3);
+    expect(DOMObserver.gameEndObserver).toStrictEqual(gameEndObserver);
+    expect(DOMObserver.gameLogObserver).toStrictEqual(gameLogObserver);
+    expect(DOMObserver.undoObserver).toStrictEqual(undoObserver);
     expect(observe).nthCalledWith(1, logContainerElement, {
       childList: true,
       subtree: true,
