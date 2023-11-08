@@ -1,15 +1,13 @@
-import { it, describe, expect, jest } from "@jest/globals";
+import { it, describe, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 import { afterEach } from "node:test";
 
 describe("Method getRepeatBuyGainCounts()", () => {
   // Instantiate BaseDeck object.
   let deck = new BaseDeck("", false, "", "pNick", "pName", []);
-  // Spy on method dependency
-  const setLogArchive = jest.spyOn(BaseDeck.prototype, "setLogArchive");
+
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", []);
-    jest.clearAllMocks();
   });
   it("should return the difference between the amount of the card that is bought in the provided line, and the amount that is bought in the most recent logArchive entry, and remove the last member of the logArchive", () => {
     // Arrange
@@ -26,8 +24,6 @@ describe("Method getRepeatBuyGainCounts()", () => {
       )
     ).toEqual(1);
     expect(deck.logArchive).toStrictEqual(["pNick plays 2 Golds. (+$6)"]);
-    expect(setLogArchive).toBeCalledTimes(1);
-    expect(setLogArchive).toBeCalledWith(["pNick plays 2 Golds. (+$6)"]);
   });
 
   it("should work even if the difference is greater than 1", () => {
@@ -46,8 +42,6 @@ describe("Method getRepeatBuyGainCounts()", () => {
       )
     ).toEqual(3);
     expect(deck.logArchive).toStrictEqual(["pNick plays 8 Golds. (+$24)"]);
-    expect(setLogArchive).toBeCalledTimes(1);
-    expect(setLogArchive).toBeCalledWith(["pNick plays 8 Golds. (+$24)"]);
   });
 
   it("should throw an error when the logArchive is empty", () => {

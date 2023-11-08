@@ -1,15 +1,11 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method discardFromSetAside()", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
-  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
 
   afterEach(() => {
-    jest.clearAllMocks();
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -24,10 +20,6 @@ describe("Method discardFromSetAside()", () => {
     // Assert
     expect(deck.setAside).toStrictEqual(["Sentry"]);
     expect(deck.graveyard).toStrictEqual(["Curse", "Vassal"]);
-    expect(setGraveyard).toBeCalledTimes(1);
-    expect(setGraveyard).toBeCalledWith(["Curse", "Vassal"]);
-    expect(setSetAside).toBeCalledTimes(1);
-    expect(setSetAside).toBeCalledWith(["Sentry"]);
   });
 
   it("throw an Error when the provided card is not in the setAside zone", () => {

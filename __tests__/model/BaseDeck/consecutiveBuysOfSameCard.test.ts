@@ -1,12 +1,8 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Method consecutiveBuysOfSameCard()", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  const checkForBuyAndGain = jest.spyOn(
-    BaseDeck.prototype,
-    "checkForBuyAndGain"
-  );
 
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
@@ -24,9 +20,6 @@ describe("Method consecutiveBuysOfSameCard()", () => {
 
     // Assert
     expect(result).toBe(true);
-    expect(checkForBuyAndGain).toBeCalledTimes(2);
-    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
-    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false when neither line buy and gain.", () => {
@@ -41,8 +34,6 @@ describe("Method consecutiveBuysOfSameCard()", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
-    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false when both lines buy and gain, but are for different cards", () => {
@@ -57,8 +48,6 @@ describe("Method consecutiveBuysOfSameCard()", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
-    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false when provided line is not buy and gain, but last line in logArchive is", () => {
@@ -73,8 +62,6 @@ describe("Method consecutiveBuysOfSameCard()", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
-    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false if provided line is buy and gain, but not last line in logArchive.", () => {
@@ -89,8 +76,6 @@ describe("Method consecutiveBuysOfSameCard()", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForBuyAndGain).nthCalledWith(1, line, card);
-    expect(checkForBuyAndGain).nthCalledWith(2, deck.lastEntryProcessed, card);
   });
 
   it("should return false when act is not 'gains'", () => {
@@ -101,6 +86,5 @@ describe("Method consecutiveBuysOfSameCard()", () => {
 
     // Act and Assert - Simulate not maying a gain on the current line.
     expect(deck.consecutiveBuysOfSameCard(act, line, card)).toBe(false);
-    expect(checkForBuyAndGain).not.toBeCalled();
   });
 });

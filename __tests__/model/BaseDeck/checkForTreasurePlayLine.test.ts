@@ -3,7 +3,7 @@ import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Method checkForTreasurePlayLine()", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  
+
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
   });

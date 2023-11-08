@@ -20,7 +20,7 @@ describe("Method checkForLibraryLook()", () => {
   it("should return false when the curring line is looking at a card but it was not due to a Library play", () => {
     // Arrange
     deck.latestPlay = "Sentry";
-    
+
     // Act and Assert
     expect(deck.checkForLibraryLook("pNick looks at 2 Coppers.")).toBeFalsy();
   });

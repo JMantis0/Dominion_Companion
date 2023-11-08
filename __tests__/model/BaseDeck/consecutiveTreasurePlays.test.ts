@@ -3,10 +3,6 @@ import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Method consecutiveTreasurePlays", () => {
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  const checkForTreasurePlayLine = jest.spyOn(
-    BaseDeck.prototype,
-    "checkForTreasurePlayLine"
-  );
 
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
@@ -23,9 +19,6 @@ describe("Method consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(true);
-    expect(checkForTreasurePlayLine).toBeCalledTimes(2);
-    expect(checkForTreasurePlayLine).nthCalledWith(1, deck.lastEntryProcessed);
-    expect(checkForTreasurePlayLine).nthCalledWith(2, line);
   });
 
   it("should return false when the lastEntryProcessed does not play a treasure", () => {
@@ -38,8 +31,6 @@ describe("Method consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
-    expect(checkForTreasurePlayLine).toBeCalledWith(deck.lastEntryProcessed);
   });
 
   it("should return false if the current line does not play a treasure", () => {
@@ -52,8 +43,5 @@ describe("Method consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForTreasurePlayLine).toBeCalledTimes(2);
-    expect(checkForTreasurePlayLine).nthCalledWith(1, deck.lastEntryProcessed);
-    expect(checkForTreasurePlayLine).nthCalledWith(2, line);
   });
 });

@@ -1,4 +1,4 @@
-import { it, describe, expect, jest, afterEach } from "@jest/globals";
+import { it, describe, expect, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method checkForCellarDraw()", () => {
@@ -6,7 +6,6 @@ describe("Method checkForCellarDraw()", () => {
   let deck = new Deck("", false, "", "pName", "pNick", []);
 
   afterEach(() => {
-    jest.clearAllMocks();
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -24,7 +23,7 @@ describe("Method checkForCellarDraw()", () => {
   });
 
   // Case2 - shuffle occurred before draws take place due to low library count.
-  it("should return true if the draws on the current line were cuase by a Cellar with a shuffle in between the draws and the Cellar play", () => {
+  it("should return true if the draws on the current line were cause by a Cellar with a shuffle in between the draws and the Cellar play", () => {
     // Arrange
     deck.logArchive = [
       "pNick plays a Cellar.", // Draws caused by this Cellar, with a shuffle between.

@@ -16,7 +16,7 @@ describe("Method checkForShuffle()", () => {
     // Act and Assert
     expect(deck.checkForShuffle()).toBeTruthy();
   });
-  
+
   it("should return false when the provided line does not match ' shuffles their deck'", () => {
     deck.lastEntryProcessed = "pNick draws a Copper.";
 

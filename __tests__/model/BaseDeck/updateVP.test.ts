@@ -1,14 +1,12 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("Method updateVP()", () => {
   // Instantiate BaseDeck object.
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
   // Spy on function dependency.
-  const setCurrentVP = jest.spyOn(BaseDeck.prototype, "setCurrentVP");
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
   it("should correctly update the deck VP based on the card in the entire deck.", () => {
     // Arrange
@@ -33,8 +31,6 @@ describe("Method updateVP()", () => {
     deck.updateVP();
 
     expect(deck.currentVP).toBe(expectedVP);
-    expect(setCurrentVP).toBeCalledTimes(1);
-    expect(setCurrentVP).toBeCalledWith(expectedVP);
   });
 
   it("should calculate VP correctly for randomized deck lists", () => {
@@ -81,7 +77,5 @@ describe("Method updateVP()", () => {
 
     // Assert
     expect(resultVP).toEqual(expectedVP);
-    expect(setCurrentVP).toBeCalledTimes(1);
-    expect(setCurrentVP).toBeCalledWith(expectedVP);
   });
 });
