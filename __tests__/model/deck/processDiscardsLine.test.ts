@@ -1,20 +1,15 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processDiscardsLine()", () => {
   // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on dependent methods.
-  const discardFromSetAside = jest.spyOn(Deck.prototype, "discardFromSetAside");
-  const discardFromLibrary = jest.spyOn(Deck.prototype, "discardFromLibrary");
-  const discard = jest.spyOn(Deck.prototype, "discard");
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
   });
 
-  // Case: discard from hand
+  // Case - discard from hand
   it("should handle discarding cards from hand correctly", () => {
     // Arrange
     deck.latestPlay = "Militia";
@@ -22,7 +17,8 @@ describe("Method processDiscardsLine()", () => {
     const numberOfCards = [1, 1];
     deck.hand = ["Copper", "Estate", "Estate"];
     deck.graveyard = ["Silver"];
-
+    deck.setAside = ["Shouldn't Move"];
+    deck.library = ["Shouldn't Move"];
     // Act - Simulate discarding two cards to an opponent's Militia.
     deck.processDiscardsLine(cards, numberOfCards);
 
@@ -30,11 +26,11 @@ describe("Method processDiscardsLine()", () => {
     expect(deck.hand).toStrictEqual(["Estate"]);
     expect(deck.graveyard).toStrictEqual(["Silver", "Copper", "Estate"]);
     //  Verify that other zones were not discarded from.
-    expect(discardFromSetAside).not.toBeCalled();
-    expect(discardFromLibrary).not.toBeCalled();
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
 
-  // Case: discard from library
+  // Case - discard from library: Vassal
   it("should discard from the library when latestPlay is a Vassal", () => {
     // Arrange
     deck.latestPlay = "Vassal";
@@ -42,6 +38,8 @@ describe("Method processDiscardsLine()", () => {
     const numberOfCards = [1];
     deck.library = ["Copper", "Estate", "Silver"];
     deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Vassal.
     deck.processDiscardsLine(cards, numberOfCards);
@@ -50,10 +48,11 @@ describe("Method processDiscardsLine()", () => {
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
     expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
     // Verify that other zones were not discarded from.
-    expect(discardFromSetAside).not.toBeCalled();
-    expect(discard).not.toBeCalled();
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - Discard from setAside: Bandit
   it("should discard from setAside when latestPlay is a Bandit", () => {
     // Arrange
     deck.latestPlay = "Bandit";
@@ -61,6 +60,8 @@ describe("Method processDiscardsLine()", () => {
     const numberOfCards = [1];
     deck.setAside = ["Smithy"];
     deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Bandit.
     deck.processDiscardsLine(cards, numberOfCards);
@@ -69,10 +70,11 @@ describe("Method processDiscardsLine()", () => {
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.graveyard).toStrictEqual(["Silver", "Smithy"]);
     // Verify other zones were not discarded from.
-    expect(discard).not.toBeCalled();
-    expect(discardFromLibrary).not.toBeCalled();
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - Discard from setAside: Library
   it("should discard from setAside when latestPlay is a Library", () => {
     // Arrange
     deck.latestPlay = "Library";
@@ -80,10 +82,13 @@ describe("Method processDiscardsLine()", () => {
     const numberOfCards = [1, 2];
     deck.setAside = ["Chapel", "Poacher", "Poacher"];
     deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
 
     // Act - simulate discarding 3 cards with a Library.
     deck.processDiscardsLine(cards, numberOfCards);
 
+    // Assert - Verify the setAside and graveyard zones contain the expected cards.
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.graveyard).toStrictEqual([
       "Silver",
@@ -91,14 +96,12 @@ describe("Method processDiscardsLine()", () => {
       "Poacher",
       "Poacher",
     ]);
-
-    // Assert - Verify the setAside and graveyard zones contain the expected cards.
-    expect(discardFromSetAside).toBeCalledTimes(3);
     // Verify the other zone were not discarded from.
-    expect(discardFromLibrary).not.toBeCalled();
-    expect(discard).not.toBeCalled();
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - Discard from setAside: Sentry
   it("should discard from setAside when the latestPlay is a Sentry", () => {
     // Arrange
     deck.latestPlay = "Sentry";
@@ -106,6 +109,8 @@ describe("Method processDiscardsLine()", () => {
     const numberOfCards = [1, 1];
     deck.setAside = ["Province", "Gardens"];
     deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding 2 cards with Sentry.
     deck.processDiscardsLine(cards, numberOfCards);
@@ -114,7 +119,7 @@ describe("Method processDiscardsLine()", () => {
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.graveyard).toStrictEqual(["Silver", "Province", "Gardens"]);
     // Verify other zones were not discarded from.
-    expect(discardFromLibrary).not.toBeCalled();
-    expect(discard).not.toBeCalled();
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
 });

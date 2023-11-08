@@ -1,19 +1,20 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processDrawsLine", () => {
   // Instantiate Deck object.
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies.
-  const checkForCleanup = jest.spyOn(Deck.prototype, "checkForCleanUp");
-  const checkForShuffle = jest.spyOn(Deck.prototype, "checkForShuffle");
-  const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
-  const cleanup = jest.spyOn(Deck.prototype, "cleanup");
-  const draw = jest.spyOn(Deck.prototype, "draw");
 
-  afterEach(() => {
-    jest.clearAllMocks();
-    deck = new Deck("", false, "", "pName", "pNick", []);
+  beforeEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", [
+      "Copper",
+      "Silver",
+      "Gold",
+      "Estate",
+      "Merchant",
+      "Bureaucrat",
+      "Cellar",
+    ]);
   });
 
   // Case where there are 5 draws taking place on one line and a shuffle occurred
@@ -33,6 +34,19 @@ describe("Method processDrawsLine", () => {
     ];
     deck.lastEntryProcessed = "pNick shuffles their deck.";
 
+    // Mock a mid turn game board
+    deck.inPlay = ["Shouldn't Move"];
+    deck.graveyard = [];
+    deck.hand = ["Copper"];
+    deck.library = [
+      "Copper",
+      "Copper",
+      "Silver",
+      "Gold",
+      "Merchant",
+      "Bureaucrat",
+    ];
+
     // Arguments for function being tested
     const line = "pNick draws 2 Coppers, a Silver, a Gold, and a Merchant.";
     const cards = ["Copper", "Silver", "Gold", "Merchant"];
@@ -42,23 +56,19 @@ describe("Method processDrawsLine", () => {
     // with draws that were caused by turn ending.
     deck.processDrawsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(checkForCleanup).toBeCalledTimes(1);
-    expect(checkForCleanup).toBeCalledWith(line);
-    expect(checkForCleanup.mock.results[0].value).toBe(true);
-    expect(checkForShuffle).toBeCalledTimes(1);
-    expect(checkForShuffle).toBeCalledWith(); // Call with no arguments
-    expect(checkForShuffle.mock.results[0].value).toBe(true);
-    expect(checkForCellarDraw).toBeCalledTimes(1);
-    expect(checkForCellarDraw).toBeCalledWith(); // Call with no arguments
-    expect(checkForCellarDraw.mock.results[0].value).toBe(false);
-    expect(cleanup).not.toBeCalled();
-    expect(draw).toBeCalledTimes(5);
-    expect(draw).nthCalledWith(1, "Copper");
-    expect(draw).nthCalledWith(2, "Copper");
-    expect(draw).nthCalledWith(3, "Silver");
-    expect(draw).nthCalledWith(4, "Gold");
-    expect(draw).nthCalledWith(5, "Merchant");
+    // Assert - Verify the hand and library contain the expected cards
+    expect(deck.hand).toStrictEqual([
+      "Copper",
+      "Copper",
+      "Copper",
+      "Silver",
+      "Gold",
+      "Merchant",
+    ]);
+    expect(deck.library).toStrictEqual(["Bureaucrat"]);
+    // Verify no cleanup or occurred (inPlay and graveyard should not change)
+    expect(deck.inPlay).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.graveyard).toStrictEqual([]);
   });
 
   // Case where there are 5 draws taking place on one line and
@@ -77,6 +87,19 @@ describe("Method processDrawsLine", () => {
     deck.lastEntryProcessed =
       "pNick discards a Copper, 2 Silvers, a Cellar, and a Merchant.";
 
+    // Mock a mid turn game board
+    deck.inPlay = ["Shouldn't Move"];
+    deck.graveyard = [];
+    deck.hand = ["Copper"];
+    deck.library = [
+      "Copper",
+      "Copper",
+      "Silver",
+      "Gold",
+      "Estate",
+      "Bureaucrat",
+    ];
+
     // Arguments for function being tested
     const line = "pNick draws 2 Coppers, a Silver, a Gold, and an Estate.";
     const cards = ["Copper", "Silver", "Gold", "Estate"];
@@ -86,23 +109,19 @@ describe("Method processDrawsLine", () => {
     // with draws that were caused by turn ending.
     deck.processDrawsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(checkForCleanup).toBeCalledTimes(1);
-    expect(checkForCleanup).toBeCalledWith(line);
-    expect(checkForCleanup.mock.results[0].value).toBe(true);
-    expect(checkForShuffle).toBeCalledTimes(1);
-    expect(checkForShuffle).toBeCalledWith(); // Call with no arguments
-    expect(checkForShuffle.mock.results[0].value).toBe(false);
-    expect(checkForCellarDraw).toBeCalledTimes(1);
-    expect(checkForCellarDraw).toBeCalledWith(); // Call with no arguments
-    expect(checkForCellarDraw.mock.results[0].value).toBe(true);
-    expect(cleanup).not.toBeCalled();
-    expect(draw).toBeCalledTimes(5);
-    expect(draw).nthCalledWith(1, "Copper");
-    expect(draw).nthCalledWith(2, "Copper");
-    expect(draw).nthCalledWith(3, "Silver");
-    expect(draw).nthCalledWith(4, "Gold");
-    expect(draw).nthCalledWith(5, "Estate");
+    // Assert - Verify hand and library contain the expected cards.
+    expect(deck.hand).toStrictEqual([
+      "Copper",
+      "Copper",
+      "Copper",
+      "Silver",
+      "Gold",
+      "Estate",
+    ]);
+    expect(deck.library).toStrictEqual(["Bureaucrat"]);
+    // Verify no cleanup or occurred (inPlay and graveyard should not change)
+    expect(deck.graveyard).toStrictEqual([]);
+    expect(deck.inPlay).toStrictEqual(["Shouldn't Move"]);
   });
 
   // Case where a cleanup is needed before drawing
@@ -111,15 +130,28 @@ describe("Method processDrawsLine", () => {
     // Arrange
     deck.library = ["Copper", "Copper", "Estate", "Estate", "Bureaucrat"];
     deck.logArchive = [
-      "Turn 3 - Lord Rattington",
-      "L plays 3 Coppers. (+$3)",
-      "L buys and gains a Silver.",
-      "L draws 5 cards.",
-      "Turn 3 - GoodBeard",
+      "Turn 3 - oName",
+      "oNick plays 3 Coppers. (+$3)",
+      "oNick buys and gains a Silver.",
+      "oNick draws 5 cards.",
+      "Turn 3 - pName",
       "pNick plays a Silver and 3 Coppers. (+$5)",
       "pNick buys and gains a Festival.",
     ];
     deck.lastEntryProcessed = "pNick buys and gains a Festival.";
+
+    // Mock a mid turn game board
+    deck.inPlay = ["Silver", "Copper", "Copper", "Copper"];
+    deck.graveyard = [];
+    deck.hand = ["Estate"];
+    deck.library = [
+      "Copper",
+      "Copper",
+      "Estate",
+      "Gold",
+      "Estate",
+      "Bureaucrat",
+    ];
 
     // Arguments for the function being tested
     const line = "pNick draws 2 Coppers, 2 Estates, and a Bureaucrat.";
@@ -129,23 +161,23 @@ describe("Method processDrawsLine", () => {
     // Act - Simulate drawing 5 cards at end of turn where a cleanup is needed.
     deck.processDrawsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(checkForCleanup).toBeCalledTimes(1);
-    expect(checkForCleanup).toBeCalledWith(line);
-    expect(checkForCleanup.mock.results[0].value).toBe(true);
-    expect(checkForShuffle).toBeCalledTimes(1);
-    expect(checkForShuffle).toBeCalledWith(); // Call with no arguments
-    expect(checkForShuffle.mock.results[0].value).toBe(false);
-    expect(checkForCellarDraw).toBeCalledTimes(1);
-    expect(checkForCellarDraw).toBeCalledWith(); // Call with no arguments
-    expect(checkForCellarDraw.mock.results[0].value).toBe(false);
-    expect(cleanup).toBeCalledTimes(1);
-    expect(draw).toBeCalledTimes(5);
-    expect(draw).nthCalledWith(1, "Copper");
-    expect(draw).nthCalledWith(2, "Copper");
-    expect(draw).nthCalledWith(3, "Estate");
-    expect(draw).nthCalledWith(4, "Estate");
-    expect(draw).nthCalledWith(5, "Bureaucrat");
+    // Assert - Verify that hand, inPlay, library, and graveyard contain the expected cards
+    expect(deck.hand).toStrictEqual([
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Bureaucrat",
+    ]);
+    expect(deck.library).toStrictEqual(["Gold"]);
+    expect(deck.graveyard).toStrictEqual([
+      "Copper",
+      "Copper",
+      "Copper",
+      "Silver",
+      "Estate",
+    ]);
+    expect(deck.inPlay).toStrictEqual([]);
   });
 
   // Case where cleanUp is not needed because there are *not* exactly 5 cards
@@ -163,6 +195,11 @@ describe("Method processDrawsLine", () => {
     ];
     deck.lastEntryProcessed = "pNick plays a Laboratory.";
 
+    // Mock a mid turn game board
+    deck.inPlay = ["Shouldn't Move"];
+    deck.graveyard = ["Shouldn't Move"];
+    deck.hand = ["Estate"];
+    deck.library = ["Merchant", "Cellar", "Bureaucrat"];
     // Arguments for the function being tested
     const line = "pNick draws a Cellar and a Merchant.";
     const cards = ["Cellar", "Merchant"];
@@ -171,19 +208,11 @@ describe("Method processDrawsLine", () => {
     // Act - Simulate drawing 5 cards at end of turn where a cleanup is needed.
     deck.processDrawsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(checkForCleanup).toBeCalledTimes(1);
-    expect(checkForCleanup).toBeCalledWith(line);
-    expect(checkForCleanup.mock.results[0].value).toBe(false);
-    expect(checkForShuffle).toBeCalledTimes(1);
-    expect(checkForShuffle).toBeCalledWith(); // Call with no arguments
-    expect(checkForShuffle.mock.results[0].value).toBe(false);
-    expect(checkForCellarDraw).toBeCalledTimes(1);
-    expect(checkForCellarDraw).toBeCalledWith(); // Call with no arguments
-    expect(checkForCellarDraw.mock.results[0].value).toBe(false);
-    expect(cleanup).toBeCalledTimes(0);
-    expect(draw).toBeCalledTimes(2);
-    expect(draw).nthCalledWith(1, "Cellar");
-    expect(draw).nthCalledWith(2, "Merchant");
+    // Assert - Verify the hand and library contain the correct cards
+    expect(deck.library).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Estate", "Cellar", "Merchant"]);
+    // Verify the inPlay and graveyard zones were not changed (there was no cleanup)
+    expect(deck.inPlay).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.graveyard).toStrictEqual(["Shouldn't Move"]);
   });
 });
