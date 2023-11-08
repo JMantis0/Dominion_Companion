@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method drawFromSetAside()", () => {
-  // Instantiate Deck object
-  let deck = new Deck("", false, "", "pName", "pNick", []);
+describe("drawFromSetAside", () => {
+  // Declare Deck reference.
+  let deck: Deck;
+
   beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
@@ -12,7 +13,7 @@ describe("Method drawFromSetAside()", () => {
     // Arrange
     deck.hand = ["Copper"];
     deck.setAside = ["Mine", "Sentry"];
-    
+
     // Act - simulate drawing a Mine from setAside.
     deck.drawFromSetAside("Mine");
 

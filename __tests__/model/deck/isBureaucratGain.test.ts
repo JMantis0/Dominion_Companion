@@ -1,11 +1,11 @@
-import { describe, it, expect, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function isBureaucratGain()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
+describe("isBureaucratGain", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -26,7 +26,7 @@ describe("Function isBureaucratGain()", () => {
 
     // Act - Simulate checking for Bureaucrat gain when the gain was not from an Bureaucrat.
     const artisanGain = deck.isBureaucratGain();
-    
+
     // Assert
     expect(artisanGain).toBe(false);
   });

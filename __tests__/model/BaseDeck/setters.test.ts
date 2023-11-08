@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("The BaseDeck setter functions", () => {
+describe("The BaseDeck setter methods", () => {
   const oDeck = new BaseDeck(
     "Title",
     false,

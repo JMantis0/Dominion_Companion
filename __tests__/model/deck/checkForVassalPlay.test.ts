@@ -1,22 +1,24 @@
 /**
  * @jest-environment jsdom
  */
-import { it, describe, expect, beforeEach, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method checkForVassalPlay()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Create elements to simulate Client DOM
-  const logLineContainer = document.createElement("div");
-  const logLine1Element = document.createElement("div");
-  const logLine2Element = document.createElement("div");
-  const logLine3Element = document.createElement("div");
-  const logLine4Element = document.createElement("div");
-  const logLine5Element = document.createElement("div");
+describe("checkForVassalPlay", () => {
+  // Declare Deck reference.
+  let deck: Deck;
+  // Declare elements to simulate Client DOM
+  let logLineContainer: HTMLElement;
+  let logLine1Element: HTMLElement;
+  let logLine2Element: HTMLElement;
+  let logLine3Element: HTMLElement;
+  let logLine4Element: HTMLElement;
+  let logLine5Element: HTMLElement;
 
   // Arrange DOM before each test
   beforeEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", []);
+    document.body.innerHTML = "";
     /** The document body innerHTML:
    * 
   <div class="log-scroll-container">
@@ -28,9 +30,15 @@ describe("Method checkForVassalPlay()", () => {
     </div>
     <div class="log-line" style="padding-left: 8%;">
       pNick plays a Vassal.
-    </div>
-  </div>;
-  */
+      </div>
+      </div>;
+      */
+    logLineContainer = document.createElement("div");
+    logLine1Element = document.createElement("div");
+    logLine2Element = document.createElement("div");
+    logLine3Element = document.createElement("div");
+    logLine4Element = document.createElement("div");
+    logLine5Element = document.createElement("div");
     logLine1Element.setAttribute("class", "log-line");
     logLine1Element.innerHTML = "pNick plays a Throne Room.";
     logLine2Element.setAttribute("class", "log-line");
@@ -51,11 +59,7 @@ describe("Method checkForVassalPlay()", () => {
     logLineContainer.appendChild(logLine5Element);
     document.body.appendChild(logLineContainer);
   });
-  // Clear the DOM after each test
-  afterEach(() => {
-    deck = new Deck("", false, "", "pName", "pNick", []);
-    document.body.innerHTML = "";
-  });
+
   it("should return true if the most recent play was a Vassal whose div element has equal left padding to the current div element", () => {
     //  Arrange
     deck.logArchive = [

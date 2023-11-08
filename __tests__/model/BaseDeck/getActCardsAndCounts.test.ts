@@ -1,26 +1,10 @@
-import { it, describe, expect, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method getActCardsAndCounts", () => {
-  let deck = new BaseDeck("", false, "", "pNick", "pName", [
-    "Cellar",
-    "Chapel",
-    "Moat",
-    "Harbinger",
-    "Merchant",
-    "Vassal",
-    "Village",
-    "Workshop",
-    "Copper",
-    "Curse",
-    "Estate",
-    "Silver",
-    "Duchy",
-    "Gold",
-    "Province",
-  ]);
+describe("getActCardsAndCounts", () => {
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", [
       "Cellar",
       "Chapel",

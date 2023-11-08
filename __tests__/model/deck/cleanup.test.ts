@@ -1,6 +1,6 @@
 import { it, describe, expect } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
-describe("Method cleanup()", () => {
+describe("cleanup", () => {
   // Instantiate Deck object
   const deck = new Deck("", false, "", "pName", "pNick", []);
 

@@ -1,11 +1,11 @@
-import { it, describe, expect, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method getConsecutiveTreasurePlayCounts()", () => {
-  // Instantiate BaseDeck object.
-  let deck = new BaseDeck("", false, "", "pNick", "pName", []);
+describe("getConsecutiveTreasurePlayCounts", () => {
+  // Declare BaseDeck object.
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", []);
   });
 

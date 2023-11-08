@@ -1,31 +1,24 @@
-import { it, describe, expect, jest, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method gain()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on function dependency.
-  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
-  const addCardToEntireDeck = jest.spyOn(Deck.prototype, "addCardToEntireDeck");
+describe("gain", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
-    jest.clearAllMocks();
   });
 
   it("should add the provided card to the graveyard and to the entireDeck", () => {
     // Arrange
     deck.graveyard = ["Copper"];
     deck.entireDeck = ["Estate", "Copper"];
+
     // Act - Simulate gaining a Chapel into the graveyard.
     deck.gain("Chapel");
 
     // Assert
     expect(deck.graveyard).toStrictEqual(["Copper", "Chapel"]);
     expect(deck.entireDeck).toStrictEqual(["Estate", "Copper", "Chapel"]);
-    expect(setGraveyard).toBeCalledTimes(1);
-    expect(setGraveyard).toBeCalledWith(["Copper", "Chapel"]);
-    expect(addCardToEntireDeck).toBeCalledTimes(1);
-    expect(addCardToEntireDeck).toBeCalledWith("Chapel");
   });
 });

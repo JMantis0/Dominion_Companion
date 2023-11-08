@@ -1,13 +1,12 @@
-import { it, describe, expect, afterEach, jest } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method removeCardFromEntireDeck()", () => {
-  // Instantiate BaseDeck object
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+describe("removeCardFromEntireDeck", () => {
+  // Declare BaseDeck reference
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should remove an instance of the provided card from the entire deck", () => {

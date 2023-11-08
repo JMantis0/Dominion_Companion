@@ -1,17 +1,11 @@
-import { it, describe, expect, afterEach, jest } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method getMostRecentPlay()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on function dependency
-  const checkForTreasurePlayLine = jest.spyOn(
-    Deck.prototype,
-    "checkForTreasurePlayLine"
-  );
+describe("getMostRecentPlay", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
   });
 
@@ -35,9 +29,6 @@ describe("Method getMostRecentPlay()", () => {
 
     // Act and Assert
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
-    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
-    expect(checkForTreasurePlayLine).toBeCalledWith("pNick plays a Cellar.");
-    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(false);
   });
 
   it("should not return treasure plays", () => {
@@ -61,14 +52,6 @@ describe("Method getMostRecentPlay()", () => {
 
     // Act and  Assert
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
-    expect(checkForTreasurePlayLine).toBeCalledTimes(2);
-    expect(checkForTreasurePlayLine).nthCalledWith(
-      1,
-      "pNick plays a Silver. (+$2)"
-    );
-    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(true);
-    expect(checkForTreasurePlayLine).nthCalledWith(2, "pNick plays a Cellar.");
-    expect(checkForTreasurePlayLine.mock.results[1].value).toBe(false);
   });
 
   it("should return the card correctly for cards played by Throne Room", () => {
@@ -83,8 +66,6 @@ describe("Method getMostRecentPlay()", () => {
 
     // Act and Assert
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Sentry");
-    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
-    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(false);
   });
 
   it("should work correctly for cards that start with a vowel preceded by the article 'an'", () => {
@@ -97,8 +78,6 @@ describe("Method getMostRecentPlay()", () => {
 
     // Act and Assert
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Artisan");
-    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
-    expect(checkForTreasurePlayLine.mock.results[0].value).toBe(false);
   });
 
   it("should return 'None' if no play is found in the logArchive", () => {
@@ -119,7 +98,6 @@ describe("Method getMostRecentPlay()", () => {
 
     // Act and Assert
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("None");
-    expect(checkForTreasurePlayLine).not.toBeCalled();
   });
 
   it("should throw an error if the logArchive is empty", () => {

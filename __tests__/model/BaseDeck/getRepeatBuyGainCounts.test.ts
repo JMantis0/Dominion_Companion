@@ -1,14 +1,14 @@
-import { it, describe, expect } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
-import { afterEach } from "node:test";
 
-describe("Method getRepeatBuyGainCounts()", () => {
-  // Instantiate BaseDeck object.
-  let deck = new BaseDeck("", false, "", "pNick", "pName", []);
+describe("getRepeatBuyGainCounts", () => {
+  // Declare BaseDeck reference.
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", []);
   });
+
   it("should return the difference between the amount of the card that is bought in the provided line, and the amount that is bought in the most recent logArchive entry, and remove the last member of the logArchive", () => {
     // Arrange
     deck.logArchive = [

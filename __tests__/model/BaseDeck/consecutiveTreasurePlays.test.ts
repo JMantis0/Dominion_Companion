@@ -1,12 +1,11 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method consecutiveTreasurePlays", () => {
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+describe("consecutiveTreasurePlays", () => {
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should return true if the provided entry/line and the lastEntryProcessed both play treasures", () => {

@@ -1,9 +1,9 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method processDeckChanges", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
+  // Declare Deck reference.
+  let deck: Deck;
 
   // Spy on method dependencies
   const setWaitToShuffle = jest
@@ -36,7 +36,8 @@ describe("Method processDeckChanges", () => {
   const processRevealsLine = jest
     .spyOn(Deck.prototype, "processRevealsLine")
     .mockImplementation(() => null);
-  afterEach(() => {
+
+  beforeEach(() => {
     jest.clearAllMocks();
     deck = new Deck("", false, "", "pName", "pNick", []);
   });

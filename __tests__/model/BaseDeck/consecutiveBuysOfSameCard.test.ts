@@ -1,10 +1,10 @@
-import { describe, it, expect, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method consecutiveBuysOfSameCard()", () => {
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+describe("consecutiveBuysOfSameCard", () => {
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
   });
 

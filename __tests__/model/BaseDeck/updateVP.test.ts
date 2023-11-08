@@ -1,13 +1,14 @@
 import { describe, it, expect, afterEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method updateVP()", () => {
+describe("updateVP", () => {
   // Instantiate BaseDeck object.
   let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  // Spy on function dependency.
+
   afterEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
   });
+
   it("should correctly update the deck VP based on the card in the entire deck.", () => {
     // Arrange
     const entireDeckList = [

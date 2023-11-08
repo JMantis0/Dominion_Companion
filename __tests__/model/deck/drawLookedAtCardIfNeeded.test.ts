@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method drawLookedAtCardIfNeeded()", () => {
-  // Instantiate Deck object.
+describe("drawLookedAtCardIfNeeded", () => {
+  // Declare Deck reference.
   let deck: Deck;
   beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", [

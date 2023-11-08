@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method updateArchives()", () => {
-  // Instantiate BaseDeck object.
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+describe("updateArchives)", () => {
+  // Declare BaseDeck reference.
+  let deck: BaseDeck;
 
   beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);

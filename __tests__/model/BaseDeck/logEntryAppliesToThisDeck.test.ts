@@ -1,10 +1,11 @@
-import { it, describe, expect, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method logEntryAppliesToThisDeck()", () => {
-  // Instantiate BaseDeck object.
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  afterEach(() => {
+describe("logEntryAppliesToThisDeck", () => {
+  // Declare BaseDeck reference.
+  let deck: BaseDeck;
+
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
   });
 

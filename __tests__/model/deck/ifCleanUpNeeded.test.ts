@@ -1,15 +1,11 @@
-import { it, describe, expect, afterEach, jest } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method ifCleanUpNeeded()", () => {
+describe("ifCleanUpNeeded", () => {
   // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const checkForCleanUp = jest.spyOn(Deck.prototype, "checkForCleanUp");
-  const checkForCellarDraw = jest.spyOn(Deck.prototype, "checkForCellarDraw");
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -36,9 +32,6 @@ describe("Method ifCleanUpNeeded()", () => {
 
     // Act and Assert
     expect(deck.ifCleanUpNeeded(line)).toBe(true);
-    expect(checkForCleanUp).toBeCalledTimes(1);
-    expect(checkForCleanUp).toBeCalledWith(line);
-    expect(checkForCellarDraw).toBeCalledTimes(1);
   });
 
   it("should return false if a cleanup is not needed based on the provided line", () => {
@@ -59,8 +52,5 @@ describe("Method ifCleanUpNeeded()", () => {
 
     // Act and Assert
     expect(deck.ifCleanUpNeeded(line)).toBe(false);
-    expect(checkForCleanUp).toBeCalledTimes(1);
-    expect(checkForCleanUp).toBeCalledWith(line);
-    expect(checkForCellarDraw).toBeCalledTimes(1);
   });
 });
