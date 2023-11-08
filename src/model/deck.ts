@@ -1109,7 +1109,6 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   update(log: Array<string>) {
     log.forEach((line) => {
-      // throw new Error("yarg");
       if (this.debug) console.group(line);
       this.setTreasurePopped(false);
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);

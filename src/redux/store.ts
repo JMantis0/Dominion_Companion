@@ -1,7 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import contentReducer from "./contentSlice";
 import optionsReducer from "./optionsSlice";
-console.log(process.env.NODE_ENVIRONMENT);
 
 export const store = configureStore({
   reducer: {

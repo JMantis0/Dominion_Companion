@@ -113,7 +113,7 @@ export class DOMObserver {
   static opponentRating: string = "";
   /**
    * Use - Flow control.
-   * False value means the 'playerName', 'playerNick', 'opponentName', an d 'opponentNick' fields are not initialized.
+   * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
    * True value means they each hold the appropriate string collected from the elements in the client DOM.
    */
   static playersInitialized: boolean = false;
@@ -397,38 +397,31 @@ export class DOMObserver {
    * @param kingdom - The array of kingdom cards.
    * @returns Map object that contains both the player deck and opponent deck.
    */
-  static createPlayerDecks(
-    gameTitle: string,
-    ratedGame: boolean,
-    playerName: string,
-    playerNick: string,
-    playerRating: string,
-    opponentName: string,
-    opponentNick: string,
-    opponentRating: string,
-    kingdom: Array<string>
-  ): Map<string, Deck | OpponentDeck> {
+  static createPlayerDecks(): Map<string, Deck | OpponentDeck> {
     let deckMap: Map<string, Deck | OpponentDeck> = new Map();
+    const gameTitle = DOMObserver.gameLog
+      .split("\n")[0]
+      .substring(0, DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1);
     deckMap.set(
-      playerName,
+      DOMObserver.playerName,
       new Deck(
         gameTitle,
-        ratedGame,
-        playerRating,
-        playerName,
-        playerNick,
-        kingdom
+        DOMObserver.ratedGame,
+        DOMObserver.playerRating,
+        DOMObserver.playerName,
+        DOMObserver.playerNick,
+        DOMObserver.kingdom
       )
     );
     deckMap.set(
-      opponentName,
+      DOMObserver.opponentName,
       new OpponentDeck(
         gameTitle,
-        ratedGame,
-        opponentRating,
-        opponentName,
-        opponentNick,
-        kingdom
+        DOMObserver.ratedGame,
+        DOMObserver.opponentRating,
+        DOMObserver.opponentName,
+        DOMObserver.opponentNick,
+        DOMObserver.kingdom
       )
     );
     return deckMap;
@@ -440,22 +433,7 @@ export class DOMObserver {
    */
   static deckMapInitializer(): void {
     if (DOMObserver.playersInitialized && DOMObserver.kingdomInitialized) {
-      const gameTitle = DOMObserver.gameLog
-        .split("\n")[0]
-        .substring(0, DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1);
-      DOMObserver.setDecks(
-        DOMObserver.createPlayerDecks(
-          gameTitle,
-          DOMObserver.ratedGame,
-          DOMObserver.playerName,
-          DOMObserver.playerNick,
-          DOMObserver.playerRating,
-          DOMObserver.opponentName,
-          DOMObserver.opponentNick,
-          DOMObserver.opponentRating,
-          DOMObserver.kingdom
-        )
-      );
+      DOMObserver.setDecks(DOMObserver.createPlayerDecks());
       DOMObserver.decksInitialized = true;
     }
   }
@@ -580,34 +558,35 @@ export class DOMObserver {
   /**
    * Method gets new logs from the DOM, invokes the update method on the current decks with the new logs,
    * then returns the updated decks.
-   * @param logsProcessed - value of logsProcessed Field
    * @param gameLog - value of gameLog field
-   * @param getUndispatchedLogs - static method
-   * @param deckMap - value of the decks field
-   * @param playerName - value of the playerName field
-   * @param opponentName - value of the opponentName field
    * @returns StoreDeck and OpponentStoreDeck for the updated decks.
    */
-  static getNewLogsAndUpdateDecks(
-    logsProcessed: string,
-    gameLog: string,
-    getUndispatchedLogs: Function,
-    deckMap: Map<string, Deck | OpponentDeck>,
-    playerName: string,
-    opponentName: string
-  ): { playerStoreDeck: StoreDeck; opponentStoreDeck: OpponentStoreDeck } {
-    const newLogsToDispatch = getUndispatchedLogs(logsProcessed, gameLog)
+  static getNewLogsAndUpdateDecks(gameLog: string): {
+    playerStoreDeck: StoreDeck;
+    opponentStoreDeck: OpponentStoreDeck;
+  } {
+    const newLogsToDispatch = DOMObserver.getUndispatchedLogs(
+      DOMObserver.logsProcessed,
+      gameLog
+    )
       .split("\n")
       .slice();
     try {
-      deckMap.get(playerName)!.update(newLogsToDispatch);
-      deckMap.get(opponentName)!.update(newLogsToDispatch);
-    } catch (error) {
-      DOMObserver.handleDeckError(toErrorWithMessage(error));
+      DOMObserver.decks.get(DOMObserver.playerName)!.update(newLogsToDispatch);
+      DOMObserver.decks
+        .get(DOMObserver.opponentName)!
+        .update(newLogsToDispatch);
+    } catch (error: unknown) {
+      const errorWithMessage = toErrorWithMessage(error);
+      DOMObserver.handleDeckError(errorWithMessage);
     }
     return {
-      playerStoreDeck: JSON.parse(JSON.stringify(deckMap.get(playerName))),
-      opponentStoreDeck: JSON.parse(JSON.stringify(deckMap.get(opponentName))),
+      playerStoreDeck: JSON.parse(
+        JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
+      ),
+      opponentStoreDeck: JSON.parse(
+        JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
+      ),
     };
   }
 
@@ -862,7 +841,8 @@ export class DOMObserver {
    * @param error - an error from a deck's update method.
    */
   static handleDeckError(error: ErrorWithMessage) {
-    store.dispatch(setError(error.message));
+    console.error("error:", error);
+    DOMObserver.dispatch(setError(error.message));
   }
 
   /**
@@ -1012,22 +992,10 @@ export class DOMObserver {
    * @param mutationList
    */
   static logObserverFunc() {
-    if (
-      DOMObserver.areNewLogsToSend(
-        DOMObserver.logsProcessed,
-        DOMObserver.getClientGameLog()
-      )
-    ) {
-      const gameLog = DOMObserver.getClientGameLog();
+    const gameLog = DOMObserver.getClientGameLog();
+    if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
       const { playerStoreDeck, opponentStoreDeck } =
-        DOMObserver.getNewLogsAndUpdateDecks(
-          DOMObserver.logsProcessed,
-          gameLog,
-          DOMObserver.getUndispatchedLogs,
-          DOMObserver.decks,
-          DOMObserver.playerName,
-          DOMObserver.opponentName
-        );
+        DOMObserver.getNewLogsAndUpdateDecks(gameLog);
       DOMObserver.dispatchUpdatedDecksToRedux(
         playerStoreDeck,
         opponentStoreDeck
@@ -1114,8 +1082,17 @@ export class DOMObserver {
     DOMObserver.setLogsProcessed("");
     DOMObserver.setGameLog("");
     DOMObserver.setPlayerName("");
+    DOMObserver.setPlayerNick("");
+    DOMObserver.setPlayerRating("");
     DOMObserver.setOpponentName("");
-    DOMObserver.setDecks(new Map());
+    DOMObserver.setOpponentNick("");
+    DOMObserver.setOpponentRating("");
+    DOMObserver.setDecks(
+      new Map([
+        ["", new Deck("", false, "", "", "", [])],
+        ["", new OpponentDeck("", false, "", "", "", [])],
+      ])
+    );
     DOMObserver.setKingdom([]);
     DOMObserver.setBaseOnly(true);
     DOMObserver.dispatch(setError(null));

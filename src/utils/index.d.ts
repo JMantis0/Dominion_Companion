@@ -42,7 +42,7 @@ type DOMStore = ToolkitStore<
 /**
  * Interface used for handling unknown objects that *might* be an error.
  */
-interface ErrorWithMessage {
+interface ErrorWithMessage extends Error {
   message: string;
 }
 
