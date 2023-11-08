@@ -38,7 +38,7 @@ describe("resetGame", () => {
     // Set DOMObserver to use the mock store and mock dispatch
     DOMObserver.setStore(storeMock);
     DOMObserver.setDispatch(storeMock.dispatch);
-    
+
     // Populate the DOMObserver fields and redux state with values that need to be reset by resetGame.
     DOMObserver.undoObserver = undefined;
     DOMObserver.gameEndObserver = undefined;
@@ -50,15 +50,19 @@ describe("resetGame", () => {
     DOMObserver.logsProcessed = "Log1\nLog2\nLog3\nLog4";
     DOMObserver.gameLog = "Log1\nLog2\nLog3\nLog4";
     DOMObserver.playerName = "Player Name";
+    DOMObserver.playerNick = "P";
+    DOMObserver.playerRating = "321";
     DOMObserver.opponentName = "Opponent Name";
+    DOMObserver.opponentNick = "O";
+    DOMObserver.opponentRating = "123";
     DOMObserver.decks = new Map([
       [
         DOMObserver.playerName,
-        new Deck("", false, "", DOMObserver.playerName, "P", []),
+        new Deck("Title", false, "321", DOMObserver.playerName, "P", []),
       ],
       [
         DOMObserver.opponentName,
-        new OpponentDeck("", false, "", DOMObserver.opponentName, "O", []),
+        new OpponentDeck("", false, "123", DOMObserver.opponentName, "O", []),
       ],
     ]);
     DOMObserver.kingdom = ["Card1", "Card2"];
@@ -91,8 +95,17 @@ describe("resetGame", () => {
     expect(DOMObserver.logsProcessed).toBe("");
     expect(DOMObserver.gameLog).toBe("");
     expect(DOMObserver.playerName).toBe("");
+    expect(DOMObserver.playerNick).toBe("");
+    expect(DOMObserver.playerRating).toBe("");
     expect(DOMObserver.opponentName).toBe("");
-    expect(DOMObserver.decks).toStrictEqual(new Map());
+    expect(DOMObserver.opponentNick).toBe("");
+    expect(DOMObserver.opponentRating).toBe("");
+    expect(DOMObserver.decks).toStrictEqual(
+      new Map([
+        ["", new Deck("", false, "", "", "", [])],
+        ["", new OpponentDeck("", false, "", "", "", [])],
+      ])
+    );
     expect(DOMObserver.kingdom).toStrictEqual([]);
     expect(DOMObserver.baseOnly).toBe(true);
     expect(storeMock.getState().content.baseOnly).toBe(true);

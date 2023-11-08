@@ -1,12 +1,16 @@
 /**
  * @jest-environment jsdom
  */
-import { describe, it, expect, jest } from "@jest/globals";
+import { describe, it, expect,  afterEach } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
+import { Deck } from "../../../src/model/deck";
+import { OpponentDeck } from "../../../src/model/opponentDeck";
 describe("deckMapInitializer", () => {
-  // Mock dependencies
-  const createPlayerDecks = jest.spyOn(DOMObserver, "createPlayerDecks");
-  const setDecks = jest.spyOn(DOMObserver, "setDecks");
+
+  afterEach(() => {
+    DOMObserver.resetGame();
+  });
+
   it("should create the player and opponent decks and assign them to the decks field if the players and kingdom are initialized.", () => {
     // Arrange scenario where the players have been initialized and the kingdom has been initialized.
     const ratedGame = false;
@@ -33,33 +37,24 @@ describe("deckMapInitializer", () => {
     // Act - Simulate calling the deckMapInitializer
     DOMObserver.deckMapInitializer();
 
+    const expectedDeckMap = new Map([
+      [
+        "Player",
+        new Deck("Game #123456789", false, "PRating", "Player", "P", [
+          "Card1",
+          "Card2",
+        ]),
+      ],
+      [
+        "Opponent",
+        new OpponentDeck("Game #123456789", false, "ORating", "Opponent", "O", [
+          "Card1",
+          "Card2",
+        ]),
+      ],
+    ]);
     // Assert
-    expect(createPlayerDecks).toBeCalledTimes(1);
-    expect(createPlayerDecks).toBeCalledWith(
-      "Game #123456789",
-      ratedGame,
-      playerName,
-      playerNick,
-      playerRating,
-      opponentName,
-      opponentNick,
-      opponentRating,
-      kingdom
-    );
-    expect(setDecks).toBeCalledTimes(1);
-    expect(setDecks).toBeCalledWith(
-      DOMObserver.createPlayerDecks(
-        "Game #123456789",
-        ratedGame,
-        playerName,
-        playerNick,
-        playerRating,
-        opponentName,
-        opponentNick,
-        opponentRating,
-        kingdom
-      )
-    );
+    expect(DOMObserver.decks).toStrictEqual(expectedDeckMap);
   });
 
   it("should not create the player and opponent decks if the players are not initialized.", () => {
@@ -71,8 +66,12 @@ describe("deckMapInitializer", () => {
     DOMObserver.deckMapInitializer();
 
     // Assert
-    expect(createPlayerDecks).not.toBeCalled();
-    expect(setDecks).not.toBeCalled();
+    expect(DOMObserver.decks).toStrictEqual(
+      new Map([
+        ["", new Deck("", false, "", "", "", [])],
+        ["", new OpponentDeck("", false, "", "", "", [])],
+      ])
+    );
   });
 
   it("should not create the player and opponent decks if the kingdom is not initialized.", () => {
@@ -84,8 +83,12 @@ describe("deckMapInitializer", () => {
     DOMObserver.deckMapInitializer();
 
     // Assert
-    expect(createPlayerDecks).not.toBeCalled();
-    expect(setDecks).not.toBeCalled();
+    expect(DOMObserver.decks).toStrictEqual(
+      new Map([
+        ["", new Deck("", false, "", "", "", [])],
+        ["", new OpponentDeck("", false, "", "", "", [])],
+      ])
+    );
   });
 
   it("should not create the player and opponent decks if the players and the kingdom are not initialized.", () => {
@@ -97,7 +100,11 @@ describe("deckMapInitializer", () => {
     DOMObserver.deckMapInitializer();
 
     // Assert
-    expect(createPlayerDecks).not.toBeCalled();
-    expect(setDecks).not.toBeCalled();
+    expect(DOMObserver.decks).toStrictEqual(
+      new Map([
+        ["", new Deck("", false, "", "", "", [])],
+        ["", new OpponentDeck("", false, "", "", "", [])],
+      ])
+    );
   });
 });

@@ -1,7 +1,6 @@
 import { describe, it, expect, afterEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
-import { BaseDeck } from "../../../src/model/baseDeck";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
 
 describe("Function setDecksGameResults", () => {
@@ -10,8 +9,6 @@ describe("Function setDecksGameResults", () => {
   let oDeck = new OpponentDeck("", false, "", "oName", "oNick", []);
   let expectedPDeck = new Deck("", false, "", "pName", "pNick", []);
   let expectedODeck = new OpponentDeck("", false, "", "oName", "oNick", []);
-  // Spy on dependencies
-  const setGameResult = jest.spyOn(BaseDeck.prototype, "setGameResult");
 
   afterEach(() => {
     pDeck = new Deck("", false, "", "pName", "pNick", []);
@@ -47,9 +44,6 @@ describe("Function setDecksGameResults", () => {
         decks
       )
     ).toStrictEqual(updatedDecks);
-    expect(setGameResult).toBeCalledTimes(2);
-    expect(setGameResult).nthCalledWith(1, "Victory");
-    expect(setGameResult).nthCalledWith(2, "Defeat");
   });
 
   it("should set the opponent deck gameResult as 'Victory' and the player deck gameResult as 'Defeat' when the opponent is the victor, and return the decks ", () => {
@@ -78,9 +72,6 @@ describe("Function setDecksGameResults", () => {
         decks
       )
     ).toStrictEqual(updatedDecks);
-    expect(setGameResult).toBeCalledTimes(2);
-    expect(setGameResult).nthCalledWith(1, "Victory");
-    expect(setGameResult).nthCalledWith(2, "Defeat");
   });
 
   it("should set the player deck gameResult and the opponent deck gameResult as 'Tie' the player is neither victor nor defeated", () => {
@@ -101,10 +92,13 @@ describe("Function setDecksGameResults", () => {
 
     // Act and Assert - Simulate setting deck results where game result is tie.
     expect(
-      DOMObserver.setDecksGameResults(victor, defeated, playerName, opponentName, decks)
+      DOMObserver.setDecksGameResults(
+        victor,
+        defeated,
+        playerName,
+        opponentName,
+        decks
+      )
     ).toStrictEqual(updatedDecks);
-    expect(setGameResult).toBeCalledTimes(2);
-    expect(setGameResult).nthCalledWith(1, "Tie");
-    expect(setGameResult).nthCalledWith(2, "Tie");
   });
 });

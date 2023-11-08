@@ -6,7 +6,7 @@ import contentSlice, {
 } from "../../../src/redux/contentSlice";
 import { EmptyOpponentDeck } from "../../../src/model/emptyOpponentDeck";
 import { EmptyDeck } from "../../../src/model/emptyDeck";
-import { configureStore } from "@reduxjs/toolkit/dist/configureStore";
+import { configureStore } from "@reduxjs/toolkit";
 import optionsSlice from "../../../src/redux/optionsSlice";
 import { store } from "../../../src/redux/store";
 import { Deck } from "../../../src/model/deck";
