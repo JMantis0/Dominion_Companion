@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method processDeckChanges", () => {
+describe("processDeckChanges", () => {
   // Declare Deck reference.
   let deck: Deck;
 
