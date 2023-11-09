@@ -17,7 +17,7 @@ describe("gainIntoLibrary", () => {
     // Act - Simulate gaining a Silver into the library (as with a Bureaucrat).
     deck.gainIntoLibrary("Silver");
 
-    // Assert
+    // Assert - Verify card was added to library and entireDeck.
     expect(deck.library).toStrictEqual(["Copper", "Silver"]);
     expect(deck.entireDeck).toStrictEqual(["Estate", "Silver"]);
   });

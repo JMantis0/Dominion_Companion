@@ -17,7 +17,7 @@ describe("drawFromSetAside", () => {
     // Act - simulate drawing a Mine from setAside.
     deck.drawFromSetAside("Mine");
 
-    // Assert
+    // Assert - Verify card was moved from setAside to hand.
     expect(deck.hand).toStrictEqual(["Copper", "Mine"]);
     expect(deck.setAside).toStrictEqual(["Sentry"]);
   });

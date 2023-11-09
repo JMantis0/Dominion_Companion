@@ -15,7 +15,7 @@ describe("discard", () => {
     // Act - Simulate discarding a Copper from hand.
     deck.discard("Copper");
 
-    // Assert
+    // Assert - Verify card was moved from hand to graveyard.
     expect(deck.graveyard).toStrictEqual(["Copper"]);
     expect(deck.hand).toStrictEqual(["Copper", "Copper", "Estate", "Estate"]);
   });

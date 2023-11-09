@@ -17,7 +17,7 @@ describe("gain", () => {
     // Act - Simulate gaining a Chapel into the graveyard.
     deck.gain("Chapel");
 
-    // Assert
+    // Assert - Verify card was added to graveyard and entireDeck
     expect(deck.graveyard).toStrictEqual(["Copper", "Chapel"]);
     expect(deck.entireDeck).toStrictEqual(["Estate", "Copper", "Chapel"]);
   });

@@ -25,9 +25,10 @@ describe("drawLookedAtCardIfNeeded", () => {
     // Act - Simulate an update where a draw from the previous line's Library action is needed
     deck.drawLookedAtCardIfNeeded(act);
 
-    // Assert - Verify the card was drawn.
+    // Assert - Verify the card moved from setAside to hand.
     expect(deck.hand).toStrictEqual(["Copper", "Estate", "Chapel"]);
     expect(deck.setAside).toStrictEqual([]);
+    // Verify waitToDrawLibraryLook was set to false
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
@@ -45,6 +46,7 @@ describe("drawLookedAtCardIfNeeded", () => {
     // Assert - Verify the card was not drawn.
     expect(deck.hand).toStrictEqual(["Copper", "Estate"]);
     expect(deck.setAside).toStrictEqual(["Chapel"]);
+    // Verify waitToDrawLibraryLook was set to false
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
@@ -63,6 +65,7 @@ describe("drawLookedAtCardIfNeeded", () => {
     // Assert - Verify the card was not drawn.
     expect(deck.hand).toStrictEqual(["Copper", "Estate", "Copper"]);
     expect(deck.setAside).toStrictEqual([]);
+    // Verify waitToDrawLibraryLook was set to false
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
@@ -78,9 +81,10 @@ describe("drawLookedAtCardIfNeeded", () => {
     // Act - Simulate a call to drawLookedAtCardIfNeeded where the previous line is not a Library look.
     deck.drawLookedAtCardIfNeeded(act);
 
-    // Assert - Verify the card was not drawm.
+    // Assert - Verify the card was not drawn.
     expect(deck.hand).toStrictEqual(["Copper", "Estate", "Copper"]);
     expect(deck.setAside).toStrictEqual([]);
+    // Verify waitToDrawLibraryLook was set to false
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 });

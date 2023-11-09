@@ -17,7 +17,7 @@ describe("gainIntoHand", () => {
     // Act - Simulate gaining a Chapel into hand (as with Artisan).
     deck.gainIntoHand("Chapel");
 
-    // Assert
+    // Assert - Verify card was added to hand and entireDeck.
     expect(deck.hand).toStrictEqual(["Copper", "Chapel"]);
     expect(deck.entireDeck).toStrictEqual(["Estate", "Copper", "Chapel"]);
   });

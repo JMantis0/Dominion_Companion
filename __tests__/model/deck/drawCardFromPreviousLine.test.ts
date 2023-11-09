@@ -26,7 +26,7 @@ describe("drawCardFromPreviousLine", () => {
     // Act - Simulate drawing the card from the previous line.
     deck.drawCardFromPreviousLine();
 
-    // Assert
+    // Assert - Verify card was moved from setAside to hand.
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.hand).toStrictEqual(["Copper", "Vassal"]);
   });

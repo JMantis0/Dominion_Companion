@@ -27,7 +27,7 @@ describe("getMostRecentPlay", () => {
       "pNick discards 2 Estates.",
     ];
 
-    // Act and Assert
+    // Act and Assert - Verify method returns Cellar
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
   });
 
@@ -50,7 +50,7 @@ describe("getMostRecentPlay", () => {
       "pNick plays a Silver. (+$2)", //  Should not return "Silver"
     ];
 
-    // Act and  Assert
+    // Act and  Assert - Verify method returns Cellar even though there is a more recent treasure play.
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
   });
 
@@ -64,7 +64,7 @@ describe("getMostRecentPlay", () => {
       "pNick looks at 2 Sentries.",
     ];
 
-    // Act and Assert
+    // Act and Assert - Verify method returns Sentry even when it was played by a Throne Room.
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Sentry");
   });
 
@@ -96,7 +96,7 @@ describe("getMostRecentPlay", () => {
       "Turn 1 - pName",
     ];
 
-    // Act and Assert
+    // Act and Assert - Verify returns correctly when no play is in the logArchive
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("None");
   });
 

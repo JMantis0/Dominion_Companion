@@ -17,7 +17,7 @@ describe("discardFromSetAside", () => {
     // Act - Simulate discarding a Vassal from setAside.
     deck.discardFromSetAside("Vassal");
 
-    // Assert
+    // Assert - Verify card was moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual(["Sentry"]);
     expect(deck.graveyard).toStrictEqual(["Curse", "Vassal"]);
   });

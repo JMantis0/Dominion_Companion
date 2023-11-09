@@ -11,7 +11,7 @@ describe("cleanup", () => {
     deck.hand = ["Estate", "Duchy", "Remodel"];
     // Act
     deck.cleanup();
-    // Assert
+    // Assert - Verify cards were moved from inPlay and hand to graveyard.
     expect(deck.graveyard).toStrictEqual([
       "Copper",
       "Bandit",

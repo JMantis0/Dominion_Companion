@@ -17,7 +17,7 @@ describe("discardFromLibrary", () => {
     // Act - Simulate discarding a copper from the Library
     deck.discardFromLibrary("Copper");
 
-    // Assert
+    // Assert - Verify card was moved from library to graveyard.
     expect(deck.library).toEqual(["Estate", "Copper", "Copper", "Copper"]);
     expect(deck.graveyard).toStrictEqual([
       "Copper",

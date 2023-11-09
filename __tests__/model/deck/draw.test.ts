@@ -17,6 +17,7 @@ describe("draw", () => {
     // Act - Simulate drawing a Copper from library to hand.
     deck.draw("Copper");
 
+    // Assert - Verify card was moved from library to hand.
     expect(deck.hand).toStrictEqual([
       "Copper",
       "Copper",
