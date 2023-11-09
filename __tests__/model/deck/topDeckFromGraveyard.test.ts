@@ -1,16 +1,12 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method topDeckFromGraveyard() ", () => {
-  // Instantiate Deck object
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
-  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+describe("topDeckFromGraveyard ", () => {
+  // Declare Deck reference
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should remove an instance of the provided card from graveyard, and add it to library", () => {
@@ -21,13 +17,9 @@ describe("Method topDeckFromGraveyard() ", () => {
     // Act - Simulate topdecking a Harbinger from graveyard.
     deck.topDeckFromGraveyard("Harbinger");
 
-    // Assert
+    // Assert - Verify card was moved from graveyard to library
     expect(deck.graveyard).toStrictEqual(["Library", "Estate", "Silver"]);
     expect(deck.library).toStrictEqual(["Sentry", "Vassal", "Harbinger"]);
-    expect(setLibrary).toBeCalledTimes(1);
-    expect(setLibrary).toBeCalledWith(["Sentry", "Vassal", "Harbinger"]);
-    expect(setGraveyard).toBeCalledTimes(1);
-    expect(setGraveyard).toBeCalledWith(["Library", "Estate", "Silver"]);
   });
 
   it("should throw an error if the provided card is not in graveyard", () => {

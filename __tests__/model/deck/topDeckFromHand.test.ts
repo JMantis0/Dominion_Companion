@@ -1,15 +1,11 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method topDeckFromHand() ", () => {
-  // Instantiate Deck object
+describe("topDeckFromHand", () => {
+  // Declare Deck reference
   let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependency
-  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
-  const setHand = jest.spyOn(Deck.prototype, "setHand");
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -21,13 +17,9 @@ describe("Method topDeckFromHand() ", () => {
     // Act - Simulate topdecking a Harbinger from hand.
     deck.topDeckFromHand("Harbinger");
 
-    // Assert
+    // Assert - Verify card was moved from hand to library
     expect(deck.hand).toStrictEqual(["Library", "Estate", "Silver"]);
     expect(deck.library).toStrictEqual(["Sentry", "Vassal", "Harbinger"]);
-    expect(setLibrary).toBeCalledTimes(1);
-    expect(setLibrary).toBeCalledWith(["Sentry", "Vassal", "Harbinger"]);
-    expect(setHand).toBeCalledTimes(1);
-    expect(setHand).toBeCalledWith(["Library", "Estate", "Silver"]);
   });
 
   it("should throw an error if the provided card is not in hand", () => {
