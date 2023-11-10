@@ -19,6 +19,7 @@ describe("removeCardFromEntireDeck", () => {
     // Assert
     expect(deck.entireDeck).toStrictEqual(["Cellar", "Cellar"]);
   });
+  
   it("should throw an error when the provided card is not in the entire deck", () => {
     // Arrange
     deck.entireDeck = ["Vassal", "Cellar", "Cellar"];

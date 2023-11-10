@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Deck class getter functions ", () => {
+describe("Deck setters", () => {
   it("should return the values of the Deck fields correctly", () => {
     const deck = new Deck("", false, "", "Player Name", "p", []);
     // CurrentVP

@@ -56,4 +56,16 @@ describe("getConsecutiveTreasurePlayCounts", () => {
       )
     ).toStrictEqual([3, 3, 2]);
   });
+
+  it("should return an array with the correct number of each treasure to play (all treasures in both lines)", () => {
+    // Arrange
+    deck.lastEntryProcessed = "pNick plays 2 Coppers, 2 Silvers, and 3 Golds. (+$15)";
+
+    // Act and Assert - Simulate playing multiple treasures on a single line.
+    expect(
+      deck.getConsecutiveTreasurePlayCounts(
+        "pNick plays 5 Coppers, 5 Silvers, and 10 Golds. (+$4)"
+      )
+    ).toStrictEqual([3, 3, 7]);
+  });
 });
