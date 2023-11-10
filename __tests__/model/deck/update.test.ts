@@ -1,16 +1,10 @@
 import { describe, it, expect, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
-import { afterEach } from "node:test";
+import { beforeEach } from "node:test";
 
-describe("Method update()", () => {
+describe("update", () => {
   // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", [
-    "Sentry",
-    "Witch",
-    "Copper",
-    "Curse",
-    "Vassal",
-  ]);
+  let deck: Deck;
   // Spy on method dependencies
   const setTreasurePopped = jest.spyOn(Deck.prototype, "setTreasurePopped");
   const logEntryAppliesToThisDeck = jest.spyOn(
@@ -47,7 +41,7 @@ describe("Method update()", () => {
   const updateArchives = jest.spyOn(Deck.prototype, "updateArchives");
   const updateVP = jest.spyOn(Deck.prototype, "updateVP");
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
     deck = new Deck("", false, "", "pName", "pNick", [
       "Sentry",
