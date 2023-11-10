@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("processTopDecksLine", () => {
+describe("topDeckFromSetAside", () => {
   // Declare Deck reference
   let deck: Deck;
 

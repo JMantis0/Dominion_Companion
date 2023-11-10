@@ -3,7 +3,7 @@ import { Deck } from "../../../src/model/deck";
 
 describe("topDeckFromHand", () => {
   // Declare Deck reference
-  let deck = new Deck("", false, "", "pName", "pNick", []);
+  let deck: Deck;
 
   beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);

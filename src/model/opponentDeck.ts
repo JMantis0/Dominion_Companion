@@ -72,7 +72,9 @@ export class OpponentDeck extends BaseDeck {
   processTrashesLine(cards: string[], numberOfCards: number[]) {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        this.setTrash(this.trash.concat(cards[i]));
+        const trashCopy = this.trash.slice();
+        trashCopy.push(cards[i]);
+        this.setTrash(trashCopy);
         this.removeCardFromEntireDeck(cards[i]);
       }
     }
@@ -85,19 +87,9 @@ export class OpponentDeck extends BaseDeck {
   update(log: Array<string>) {
     log.forEach((line) => {
       if (this.debug) console.group(line);
-      this.treasurePopped = false;
-      if (!this.logEntryAppliesToThisDeck(line)) {
-        // Inside this if, log entries do not apply to this deck.  They are either
-        // info entries, or apply to opponent decks.
-        if (this.consecutiveTreasurePlays(line)) {
-          //  If playing with no animations, need this to pop off opponent treasure plays.
-          this.getConsecutiveTreasurePlayCounts(line);
-        }
-      }
-      // inside this else, log entries apply to this deck.
-      else {
-        //Clean up before shuffling if needed.
-        const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+      this.setTreasurePopped(false);
+      const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+      if (this.logEntryAppliesToThisDeck(line)) {
         this.processDeckChanges(line, act, cards, numberOfCards);
       }
       this.updateArchives(line);

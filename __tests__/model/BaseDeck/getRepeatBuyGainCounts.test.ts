@@ -23,6 +23,7 @@ describe("getRepeatBuyGainCounts", () => {
         deck.logArchive
       )
     ).toEqual(1);
+    // Verify the last logArchive entry was removed.
     expect(deck.logArchive).toStrictEqual(["pNick plays 2 Golds. (+$6)"]);
   });
 
@@ -41,6 +42,7 @@ describe("getRepeatBuyGainCounts", () => {
         deck.logArchive
       )
     ).toEqual(3);
+    // Verify the last logArchive entry was removed.
     expect(deck.logArchive).toStrictEqual(["pNick plays 8 Golds. (+$24)"]);
   });
 

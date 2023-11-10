@@ -1,7 +1,7 @@
 import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("getCardCountsFromEntry", () => {
+describe("getCardsAndCountsFromEntry", () => {
   let deck: BaseDeck;
 
   beforeEach(() => {
