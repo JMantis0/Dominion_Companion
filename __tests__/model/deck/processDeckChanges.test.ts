@@ -52,7 +52,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a shuffle line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the setWaitToShuffle method is called, and is called with true
     expect(setWaitToShuffle).toBeCalledTimes(1);
     expect(setWaitToShuffle).toBeCalledWith(true);
     expect(processGainsLine).not.toBeCalled();
@@ -76,7 +76,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a gains line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processGainsLine method is called, and is called with the correct arguments.
     expect(processGainsLine).toBeCalledTimes(1);
     expect(processGainsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(setWaitToShuffle).not.toBeCalled();
@@ -100,7 +100,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a draws line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processDraws method is called, and is called with the correct arguments.
     expect(processDrawsLine).toBeCalledTimes(1);
     expect(processDrawsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processGainsLine).not.toBeCalled();
@@ -124,7 +124,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a discards line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processDiscards method is called, and is called with the correct arguments.
     expect(processDiscardsLine).toBeCalledTimes(1);
     expect(processDiscardsLine).toBeCalledWith(cards, numberOfCards);
     expect(processDrawsLine).not.toBeCalled();
@@ -148,7 +148,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a plays line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processPlaysLine method is called, and is called with the correct arguments.
     expect(processPlaysLine).toBeCalledTimes(1);
     expect(processPlaysLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processDiscardsLine).not.toBeCalled();
@@ -172,7 +172,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a trashes line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processTrashes method is called, and is called with the correct arguments.
     expect(processTrashesLine).toBeCalledTimes(1);
     expect(processTrashesLine).toBeCalledWith(cards, numberOfCards);
     expect(processPlaysLine).not.toBeCalled();
@@ -196,7 +196,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a topdecks line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processTopDecks method is called, and is called with the correct arguments.
     expect(processTopDecksLine).toBeCalledTimes(1);
     expect(processTopDecksLine).toBeCalledWith(cards, numberOfCards);
     expect(processTrashesLine).not.toBeCalled();
@@ -220,7 +220,7 @@ describe("processDeckChanges", () => {
     // Act - simulate processing a looks at line.
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processLooksAt method is called, and is called with the correct arguments.
     expect(processLooksAtLine).toBeCalledTimes(1);
     expect(processLooksAtLine).toBeCalledWith(cards, numberOfCards);
     expect(processTopDecksLine).not.toBeCalled();
@@ -242,7 +242,7 @@ describe("processDeckChanges", () => {
 
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
-    // Assert
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
     expect(processRevealsLine).toBeCalledTimes(1);
     expect(processRevealsLine).toBeCalledWith(cards, numberOfCards);
     expect(setAsideFromLibrary).not.toBeCalled();

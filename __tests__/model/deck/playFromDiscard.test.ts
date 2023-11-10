@@ -17,7 +17,7 @@ describe("playFromDiscard", () => {
     // Act - Simulate playing a card from graveyard (as with a Vassal).
     deck.playFromDiscard("Sentry");
 
-    // Assert
+    // Assert - Verify the card was moved from graveyard to inPlay
     expect(deck.graveyard).toStrictEqual(["Copper", "Estate", "Estate"]);
     expect(deck.inPlay).toStrictEqual(["Laboratory", "Sentry"]);
   });

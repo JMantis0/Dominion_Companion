@@ -2,7 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("processGainsLine", () => {
-  // Instantiate Deck object.
+  // Declare Deck reference.
   let deck: Deck;
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe("processGainsLine", () => {
     const numberOfCards = [1];
     const line = "pNick buys and gains a Silver.";
 
-    // Mock a mid turn game board
+    // Mock a mid turn game board.
     deck.graveyard = [];
     deck.hand = ["Gold"];
     deck.library = ["Copper"];
@@ -35,13 +35,13 @@ describe("processGainsLine", () => {
     // Act - Simulate gaining a Silver by buying.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert - Verify the card was gained into the graveyard and added to the entireDeck
+    // Assert - Verify the card was gained into the graveyard and added to the entireDeck.
     expect(deck.graveyard).toStrictEqual(["Silver"]);
     expect(deck.entireDeck).toStrictEqual(["Copper", "Gold", "Silver"]);
     // Verify nothing was gained into the hand or library.
     expect(deck.hand).toStrictEqual(["Gold"]);
     expect(deck.library).toStrictEqual(["Copper"]);
-    // Verify the logArchive did not change
+    // Verify the logArchive did not change.
     expect(deck.logArchive).toStrictEqual([
       "Turn 3 - pName",
       "pNick plays a Gold. (+$3)",
@@ -59,7 +59,7 @@ describe("processGainsLine", () => {
     const numberOfCards = [1];
     const line = "pNick buys and gains a Silver.";
 
-    // Mock a mid turn game board
+    // Mock a mid turn game board.
     deck.graveyard = [];
     deck.hand = [];
     deck.library = ["Copper"];
@@ -68,7 +68,7 @@ describe("processGainsLine", () => {
     // Act - Simulate buy a second Silver consecutively.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert - Verify entireDeck and graveyard contain the expected cards
+    // Assert - Verify entireDeck and graveyard contain the expected cards.
     expect(deck.graveyard).toStrictEqual(["Silver"]);
     expect(deck.entireDeck).toStrictEqual(["Copper", "Gold", "Silver"]);
     // Verify no cards were gained into hand or library
@@ -97,7 +97,7 @@ describe("processGainsLine", () => {
     // Act - Simulate gaining a Silver by playing a Mine.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert - Verify that a Silver was added to hand and to entireDeck
+    // Assert - Verify that a Silver was added to hand and to entireDeck.
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Silver"]);
     expect(deck.entireDeck).toStrictEqual([
       "Copper",
@@ -105,10 +105,10 @@ describe("processGainsLine", () => {
       "Bureaucrat",
       "Silver",
     ]);
-    // Verify no cards were gained to graveyard or library
+    // Verify no cards were gained to graveyard or library.
     expect(deck.graveyard).toStrictEqual([]);
     expect(deck.library).toStrictEqual(["Copper"]);
-    // Verify logArchive was not changed
+    // Verify logArchive was not changed.
     expect(deck.logArchive).toStrictEqual([
       "pNick plays a Mine.",
       "pNick trashes a Copper.",
@@ -122,11 +122,11 @@ describe("processGainsLine", () => {
     deck.lastEntryProcessed = "pNick plays an Artisan.";
     deck.logArchive = ["pNick plays an Artisan."];
 
-    // Arguments for function being tested
+    // Arguments for function being tested.
     const cards = ["Laboratory"];
     const numberOfCards = [1];
     const line = "pNick gains a Laboratory.";
-    // Mock a mid turn game board
+    // Mock a mid turn game board.
     deck.graveyard = [];
     deck.hand = ["Bureaucrat"];
     deck.library = ["Copper"];
@@ -135,7 +135,7 @@ describe("processGainsLine", () => {
     // Act - Simulate gaining a Laboratory by playing an Artisan.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert - Verify the Laboratory was added to hand and entireDeck
+    // Assert - Verify the Laboratory was added to hand and entireDeck.
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Laboratory"]);
     expect(deck.entireDeck).toStrictEqual([
       "Copper",
@@ -143,14 +143,14 @@ describe("processGainsLine", () => {
       "Bureaucrat",
       "Laboratory",
     ]);
-    // Verify nothing was gained to library or graveyard
+    // Verify nothing was gained to library or graveyard.
     expect(deck.library).toStrictEqual(["Copper"]);
     expect(deck.graveyard).toStrictEqual([]);
-    // Veryify logArchive is unchanged
+    // Verify logArchive is unchanged.
     expect(deck.logArchive).toStrictEqual(["pNick plays an Artisan."]);
   });
 
-  // Case Gain into library
+  // Case Gain into library.
   it("should add cards gained by Bureaucrat to library.", () => {
     // Arrange
     const cards = ["Silver"];
@@ -159,16 +159,16 @@ describe("processGainsLine", () => {
     deck.latestPlay = "Bureaucrat";
     deck.lastEntryProcessed = "pNick plays a Bureaucrat.";
     deck.logArchive = ["pNick plays an Bureaucrat."];
-    // Mock a mid turn game board
+    // Mock a mid turn game board.
     deck.graveyard = [];
     deck.hand = ["Artisan"];
     deck.library = ["Copper"];
     deck.entireDeck = ["Copper", "Artisan", "Bureaucrat"];
 
-    // Act - Simulate gaining a Silver by playing a Bureaucrat
+    // Act - Simulate gaining a Silver by playing a Bureaucrat.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert - Verify a Silver was added to library and entireDeck
+    // Assert - Verify a Silver was added to library and entireDeck.
     expect(deck.library).toStrictEqual(["Copper", "Silver"]);
     expect(deck.entireDeck).toStrictEqual([
       "Copper",
@@ -179,7 +179,7 @@ describe("processGainsLine", () => {
     // Verify nothing was gained into hand or graveyard.
     expect(deck.hand).toStrictEqual(["Artisan"]);
     expect(deck.graveyard).toStrictEqual([]);
-    // Verify the logArchive was not changed
+    // Verify the logArchive was not changed.
     expect(deck.logArchive).toStrictEqual(["pNick plays an Bureaucrat."]);
   });
 });

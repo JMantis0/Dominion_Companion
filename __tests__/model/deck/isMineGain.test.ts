@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("isMineGain", () => {
-  // Instantiate Deck object.
+  // Declare Deck reference.
   let deck: Deck;
 
   beforeEach(() => {

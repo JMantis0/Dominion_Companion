@@ -2,9 +2,9 @@ import { describe, it, expect, jest, afterEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("processPlaysLine", () => {
-  // Instantiate Deck object.
+  // Declare Deck reference.
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on method dependencies
+  // mock checkForVassalPlay
   const checkForVassalPlay = jest.spyOn(Deck.prototype, "checkForVassalPlay");
 
   afterEach(() => {

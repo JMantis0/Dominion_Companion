@@ -4,7 +4,6 @@ import { Deck } from "../../../src/model/deck";
 describe("play", () => {
   //  Declare Deck reference.
   let deck: Deck;
-  // Spy on method dependencies
 
   beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
@@ -18,7 +17,7 @@ describe("play", () => {
     // Act - Simulate playing a Sentry from hand into play.
     deck.play("Sentry");
 
-    // Assert
+    // Assert - Verify the card was moved from hand to inPlay
     expect(deck.hand).toStrictEqual(["Copper", "Estate", "Estate"]);
     expect(deck.inPlay).toStrictEqual(["Laboratory", "Sentry"]);
   });

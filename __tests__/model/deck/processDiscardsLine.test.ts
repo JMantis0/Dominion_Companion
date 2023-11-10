@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("processDiscardsLine", () => {
-  // Instantiate Deck object.
+  // Declare Deck reference.
   let deck: Deck;
 
   beforeEach(() => {
@@ -19,6 +19,7 @@ describe("processDiscardsLine", () => {
     deck.graveyard = ["Silver"];
     deck.setAside = ["Shouldn't Move"];
     deck.library = ["Shouldn't Move"];
+
     // Act - Simulate discarding two cards to an opponent's Militia.
     deck.processDiscardsLine(cards, numberOfCards);
 

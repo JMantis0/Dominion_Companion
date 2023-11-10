@@ -2,7 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("processLooksAtLine", () => {
-  // Declare Deck reference
+  // Declare Deck reference.
   let deck: Deck;
 
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe("processLooksAtLine", () => {
     deck.setAside = [];
     deck.waitToDrawLibraryLook = false;
 
-    // Arguments for function being tested
+    // Arguments for function being tested.
     const cards = ["Copper", "Estate", "Moat", "Poacher"];
     const numberOfCards = [3, 3, 1, 2];
 
@@ -29,7 +29,7 @@ describe("processLooksAtLine", () => {
     expect(deck.hand).toStrictEqual(["Copper", "Estate"]);
     expect(deck.library).toStrictEqual(["Bureaucrat"]);
     expect(deck.setAside).toStrictEqual([]);
-    // Verify waiToDrawLibraryLook is not changed
+    // Verify waiToDrawLibraryLook is not changed.
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
@@ -41,14 +41,14 @@ describe("processLooksAtLine", () => {
     deck.setAside = [];
     deck.waitToDrawLibraryLook = false;
 
-    // Arguments for function being tested
+    // Arguments for function being tested.
     const cards = ["Copper", "Province"];
     const numberOfCards = [1, 1];
 
-    // Act - Simulate looking at a Copper and Province with a Sentry
+    // Act - Simulate looking at a Copper and Province with a Sentry.
     deck.processLooksAtLine(cards, numberOfCards);
 
-    // Assert - Verify the cards were moved from library to setAside
+    // Assert - Verify the cards were moved from library to setAside.
     expect(deck.setAside).toStrictEqual(["Copper", "Province"]);
     expect(deck.library).toStrictEqual(["Estate"]);
     // Verify hand and waitToDrawLibraryLook are not changed.
@@ -64,11 +64,11 @@ describe("processLooksAtLine", () => {
     deck.setAside = [];
     deck.waitToDrawLibraryLook = false;
 
-    // Arguments for function being tested
+    // Arguments for function being tested.
     const cards = ["Smithy", "Gold"];
     const numberOfCards = [1, 1];
 
-    // Act - Simulate looking at a Copper and Province with a Sentry
+    // Act - Simulate looking at a Copper and Province with a Sentry.
     deck.processLooksAtLine(cards, numberOfCards);
 
     // Assert - Verify cards were moved from library to setAside
@@ -96,10 +96,10 @@ describe("processLooksAtLine", () => {
     ];
     deck.setAside = [];
     deck.waitToDrawLibraryLook = false;
-    // Arguments for function being tested
+    // Arguments for function being tested.
     const numberOfCards = [1];
 
-    // Act - simulate a Library looking at a Gold
+    // Act - simulate a Library looking at a Gold.
     deck.processLooksAtLine(["Gold"], numberOfCards);
     deck.processLooksAtLine(["Silver"], numberOfCards);
     deck.processLooksAtLine(["Copper"], numberOfCards);
@@ -109,7 +109,7 @@ describe("processLooksAtLine", () => {
     deck.processLooksAtLine(["Estate"], numberOfCards);
     deck.processLooksAtLine(["Curse"], numberOfCards);
 
-    // Assert - Verify the cards were drawn from library to hand
+    // Assert - Verify the cards were drawn from library to hand.
     expect(deck.hand).toStrictEqual([
       "Bureaucrat",
       "Gold",
@@ -139,10 +139,10 @@ describe("processLooksAtLine", () => {
     const cards = ["Bureaucrat"];
     const numberOfCards = [1];
 
-    // Act - Simulate a player skipping a Bureaucrat while looking at cards with a Library
+    // Act - Simulate a player skipping a Bureaucrat while looking at cards with a Library.
     deck.processLooksAtLine(cards, numberOfCards);
 
-    // Assert - Verify card was moved from library to setAside and waitToDrawLibraryLook is true
+    // Assert - Verify card was moved from library to setAside and waitToDrawLibraryLook is true.
     expect(deck.library).toStrictEqual(["Smithy"]);
     expect(deck.setAside).toStrictEqual(["Bureaucrat"]);
     expect(deck.waitToDrawLibraryLook).toBe(true);
