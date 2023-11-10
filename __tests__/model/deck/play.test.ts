@@ -1,15 +1,11 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method play()", () => {
-  //  Initialize Deck object
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setInPlay = jest.spyOn(Deck.prototype, "setInPlay");
-  const setHand = jest.spyOn(Deck.prototype, "setHand");
+describe("play", () => {
+  //  Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -21,13 +17,9 @@ describe("Method play()", () => {
     // Act - Simulate playing a Sentry from hand into play.
     deck.play("Sentry");
 
-    // Assert
+    // Assert - Verify the card was moved from hand to inPlay
     expect(deck.hand).toStrictEqual(["Copper", "Estate", "Estate"]);
     expect(deck.inPlay).toStrictEqual(["Laboratory", "Sentry"]);
-    expect(setInPlay).toBeCalledTimes(1);
-    expect(setInPlay).toBeCalledWith(["Laboratory", "Sentry"]);
-    expect(setHand).toBeCalledTimes(1);
-    expect(setHand).toBeCalledWith(["Copper", "Estate", "Estate"]);
   });
 
   it("should throw an error when the provided card is not in hand", () => {

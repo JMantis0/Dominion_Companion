@@ -1,21 +1,12 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("Method trashFromSetAside", () => {
-  // Instantiate deck object
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setTrash = jest
-    .spyOn(Deck.prototype, "setTrash")
-    .mockImplementation(() => null);
-  const removeCardFromEntireDeck = jest
-    .spyOn(Deck.prototype, "removeCardFromEntireDeck")
-    .mockImplementation(() => null);
-  const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
-  
-  afterEach(() => {
+  // Declare Deck reference
+  let deck: Deck;
+
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should add the given card to trash and remove it from the entireDeck", () => {
@@ -27,13 +18,10 @@ describe("Method trashFromSetAside", () => {
     // Act - simulate trashing Copper from setAside
     deck.trashFromSetAside("Copper");
 
-    // Assert
-    expect(setTrash).toBeCalledTimes(1);
-    expect(setTrash).toBeCalledWith(["Trash1", "Trash2", "Copper"]); //Add Copper to trash
-    expect(removeCardFromEntireDeck).toBeCalledTimes(1);
-    expect(removeCardFromEntireDeck).toBeCalledWith("Copper"); //Remove Copper from entireDeck
-    expect(setSetAside).toBeCalledTimes(1);
-    expect(setSetAside).toBeCalledWith(["Estate"]); // Remove Copper from setAside
+    // Assert - Verify card was added to trash and removed from setAside and entireDeck.
+    expect(deck.trash).toStrictEqual(["Trash1", "Trash2", "Copper"]);
+    expect(deck.entireDeck).toStrictEqual(["Card1", "Card2"]);
+    expect(deck.setAside).toStrictEqual(["Estate"]);
   });
 
   it("should throw an error if the given card is not in setAside=", () => {

@@ -1,18 +1,11 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method drawFromSetAside()", () => {
-  // Instantiate Deck object
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setSetAside = jest
-    .spyOn(Deck.prototype, "setSetAside")
-    .mockImplementation(() => null);
-  const setHand = jest
-    .spyOn(Deck.prototype, "setHand")
-    .mockImplementation(() => null);
-  afterEach(() => {
-    jest.clearAllMocks();
+describe("drawFromSetAside", () => {
+  // Declare Deck reference.
+  let deck: Deck;
+
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -20,12 +13,13 @@ describe("Method drawFromSetAside()", () => {
     // Arrange
     deck.hand = ["Copper"];
     deck.setAside = ["Mine", "Sentry"];
+
     // Act - simulate drawing a Mine from setAside.
     deck.drawFromSetAside("Mine");
-    expect(setHand).toBeCalledTimes(1);
-    expect(setHand).toBeCalledWith(["Copper", "Mine"]);
-    expect(setSetAside).toBeCalledTimes(1);
-    expect(setSetAside).toBeCalledWith(["Sentry"]);
+
+    // Assert - Verify card was moved from setAside to hand.
+    expect(deck.hand).toStrictEqual(["Copper", "Mine"]);
+    expect(deck.setAside).toStrictEqual(["Sentry"]);
   });
 
   it("should throw an error if the given card is not in setAside", () => {

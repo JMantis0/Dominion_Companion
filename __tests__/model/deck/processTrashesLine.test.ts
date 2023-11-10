@@ -1,22 +1,11 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method processTopDecksLine()", () => {
-  // Instantiate Deck objet.
-  let deck = new Deck("", false, "", "pNick", "pName", []);
+describe("processTopDecksLine()", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  // Spy on method dependencies
-  const trashFromLibrary = jest
-    .spyOn(Deck.prototype, "trashFromLibrary")
-    .mockImplementation(() => null);
-  const trashFromHand = jest
-    .spyOn(Deck.prototype, "trashFromHand")
-    .mockImplementation(() => null);
-  const trashFromSetAside = jest
-    .spyOn(Deck.prototype, "trashFromSetAside")
-    .mockImplementation(() => null);
-
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
     jest.clearAllMocks();
   });
@@ -24,7 +13,9 @@ describe("Method processTopDecksLine()", () => {
   it("should trash cards not trashed by Sentry or Bandit from hand.", () => {
     //Arrange
     deck.latestPlay = "Moneylender";
-
+    deck.hand = ["Copper", "Estate"];
+    deck.setAside = ["Bureaucrat"];
+    deck.entireDeck = ["Moneylender", "Bureaucrat", "Copper", "Estate"];
     // Arguments for function being tested.
     const cards = ["Copper"];
     const numberOfCards = [1];
@@ -32,17 +23,23 @@ describe("Method processTopDecksLine()", () => {
     // Act - simulate trashing a Copper from hand by a Moneylender.
     deck.processTrashesLine(cards, numberOfCards);
 
-    // Assert
-
-    expect(trashFromHand).toBeCalledTimes(1);
-    expect(trashFromHand).toBeCalledWith("Copper");
-
-    expect(trashFromLibrary).not.toBeCalled();
+    // Assert - Verify card was removed from hand and entireDeck
+    expect(deck.hand).toStrictEqual(["Estate"]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Moneylender",
+      "Bureaucrat",
+      "Estate",
+    ]);
+    // Verify setAside is unchanged
+    expect(deck.setAside).toStrictEqual(["Bureaucrat"]);
   });
 
   it("should trash cards trashed by Sentry from setAside.", () => {
     // Arrange
     deck.latestPlay = "Sentry";
+    deck.hand = ["Bureaucrat"];
+    deck.setAside = ["Estate", "Copper"];
+    deck.entireDeck = ["Bureaucrat", "Sentry", "Copper", "Estate"];
 
     // Arguments for function being tested.
     const cards = ["Estate", "Copper"];
@@ -51,17 +48,19 @@ describe("Method processTopDecksLine()", () => {
     // Act - simulate trashing an Estate and a Copper from setAside by a Sentry.
     deck.processTrashesLine(cards, numberOfCards);
 
-    // Assert
-    expect(trashFromSetAside).toBeCalledTimes(2);
-    expect(trashFromSetAside).nthCalledWith(1, "Estate");
-    expect(trashFromSetAside).nthCalledWith(2, "Copper");
-    expect(trashFromHand).not.toBeCalled();
-    expect(trashFromLibrary).not.toBeCalled();
+    // Assert - Verify cards were removed from setAside and entireDeck
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.entireDeck).toStrictEqual(["Bureaucrat", "Sentry"]);
+    // Verify hand is unchanged
+    expect(deck.hand).toStrictEqual(["Bureaucrat"]);
   });
 
   it("should trash cards trashed by Bandit from setAside.", () => {
     // Arrange
     deck.latestPlay = "Bandit";
+    deck.setAside = ["Silver", "Estate"];
+    deck.hand = ["Silver"];
+    deck.entireDeck = ["Silver", "Silver", "Estate"];
     // Arguments for function being tested.
     const cards = ["Silver"];
     const numberOfCards = [1];
@@ -69,10 +68,10 @@ describe("Method processTopDecksLine()", () => {
     // Act - simulate trashing a Silver from library by a Bandit.
     deck.processTrashesLine(cards, numberOfCards);
 
-    // Assert
-    expect(trashFromSetAside).toBeCalledTimes(1);
-    expect(trashFromSetAside).toBeCalledWith("Silver");
-    expect(trashFromHand).not.toBeCalled();
-    expect(trashFromLibrary).not.toBeCalled();
+    // Assert - Verify the card was removed from setAside and entireDeck
+    expect(deck.setAside).toStrictEqual(["Estate"]);
+    expect(deck.entireDeck).toStrictEqual(["Silver", "Estate"]);
+    // Verify hand is not changed
+    expect(deck.hand).toStrictEqual(["Silver"]);
   });
 });

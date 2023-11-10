@@ -6,12 +6,10 @@ const autoprefixer = require("autoprefixer");
 const webpack = require("webpack");
 
 module.exports = {
-  mode: "development",
-  devtool: "inline-source-map",
   entry: {
     popup: path.resolve("./src/popup/index.tsx"),
     options: path.resolve("./src/options/index.tsx"),
-    contentScript: path.resolve("./src/content/contentScript.tsx"),
+    dominion_companion: path.resolve("./src/content/contentScript.tsx"),
     background: path.resolve("./src/background/service-worker.tsx"),
   },
   module: {
@@ -87,7 +85,7 @@ module.exports = {
   optimization: {
     splitChunks: {
       chunks(chunk) {
-        return chunk.name !== "contentScript";
+        return chunk.name !== "dominion_companion";
       },
     },
   },

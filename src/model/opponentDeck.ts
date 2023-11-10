@@ -14,6 +14,7 @@ export class OpponentDeck extends BaseDeck {
     kingdom: Array<string>
   ) {
     super(gameTitle, ratedGame, rating, playerName, playerNick, kingdom);
+    this.setDebug(false);
   }
 
   /**

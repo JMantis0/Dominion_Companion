@@ -1,16 +1,12 @@
-import { it, describe, expect, jest, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method gainIntoLibrary()", () => {
+describe("gainIntoLibrary", () => {
   // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on function dependency.
-  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
-  const addCardToEntireDeck = jest.spyOn(Deck.prototype, "addCardToEntireDeck");
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
-    jest.clearAllMocks();
   });
 
   it("should add one instance of the provided card to the library and to the entireDeck", () => {
@@ -21,12 +17,8 @@ describe("Method gainIntoLibrary()", () => {
     // Act - Simulate gaining a Silver into the library (as with a Bureaucrat).
     deck.gainIntoLibrary("Silver");
 
-    // Assert
+    // Assert - Verify card was added to library and entireDeck.
     expect(deck.library).toStrictEqual(["Copper", "Silver"]);
     expect(deck.entireDeck).toStrictEqual(["Estate", "Silver"]);
-    expect(setLibrary).toBeCalledTimes(1);
-    expect(setLibrary).toBeCalledWith(["Copper", "Silver"]);
-    expect(addCardToEntireDeck).toBeCalledTimes(1);
-    expect(addCardToEntireDeck).toBeCalledWith("Silver");
   });
 });

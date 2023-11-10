@@ -1,16 +1,12 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method processTopDecksLine()", () => {
-  // Instantiate Deck object
-  let deck = new Deck("", false, "", "pNick", "pName", []);
-  // Spy on method dependencies
-  const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
-  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
+describe("processTopDecksLine", () => {
+  // Declare Deck reference
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
-    jest.clearAllMocks();
   });
 
   it("should correctly move cards from setAside to library", () => {
@@ -21,10 +17,9 @@ describe("Method processTopDecksLine()", () => {
     // Assert - simulate topDecking a card from setAside
     deck.topDeckFromSetAside("Bandit");
 
-    expect(setLibrary).toBeCalledTimes(1);
-    expect(setLibrary).toBeCalledWith(["Copper", "Estate", "Bandit"]);
-    expect(setSetAside).toBeCalledTimes(1);
-    expect(setSetAside).toBeCalledWith(["Vassal"]);
+    // Assert - Verify a card was moved from setAside to library
+    expect(deck.setAside).toStrictEqual(["Vassal"]);
+    expect(deck.library).toStrictEqual(["Copper", "Estate", "Bandit"]);
   });
 
   it("should throw an error if the given card is not in setAside", () => {

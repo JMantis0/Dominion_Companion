@@ -1,14 +1,13 @@
-import { it, describe, expect, afterEach, jest } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method discard()", () => {
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
-  const setHand = jest.spyOn(Deck.prototype, "setHand");
-  afterEach(() => {
+describe("discard", () => {
+  let deck: Deck;
+
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
+
   it("should remove one instance of the provided card from the hand and add it to the graveyard", () => {
     // Arrange
     deck.hand = ["Copper", "Copper", "Copper", "Estate", "Estate"];
@@ -16,13 +15,9 @@ describe("Method discard()", () => {
     // Act - Simulate discarding a Copper from hand.
     deck.discard("Copper");
 
-    // Assert
+    // Assert - Verify card was moved from hand to graveyard.
     expect(deck.graveyard).toStrictEqual(["Copper"]);
     expect(deck.hand).toStrictEqual(["Copper", "Copper", "Estate", "Estate"]);
-    expect(setHand).toBeCalledTimes(1);
-    expect(setHand).toBeCalledWith(["Copper", "Copper", "Estate", "Estate"]);
-    expect(setGraveyard).toBeCalledTimes(1);
-    expect(setGraveyard).toBeCalledWith(["Copper"]);
   });
 
   it("should throw an error when the provided card is not in hand", () => {

@@ -1,14 +1,11 @@
-import { it, describe, expect, jest, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method checkForCleanup()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on function dependency.
-  const getPlayerNick = jest.spyOn(Deck.prototype, "getPlayerNick");
+describe("checkForCleanup", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -39,7 +36,6 @@ describe("Method checkForCleanup()", () => {
     expect(deck.checkForCleanUp(line8)).toBe(true);
     expect(deck.checkForCleanUp(line9)).toBe(true);
     expect(deck.checkForCleanUp(line10)).toBe(true);
-    expect(getPlayerNick).toBeCalledTimes(10);
   });
 
   it("should return false when a cleanup is not needed", () => {

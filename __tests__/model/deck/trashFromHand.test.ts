@@ -1,20 +1,12 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method trashFromHand() ", () => {
-  // Instantiate Deck objext
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setTrash = jest.spyOn(Deck.prototype, "setTrash");
-  const removeCardFromEntireDeck = jest.spyOn(
-    Deck.prototype,
-    "removeCardFromEntireDeck"
-  );
-  const setHand = jest.spyOn(Deck.prototype, "setHand");
-  
-  afterEach(() => {
+describe("trashFromHand", () => {
+  // Declare Deck reference
+  let deck: Deck;
+
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should remove an instance of the provided card from hand, remove it from the entire deck, and add it to trash", () => {
@@ -26,13 +18,15 @@ describe("Method trashFromHand() ", () => {
     // Act - Simulate trashing a card from the hand.
     deck.trashFromHand("Harbinger");
 
-    // Assert
-    expect(setTrash).toBeCalledTimes(1);
-    expect(setTrash).toBeCalledWith(["Sentry", "Vassal", "Harbinger"]);
-    expect(removeCardFromEntireDeck).toBeCalledTimes(1);
-    expect(removeCardFromEntireDeck).toBeCalledWith("Harbinger");
-    expect(setHand).toBeCalledTimes(1);
-    expect(setHand).toBeCalledWith(["Chapel", "Estate", "Silver"]);
+    // Assert - Verify the card was removed from hand and entireDeck
+    expect(deck.entireDeck).toStrictEqual([
+      "Chapel",
+      "Estate",
+      "Silver",
+      "Vassal",
+    ]);
+    expect(deck.trash).toStrictEqual(["Sentry", "Vassal", "Harbinger"]);
+    expect(deck.hand).toStrictEqual(["Chapel", "Estate", "Silver"]);
   });
 
   it("should throw an error if the provided card is not in hand", () => {

@@ -1,60 +1,90 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method drawLookedAtCardIfNeeded()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const libraryTriggeredPreviousLineDraw = jest.spyOn(
-    Deck.prototype,
-    "libraryTriggeredPreviousLineDraw"
-  );
-  const drawCardFromPreviousLine = jest
-    .spyOn(Deck.prototype, "drawCardFromPreviousLine")
-    .mockImplementation(() => null);
-  const setWaitToDrawLibraryLook = jest.spyOn(
-    Deck.prototype,
-    "setWaitToDrawLibraryLook"
-  );
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    deck = new Deck("", false, "", "pName", "pNick", []);
+describe("drawLookedAtCardIfNeeded", () => {
+  // Declare Deck reference.
+  let deck: Deck;
+  beforeEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", [
+      "Chapel",
+      "Library",
+      "Harbinger",
+      "Copper",
+    ]);
   });
 
   it("should draw the card that was looked at on the previous line, if needed()", () => {
     // Arrange
+    deck.logArchive = ["pNick plays a Library.", "pNick looks at a Chapel."];
+    deck.latestPlay = "Library";
+    deck.waitToDrawLibraryLook = true;
+    deck.setAside = ["Chapel"];
+    deck.hand = ["Copper", "Estate"];
     const act = "plays";
-    libraryTriggeredPreviousLineDraw.mockImplementation(() => true);
 
     // Act - Simulate an update where a draw from the previous line's Library action is needed
     deck.drawLookedAtCardIfNeeded(act);
 
-    // Assert
-    expect(libraryTriggeredPreviousLineDraw).toBeCalledTimes(1);
-    expect(libraryTriggeredPreviousLineDraw).toBeCalledWith("plays");
-    expect(libraryTriggeredPreviousLineDraw.mock.results[0].value).toBe(true);
-    expect(drawCardFromPreviousLine).toBeCalledTimes(1);
-    expect(setWaitToDrawLibraryLook).toBeCalledTimes(1);
-    expect(setWaitToDrawLibraryLook).toBeCalledWith(false);
+    // Assert - Verify the card moved from setAside to hand.
+    expect(deck.hand).toStrictEqual(["Copper", "Estate", "Chapel"]);
+    expect(deck.setAside).toStrictEqual([]);
+    // Verify waitToDrawLibraryLook was set to false
+    expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
-  it("should not draw the card that was looked at on the previous line, if not needed", () => {
+  it("should not draw the card that was looked at on the previous line, if that card was set aside by the player", () => {
     // Arrange
+    deck.logArchive = ["pNick plays a Library.", "pNick looks at a Chapel."];
+    deck.latestPlay = "Library";
+    deck.waitToDrawLibraryLook = true;
+    deck.setAside = ["Chapel"];
+    deck.hand = ["Copper", "Estate"];
     const act = "aside with Library";
-    libraryTriggeredPreviousLineDraw.mockImplementation(() => false);
-
-    // Act - Simulate an update where a draw from the previous line's Library action is needed
+    // Act - Simulate a call to drawLookedAtCardIfNeeded where the player chose not to draw the card.
     deck.drawLookedAtCardIfNeeded(act);
 
-    // Assert
-    expect(libraryTriggeredPreviousLineDraw).toBeCalledTimes(1);
-    expect(libraryTriggeredPreviousLineDraw).toBeCalledWith(
-      "aside with Library"
-    );
-    expect(libraryTriggeredPreviousLineDraw.mock.results[0].value).toBe(false);
-    expect(drawCardFromPreviousLine).not.toBeCalled();
-    expect(setWaitToDrawLibraryLook).toBeCalledTimes(1);
-    expect(setWaitToDrawLibraryLook).toBeCalledWith(false);
+    // Assert - Verify the card was not drawn.
+    expect(deck.hand).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.setAside).toStrictEqual(["Chapel"]);
+    // Verify waitToDrawLibraryLook was set to false
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
+  it("should not draw the card that was looked at on the previous line, if card was one of the cards that is auto drawn", () => {
+    // Arrange
+    deck.logArchive = ["pNick plays a Library.", "pNick looks at a Copper."];
+    deck.latestPlay = "Library";
+    deck.waitToDrawLibraryLook = false;
+    deck.hand = ["Copper", "Estate", "Copper"];
+    deck.setAside = [];
+    const act = "looks at";
+
+    // Act - Simulate a call to drawLookedAtCardIfNeeded where the card was not an action, and was automatically drawn.
+    deck.drawLookedAtCardIfNeeded(act);
+
+    // Assert - Verify the card was not drawn.
+    expect(deck.hand).toStrictEqual(["Copper", "Estate", "Copper"]);
+    expect(deck.setAside).toStrictEqual([]);
+    // Verify waitToDrawLibraryLook was set to false
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
+  it("should not draw the card that was looked at on the previous line, if previous line is not a Library look", () => {
+    // Arrange
+    deck.logArchive = ["pNick plays a Harbinger.", "pNick looks at a Copper."];
+    deck.latestPlay = "Harbinger";
+    deck.waitToDrawLibraryLook = false;
+    deck.hand = ["Copper", "Estate", "Copper"];
+    deck.setAside = [];
+    const act = "plays";
+
+    // Act - Simulate a call to drawLookedAtCardIfNeeded where the previous line is not a Library look.
+    deck.drawLookedAtCardIfNeeded(act);
+
+    // Assert - Verify the card was not drawn.
+    expect(deck.hand).toStrictEqual(["Copper", "Estate", "Copper"]);
+    expect(deck.setAside).toStrictEqual([]);
+    // Verify waitToDrawLibraryLook was set to false
+    expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 });

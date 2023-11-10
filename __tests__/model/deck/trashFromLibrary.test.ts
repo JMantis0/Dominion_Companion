@@ -1,20 +1,12 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method trashFromLibrary() ", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
-  const setTrash = jest.spyOn(Deck.prototype, "setTrash");
-  const removeCardFromEntireDeck = jest.spyOn(
-    Deck.prototype,
-    "removeCardFromEntireDeck"
-  );
+describe("trashFromLibrary", () => {
+  // Declare Deck reference
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should remove an instance of the provided card from library, and add it to trash", () => {
@@ -26,13 +18,15 @@ describe("Method trashFromLibrary() ", () => {
     // Act - Simulate trashing a Harbinger from library.
     deck.trashFromLibrary("Harbinger");
 
-    // Assert
-    expect(setLibrary).toBeCalledTimes(1);
-    expect(setLibrary).toBeCalledWith(["Chapel", "Estate", "Silver"]);
-    expect(setTrash).toBeCalledTimes(1);
-    expect(setTrash).toBeCalledWith(["Sentry", "Vassal", "Harbinger"]);
-    expect(removeCardFromEntireDeck).toBeCalledTimes(1);
-    expect(removeCardFromEntireDeck).toBeCalledWith("Harbinger");
+    // Assert - Verify the card was removed from entireDeck and library, and added to trash
+    expect(deck.entireDeck).toStrictEqual([
+      "Chapel",
+      "Estate",
+      "Silver",
+      "Cellar",
+    ]);
+    expect(deck.library).toStrictEqual(["Chapel", "Estate", "Silver"]);
+    expect(deck.trash).toStrictEqual(["Sentry", "Vassal", "Harbinger"]);
   });
 
   it("should throw an error if the provided card is not in library", () => {

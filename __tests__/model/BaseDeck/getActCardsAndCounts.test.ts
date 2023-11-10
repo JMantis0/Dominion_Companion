@@ -1,52 +1,10 @@
-import { it, describe, expect, afterEach, jest } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method getActCardsAndCounts", () => {
-  let deck = new BaseDeck("", false, "", "pNick", "pName", [
-    "Cellar",
-    "Chapel",
-    "Moat",
-    "Harbinger",
-    "Merchant",
-    "Vassal",
-    "Village",
-    "Workshop",
-    "Copper",
-    "Curse",
-    "Estate",
-    "Silver",
-    "Duchy",
-    "Gold",
-    "Province",
-  ]);
+describe("getActCardsAndCounts", () => {
+  let deck: BaseDeck;
 
-  const consecutiveTreasurePlays = jest.spyOn(
-    BaseDeck.prototype,
-    "consecutiveTreasurePlays"
-  );
-  const getConsecutiveTreasurePlayCounts = jest.spyOn(
-    BaseDeck.prototype,
-    "getConsecutiveTreasurePlayCounts"
-  );
-  const getActionFromEntry = jest.spyOn(
-    BaseDeck.prototype,
-    "getActionFromEntry"
-  );
-  const getCardsAndCountsFromEntry = jest.spyOn(
-    BaseDeck.prototype,
-    "getCardsAndCountsFromEntry"
-  );
-  const consecutiveBuysOfSameCard = jest.spyOn(
-    BaseDeck.prototype,
-    "consecutiveBuysOfSameCard"
-  );
-  const getRepeatBuyGainCounts = jest.spyOn(
-    BaseDeck.prototype,
-    "getRepeatBuyGainCounts"
-  );
-
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", [
       "Cellar",
       "Chapel",
@@ -84,21 +42,6 @@ describe("Method getActCardsAndCounts", () => {
     expect(resultAct).toStrictEqual(expectedAct);
     expect(expectedCards).toStrictEqual(resultCards);
     expect(expectedNumber).toStrictEqual(resultNumbers);
-    expect(consecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
-    expect(getActionFromEntry).toBeCalledTimes(1);
-    expect(getActionFromEntry).toBeCalledWith(line);
-    expect(getActionFromEntry.mock.results[0].value).toBe("plays");
-    expect(getCardsAndCountsFromEntry).toBeCalledTimes(1);
-    expect(getCardsAndCountsFromEntry).toBeCalledWith(line);
-    expect(getCardsAndCountsFromEntry.mock.results[0].value).toStrictEqual([
-      ["Vassal"],
-      [1],
-    ]);
-    expect(consecutiveBuysOfSameCard).toBeCalledTimes(1);
-    expect(consecutiveBuysOfSameCard).toBeCalledWith("plays", line, "Vassal");
-    expect(getRepeatBuyGainCounts).not.toBeCalled();
   });
 
   it("should work for lines with multiple cards with different amounts", () => {
@@ -119,27 +62,6 @@ describe("Method getActCardsAndCounts", () => {
     expect(resultAct).toStrictEqual(expectedAct);
     expect(expectedCards).toStrictEqual(resultCards);
     expect(expectedNumber).toStrictEqual(resultNumbers);
-    expect(consecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(consecutiveTreasurePlays).toBeCalledWith(line);
-    expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
-    expect(getActionFromEntry).toBeCalledTimes(1);
-    expect(getActionFromEntry).toBeCalledWith(line);
-    expect(getActionFromEntry.mock.results[0].value).toStrictEqual("discards");
-    expect(getCardsAndCountsFromEntry).toBeCalledTimes(1);
-    expect(getCardsAndCountsFromEntry).toBeCalledWith(line);
-    expect(getCardsAndCountsFromEntry.mock.results[0].value).toStrictEqual([
-      expectedCards,
-      expectedNumber,
-    ]);
-    expect(consecutiveBuysOfSameCard).toBeCalledTimes(1);
-    expect(consecutiveBuysOfSameCard).toBeCalledWith(
-      "discards",
-      line,
-      "Vassal"
-    );
-    expect(consecutiveBuysOfSameCard.mock.results[0].value).toBe(false);
-    expect(getRepeatBuyGainCounts).not.toBeCalled();
   });
 
   it("should handle consecutive treasure plays correctly", () => {
@@ -165,18 +87,6 @@ describe("Method getActCardsAndCounts", () => {
     expect(expectedCards).toStrictEqual(resultCards);
     expect(expectedNumber).toStrictEqual(resultNumbers);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
-    expect(consecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(consecutiveTreasurePlays).toBeCalledWith(line);
-    expect(consecutiveTreasurePlays.mock.results[0].value).toBe(true);
-    expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
-    expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(line);
-    expect(
-      getConsecutiveTreasurePlayCounts.mock.results[0].value
-    ).toStrictEqual([0, 1, 0]);
-    expect(getActionFromEntry).not.toBeCalled();
-    expect(getCardsAndCountsFromEntry).not.toBeCalled();
-    expect(consecutiveBuysOfSameCard).not.toBeCalled();
-    expect(getRepeatBuyGainCounts).not.toBeCalled();
   });
 
   it("should handle consecutive buys of the same card correctly", () => {
@@ -202,24 +112,5 @@ describe("Method getActCardsAndCounts", () => {
     expect(expectedCards).toStrictEqual(resultCards);
     expect(expectedNumber).toStrictEqual(resultNumbers);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
-    expect(consecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(consecutiveTreasurePlays).toBeCalledWith(line);
-    expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
-    expect(getActionFromEntry).toBeCalledTimes(1);
-    expect(getActionFromEntry).toBeCalledWith(line);
-    expect(getActionFromEntry.mock.results[0].value).toStrictEqual("gains");
-    expect(getCardsAndCountsFromEntry).toBeCalledTimes(1);
-    expect(getCardsAndCountsFromEntry).toBeCalledWith(line);
-    expect(getCardsAndCountsFromEntry.mock.results[0].value).toStrictEqual([
-      ["Silver"],
-      [1],
-    ]);
-    expect(consecutiveBuysOfSameCard).toBeCalledTimes(1);
-    expect(consecutiveBuysOfSameCard).toBeCalledWith("gains", line, "Silver");
-    expect(consecutiveBuysOfSameCard.mock.results[0].value).toBe(true);
-    expect(getRepeatBuyGainCounts).toBeCalledTimes(1);
-    expect(getRepeatBuyGainCounts).toBeCalledWith(line, initialLogArchive);
-    expect(getRepeatBuyGainCounts.mock.results[0].value).toBe(1);
   });
 });

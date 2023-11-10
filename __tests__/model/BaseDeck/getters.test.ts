@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("The BaseDeck getter functions", () => {
+describe("The BaseDeck getter methods", () => {
   const oDeck = new BaseDeck("Title", false, "Ranking", "Opponent Name", "o", [
     "Sample",
     "Kingdom",

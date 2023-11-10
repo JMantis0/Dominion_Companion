@@ -1,18 +1,16 @@
-import { it, expect, jest } from "@jest/globals";
-import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { it, expect, describe } from "@jest/globals";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
-it("should add the provided line to the logArchive", () => {
-  // Arrange an OpponentDeck object
-  const oDeck = new OpponentDeck("", false, "", "oName", "o", []);
-  // Mock function dependency
-  const setLogArchive = jest.spyOn(OpponentDeck.prototype, "setLogArchive");
+describe("addLogToLogArchive", () => {
+  it("should add the provided line to the logArchive", () => {
+    // Instantiate a BaseDeck object
+    const deck = new BaseDeck("", false, "", "oName", "o", []);
 
-  // Act - Simulate adding a log to the logArchive
-  oDeck.logArchive = ["Log1", "Log2", "Log3"];
-  oDeck.addLogToLogArchive("Log4");
+    // Act - Simulate adding a log to the logArchive
+    deck.logArchive = ["Log1", "Log2", "Log3"];
+    deck.addLogToLogArchive("Log4");
 
-  // Assert
-  expect(setLogArchive).toBeCalledTimes(1);
-  expect(setLogArchive).toBeCalledWith(["Log1", "Log2", "Log3", "Log4"]);
-  expect(oDeck.logArchive).toStrictEqual(["Log1", "Log2", "Log3", "Log4"]);
+    // Assert
+    expect(deck.logArchive).toStrictEqual(["Log1", "Log2", "Log3", "Log4"]);
+  });
 });

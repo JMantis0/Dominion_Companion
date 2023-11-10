@@ -830,6 +830,8 @@ export class Deck extends BaseDeck implements StoreDeck {
             this.setAsideFromLibrary(cards[i]);
             this.setWaitToDrawLibraryLook(true);
           }
+        } else {
+          // Looks at line was not caused by a Sentry, Bandit, or Library.  Nothing to process.
         }
       }
     }

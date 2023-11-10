@@ -1,15 +1,11 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method discardFromSetAside()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setSetAside = jest.spyOn(Deck.prototype, "setSetAside");
-  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+describe("discardFromSetAside", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -21,13 +17,9 @@ describe("Method discardFromSetAside()", () => {
     // Act - Simulate discarding a Vassal from setAside.
     deck.discardFromSetAside("Vassal");
 
-    // Assert
+    // Assert - Verify card was moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual(["Sentry"]);
     expect(deck.graveyard).toStrictEqual(["Curse", "Vassal"]);
-    expect(setGraveyard).toBeCalledTimes(1);
-    expect(setGraveyard).toBeCalledWith(["Curse", "Vassal"]);
-    expect(setSetAside).toBeCalledTimes(1);
-    expect(setSetAside).toBeCalledWith(["Sentry"]);
   });
 
   it("throw an Error when the provided card is not in the setAside zone", () => {

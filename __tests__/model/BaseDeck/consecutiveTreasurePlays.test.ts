@@ -1,16 +1,11 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method consecutiveTreasurePlays", () => {
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  const checkForTreasurePlayLine = jest.spyOn(
-    BaseDeck.prototype,
-    "checkForTreasurePlayLine"
-  );
+describe("consecutiveTreasurePlays", () => {
+  let deck: BaseDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
-    jest.clearAllMocks();
   });
 
   it("should return true if the provided entry/line and the lastEntryProcessed both play treasures", () => {
@@ -23,9 +18,6 @@ describe("Method consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(true);
-    expect(checkForTreasurePlayLine).toBeCalledTimes(2);
-    expect(checkForTreasurePlayLine).nthCalledWith(1, deck.lastEntryProcessed);
-    expect(checkForTreasurePlayLine).nthCalledWith(2, line);
   });
 
   it("should return false when the lastEntryProcessed does not play a treasure", () => {
@@ -38,8 +30,6 @@ describe("Method consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForTreasurePlayLine).toBeCalledTimes(1);
-    expect(checkForTreasurePlayLine).toBeCalledWith(deck.lastEntryProcessed);
   });
 
   it("should return false if the current line does not play a treasure", () => {
@@ -52,8 +42,5 @@ describe("Method consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(false);
-    expect(checkForTreasurePlayLine).toBeCalledTimes(2);
-    expect(checkForTreasurePlayLine).nthCalledWith(1, deck.lastEntryProcessed);
-    expect(checkForTreasurePlayLine).nthCalledWith(2, line);
   });
 });

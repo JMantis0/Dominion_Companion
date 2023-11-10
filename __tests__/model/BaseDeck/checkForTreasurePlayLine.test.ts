@@ -1,10 +1,10 @@
-import { it, describe, expect, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method checkForTreasurePlayLine()", () => {
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
-  
-  afterEach(() => {
+describe("checkForTreasurePlayLine", () => {
+  let deck: BaseDeck;
+
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pName", "pNick", []);
   });
 

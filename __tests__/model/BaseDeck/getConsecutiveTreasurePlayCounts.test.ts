@@ -1,14 +1,12 @@
-import { it, describe, expect, jest, afterEach } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("Method getConsecutiveTreasurePlayCounts()", () => {
-  // Instantiate BaseDeck object.
-  let deck = new BaseDeck("", false, "", "pNick", "pName", []);
-  // Spy on method dependency
-  const setTreasurePopped = jest.spyOn(BaseDeck.prototype, "setTreasurePopped");
-  afterEach(() => {
+describe("getConsecutiveTreasurePlayCounts", () => {
+  // Declare BaseDeck object.
+  let deck: BaseDeck;
+
+  beforeEach(() => {
     deck = new BaseDeck("", false, "", "pNick", "pName", []);
-    jest.clearAllMocks();
   });
 
   it("should return an array with the correct number of Coppers to play", () => {
@@ -21,8 +19,6 @@ describe("Method getConsecutiveTreasurePlayCounts()", () => {
         "pNick plays 2 Coppers and 2 Silvers. (+$4)"
       )
     ).toStrictEqual([1, 0, 0]);
-    expect(setTreasurePopped).toBeCalledTimes(1);
-    expect(setTreasurePopped).toBeCalledWith(true);
   });
 
   it("should return an array with the correct number of Silvers to play", () => {
@@ -35,8 +31,6 @@ describe("Method getConsecutiveTreasurePlayCounts()", () => {
         "pNick plays 2 Coppers and a Silver. (+$4)"
       )
     ).toStrictEqual([0, 1, 0]);
-    expect(setTreasurePopped).toBeCalledTimes(1);
-    expect(setTreasurePopped).toBeCalledWith(true);
   });
 
   it("should return an array with the correct number of Golds to play", () => {
@@ -49,8 +43,6 @@ describe("Method getConsecutiveTreasurePlayCounts()", () => {
         "pNick plays 2 Coppers and a Gold. (+$4)"
       )
     ).toStrictEqual([0, 0, 1]);
-    expect(setTreasurePopped).toBeCalledTimes(1);
-    expect(setTreasurePopped).toBeCalledWith(true);
   });
 
   it("should return an array with the correct number of each treasure to play even if there are multiple treasures that have differences greater than 1", () => {
@@ -63,7 +55,5 @@ describe("Method getConsecutiveTreasurePlayCounts()", () => {
         "pNick plays 5 Coppers, 3 Silvers, and 2 Golds. (+$4)"
       )
     ).toStrictEqual([3, 3, 2]);
-    expect(setTreasurePopped).toBeCalledTimes(1);
-    expect(setTreasurePopped).toBeCalledWith(true);
   });
 });

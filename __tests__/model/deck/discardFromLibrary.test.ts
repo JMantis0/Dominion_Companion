@@ -1,19 +1,14 @@
-import { it, describe, expect, jest } from "@jest/globals";
+import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
-import { afterEach } from "node:test";
 
-describe("Method discardFromLibrary()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependencies
-  const setLibrary = jest.spyOn(Deck.prototype, "setLibrary");
-  const setGraveyard = jest.spyOn(Deck.prototype, "setGraveyard");
+describe("discardFromLibrary", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
-  
+
   it("should remove one instance of the provided card from the library and add it to the graveyard", () => {
     // Arrange
     deck.library = ["Estate", "Copper", "Copper", "Copper", "Copper"];
@@ -22,7 +17,7 @@ describe("Method discardFromLibrary()", () => {
     // Act - Simulate discarding a copper from the Library
     deck.discardFromLibrary("Copper");
 
-    // Assert
+    // Assert - Verify card was moved from library to graveyard.
     expect(deck.library).toEqual(["Estate", "Copper", "Copper", "Copper"]);
     expect(deck.graveyard).toStrictEqual([
       "Copper",
@@ -32,17 +27,6 @@ describe("Method discardFromLibrary()", () => {
       "Estate",
       "Copper",
     ]);
-    expect(setGraveyard).toBeCalledTimes(1);
-    expect(setGraveyard).toBeCalledWith([
-      "Copper",
-      "Copper",
-      "Copper",
-      "Estate",
-      "Estate",
-      "Copper",
-    ]);
-    expect(setLibrary).toBeCalledTimes(1);
-    expect(setLibrary).toBeCalledWith(["Estate", "Copper", "Copper", "Copper"]);
   });
 
   it("should throw an Error when the provided card is not in the Library", () => {

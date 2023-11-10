@@ -1,11 +1,11 @@
-import { describe, it, expect, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Function isBureaucratGain()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
+describe("isBureaucratGain", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
@@ -14,10 +14,10 @@ describe("Function isBureaucratGain()", () => {
     deck.lastEntryProcessed = "pNick plays a Bureaucrat.";
 
     // Act - Simulate checking for Bureaucrat gain when the gain was from an Bureaucrat.
-    const artisanGain = deck.isBureaucratGain();
+    const bureaucratGain = deck.isBureaucratGain();
 
     // Assert
-    expect(artisanGain).toBe(true);
+    expect(bureaucratGain).toBe(true);
   });
 
   it("should return false if the most recent entry processed is not an Bureaucrat play.", () => {
@@ -25,9 +25,9 @@ describe("Function isBureaucratGain()", () => {
     deck.lastEntryProcessed = "pNick plays 2 Coppers. (+2)";
 
     // Act - Simulate checking for Bureaucrat gain when the gain was not from an Bureaucrat.
-    const artisanGain = deck.isBureaucratGain();
-    
+    const bureaucratGain = deck.isBureaucratGain();
+
     // Assert
-    expect(artisanGain).toBe(false);
+    expect(bureaucratGain).toBe(false);
   });
 });

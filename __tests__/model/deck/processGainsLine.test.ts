@@ -1,33 +1,21 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method processGainsLine()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on dependency functions.
-  const checkForBuyAndGain = jest.spyOn(Deck.prototype, "checkForBuyAndGain");
-  const checkPreviousLineProcessedFoCurrentCardBuy = jest.spyOn(
-    Deck.prototype,
-    "checkPreviousLineProcessedForCurrentCardBuy"
-  );
-  const isBureaucratGain = jest.spyOn(Deck.prototype, "isBureaucratGain");
-  const isArtisanGain = jest.spyOn(Deck.prototype, "isArtisanGain");
-  const isMineGain = jest.spyOn(Deck.prototype, "isMineGain");
-  const gain = jest.spyOn(Deck.prototype, "gain");
-  const addCardToEntireDeck = jest.spyOn(Deck.prototype, "addCardToEntireDeck");
-  const gainIntoHand = jest.spyOn(Deck.prototype, "gainIntoHand");
-  const gainIntoLibrary = jest.spyOn(Deck.prototype, "gainIntoLibrary");
-  const popLastLogArchiveEntry = jest.spyOn(
-    Deck.prototype,
-    "popLastLogArchiveEntry"
-  );
-  const checkPreviousLineProcessedForCurrentCardBuy = jest.spyOn(
-    Deck.prototype,
-    "checkPreviousLineProcessedForCurrentCardBuy"
-  );
+describe("processGainsLine", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    deck = new Deck("", false, "", "pName", "pNick", []);
+  beforeEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", [
+      "Copper",
+      "Silver",
+      "Gold",
+      "Estate",
+      "Merchant",
+      "Bureaucrat",
+      "Cellar",
+      "Laboratory",
+    ]);
     jest.clearAllMocks();
   });
 
@@ -38,33 +26,26 @@ describe("Method processGainsLine()", () => {
     const numberOfCards = [1];
     const line = "pNick buys and gains a Silver.";
 
+    // Mock a mid turn game board.
+    deck.graveyard = [];
+    deck.hand = ["Gold"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Gold"];
+
     // Act - Simulate gaining a Silver by buying.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(isBureaucratGain).toBeCalledTimes(1);
-    expect(isBureaucratGain.mock.results[0].value).toBe(false);
-    expect(isArtisanGain).toBeCalledTimes(1);
-    expect(isArtisanGain.mock.results[0].value).toBe(false);
-    expect(isMineGain).toBeCalledTimes(1);
-    expect(isMineGain.mock.results[0].value).toBe(false);
-    expect(checkForBuyAndGain).toBeCalledTimes(1);
-    expect(checkForBuyAndGain).toHaveBeenCalledWith(line, "Silver");
-    expect(checkForBuyAndGain.mock.results[0].value).toStrictEqual(true);
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).toBeCalledTimes(1);
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).toHaveBeenCalledWith(
-      "Silver"
-    );
-    expect(
-      checkPreviousLineProcessedFoCurrentCardBuy.mock.results[0].value
-    ).toBe(false);
-    expect(gain).toHaveBeenCalledTimes(1);
-    expect(gain).toHaveBeenCalledWith("Silver");
-    expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
-    expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    expect(gainIntoHand).not.toBeCalled();
-    expect(gainIntoLibrary).not.toBeCalled();
-    expect(popLastLogArchiveEntry).not.toBeCalled();
+    // Assert - Verify the card was gained into the graveyard and added to the entireDeck.
+    expect(deck.graveyard).toStrictEqual(["Silver"]);
+    expect(deck.entireDeck).toStrictEqual(["Copper", "Gold", "Silver"]);
+    // Verify nothing was gained into the hand or library.
+    expect(deck.hand).toStrictEqual(["Gold"]);
+    expect(deck.library).toStrictEqual(["Copper"]);
+    // Verify the logArchive did not change.
+    expect(deck.logArchive).toStrictEqual([
+      "Turn 3 - pName",
+      "pNick plays a Gold. (+$3)",
+    ]);
   });
 
   // This case occurs when a 'Buy without gain' line is processed into the logArchive.
@@ -72,42 +53,32 @@ describe("Method processGainsLine()", () => {
   // copy of the client game-log.
   it("should handle gaining a card was bought but not gained yet correctly, by removing an entry from the logArchive", () => {
     // Arrange
-
+    deck.logArchive = ["pNick plays a Gold. (+$3)", "pNick buys a Silver."];
     deck.lastEntryProcessed = "pNick buys a Silver.";
     const cards = ["Silver"];
     const numberOfCards = [1];
-    const line = "pNick buys and gains 2 Silvers.";
+    const line = "pNick buys and gains a Silver.";
+
+    // Mock a mid turn game board.
+    deck.graveyard = [];
+    deck.hand = [];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Gold"];
 
     // Act - Simulate buy a second Silver consecutively.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(isBureaucratGain).toBeCalledTimes(1);
-    expect(isBureaucratGain.mock.results[0].value).toBe(false);
-    expect(isArtisanGain).toBeCalledTimes(1);
-    expect(isArtisanGain.mock.results[0].value).toBe(false);
-    expect(isMineGain).toBeCalledTimes(1);
-    expect(isMineGain.mock.results[0].value).toBe(false);
-    expect(checkForBuyAndGain).toBeCalledTimes(1);
-    expect(checkForBuyAndGain).toBeCalledTimes(1);
-    expect(checkForBuyAndGain).toBeCalledWith(line, "Silver");
-    expect(checkForBuyAndGain.mock.results[0].value).toStrictEqual(true);
-    expect(checkPreviousLineProcessedForCurrentCardBuy).toBeCalledTimes(1);
-    expect(checkPreviousLineProcessedForCurrentCardBuy).toHaveBeenCalledWith(
-      "Silver"
-    );
-    expect(
-      checkPreviousLineProcessedForCurrentCardBuy.mock.results[0].value
-    ).toBe(true);
-    expect(gain).toHaveBeenCalledTimes(1);
-    expect(gain).toHaveBeenCalledWith("Silver");
-    expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
-    expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    expect(popLastLogArchiveEntry).toBeCalledTimes(1);
-    expect(gainIntoHand).not.toBeCalled();
-    expect(gainIntoLibrary).not.toBeCalled();
+    // Assert - Verify entireDeck and graveyard contain the expected cards.
+    expect(deck.graveyard).toStrictEqual(["Silver"]);
+    expect(deck.entireDeck).toStrictEqual(["Copper", "Gold", "Silver"]);
+    // Verify no cards were gained into hand or library
+    expect(deck.hand).toStrictEqual([]);
+    expect(deck.library).toStrictEqual(["Copper"]);
+    // Verify the last line was removed from the logArchive, since it was a 'buy without gain' line.
+    expect(deck.logArchive).toStrictEqual(["pNick plays a Gold. (+$3)"]);
   });
 
+  // Case - Mine gain: should be added to hand.
   it("should add cards gained by a Mine to hand", () => {
     // Arrange
     deck.latestPlay = "Mine";
@@ -117,124 +88,98 @@ describe("Method processGainsLine()", () => {
     const numberOfCards = [1];
     const line = "pNick gains a Silver.";
 
+    // Mock a mid turn game board
+    deck.graveyard = [];
+    deck.hand = ["Bureaucrat"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Mine", "Bureaucrat"];
+
     // Act - Simulate gaining a Silver by playing a Mine.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(isBureaucratGain).toBeCalledTimes(1);
-    expect(isBureaucratGain.mock.results[0].value).toBe(false);
-    expect(isArtisanGain).toBeCalledTimes(1);
-    expect(isArtisanGain.mock.results[0].value).toBe(false);
-    expect(isMineGain).toBeCalledTimes(1);
-    expect(isMineGain.mock.results[0].value).toBe(true);
-    expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
-    expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    expect(gainIntoHand).toBeCalledTimes(1);
-    expect(gainIntoHand).toBeCalledWith("Silver");
-    expect(gain).not.toBeCalled();
-    expect(checkForBuyAndGain).not.toBeCalled();
-    expect(popLastLogArchiveEntry).not.toBeCalled();
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).not.toBeCalled();
-    expect(gainIntoLibrary).not.toBeCalled();
+    // Assert - Verify that a Silver was added to hand and to entireDeck.
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Silver"]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Mine",
+      "Bureaucrat",
+      "Silver",
+    ]);
+    // Verify no cards were gained to graveyard or library.
+    expect(deck.graveyard).toStrictEqual([]);
+    expect(deck.library).toStrictEqual(["Copper"]);
+    // Verify logArchive was not changed.
+    expect(deck.logArchive).toStrictEqual([
+      "pNick plays a Mine.",
+      "pNick trashes a Copper.",
+    ]);
   });
 
+  // Case - Artisan gain: should be added to hand.
   it("should add cards gained by an Artisan to hand", () => {
     // Arrange
+    deck.latestPlay = "Artisan";
     deck.lastEntryProcessed = "pNick plays an Artisan.";
+    deck.logArchive = ["pNick plays an Artisan."];
 
-    // Arguments for function being tested
-    const cards = ["Silver"];
+    // Arguments for function being tested.
+    const cards = ["Laboratory"];
     const numberOfCards = [1];
-    const line = "pNick gains a Silver.";
+    const line = "pNick gains a Laboratory.";
+    // Mock a mid turn game board.
+    deck.graveyard = [];
+    deck.hand = ["Bureaucrat"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan", "Bureaucrat"];
 
-    // Act - Simulate gaining a Silver by playing an Artisan.
+    // Act - Simulate gaining a Laboratory by playing an Artisan.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(isBureaucratGain).toBeCalledTimes(1);
-    expect(isBureaucratGain.mock.results[0].value).toBe(false);
-    expect(isArtisanGain).toBeCalledTimes(1);
-    expect(isArtisanGain.mock.results[0].value).toBe(true);
-    expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
-    expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    expect(gainIntoHand).toBeCalledTimes(1);
-    expect(gainIntoHand).toBeCalledWith("Silver");
-    expect(isMineGain).not.toBeCalled();
-    expect(gain).not.toBeCalled();
-    expect(checkForBuyAndGain).not.toBeCalled();
-    expect(popLastLogArchiveEntry).not.toBeCalled();
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).not.toBeCalled();
-    expect(gainIntoLibrary).not.toBeCalled();
+    // Assert - Verify the Laboratory was added to hand and entireDeck.
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Laboratory"]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Artisan",
+      "Bureaucrat",
+      "Laboratory",
+    ]);
+    // Verify nothing was gained to library or graveyard.
+    expect(deck.library).toStrictEqual(["Copper"]);
+    expect(deck.graveyard).toStrictEqual([]);
+    // Verify logArchive is unchanged.
+    expect(deck.logArchive).toStrictEqual(["pNick plays an Artisan."]);
   });
 
-  // Case Gain into library
+  // Case Gain into library.
   it("should add cards gained by Bureaucrat to library.", () => {
     // Arrange
     const cards = ["Silver"];
     const numberOfCards = [1];
     const line = "pNick gains a Silver.";
+    deck.latestPlay = "Bureaucrat";
     deck.lastEntryProcessed = "pNick plays a Bureaucrat.";
-    // Act - Simulate gaining a Silver by playing a Bureaucrat
+    deck.logArchive = ["pNick plays an Bureaucrat."];
+    // Mock a mid turn game board.
+    deck.graveyard = [];
+    deck.hand = ["Artisan"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan", "Bureaucrat"];
+
+    // Act - Simulate gaining a Silver by playing a Bureaucrat.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(isBureaucratGain).toBeCalledTimes(1);
-    expect(isBureaucratGain.mock.results[0].value).toBe(true);
-    expect(addCardToEntireDeck).toHaveBeenCalledTimes(1);
-    expect(addCardToEntireDeck).toHaveBeenCalledWith("Silver");
-    expect(gainIntoLibrary).toBeCalledTimes(1);
-    expect(gainIntoLibrary).toBeCalledWith("Silver");
-    expect(isArtisanGain).not.toBeCalled();
-    expect(isMineGain).not.toBeCalled();
-    expect(gain).not.toBeCalled();
-    expect(gainIntoHand).not.toBeCalled();
-    expect(checkForBuyAndGain).not.toBeCalled();
-    expect(popLastLogArchiveEntry).not.toBeCalled();
-    expect(checkForBuyAndGain).not.toBeCalled();
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).not.toBeCalled();
-  });
-
-  it("should not gain purchases into library even when the most recent play is a Bureaucrat", () => {
-    // Arrange
-    deck.logArchive = [
-      "pNick plays a Vassal.",
-      "pNick gets +$2.",
-      "pNick discards a Laboratory.",
-      "pNick plays a Laboratory.",
-      "pNick shuffles their deck.",
-      "pNick draws a Copper and a Bureaucrat.",
-      "pNick gets +1 Action.",
-      "pNick plays a Bureaucrat.",
-      "pNick gains a Silver.",
-      "oNick topdecks an Estate.",
-      "pNick plays 5 Coppers. (+$5)",
-    ];
-
-    const line = "pNick buys and gains a Gold.";
-    const numberOfCards = [1];
-    const cards = ["Gold"];
-
-    // Act - Simulate buying a gold after making a Bureaucrat play.
-    deck.processGainsLine(line, cards, numberOfCards);
-
-    expect(isBureaucratGain).toBeCalledTimes(1);
-    expect(isBureaucratGain.mock.results[0].value).toBe(false);
-    expect(isArtisanGain).toBeCalledTimes(1);
-    expect(isArtisanGain.mock.results[0].value).toBe(false);
-    expect(isMineGain).toBeCalledTimes(1);
-    expect(isMineGain.mock.results[0].value).toBe(false);
-    expect(gain).toBeCalledTimes(1);
-    expect(gain).toBeCalledWith("Gold");
-    expect(gainIntoHand).not.toBeCalled();
-    expect(checkForBuyAndGain).toBeCalledTimes(1);
-    expect(checkForBuyAndGain).toBeCalledWith(line, "Gold");
-    expect(checkForBuyAndGain.mock.results[0].value).toBe(true);
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).toBeCalledTimes(1);
-    expect(checkPreviousLineProcessedFoCurrentCardBuy).toBeCalledWith("Gold");
-    expect(
-      checkPreviousLineProcessedFoCurrentCardBuy.mock.results[0].value
-    ).toBe(false);
-    expect(popLastLogArchiveEntry).not.toBeCalled();
-    expect(gainIntoLibrary).not.toBeCalled();
+    // Assert - Verify a Silver was added to library and entireDeck.
+    expect(deck.library).toStrictEqual(["Copper", "Silver"]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Artisan",
+      "Bureaucrat",
+      "Silver",
+    ]);
+    // Verify nothing was gained into hand or graveyard.
+    expect(deck.hand).toStrictEqual(["Artisan"]);
+    expect(deck.graveyard).toStrictEqual([]);
+    // Verify the logArchive was not changed.
+    expect(deck.logArchive).toStrictEqual(["pNick plays an Bureaucrat."]);
   });
 });

@@ -1,17 +1,16 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method drawCardFromPreviousLine()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", ["Vassal", "Library"]);
-  // Spy on function dependency
-  const drawFromSetAside = jest
-    .spyOn(Deck.prototype, "drawFromSetAside")
-    .mockImplementation(() => null);
+describe("drawCardFromPreviousLine", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
-    deck = new Deck("", false, "", "pName", "pNick", ["Vassal", "Library"]);
-    jest.clearAllMocks();
+  beforeEach(() => {
+    deck = new Deck("", false, "", "pName", "pNick", [
+      "Vassal",
+      "Library",
+      "Copper",
+    ]);
   });
 
   it("should draw one instance of the card in the most recent logArchive entry", () => {
@@ -21,11 +20,15 @@ describe("Method drawCardFromPreviousLine()", () => {
       "pNick looks at a Copper.",
       "pNick looks at a Vassal.",
     ];
+    deck.setAside = ["Vassal"];
+    deck.hand = ["Copper"];
 
     // Act - Simulate drawing the card from the previous line.
     deck.drawCardFromPreviousLine();
-    expect(drawFromSetAside).toBeCalledTimes(1);
-    expect(drawFromSetAside).toBeCalledWith("Vassal");
+
+    // Assert - Verify card was moved from setAside to hand.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.hand).toStrictEqual(["Copper", "Vassal"]);
   });
 
   it("should throw an error when there is no card found in the most recent logArchive entry", () => {

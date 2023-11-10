@@ -1,26 +1,26 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("Method processRevealsLine()", () => {
-  // Instantiate Deck object.
-  let deck = new Deck("", false, "", "pName", "pNick", []);
-  // Spy on method dependency.
-  const setAsideFromLibrary = jest
-    .spyOn(Deck.prototype, "setAsideFromLibrary")
-    .mockImplementation(() => null);
+describe("processRevealsLine", () => {
+  // Declare Deck reference.
+  let deck: Deck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", []);
     jest.clearAllMocks();
   });
 
   it("should move cards revealed by a Bandit play to from library to setAside", () => {
+    // Arrange
     deck.latestPlay = "Bandit";
+    deck.library = ["Bureaucrat", "Gold", "Silver"];
+    deck.setAside = [];
 
+    // Act - Simulate an opponent's Bandit revealing two of the player's cards.
     deck.processRevealsLine(["Gold", "Silver"], [1, 1]);
 
-    expect(setAsideFromLibrary).toBeCalledTimes(2);
-    expect(setAsideFromLibrary).nthCalledWith(1, "Gold");
-    expect(setAsideFromLibrary).nthCalledWith(2, "Silver");
+    // Assert - Verify the cards were moved from library to setAside
+    expect(deck.library).toStrictEqual(["Bureaucrat"]);
+    expect(deck.setAside).toStrictEqual(["Gold", "Silver"]);
   });
 });

@@ -1,89 +1,61 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 
-describe("Method processGainsLine", () => {
-  let deck = new OpponentDeck("", false, "", "oName", "oNick", []);
-  // Spy on method dependencies
-  const checkForBuyAndGain = jest.spyOn(
-    OpponentDeck.prototype,
-    "checkForBuyAndGain"
-  );
-  const popLastLogArchiveEntry = jest
-    .spyOn(OpponentDeck.prototype, "popLastLogArchiveEntry")
-    .mockImplementation(() => null); //Remove actual implementation
-  const checkPreviousLineProcessedForCurrentCardBuy = jest.spyOn(
-    OpponentDeck.prototype,
-    "checkPreviousLineProcessedForCurrentCardBuy"
-  );
-  const addCardToEntireDeck = jest
-    .spyOn(OpponentDeck.prototype, "addCardToEntireDeck")
-    .mockImplementation(() => null); //Remove actual implementation
+describe("processGainsLine", () => {
+  // Declare OpponentDeck reference
+  let deck: OpponentDeck;
 
-  afterEach(() => {
+  beforeEach(() => {
     deck = new OpponentDeck("", false, "", "oName", "oNick", []);
     jest.clearAllMocks();
   });
 
-  it("should correctly add cards to the entire deck", () => {
-    // Arrange mock implementation
-    checkForBuyAndGain.mockImplementation(() => true);
-    checkPreviousLineProcessedForCurrentCardBuy.mockImplementation(() => false);
+  // 2 Cases
+  // 1) The most recent logArchive line is not a 'buy without gain' for the card being bought on the given line.
+  //  No change to the logArchive
+  // 2)- The most recent logArchive entry is a 'buy without gain' of the card being bought on the given line.
+  //  The last logArchive entry should be removed
+
+  it(
+    "should add cards gained by any means to the entireDeck.  If the previous line is not " +
+      "a 'buy without gain' line, logArchive should not be altered.",
+    () => {
+      // Arrange
+      deck.logArchive = ["Turn 3 - pName", "pNick plays a Gold. (+$3)"];
+      const cards = ["Silver"];
+      const numberOfCards = [1];
+      const line = "pNick buys and gains a Silver.";
+
+      // Mock a mid turn game board.
+
+      deck.entireDeck = ["Copper", "Gold"];
+      // Act
+      deck.processGainsLine(line, cards, numberOfCards);
+      // Assert - Verify the card is added to entireDeck and logArchive is unchanged
+      expect(deck.entireDeck).toStrictEqual(["Copper", "Gold", "Silver"]);
+      expect(deck.logArchive).toStrictEqual([
+        "Turn 3 - pName",
+        "pNick plays a Gold. (+$3)",
+      ]);
+    }
+  );
+
+  it("should handle gaining a card was bought but not gained yet correctly, by removing an entry from the logArchive", () => {
+    // Arrange
+    deck.logArchive = ["pNick plays a Gold. (+$3)", "pNick buys a Silver."];
+    deck.lastEntryProcessed = "pNick buys a Silver.";
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+    const line = "pNick buys and gains a Silver.";
+
+    // Mock a mid turn game board.
+    deck.entireDeck = ["Copper", "Gold"];
 
     // Act - Simulate opponent buying 2 Laboratories
-    deck.processGainsLine(
-      "oNick buys and gains 2 Laboratories.",
-      ["Laboratory"],
-      [2]
-    );
+    deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert
-    expect(checkForBuyAndGain).toBeCalledTimes(2);
-    expect(checkForBuyAndGain).nthCalledWith(
-      1,
-      "oNick buys and gains 2 Laboratories.",
-      "Laboratory"
-    );
-    expect(checkForBuyAndGain).nthCalledWith(
-      2,
-      "oNick buys and gains 2 Laboratories.",
-      "Laboratory"
-    );
-    expect(checkPreviousLineProcessedForCurrentCardBuy).toBeCalledTimes(2);
-    expect(checkPreviousLineProcessedForCurrentCardBuy).toBeCalledTimes(2);
-    expect(checkPreviousLineProcessedForCurrentCardBuy).nthCalledWith(
-      1,
-      "Laboratory"
-    );
-    expect(checkPreviousLineProcessedForCurrentCardBuy).nthCalledWith(
-      2,
-      "Laboratory"
-    );
-    expect(popLastLogArchiveEntry).not.toBeCalled();
-    expect(addCardToEntireDeck).toBeCalledTimes(2);
-    expect(addCardToEntireDeck).nthCalledWith(1, "Laboratory");
-    expect(addCardToEntireDeck).nthCalledWith(2, "Laboratory");
-  });
-
-  it("should correctly remove the most recent log entry if it is a 'buy without gain' for same card that is bought on the current line", () => {
-    // Arrange mock implementation
-    checkForBuyAndGain.mockImplementation(() => true);
-
-    // Simulate situation where last entry in the log is a 'buy without gain' for current Line buy and gain.
-    checkPreviousLineProcessedForCurrentCardBuy.mockImplementation(() => true);
-    // Act
-    deck.processGainsLine("oNick buys and gains a Smithy.", ["Smithy"], [1]);
-    // Assert
-    expect(checkForBuyAndGain).toBeCalledTimes(1);
-    expect(checkForBuyAndGain).toBeCalledWith(
-      "oNick buys and gains a Smithy.",
-      "Smithy"
-    );
-    expect(checkPreviousLineProcessedForCurrentCardBuy).toBeCalledTimes(1);
-    expect(
-      checkPreviousLineProcessedForCurrentCardBuy.mock.results[0].value
-    ).toBe(true); //Return value from mock implementation
-    expect(popLastLogArchiveEntry).toBeCalledTimes(1);
-    expect(addCardToEntireDeck).toBeCalledTimes(1);
-    expect(addCardToEntireDeck).toBeCalledWith("Smithy");
+    // Assert - Verify the card was added to the entireDeck, and the 'buy without gain' line was removed from logArchive
+    expect(deck.entireDeck).toStrictEqual(["Copper", "Gold", "Silver"]);
+    expect(deck.logArchive).toStrictEqual(["pNick plays a Gold. (+$3)"]);
   });
 });
