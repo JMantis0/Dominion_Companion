@@ -1114,6 +1114,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       if (this.debug) console.group(line);
       this.setTreasurePopped(false);
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+      if (this.isConsecutiveMerchantBonus(line)) {
+        this.handleConsecutiveMerchantBonus();
+      }
       if (this.logEntryAppliesToThisDeck(line)) {
         this.shuffleAndCleanUpIfNeeded(line);
         this.drawLookedAtCardIfNeeded(act);

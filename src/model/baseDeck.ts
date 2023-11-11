@@ -504,12 +504,49 @@ export class BaseDeck {
   }
 
   /**
+   * Removes duplicate merchant bonus lines from the logArchive.
+   */
+  handleConsecutiveMerchantBonus() {
+    const logArchiveCopy = this.logArchive.slice();
+    // Set up loop to check 2 elements maximum
+    for (let i = 0; i < 2; i++) {
+      const lastLogArchiveEntry = logArchiveCopy[logArchiveCopy.length - 1];
+      // If the element is a Merchant bonus remove it, otherwise break the loop.
+      if (lastLogArchiveEntry.match(/gets \+\$\d*\. \(Merchant\)/) !== null) {
+        const removed = logArchiveCopy.pop();
+        console.log("Popping off: ", removed);
+      } else {
+        break;
+      }
+    }
+    this.setLogArchive(logArchiveCopy);
+  }
+  /**
    * Increases the gameTurn field by one.
    */
   incrementTurn() {
     let newGameTurn = this.gameTurn;
     newGameTurn++;
     this.setGameTurn(newGameTurn);
+  }
+
+  /**
+   * Checks to see if the current line and the previous line are both
+   * merchant bonus lines, and the given line is not for exactly $1.
+   * @param line - The given line.
+   * @returns - Boolean for whether there are consecutive merchant bonuses.
+   */
+  isConsecutiveMerchantBonus(line: string): boolean {
+    let consecutiveMerchantBonus: boolean = false;
+    if (line.match(/ gets \+\$1\. \(Merchant\)/) === null) {
+      if (
+        line.match(/gets \+\$\d*\. \(Merchant\)/) !== null &&
+        this.lastEntryProcessed.match(/gets \+\$\d*\. \(Merchant\)/) !== null
+      ) {
+        consecutiveMerchantBonus = true;
+      }
+    }
+    return consecutiveMerchantBonus;
   }
 
   /**

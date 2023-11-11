@@ -99,6 +99,23 @@ describe("getUndispatchedLogs", () => {
     expect(undispatchedLogs).toBe("Log 4");
   });
 
+  it("should, if the logsDispatched length is exactly one greater than the gameLog length, and the last gameLog line is a Merchant bonus line, should return the last line of the game log.", () => {
+    // Arrange the logsDispatched to be exactly one greater than gameLog and gameLog to be ending in a Merchant bonus line
+
+    const logsDispatched =
+      "pNick plays a Silver. (+$2)\npNick gets +$2. (Merchant)\npNick gets +$1. (Merchant)";
+    const gameLog = "pNick plays a Silver. (+$2)\npNick gets +$4. (Merchant)";
+
+    // Act
+    const undispatchedLogs = DOMObserver.getUndispatchedLogs(
+      logsDispatched,
+      gameLog
+    );
+
+    // Assert
+    expect(undispatchedLogs).toBe("pNick gets +$4. (Merchant)");
+  });
+
   it("should handle empty logsDispatched", () => {
     // Arrange - Create an empty logsDispatched and sample gameLog
     const logsDispatched = "";
