@@ -308,11 +308,18 @@ export class DOMObserver {
     const gLogArr = gameLog.split("\n").slice();
     const lastGameLogEntry = gLogArr.slice().pop();
     if (
-      DOMObserver.isLogEntryBuyWithoutGain(lastGameLogEntry!) ||
-      DOMObserver.isMerchantBonusLine(lastGameLogEntry!)
+      DOMObserver.isLogEntryBuyWithoutGain(lastGameLogEntry!)
+      // || DOMObserver.isMerchantBonusLine(lastGameLogEntry!)
     ) {
       areNewLogs = false;
+    } else if (
+      procArr.length === gLogArr.length + 1 &&
+      DOMObserver.isMerchantBonusLine(lastGameLogEntry!)
+    ) {
+      return true;
     } else if (procArr.length > gLogArr.length) {
+      console.log("Processed Logs:", procArr);
+      console.log("gameLog:", gLogArr);
       throw new Error("Processed logs Larger than game log");
     } else if (gLogArr.length > procArr.length) {
       areNewLogs = true;
@@ -814,7 +821,12 @@ export class DOMObserver {
       dispatchedArr = [];
     }
     const gameLogArr = gameLog.split("\n").slice();
-    if (dispatchedArr.length > gameLogArr.length) {
+    if (
+      dispatchedArr.length === gameLogArr.length + 1 &&
+      DOMObserver.isMerchantBonusLine(gameLogArr[gameLogArr.length - 1])
+    ) {
+      undispatchedLogs = gameLogArr[gameLogArr.length - 1];
+    } else if (dispatchedArr.length > gameLogArr.length) {
       throw new Error("More dispatched logs than game logs");
     } else if (dispatchedArr.length < gameLogArr.length) {
       const numberOfUndispatchedLines =
@@ -991,7 +1003,26 @@ export class DOMObserver {
    * and finally, the global variable 'logsProcessed' is updated.
    * @param mutationList
    */
-  static logObserverFunc() {
+  static logObserverFunc(mutationList?: MutationRecord[]) {
+    if (mutationList) {
+    //   console.log("Added and removed nodes");
+    //   for (let j = 0; j < mutationList.length; j++) {
+    //     if (mutationList[j].addedNodes.length > 0) {
+    //       console.log("Added");
+    //       for (let i = 0; i < mutationList[j].addedNodes.length; i++) {
+    //         const el = mutationList[j].addedNodes[i] as HTMLElement;
+    //         console.log(`${i} ${el.innerText}`);
+    //       }
+    //     }
+    //     if (mutationList[j].removedNodes.length > 0) {
+    //       console.log("Removed");
+    //       for (let i = 0; i < mutationList[j].removedNodes.length; i++) {
+    //         const el = mutationList[j].removedNodes[i] as HTMLElement;
+    //         console.log(`${i} ${el.innerText}`);
+    //       }
+    //     }
+    //   }
+    }
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
       const { playerStoreDeck, opponentStoreDeck } =

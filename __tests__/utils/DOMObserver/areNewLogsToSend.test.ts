@@ -58,12 +58,13 @@ describe("areNewLogsToSend", () => {
     expect(DOMObserver.areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
   });
 
-  it("should return false when the last line of the gameLog is a 'Merchant Bonus line'.", () => {
+  it("should return true when the last line of the gameLog is a 'Merchant Bonus line' and logsProcessed has exactly one more line than gameLog.", () => {
     // Arrange
-    const logsProcessed = "Log1\nLog2\nLog3\nLog4\n";
-    const gameLog = "Log1\nLog2\nLog3\nLog4\nPlayer gets +$3. (Merchant)";
-    
-    // Act and Assert - Simulate checking for new logs when the last gameLog line is a 'Merchant Bonus Line' (should be ignored).
-    expect(DOMObserver.areNewLogsToSend(logsProcessed, gameLog)).toBe(false);
+    const logsProcessed =
+      "Log1\nLog2\nLog3\nLog4\nPlayer gets +$2. (Merchant)\nPlayer gets +$1. (Merchant)";
+    const gameLog = "Log1\nLog2\nLog3\nLog4\nPlayer gets +$4. (Merchant)";
+
+    // Act and Assert - Simulate checking for new logs when the last gameLog line is a 'Merchant Bonus Line' and logsProcessed has exactly one more line than gameLog.
+    expect(DOMObserver.areNewLogsToSend(logsProcessed, gameLog)).toBe(true);
   });
 });
