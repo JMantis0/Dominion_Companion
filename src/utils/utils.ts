@@ -1333,7 +1333,7 @@ const useJQueryResizable = (
  * @param targetElement - The element to observe for changes in height
  * @param setHeight - the React SetStateAction dispatched with the new height value.
  */
-const useResizedElementHeight = (
+const useElementHeight = (
   targetElement: HTMLElement | HTMLDivElement,
   setHeight: React.Dispatch<SetStateAction<number>>
 ) => {
@@ -1404,5 +1404,5 @@ export {
   toErrorWithMessage,
   useJQueryDraggable,
   useJQueryResizable,
-  useResizedElementHeight,
+  useElementHeight as useResizedElementHeight,
 };
