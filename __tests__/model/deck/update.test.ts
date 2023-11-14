@@ -1,6 +1,5 @@
-import { describe, it, expect, jest } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
-import { beforeEach } from "node:test";
 
 describe("update", () => {
   // Instantiate Deck object.
@@ -41,6 +40,17 @@ describe("update", () => {
   const updateArchives = jest.spyOn(Deck.prototype, "updateArchives");
   const updateVP = jest.spyOn(Deck.prototype, "updateVP");
 
+  const isConsecutiveMerchantBonus = jest.spyOn(
+    Deck.prototype,
+    "isConsecutiveMerchantBonus"
+  );
+  const handleConsecutiveMerchantBonus = jest.spyOn(
+    Deck.prototype,
+    "handleConsecutiveMerchantBonus"
+  );
+
+  const setLogArchive = jest.spyOn(Deck.prototype, "setLogArchive");
+
   beforeEach(() => {
     jest.clearAllMocks();
     deck = new Deck("", false, "", "pName", "pNick", [
@@ -61,23 +71,39 @@ describe("update", () => {
     // Act - Simulate update deck with a line that doesn't apply to the deck and is a consecutive treasure play.
     deck.update(log);
 
-    // Assert
+    // Assert - Verify treasurePopped is set to false
     expect(setTreasurePopped).toBeCalledTimes(1);
     expect(setTreasurePopped).toBeCalledWith(false);
+    // Verify getActCardsAndCounts is called with the correct argument
+    expect(getActCardsAndCounts).toBeCalledTimes(1);
+    expect(getActCardsAndCounts).toBeCalledWith(log[0]);
+    // Verify a check for consecutiveTreasurePlays occurred and returned true
+    expect(consecutiveTreasurePlays).toBeCalledTimes(1);
+    expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
+    // Verify the consecutive treasure play was handled, and the logArchive line was removed
+    expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
+    expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(log[0]);
+    expect(isConsecutiveMerchantBonus).toBeCalledTimes(1);
+    expect(setLogArchive).toBeCalledTimes(1);
+    // Verify a check for consecutive merchant bonus
+    expect(handleConsecutiveMerchantBonus).not.toBeCalled();
+    // Verify a check for logEntryPAppliesToThisDeck occurred and returned false
     expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
     expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
     expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
-    expect(consecutiveTreasurePlays).toBeCalledTimes(1);
-    expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
-    expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
-    expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(log[0]);
+
+    // Verify calls are not made to methods that are called for log lines that apply to this deck
     expect(shuffleAndCleanUpIfNeeded).not.toBeCalled();
-    expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(drawLookedAtCardIfNeeded).not.toBeCalled();
     expect(processDeckChanges).not.toBeCalled();
+
+    // Verify the archive and VP are updated
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
+    
+// Add spy assertions for setLastEntryProcessed, addLogToLogArchive, etc
+
     expect(getMostRecentPlay).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
   });
@@ -208,4 +234,6 @@ describe("update", () => {
       "b buys and gains 2 Vassals.",
     ]);
   });
+
+  // TODO add cases
 });

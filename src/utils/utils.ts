@@ -1,9 +1,16 @@
 import { AnyAction, Dispatch } from "redux";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
-import { SetStateAction } from "react";
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type {
   CardCounts,
   ErrorWithMessage,
+  OptionalHandles,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
@@ -11,102 +18,8 @@ import type {
   SplitMaps,
   StoreDeck,
 } from ".";
-
-/**
- * Function called by the CustomSelect useEffect hook to configure
- * the jQuery resizable handle to appear and function correctly.  The default
- * behavior of the Resizable widget places a 's' handle as a child of the wrong
- * div (option-container).  Function manually appends it to the Scrollbars  div after render.
- * The function also edits the style attribute to link it to the icon resource.
- */
-const addResizableAndCustomHandleToCustomSelectScrollBars = (
-  $: JQueryStatic,
-  selectScrollbarsElement: JQuery<HTMLElement>,
-  handleId: string
-) => {
-  try {
-    // Create handle and attach it to the given element
-    const customHandle: HTMLElement = document.createElement("div");
-    selectScrollbarsElement.append(customHandle!);
-
-    // add the classes required for the handle by jQueryUI
-    customHandle.setAttribute(
-      "class",
-      "ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
-    );
-    customHandle.setAttribute("id", handleId);
-    // Wrap the element in a jQuery object...
-    const selectScrollJQueryUIObject: JQuery<HTMLElement> = $(
-      selectScrollbarsElement
-    );
-    //and add the Resizable widget with the custom handle created earlier
-    selectScrollJQueryUIObject.resizable({
-      handles: { s: $(customHandle) },
-    });
-    // Configure style to put icon in the proper bottom right position of the element.
-    customHandle!.setAttribute(
-      "style",
-      "z-index: 90; left: unset; cursor: s-resize;"
-    );
-    // Configure the style attribute to link handle to the Resizable icon resource.
-    if (chrome.runtime !== null && chrome.runtime !== undefined) {
-      const customHandleStyle = customHandle!.getAttribute("style");
-      customHandle!.setAttribute(
-        "style",
-        customHandleStyle +
-          "background-image: url(chrome-extension://" +
-          chrome.runtime.id +
-          "/ui-icons_ffffff_256x240.png);"
-      );
-    }
-  } catch (e) {
-    console.log(
-      "There was an error.  If you're seeing this message you probably tried to execute this function in a testing environment"
-    );
-    console.log(getErrorMessage(e));
-  }
-};
-
-/**
- * Add jQuery interactions 'Resizable' and 'Draggable' to the PrimaryFrame.
- * The fix for getting Resizable handle icons to appear in extension context is also here.
- */
-const addResizableAndDraggableToPrimaryFrame = ($: JQueryStatic) => {
-  try {
-    $("#primaryFrame").draggable({}).resizable({
-      handles: "n, e, s, w, ne, nw, se, sw",
-    });
-    const primaryFrameResizableHandle = document.querySelector(
-      "#primaryFrame > .ui-resizable-handle.ui-resizable-se.ui-icon.ui-icon-gripsmall-diagonal-se"
-    );
-    // Give the PrimaryFrame resizable handle an id for disambiguation.
-    primaryFrameResizableHandle?.setAttribute(
-      "id",
-      "primary-frame-resizable-handle"
-    );
-    // Configure style to pull icon inward away from the frame border.
-    primaryFrameResizableHandle?.setAttribute(
-      "style",
-      "bottom: 8px; right: 8px; z-index:90;"
-    );
-    // Configure the style attribute to link handle to the Resizable icon resource.
-    if (chrome.runtime !== null && chrome.runtime !== undefined) {
-      const handleStyle = primaryFrameResizableHandle?.getAttribute("style");
-      primaryFrameResizableHandle!.setAttribute(
-        "style",
-        handleStyle +
-          "background-image: url(chrome-extension://" +
-          chrome.runtime.id +
-          "/ui-icons_ffffff_256x240.png);"
-      );
-    }
-  } catch (e) {
-    console.log(
-      "There was an error.  If you're seeing this message you probably tried to execute this function in a testing environment"
-    );
-    console.log(getErrorMessage(e));
-  }
-};
+import $ from "jquery";
+import { store } from "../redux/store";
 
 /**
  * Function that handles the adding and removing of an Chrome onMessage listener.  Used by the PrimaryFrame component to listen for
@@ -254,6 +167,47 @@ const cumulativeHyperGeometricProbability = (
     );
   }
   return cumulativeProb;
+};
+
+/**
+ * Creates an OptionalHandles object to be used by the CustomSelect component
+ * to call the useJQueryResizable hook.
+ * @returns - An OptionalHandles object with only the se handle.
+ */
+const customSelectResizableHandles = (): OptionalHandles => {
+  const customHandle = document.createElement("div");
+  customHandle.setAttribute(
+    "class",
+    "ui-resizable-handle ui-resizable-s ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
+  );
+  customHandle.setAttribute("id", "customSelect-resizable-handle");
+  customHandle!.setAttribute(
+    "style",
+    "z-index: 90; left: unset; cursor: s-resize;"
+  );
+  // Configure the style attribute to link handle to the Resizable icon resource.
+  if (chrome.runtime !== null && chrome.runtime !== undefined) {
+    const customHandleStyle = customHandle!.getAttribute("style");
+    customHandle!.setAttribute(
+      "style",
+      customHandleStyle +
+        "background-image: url(chrome-extension://" +
+        chrome.runtime.id +
+        "/ui-icons_ffffff_256x240.png);"
+    );
+  }
+  return {
+    handles: {
+      n: undefined,
+      e: undefined,
+      s: undefined,
+      w: undefined,
+      se: customHandle,
+      sw: undefined,
+      ne: undefined,
+      nw: undefined,
+    },
+  };
 };
 
 /**
@@ -722,6 +676,40 @@ const onTurnToggleButtonClick = (
 ) => {
   dispatch(setPinnedTurnToggleButton(buttonName));
   dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Creates an OptionalHandles object to be used by the PrimaryFrame component
+ * to call the useJQueryResizable hook.
+ * @returns - An OptionalHandles object with a custom handle for 'se' (southeast).
+ */
+const primaryFrameResizableHandles = (): OptionalHandles => {
+  const primaryFrameResizableHandle = document.createElement("div");
+  primaryFrameResizableHandle?.setAttribute(
+    "id",
+    "primary-frame-resizable-handle"
+  );
+  // Configure style to pull icon inward away from the frame border.
+  primaryFrameResizableHandle?.setAttribute(
+    "style",
+    "bottom: 8px; right: 8px; z-index:90;"
+  );
+  primaryFrameResizableHandle?.setAttribute(
+    "class",
+    "ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
+  );
+  // Configure the style attribute to link handle to the Resizable icon resource.
+  if (chrome.runtime !== null && chrome.runtime !== undefined) {
+    const handleStyle = primaryFrameResizableHandle?.getAttribute("style");
+    primaryFrameResizableHandle!.setAttribute(
+      "style",
+      handleStyle +
+        "background-image: url(chrome-extension://" +
+        chrome.runtime.id +
+        "/ui-icons_ffffff_256x240.png);"
+    );
+  }
+  return { handles: { se: primaryFrameResizableHandle } };
 };
 
 /**
@@ -1203,14 +1191,186 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
   }
 };
 
+/**
+ * Custom React Hook.  Applies the jQuery Draggable widget to the given element.
+ * Removes the widget from the element on component unmount.
+ * @param targetElement  - The element to make draggable.
+ */
+const useJQueryDraggable = (
+  targetElement: HTMLElement | HTMLDivElement | null
+) => {
+  useEffect(() => {
+    if (targetElement) {
+      try {
+        $(targetElement).draggable({});
+      } catch (e) {
+        console.error(getErrorMessage(e));
+        console.error(e);
+      }
+      return () => {
+        try {
+          if (
+            targetElement &&
+            $(targetElement).draggable("instance") !== undefined
+          ) {
+            $(targetElement).draggable("destroy");
+          }
+        } catch (e) {
+          console.error(getErrorMessage(e));
+          console.error(e);
+        }
+      };
+    } else return () => {};
+  }, [targetElement]);
+};
+
+/**
+ * React custom hook.  Applies the jQuery resizable widget to the given element, and
+ * optionally accepts a customHandles object.  The handles provided in the customHandles
+ * object will be used on the targetElement instead of the default handles.  To optionally
+ * exclude a handle, use undefined, ie: customHandles = {handles: {n:undefined}} will exclude
+ * the north handle from being added to the target element
+ * @param targetElement - a HTMLEivElement to add the jQuery resizable widget to.
+ * @param customHandles - a OptionalHandles object, use to exclude handles or to include custom handles.
+ */
+const useJQueryResizable = (
+  targetElement: HTMLElement | HTMLDivElement | null,
+  customHandles?: OptionalHandles
+) => {
+  // Create an memoized options object that is equivalent to
+  // what the resizable widget uses when provided with the option {handles:"all"}.
+  // Here we are manually creating the default handles so they can be optionally
+  // overridden with a custom handle as desired.
+  const DEFAULT_OPTIONS: OptionalHandles = useMemo(() => {
+    const northHandle = document.createElement("div");
+    northHandle.setAttribute("class", "ui-resizable-handle ui-resizable-n");
+    northHandle.setAttribute("style", "z-index: 90;");
+    const eastHandle = document.createElement("div");
+    eastHandle.setAttribute("class", "ui-resizable-handle ui-resizable-e");
+    eastHandle.setAttribute("style", "z-index: 90;");
+    const southHandle = document.createElement("div");
+    southHandle.setAttribute("class", "ui-resizable-handle ui-resizable-s");
+    southHandle.setAttribute("style", "z-index: 90;");
+    const westHandle = document.createElement("div");
+    westHandle.setAttribute("class", "ui-resizable-handle ui-resizable-w");
+    westHandle.setAttribute("style", "z-index: 90;");
+    const SEHandle = document.createElement("div");
+    SEHandle.setAttribute("class", "ui-resizable-handle ui-resizable-se");
+    SEHandle.setAttribute("style", "z-index: 90;");
+    const SWHandle = document.createElement("div");
+    SWHandle.setAttribute("class", "ui-resizable-handle ui-resizable-sw");
+    SWHandle.setAttribute("style", "z-index: 90;");
+    const NEHandle = document.createElement("div");
+    NEHandle.setAttribute("class", "ui-resizable-handle ui-resizable-ne");
+    NEHandle.setAttribute("style", "z-index: 90;");
+    const NWHandle = document.createElement("div");
+    NWHandle.setAttribute("class", "ui-resizable-handle ui-resizable-nw");
+    NWHandle.setAttribute("style", "z-index: 90;");
+    return {
+      handles: {
+        n: northHandle,
+        e: eastHandle,
+        s: southHandle,
+        w: westHandle,
+        se: SEHandle,
+        sw: SWHandle,
+        ne: NEHandle,
+        nw: NWHandle,
+      },
+    };
+  }, []);
+  // Minimized Redux state for useEffect dependency.
+  const minimized = store.getState().content.minimized;
+  useEffect(() => {
+    // Only execute if...
+    if (
+      // ...targetElement is truthy,...
+      targetElement &&
+      // ...minimized is false,...
+      !minimized &&
+      // ... and the targetElement is not currently resizable.
+      $(targetElement).resizable("instance") === undefined
+    ) {
+      try {
+        let options = DEFAULT_OPTIONS;
+        // If function was called with the optional customHandles param,
+        // assign them to the options object. Otherwise the default will be used.
+        if (customHandles) {
+          options = {
+            handles: {
+              ...options.handles,
+              ...customHandles.handles,
+            },
+          };
+        }
+        // Append the handles to the target div.
+        Object.values(options.handles).forEach((div) => {
+          if (div) targetElement.appendChild(div);
+        });
+        // Add resizable widget to the target element using the provided options/
+        $(targetElement).resizable(options);
+      } catch (e) {
+        console.error(getErrorMessage(e));
+        console.error(e);
+      }
+      return () => {
+        // Remove resizable from targetElement on unmount
+        try {
+          $(targetElement).resizable("destroy");
+        } catch (e) {
+          console.error(getErrorMessage(e));
+          console.error(e);
+        }
+      };
+    } else return () => {};
+    // Trigger this effect whenever the 'minimized' redux state changes.
+  }, [targetElement, minimized]);
+};
+
+/**
+ * Custom React hook.  Whenever it detect a change in the given element's attributes,
+ * it dispatches the value of the element's height property with the given SetStateAction.
+ * @param targetElement - The element to observe for changes in height
+ * @param setHeight - the React SetStateAction dispatched with the new height value.
+ */
+const useResizedElementHeight = (
+  targetElement: HTMLElement | HTMLDivElement,
+  setHeight: React.Dispatch<SetStateAction<number>>
+) => {
+  const [observer, setObserver] = useState<MutationObserver | null>(null);
+  const onElementMutation = useCallback(
+    (mutationList: MutationRecord[]) => {
+      const primaryFrame = mutationList[0].target as HTMLElement;
+      setHeight(primaryFrame.offsetHeight);
+    },
+    [setHeight]
+  );
+  useEffect(() => {
+    const obs = new MutationObserver(onElementMutation);
+    setObserver(obs);
+  }, [setObserver]);
+  useEffect(() => {
+    if (!observer) return;
+    observer.observe(targetElement, {
+      attributes: true,
+      childList: false,
+      subtree: false,
+    });
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [observer, targetElement]);
+};
+
 export {
-  addResizableAndCustomHandleToCustomSelectScrollBars,
-  addResizableAndDraggableToPrimaryFrame,
   chromeListenerUseEffectHandler,
   combinations,
   combineDeckListMapAndZoneListMap,
   createEmptySplitMapsObject,
   cumulativeHyperGeometricProbability,
+  customSelectResizableHandles,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
@@ -1231,6 +1391,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  primaryFrameResizableHandles,
   product_Range,
   sortHistoryDeckView,
   sortMainViewer,
@@ -1241,4 +1402,7 @@ export {
   splitCombinedMapsByCardTypes,
   stringifyProbability,
   toErrorWithMessage,
+  useJQueryDraggable,
+  useJQueryResizable,
+  useResizedElementHeight,
 };

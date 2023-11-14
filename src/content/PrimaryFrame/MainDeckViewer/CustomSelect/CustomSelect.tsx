@@ -3,6 +3,7 @@ import React, {
   FunctionComponent,
   UIEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -28,10 +29,9 @@ import {
   onSelectScroll,
   onOptionClick,
   onToggleSelect,
-  addResizableAndCustomHandleToCustomSelectScrollBars,
-  // getErrorMessage,
+  useJQueryResizable,
+  customSelectResizableHandles,
 } from "../../../../utils/utils";
-import $ from "jquery";
 library.add(faAngleUp, faAngleDown, faCircle);
 
 export type CustomSelectProps = {
@@ -71,14 +71,11 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
       selectScrollRef.current !== null
     ) {
       selectScrollRef.current!.scrollTop(selectScrollPosition);
-      const selectScrollElement = document.getElementById("select-scrollbars")!;
-      addResizableAndCustomHandleToCustomSelectScrollBars(
-        $,
-        $(selectScrollElement),
-        "scrollbar-handle"
-      );
     }
-  }, []);
+  });
+
+  const handles = useMemo(() => customSelectResizableHandles(), []);
+  useJQueryResizable(document.getElementById("select-scrollbars"), handles);
 
   useEffect(() => {
     const optionsContainerHeight = optionsContainerRef.current?.offsetHeight!;
