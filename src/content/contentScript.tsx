@@ -1,7 +1,8 @@
 import React from "react";
 import { createRoot, Root } from "react-dom/client";
 import DomRoot from "./DomRoot";
-
+import { Provider } from "react-redux";
+import { store } from "../redux/store";
 let resetInterval: NodeJS.Timeout;
 
 /**
@@ -24,7 +25,11 @@ const attachDomRoot = (): void => {
   domViewContainer.setAttribute("style", "z-index: 15000; position:fixed;");
   domViewContainer.setAttribute("id", "domViewContainer");
   domViewRoot = createRoot(domViewContainer);
-  domViewRoot.render(<DomRoot />);
+  domViewRoot.render(
+    <Provider store={store}>
+      <DomRoot />
+    </Provider>
+  );
   document.body.appendChild(domViewContainer);
 };
 
