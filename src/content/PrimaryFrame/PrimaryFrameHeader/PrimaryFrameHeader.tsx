@@ -82,14 +82,14 @@ const PrimaryFrameHeader = () => {
         ) : baseOnly ? (
           <div
             className={
-              "text-white pointer-events-none h-full text-center m-auto mr-[25px] whitespace-nowrap text-xs overflow-hidden"
+              "text-white pointer-events-none h-full text-center m-auto whitespace-nowrap text-xs overflow-hidden"
             }
           >
             <span className="align-bottom w-full">No active game.</span>
           </div>
         ) : (
-          <div className="text-white text-xs pointer-events-none text-center m-auto mr-[25px]">
-            Sorry, <span>{pd.playerName}</span>! Non-Base cards are not
+          <div className="text-white text-xs pointer-events-none text-center m-auto">
+            Sorry, but Non-Base cards are not
             supported yet. Please use the base set to enjoy Dominion Companion.
             Non-base cards detected in game:
           </div>
