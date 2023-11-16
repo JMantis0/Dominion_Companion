@@ -61,7 +61,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const optionsContainerRef = useRef<HTMLElement>(null);
   // Used to limit the height of the dropdown.
   const [maxScrollBarHeight, setMaxScrollBarHeight] = useState<number>(0);
-  const [selectOpen, setSelectOpen] = useState<boolean>(false);
+  const [selectOpen, setSelectOpen] = useState<boolean>(true);
 
   useEffect(() => {
     // On any render, the scroll  position is set to whatever value was previously
