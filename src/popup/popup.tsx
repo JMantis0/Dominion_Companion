@@ -88,7 +88,7 @@ const Popup = () => {
 
   return (
     <React.Fragment>
-      <div className="grid grid-cols-12 grid-rows-4 gap-4 w-[400px] h-[300px] border-2 backdrop-blur-sm bg-black/[.85] text-white">
+      <div className="grid grid-cols-12 gap-4 w-[400px] h-[300px] border-2 backdrop-blur-sm bg-black/[.85] text-white">
         <div className="col-span-6">
           <div>
             Thank you for using the Dominion Companion. This extension is

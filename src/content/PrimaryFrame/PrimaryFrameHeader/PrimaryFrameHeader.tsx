@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { RootState } from "../../../redux/store";
 import { useSelector } from "react-redux";
+import MinimizeButton from "../MinimizeButton/MinimizeButton";
+
+const containerStyle =
+  "backdrop-blur-sm bg-black/[.85] text-white border-double min-h-[25px] box-content";
+
+const baseStyle =
+  "grid grid grid-cols-12 pointer-events-none w-full overflow-hidden text-xs ";
+
+const minimizedBorder = " border-8";
+const maximizedBorder = " border-t-8 border-x-8";
 
 const PrimaryFrameHeader = () => {
   const [currentTurn, setCurrentTurn] = useState<string>("Starting");
@@ -9,7 +19,11 @@ const PrimaryFrameHeader = () => {
   const primaryFrameTab = useSelector(
     (state: RootState) => state.content.primaryFrameTab
   );
-
+  const minimized = useSelector((state: RootState) => state.content.minimized);
+  const gameActiveStatus = useSelector(
+    (state: RootState) => state.content.gameActiveStatus
+  );
+  const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
   useEffect(() => {
     if (pd.gameTurn > 0 || od.gameTurn > 0) {
       let turn: string;
@@ -24,34 +38,65 @@ const PrimaryFrameHeader = () => {
   }, [pd.gameTitle]);
 
   return (
-    <div
-      className="text-xs mt-[-41px] text-white grid grid-cols-12 whitespace-nowrap pointer-events-none"
-      id="header"
-    >
-      <div className={`h-full w-full align-center col-span-7  border-b-2`}>
-        {pd.gameTitle}
-      </div>
-      <div className={`h-full w-full align-center col-span-5  border-b-2`}>
-        {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
-      </div>
-      <div className="col-span-5 max-h-[29px]">
-        <div className="text-center text-white">{pd.playerName}</div>
-        {pd.ratedGame ? (
-          <div className="text-[9px] relative -top-1 text-center text-white">
-            ( {pd.rating} )
+    <React.Fragment>
+      <div
+        id="headerContainer"
+        className={
+          minimized
+            ? containerStyle + minimizedBorder
+            : containerStyle + maximizedBorder
+        }
+      >
+        {gameActiveStatus && baseOnly ? (
+          <div className={baseStyle} id="header">
+            <React.Fragment>
+              <div
+                className={`h-full w-full align-center col-span-7 border-b-2`}
+              >
+                {pd.gameTitle}
+              </div>
+              <div
+                className={`h-full w-full align-center col-span-5 border-b-2`}
+              >
+                {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
+              </div>
+              <div className="col-span-5 max-h-[29px]">
+                <div className="text-center text-white">{pd.playerName}</div>
+                {pd.ratedGame ? (
+                  <div className="text-[9px] relative -top-1 text-center text-white">
+                    ( {pd.rating} )
+                  </div>
+                ) : null}
+              </div>
+              <div className="col-span-2 text-center text-white">vs.</div>
+              <div className="col-span-5 max-h-[29px]">
+                <div className="text-center text-white">{od.playerName}</div>
+                {pd.ratedGame ? (
+                  <div className="text-[9px] relative -top-1 text-center text-white">
+                    ( {od.rating} )
+                  </div>
+                ) : null}
+              </div>
+            </React.Fragment>
           </div>
-        ) : null}
-      </div>
-      <div className="col-span-2 text-center text-white">vs.</div>
-      <div className="col-span-5 max-h-[29px]">
-        <div className=" text-center text-white">{od.playerName}</div>
-        {pd.ratedGame ? (
-          <div className="text-[9px] relative -top-1 text-center text-white">
-            ( {od.rating} )
+        ) : baseOnly ? (
+          <div
+            className={
+              "text-white pointer-events-none h-full text-center m-auto mr-[25px] whitespace-nowrap text-xs overflow-hidden"
+            }
+          >
+            <span className="align-bottom w-full">No active game.</span>
           </div>
-        ) : null}
+        ) : (
+          <div className="text-white text-xs pointer-events-none text-center m-auto mr-[25px]">
+            Sorry, <span>{pd.playerName}</span>! Non-Base cards are not
+            supported yet. Please use the base set to enjoy Dominion Companion.
+            Non-base cards detected in game:
+          </div>
+        )}
+        <MinimizeButton />
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

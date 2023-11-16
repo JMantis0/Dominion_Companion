@@ -457,7 +457,9 @@ export class BaseDeck {
       numberOfCards[2] - numberOfPrevCards[2],
     ];
 
-    const removed = this.logArchive.pop(); // keep duplicate entries out.
+    const archiveCopy = this.logArchive.slice();
+    const removed = archiveCopy.pop(); // keep duplicate entries out.
+    this.setLogArchive(archiveCopy);
     this.setTreasurePopped(true);
     if (this.debug) console.info("popping log off", removed);
     return amountsToPlay;

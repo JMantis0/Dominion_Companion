@@ -72,6 +72,22 @@ interface OpponentStoreDeck {
 }
 
 /**
+ * Type for optional custom handles to be consumed by JQuery resizable widget
+ */
+type OptionalHandles = {
+  handles: {
+    n?: HTMLDivElement;
+    e?: HTMLDivElement;
+    s?: HTMLDivElement;
+    w?: HTMLDivElement;
+    ne?: HTMLDivElement;
+    se?: HTMLDivElement;
+    sw?: HTMLDivElement;
+    nw?: HTMLDivElement;
+  };
+};
+
+/**
  * Custom type for PrimaryFrameTab
  */
 type PrimaryFrameTabType = "Deck" | "Discard" | "Trash" | "Opponent";
@@ -156,6 +172,7 @@ export {
   ErrorWithMessage,
   GameResult,
   OpponentStoreDeck,
+  OptionalHandles,
   PrimaryFrameTabType,
   SavedGame,
   SavedGames,
