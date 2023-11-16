@@ -3,15 +3,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faWindowMinimize,
   faWindowRestore,
+  faAnglesDown,
+  faAnglesUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { RootState } from "../../../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { setMinimized } from "../../../redux/contentSlice";
-library.add(faWindowMinimize, faWindowRestore);
+library.add(faWindowMinimize, faWindowRestore, faAnglesDown, faAnglesUp);
 
 const baseStyle =
-  "absolute -right-0 -top-0 border-[2px] bg-slate-800 w-[25px] h-[25px] ";
+  "absolute -left-[33px] -top-[8px] border-[2px] bg-slate-800 w-[25px] h-[25px] box-border ";
 const minStyle = "text-green-300 border-green-300 ";
 const maxStyle = "text-red-300 border-red-300 ";
 const minimizedStyle = baseStyle + minStyle;
@@ -34,7 +36,7 @@ const MinimizeButton = () => {
       }}
     >
       {minimized ? (
-        <FontAwesomeIcon size="2xs" icon="window-restore" />
+        <FontAwesomeIcon size="2xs" icon="angles-down" />
       ) : (
         <FontAwesomeIcon icon="window-minimize" />
       )}

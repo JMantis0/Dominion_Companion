@@ -16,7 +16,8 @@ import {
   primaryFrameResizableHandles,
   useJQueryDraggable,
   useJQueryResizable,
-  useResizedElementHeight,
+  useElementHeight,
+  useMinimizer,
 } from "../../utils/utils";
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
@@ -24,7 +25,7 @@ import "jqueryui/jquery-ui.css";
 
 const style = `w-[250px] h-[400px]`;
 const hiddenStyle = style + " hidden";
-const minimizedStyle = "w-[250px]";
+const minimizedStyle = "w-[250px] h-[0px]";
 const collapsibleStyle =
   "backdrop-blur-sm bg-black/[.85] object-contain pb-[55px] w-fill overflow-hidden border-b-8 border-x-8 border-double border-gray-300 box-border";
 const minimizedCollapsibleStyle = collapsibleStyle + " hidden";
@@ -43,7 +44,8 @@ const PrimaryFrame = () => {
   );
   const error = useSelector((state: RootState) => state.content.error);
   const minimized = useSelector((state: RootState) => state.content.minimized);
-  const [calculatedCollapsibleHeight, setCalculatedCollapsibleHeight] = useState<number>(0);
+  const [calculatedCollapsibleHeight, setCalculatedCollapsibleHeight] =
+    useState<number>(0);
   const [primaryFrameHeight, setPrimaryFrameHeight] = useState<number>(0);
   const primaryFrameRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -53,18 +55,23 @@ const PrimaryFrame = () => {
   }, []);
 
   useMemo(() => {
-    setCalculatedCollapsibleHeight(
-      primaryFrameHeight -
-        (headerRef.current ? headerRef.current!.offsetHeight : 0)
-    );
+    if (headerRef.current)
+      setCalculatedCollapsibleHeight(
+        primaryFrameHeight -
+          (headerRef.current ? headerRef.current!.offsetHeight : 0)
+      );
   }, [primaryFrameHeight]);
 
   useEffect(() => {
+    if (headerRef.current)
+      setCalculatedCollapsibleHeight(
+        primaryFrameHeight -
+          (headerRef.current ? headerRef.current!.offsetHeight : 0)
+      );
+  }, [minimized, baseOnly, activeStatus]);
+
+  useEffect(() => {
     addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-    DOMObserver.initInterval = setInterval(
-      DOMObserver.initIntervalCallback,
-      1000
-    );
     if (chrome.runtime !== undefined)
       chromeListenerUseEffectHandler(
         "Add",
@@ -73,11 +80,9 @@ const PrimaryFrame = () => {
         getPrimaryFrameStatus
       );
     return () => {
-      clearInterval(DOMObserver.initInterval);
-      clearInterval(DOMObserver.resetInterval);
       removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
       if (chrome.runtime !== undefined)
-        chromeListenerUseEffectHandler( 
+        chromeListenerUseEffectHandler(
           "Remove",
           dispatch,
           setViewerHidden,
@@ -88,9 +93,11 @@ const PrimaryFrame = () => {
     // Without this dependency, the event listener will have stale values for the 'hidden' variable
   }, [hidden]);
 
-  useResizedElementHeight(primaryFrameRef.current!, setPrimaryFrameHeight);
+  useElementHeight(primaryFrameRef.current, setPrimaryFrameHeight);
   useJQueryDraggable(primaryFrameRef.current);
   useJQueryResizable(primaryFrameRef.current, primaryFrameResizableHandles());
+  useMinimizer(primaryFrameRef.current);
+  
 
   return (
     <React.Fragment>
@@ -99,15 +106,15 @@ const PrimaryFrame = () => {
         ref={primaryFrameRef}
         className={hidden ? hiddenStyle : minimized ? minimizedStyle : style}
       >
-        <div ref={headerRef}>
+        <div id="headerRef" ref={headerRef}>
           <PrimaryFrameHeader />
         </div>
         <div
           id="collapsible"
-          style={{ height: calculatedCollapsibleHeight }}
+          style={{ height: minimized ? "0" : calculatedCollapsibleHeight }}
           className={minimized ? minimizedCollapsibleStyle : collapsibleStyle}
         >
-          {(activeStatus && baseOnly) || chrome.runtime === undefined ? (
+          {activeStatus && baseOnly ? (
             <React.Fragment>
               <div
                 className={
@@ -211,17 +218,51 @@ const PrimaryFrame = () => {
                 </button>
               </div>
             </React.Fragment>
-          ) : baseOnly ? (
-            <div className="text-white pointer-events-none text-center m-auto">
-              No active game.
-            </div>
           ) : (
-            <div className="text-white pointer-events-none text-center m-auto">
-              Only Base Set cards supported. Non-base cards detected in Kingdom{" "}
-              {pd.kingdom.map((card) => {
-                return <div>{card}</div>;
-              })}
-            </div>
+            <main className="text-white text-xs pointer-events-none text-center m-auto border-t-4 border-color-white">
+              {DOMObserver.kingdom
+                .filter((card) => {
+                  console.log(DOMObserver.kingdom);
+                  return ![
+                    "Cellar",
+                    "Chapel",
+                    "Moat",
+                    "Harbinger",
+                    "Merchant",
+                    "Vassal",
+                    "Village",
+                    "Workshop",
+                    "Bureaucrat",
+                    "Gardens",
+                    "Militia",
+                    "Moneylender",
+                    "Poacher",
+                    "Remodel",
+                    "Smithy",
+                    "Throne Room",
+                    "Bandit",
+                    "Council Room",
+                    "Festival",
+                    "Laboratory",
+                    "Library",
+                    "Market",
+                    "Mine",
+                    "Sentry",
+                    "Witch",
+                    "Artisan",
+                    "Copper",
+                    "Silver",
+                    "Gold",
+                    "Province",
+                    "Duchy",
+                    "Estate",
+                    "Curse",
+                  ].includes(card);
+                })
+                .map((card) => {
+                  return <div>{card}</div>;
+                })}
+            </main>
           )}
         </div>
       </div>

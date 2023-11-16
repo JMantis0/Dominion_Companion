@@ -1192,13 +1192,55 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
 };
 
 /**
+ * Custom React hook.  Whenever it detect a change in the given element's attributes,
+ * it dispatches the value of the element's height property with the given SetStateAction.
+ * @param targetElement - The element to observe for changes in height
+ * @param setHeight - the React SetStateAction dispatched with the new height value.
+ */
+const useElementHeight = (
+  targetElement: HTMLElement | HTMLDivElement | null,
+  setHeight: React.Dispatch<SetStateAction<number>>
+) => {
+  const [observer, setObserver] = useState<MutationObserver | null>(null);
+  const onElementMutation = useCallback(
+    (mutationList: MutationRecord[]) => {
+      const primaryFrame = mutationList[0].target as HTMLElement;
+      setHeight(primaryFrame.offsetHeight);
+    },
+    [setHeight]
+  );
+  useEffect(() => {
+    const obs = new MutationObserver(onElementMutation);
+    setObserver(obs);
+  }, [setObserver]);
+
+  useEffect(() => {
+    if (!observer) return;
+    if (targetElement)
+      observer.observe(targetElement, {
+        attributes: true,
+        childList: false,
+        subtree: false,
+      });
+    return () => {
+      if (observer) {
+        if (targetElement) observer.disconnect();
+      }
+    };
+  }, [observer, targetElement]);
+};
+
+/**
  * Custom React Hook.  Applies the jQuery Draggable widget to the given element.
  * Removes the widget from the element on component unmount.
  * @param targetElement  - The element to make draggable.
  */
 const useJQueryDraggable = (
   targetElement: HTMLElement | HTMLDivElement | null
+  // dependencies?: any[]
 ) => {
+  //TODO: instead of declaring minimized here, allow function to accept a dependency array
+  const minimized = store.getState().content.minimized;
   useEffect(() => {
     if (targetElement) {
       try {
@@ -1221,7 +1263,7 @@ const useJQueryDraggable = (
         }
       };
     } else return () => {};
-  }, [targetElement]);
+  }, [targetElement, minimized]);
 };
 
 /**
@@ -1280,6 +1322,7 @@ const useJQueryResizable = (
     };
   }, []);
   // Minimized Redux state for useEffect dependency.
+  //TODO: instead of declaring minimized here, allow function to accept a dependency array
   const minimized = store.getState().content.minimized;
   useEffect(() => {
     // Only execute if...
@@ -1328,40 +1371,46 @@ const useJQueryResizable = (
 };
 
 /**
- * Custom React hook.  Whenever it detect a change in the given element's attributes,
- * it dispatches the value of the element's height property with the given SetStateAction.
- * @param targetElement - The element to observe for changes in height
- * @param setHeight - the React SetStateAction dispatched with the new height value.
+ * Custom React hook.  Reconciliation to allow for jQuery resizable Widget to function
+ * correctly with built in minimization feature.  jQuery resizable affects the style
+ * attribute of the resizable element, therefore proper minimization is not possible 
+ * with tailwind classes alone. This hook modifies the style attribute 
+ * in a jQuery resizable friendly way, to achieve the desired effect.
+ * @param targetElement 
  */
-const useElementHeight = (
-  targetElement: HTMLElement | HTMLDivElement,
-  setHeight: React.Dispatch<SetStateAction<number>>
-) => {
-  const [observer, setObserver] = useState<MutationObserver | null>(null);
-  const onElementMutation = useCallback(
-    (mutationList: MutationRecord[]) => {
-      const primaryFrame = mutationList[0].target as HTMLElement;
-      setHeight(primaryFrame.offsetHeight);
-    },
-    [setHeight]
-  );
+const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
+  // useState hook to store height of the target element just before minimization.
+  // and to restore the target element to that height upon un-minimization 
+  const [preMinimizedPrimaryFrameHeight, setPreMinimizedPrimaryFrameHeight] =
+    useState<string>("");
+  // Minimized Redux state for useEffect dependency.
+  //TODO: instead of declaring minimized here, allow function to accept a dependency array
+  const minimized = store.getState().content.minimized;
   useEffect(() => {
-    const obs = new MutationObserver(onElementMutation);
-    setObserver(obs);
-  }, [setObserver]);
-  useEffect(() => {
-    if (!observer) return;
-    observer.observe(targetElement, {
-      attributes: true,
-      childList: false,
-      subtree: false,
-    });
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-    };
-  }, [observer, targetElement]);
+    const currentHeight = targetElement
+      ?.getAttribute("style")
+      ?.match(/ height: \d+px; ?/);
+    if (minimized) {
+      if (currentHeight !== null)
+        setPreMinimizedPrimaryFrameHeight(
+          targetElement?.getAttribute("style")?.match(/ height: \d+px; ?/)![0]!
+        );
+      targetElement?.setAttribute(
+        "style",
+        targetElement
+          .getAttribute("style")
+          ?.replace(/ height: \d+px; ?/, " height: 0px; ")!
+      );
+    } else {
+      if (currentHeight !== null)
+        targetElement?.setAttribute(
+          "style",
+          targetElement
+            .getAttribute("style")
+            ?.replace(/ height: \d+px; ?/, preMinimizedPrimaryFrameHeight)!
+        );
+    }
+  }, [minimized]);
 };
 
 export {
@@ -1402,7 +1451,8 @@ export {
   splitCombinedMapsByCardTypes,
   stringifyProbability,
   toErrorWithMessage,
+  useElementHeight,
   useJQueryDraggable,
   useJQueryResizable,
-  useElementHeight as useResizedElementHeight,
+  useMinimizer
 };

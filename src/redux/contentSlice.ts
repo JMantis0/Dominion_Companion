@@ -91,7 +91,7 @@ export const initialState: ContentState = {
   pinnedTurnToggleButton: "Current",
   topCardsLookAmount: 1,
   pinnedTopCardsLookAmount: 1,
-  selectOpen: false,
+  selectOpen: true,
   selectScrollPosition: 0,
   error: null,
   minimized: false,
