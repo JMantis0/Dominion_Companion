@@ -203,12 +203,10 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                     <span className="mr-2 pointer-events-none whitespace-nowrap">
                       {n}{" "}
                       <FontAwesomeIcon
-                        // className="absolute top-0 right-0"
                         icon="circle"
                         size="xs"
                         style={{
                           color:
-                            // libraryLength < 5 &&
                             n > libraryLength ? "#ff0000" : "transparent",
                           height: "5px",
                           marginBottom: "2.5px",
