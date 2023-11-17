@@ -1,9 +1,8 @@
 /*global chrome*/
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { setViewerHidden } from "../../redux/contentSlice";
 import MainDeckViewer from "./MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer/TrashZoneViewer";
@@ -11,13 +10,15 @@ import OpponentViewer from "./OpponentViewer/OpponentViewer";
 import PrimaryFrameTab from "./PrimaryFrameTab/PrimaryFrameTab";
 import PrimaryFrameHeader from "./PrimaryFrameHeader/PrimaryFrameHeader";
 import {
-  chromeListenerUseEffectHandler,
-  getPrimaryFrameStatus,
   primaryFrameResizableHandles,
   useJQueryDraggable,
   useJQueryResizable,
   useElementHeight,
   useMinimizer,
+  usePopupChromeMessageListener,
+  useSaveGameBeforeUnloadListener,
+  useHeightDifferentBetweenContainerAndContainedElement,
+  getNonBaseCardsInKingdom,
 } from "../../utils/utils";
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
@@ -31,7 +32,6 @@ const collapsibleStyle =
 const minimizedCollapsibleStyle = collapsibleStyle + " hidden";
 
 const PrimaryFrame = () => {
-  const dispatch = useDispatch();
   const od = useSelector((state: RootState) => state.content.opponentDeck);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
@@ -50,55 +50,19 @@ const PrimaryFrame = () => {
   const primaryFrameRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setPrimaryFrameHeight(primaryFrameRef.current?.offsetHeight!);
-  }, []);
-
-  useMemo(() => {
-    if (headerRef.current)
-      setCalculatedCollapsibleHeight(
-        primaryFrameHeight -
-          (headerRef.current ? headerRef.current!.offsetHeight : 0)
-      );
-  }, [primaryFrameHeight]);
-
-  useEffect(() => {
-    if (headerRef.current)
-      setCalculatedCollapsibleHeight(
-        primaryFrameHeight -
-          (headerRef.current ? headerRef.current!.offsetHeight : 0)
-      );
-  }, [minimized, baseOnly, activeStatus]);
-
-  useEffect(() => {
-    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-    if (chrome.runtime !== undefined)
-      chromeListenerUseEffectHandler(
-        "Add",
-        dispatch,
-        setViewerHidden,
-        getPrimaryFrameStatus
-      );
-    return () => {
-      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-      if (chrome.runtime !== undefined)
-        chromeListenerUseEffectHandler(
-          "Remove",
-          dispatch,
-          setViewerHidden,
-          getPrimaryFrameStatus
-        );
-    };
-    // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
-    // Without this dependency, the event listener will have stale values for the 'hidden' variable
-  }, [hidden]);
-
+  useHeightDifferentBetweenContainerAndContainedElement(
+    primaryFrameRef.current, // Container
+    headerRef.current, // Controlled Element
+    setCalculatedCollapsibleHeight, // controlledElementHeightSetter
+    primaryFrameHeight, // dependency to detect height changes
+    [minimized, baseOnly, activeStatus] // dependency to check
+  );
+  useSaveGameBeforeUnloadListener();
+  usePopupChromeMessageListener();
   useElementHeight(primaryFrameRef.current, setPrimaryFrameHeight);
   useJQueryDraggable(primaryFrameRef.current);
   useJQueryResizable(primaryFrameRef.current, primaryFrameResizableHandles());
   useMinimizer(primaryFrameRef.current);
-  
-
   return (
     <React.Fragment>
       <div
@@ -220,48 +184,9 @@ const PrimaryFrame = () => {
             </React.Fragment>
           ) : (
             <main className="text-white text-xs pointer-events-none text-center m-auto border-t-4 border-color-white">
-              {DOMObserver.kingdom
-                .filter((card) => {
-                  console.log(DOMObserver.kingdom);
-                  return ![
-                    "Cellar",
-                    "Chapel",
-                    "Moat",
-                    "Harbinger",
-                    "Merchant",
-                    "Vassal",
-                    "Village",
-                    "Workshop",
-                    "Bureaucrat",
-                    "Gardens",
-                    "Militia",
-                    "Moneylender",
-                    "Poacher",
-                    "Remodel",
-                    "Smithy",
-                    "Throne Room",
-                    "Bandit",
-                    "Council Room",
-                    "Festival",
-                    "Laboratory",
-                    "Library",
-                    "Market",
-                    "Mine",
-                    "Sentry",
-                    "Witch",
-                    "Artisan",
-                    "Copper",
-                    "Silver",
-                    "Gold",
-                    "Province",
-                    "Duchy",
-                    "Estate",
-                    "Curse",
-                  ].includes(card);
-                })
-                .map((card) => {
-                  return <div>{card}</div>;
-                })}
+              {getNonBaseCardsInKingdom(DOMObserver.kingdom).map((card) => {
+                return <div>{card}</div>;
+              })}
             </main>
           )}
         </div>

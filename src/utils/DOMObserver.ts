@@ -1005,23 +1005,23 @@ export class DOMObserver {
    */
   static logObserverFunc(mutationList?: MutationRecord[]) {
     if (mutationList) {
-    //   console.log("Added and removed nodes");
-    //   for (let j = 0; j < mutationList.length; j++) {
-    //     if (mutationList[j].addedNodes.length > 0) {
-    //       console.log("Added");
-    //       for (let i = 0; i < mutationList[j].addedNodes.length; i++) {
-    //         const el = mutationList[j].addedNodes[i] as HTMLElement;
-    //         console.log(`${i} ${el.innerText}`);
-    //       }
-    //     }
-    //     if (mutationList[j].removedNodes.length > 0) {
-    //       console.log("Removed");
-    //       for (let i = 0; i < mutationList[j].removedNodes.length; i++) {
-    //         const el = mutationList[j].removedNodes[i] as HTMLElement;
-    //         console.log(`${i} ${el.innerText}`);
-    //       }
-    //     }
-    //   }
+      //   console.log("Added and removed nodes");
+      //   for (let j = 0; j < mutationList.length; j++) {
+      //     if (mutationList[j].addedNodes.length > 0) {
+      //       console.log("Added");
+      //       for (let i = 0; i < mutationList[j].addedNodes.length; i++) {
+      //         const el = mutationList[j].addedNodes[i] as HTMLElement;
+      //         console.log(`${i} ${el.innerText}`);
+      //       }
+      //     }
+      //     if (mutationList[j].removedNodes.length > 0) {
+      //       console.log("Removed");
+      //       for (let i = 0; i < mutationList[j].removedNodes.length; i++) {
+      //         const el = mutationList[j].removedNodes[i] as HTMLElement;
+      //         console.log(`${i} ${el.innerText}`);
+      //       }
+      //     }
+      //   }
     }
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
@@ -1157,7 +1157,8 @@ export class DOMObserver {
    * @param event - The BeforeUnloadEvent
    */
   static saveBeforeUnload() {
-    DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
+    if (store.getState().content.gameActiveStatus)
+      DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
   }
 
   /**
