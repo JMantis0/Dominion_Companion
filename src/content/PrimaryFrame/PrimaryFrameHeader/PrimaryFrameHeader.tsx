@@ -89,7 +89,7 @@ const PrimaryFrameHeader = () => {
           </div>
         ) : (
           <div className="text-white text-xs pointer-events-none text-center m-auto">
-            Sorry, but Non-Base cards are not
+            Sorry, Non-Base cards are not
             supported yet. Please use the base set to enjoy Dominion Companion.
             Non-base cards detected in game:
           </div>
