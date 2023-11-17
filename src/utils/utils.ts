@@ -20,48 +20,53 @@ import type {
 } from ".";
 import $ from "jquery";
 import { store } from "../redux/store";
+import { setViewerHidden } from "../redux/contentSlice";
+import { DOMObserver } from "./DOMObserver";
 
 /**
- * Function that handles the adding and removing of an Chrome onMessage listener.  Used by the PrimaryFrame component to listen for
+ * Custom react hook that handles a chrome message listener that listener.  Used by the PrimaryFrame component to listen for
  * messages from the Popup component that adds and removes the DomRoot from the client.
- * @param add - String that determines whether the listener is to be removed or added.
- * @param dispatch - Redux reducer dispatcher.
- * @param setViewerHidden - Reducer function that sets the 'hidden' redux state variable.
- * @param getViewerStatus - Function that checks the DOM to get the hidden status
  */
-const chromeListenerUseEffectHandler = (
-  add: "Add" | "Remove",
-  dispatch: Dispatch<AnyAction>,
-  setViewerHidden: ActionCreatorWithPayload<boolean, "content/setViewerHidden">,
-  getViewerStatus: Function
+const usePopupChromeMessageListener = () => {
+  const hidden = store.getState().content.viewerHidden;
+  useEffect(() => {
+    if (chrome.runtime !== undefined)
+      chrome.runtime.onMessage.addListener(popupMessageListener);
+    return () => {
+      if (chrome.runtime !== undefined)
+        chrome.runtime.onMessage.removeListener(popupMessageListener);
+    };
+  }, [hidden]);
+};
+
+/**
+ * Message listener callback function.  Used by the content script
+ *  to execute requests from the extension popup.
+ * @param request - The request from the popup, to hide or show the Companion.
+ * @param sender - Object with the chrome extension id and origin url.
+ * @param sendResponse -
+ */
+const popupMessageListener = (
+  request: { command: string },
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: { message: string }) => void
 ) => {
-  const chromeMessageListener = (
-    request: { command: string },
-    sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: { message: string }) => void
-  ) => {
-    sender;
-    let response: { message: string } = { message: "" };
-    if (request.command === "appendDomRoot") {
-      dispatch(setViewerHidden(false));
-      response.message = "Successfully turned on.";
-    } else if (request.command === "removeDomRoot") {
-      dispatch(setViewerHidden(true));
-      response.message = "Successfully turned off.";
-    } else if (request.command === "sendHiddenState") {
-      response.message = getViewerStatus()
-        ? "Hidden state is ON"
-        : "Hidden state is OFF";
-    } else {
-      response.message = "Invalid Request";
-    }
-    sendResponse(response);
-  };
-  if (add === "Add") {
-    chrome.runtime.onMessage.addListener(chromeMessageListener);
-  } else if (add === "Remove") {
-    chrome.runtime.onMessage.removeListener(chromeMessageListener);
+  sender;
+  let response: { message: string } = { message: "" };
+  if (request.command === "appendDomRoot") {
+    store.dispatch(setViewerHidden(false));
+    response.message = "Successfully turned on.";
+  } else if (request.command === "removeDomRoot") {
+    store.dispatch(setViewerHidden(true));
+    response.message = "Successfully turned off.";
+  } else if (request.command === "sendHiddenState") {
+    response.message = getPrimaryFrameStatus()
+      ? "Hidden state is ON"
+      : "Hidden state is OFF";
+  } else {
+    response.message = "Invalid Request";
   }
+  sendResponse(response);
 };
 
 /**
@@ -343,6 +348,54 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
     "log-line"
   ) as HTMLCollectionOf<HTMLElement>;
   return logLineCollection;
+};
+
+/**
+ * Returns an array of strings that are not in the base kingdom
+ * @param kingdom - The given kingdom
+ * @returns - Array containing strings from the given kingdom that are not in the base kingdom.
+ */
+const getNonBaseCardsInKingdom = (kingdom: string[]): string[] => {
+  const nonBaseCards: string[] = kingdom.filter(
+    (card) =>
+      ![
+        "Cellar",
+        "Chapel",
+        "Moat",
+        "Harbinger",
+        "Merchant",
+        "Vassal",
+        "Village",
+        "Workshop",
+        "Bureaucrat",
+        "Gardens",
+        "Militia",
+        "Moneylender",
+        "Poacher",
+        "Remodel",
+        "Smithy",
+        "Throne Room",
+        "Bandit",
+        "Council Room",
+        "Festival",
+        "Laboratory",
+        "Library",
+        "Market",
+        "Mine",
+        "Sentry",
+        "Witch",
+        "Artisan",
+        "Copper",
+        "Silver",
+        "Gold",
+        "Province",
+        "Duchy",
+        "Estate",
+        "Curse",
+      ].includes(card)
+  );
+
+  return nonBaseCards;
 };
 
 /**
@@ -730,6 +783,72 @@ const product_Range = (a: number, b: number): number => {
     prd *= i;
   }
   return prd;
+};
+
+/**
+ * Used by the extension popup to send a request via chrome API to the content script
+ * to 'turn off' the Companion (essentially unhide it), and uses the response object to
+ * to set the popup state.
+ * @param setToggleState - the state setter for the popup.
+ */
+const sendTurnOnRequest = (
+  setToggleState: React.Dispatch<SetStateAction<"ON" | "OFF">>
+) => {
+  // Append the domRoot to client
+  (async () => {
+    let tab: chrome.tabs.Tab | undefined = undefined;
+    try {
+      [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+    } catch (e) {
+      console.error("There was an error in sendTurnOnRequest: ", e);
+    }
+    if (tab !== undefined) {
+      const response = await chrome.tabs.sendMessage(tab.id!, {
+        command: "appendDomRoot",
+      });
+      if (response.message === "Successfully turned on.") {
+        setToggleState("ON");
+      } else {
+        console.log("There was an error");
+      }
+    }
+  })();
+};
+
+/**
+ * Used by the extension popup to send a request via chrome API to the content script
+ * to 'turn off' the Companion (essentially hide it), and uses the response object to
+ * to set the popup state.
+ * @param setToggleState - the state setter for the popup.
+ */
+const sendTurnOffRequest = (
+  setToggleState: React.Dispatch<SetStateAction<"ON" | "OFF">>
+) => {
+  // Remove domRoot from client
+  (async () => {
+    let tab: chrome.tabs.Tab | undefined = undefined;
+    try {
+      [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+    } catch (e) {
+      console.error("There was an error in sendTurnOffRequest: ", e);
+    }
+    if (tab !== undefined) {
+      const response = await chrome.tabs.sendMessage(tab.id!, {
+        command: "removeDomRoot",
+      });
+      if (response.message === "Successfully turned off.") {
+        setToggleState("OFF");
+      } else {
+        console.log("There was an error");
+      }
+    }
+  })();
 };
 
 /**
@@ -1192,6 +1311,77 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
 };
 
 /**
+ * Custom react hook used by the popup of the extension.  Sends a request to the extension
+ * content script to get the viewer's display status (hidden or showing)
+ * @param cb - Callback function that takes the response from the extension content as an argument.
+ * used by the popup in it's toggleState.
+ */
+const useContentViewerStatus = (cb: Function) => {
+  useEffect(() => {
+    (async () => {
+      let tab: chrome.tabs.Tab | undefined = undefined;
+      try {
+        [tab] = await chrome.tabs.query({
+          active: true,
+          lastFocusedWindow: true,
+        });
+      } catch (e) {
+        console.warn("There was an error: ", e);
+      }
+      if (tab !== undefined) {
+        console.log(tab);
+        const response = await chrome.tabs.sendMessage(tab.id!, {
+          command: "sendHiddenState",
+        });
+        console.log("response from content", response);
+        if (response.message === "Hidden state is ON") {
+          cb("OFF");
+        } else if (response.message === "Hidden state is OFF") {
+          cb("ON");
+        } else {
+          console.log("There was an error");
+        }
+      } else {
+        console.log("Invalid tab selected");
+      }
+    })();
+  }, []);
+};
+
+/**
+ * Custom react hook.  Keeps track of the height difference a container element and
+ * a element within the container updates the height difference whenever the container
+ * height changes or when any of the given dependencies change.
+ * @param containerElement - A container element.
+ * @param innerElement - An element inside the container element.
+ * @param setHeightDifference - useState setter to track the height difference.
+ * @param containerHeight - The container height used as a dependency.
+ * @param dependencies - Optional array of other  dependencies.
+ */
+const useHeightDifferentBetweenContainerAndContainedElement = (
+  containerElement: HTMLElement | HTMLDivElement | null,
+  innerElement: HTMLElement | HTMLDivElement | null,
+  setHeightDifference: React.Dispatch<SetStateAction<number>>,
+  containerHeight: number,
+  dependencies?: any[]
+) => {
+  // useMemo is preferred to useEffect here, no need to wait until the render has completed.
+  useMemo(() => {
+    if (innerElement && containerElement)
+      setHeightDifference(
+        containerElement.offsetHeight - innerElement.offsetHeight
+      );
+  }, [containerHeight]);
+
+  useEffect(() => {
+    if (innerElement && containerElement)
+      setHeightDifference(
+        containerElement.offsetHeight - innerElement.offsetHeight
+      );
+  }, dependencies);
+};
+
+/**
  * Custom React hook.  Whenever it detect a change in the given element's attributes,
  * it dispatches the value of the element's height property with the given SetStateAction.
  * @param targetElement - The element to observe for changes in height
@@ -1213,7 +1403,6 @@ const useElementHeight = (
     const obs = new MutationObserver(onElementMutation);
     setObserver(obs);
   }, [setObserver]);
-
   useEffect(() => {
     if (!observer) return;
     if (targetElement)
@@ -1366,21 +1555,21 @@ const useJQueryResizable = (
         }
       };
     } else return () => {};
-    // Trigger this effect whenever the 'minimized' redux state changes.
+    // Trigger this effect whenever the 'minimized' redux state or targetElement changes.
   }, [targetElement, minimized]);
 };
 
 /**
  * Custom React hook.  Reconciliation to allow for jQuery resizable Widget to function
  * correctly with built in minimization feature.  jQuery resizable affects the style
- * attribute of the resizable element, therefore proper minimization is not possible 
- * with tailwind classes alone. This hook modifies the style attribute 
+ * attribute of the resizable element, therefore proper minimization is not possible
+ * with tailwind classes alone. This hook modifies the style attribute
  * in a jQuery resizable friendly way, to achieve the desired effect.
- * @param targetElement 
+ * @param targetElement
  */
 const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
   // useState hook to store height of the target element just before minimization.
-  // and to restore the target element to that height upon un-minimization 
+  // and to restore the target element to that height upon un-minimization
   const [preMinimizedPrimaryFrameHeight, setPreMinimizedPrimaryFrameHeight] =
     useState<string>("");
   // Minimized Redux state for useEffect dependency.
@@ -1413,8 +1602,22 @@ const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
   }, [minimized]);
 };
 
+
+/**
+ * Custom react hook, sets up and removes event listeners that
+ * save the game before when the browser leaves the current page.
+ */
+const useSaveGameBeforeUnloadListener = () => {
+  const viewerHidden = store.getState().content.viewerHidden;
+  useEffect(() => {
+    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    return () => {
+      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    };
+  }, [viewerHidden]);
+};
+
 export {
-  chromeListenerUseEffectHandler,
   combinations,
   combineDeckListMapAndZoneListMap,
   createEmptySplitMapsObject,
@@ -1424,6 +1627,7 @@ export {
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
   getLogScrollContainerLogLines,
+  getNonBaseCardsInKingdom,
   getPrimaryFrameStatus,
   getRowColor,
   hyperGeometricProbability,
@@ -1442,6 +1646,8 @@ export {
   onTurnToggleButtonClick,
   primaryFrameResizableHandles,
   product_Range,
+  sendTurnOffRequest,
+  sendTurnOnRequest,
   sortHistoryDeckView,
   sortMainViewer,
   sortTwoCardsByAmount,
@@ -1451,8 +1657,12 @@ export {
   splitCombinedMapsByCardTypes,
   stringifyProbability,
   toErrorWithMessage,
+  useContentViewerStatus,
+  useHeightDifferentBetweenContainerAndContainedElement,
   useElementHeight,
   useJQueryDraggable,
   useJQueryResizable,
-  useMinimizer
+  usePopupChromeMessageListener,
+  useMinimizer,
+  useSaveGameBeforeUnloadListener,
 };
