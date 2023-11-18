@@ -1,8 +1,8 @@
 /*global chrome*/
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState, store } from "../../redux/store";
 import MainDeckViewer from "./MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer/TrashZoneViewer";
@@ -16,7 +16,6 @@ import {
   useElementHeight,
   useMinimizer,
   usePopupChromeMessageListener,
-  useSaveGameBeforeUnloadListener,
   useHeightDifferentBetweenContainerAndContainedElement,
   getNonBaseCardsInKingdom,
 } from "../../utils/utils";
@@ -30,6 +29,16 @@ const minimizedStyle = "w-[250px] h-[0px]";
 const collapsibleStyle =
   "backdrop-blur-sm bg-black/[.85] object-contain pb-[55px] w-fill overflow-hidden border-b-8 border-x-8 border-double border-gray-300 box-border";
 const minimizedCollapsibleStyle = collapsibleStyle + " hidden";
+
+const useSaveGameBeforeUnloadListener = () => {
+  const viewerHidden = store.getState().content.viewerHidden;
+  useEffect(() => {
+    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    return () => {
+      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    };
+  }, [viewerHidden]);
+};
 
 const PrimaryFrame = () => {
   const od = useSelector((state: RootState) => state.content.opponentDeck);
@@ -49,7 +58,6 @@ const PrimaryFrame = () => {
   const [primaryFrameHeight, setPrimaryFrameHeight] = useState<number>(0);
   const primaryFrameRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
-
   useHeightDifferentBetweenContainerAndContainedElement(
     primaryFrameRef.current, // Container
     headerRef.current, // Controlled Element
