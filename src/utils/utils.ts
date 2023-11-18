@@ -21,53 +21,7 @@ import type {
 import $ from "jquery";
 import { store } from "../redux/store";
 import { setViewerHidden } from "../redux/contentSlice";
-import { DOMObserver } from "./DOMObserver";
-
-/**
- * Custom react hook that handles a chrome message listener that listener.  Used by the PrimaryFrame component to listen for
- * messages from the Popup component that adds and removes the DomRoot from the client.
- */
-const usePopupChromeMessageListener = () => {
-  const hidden = store.getState().content.viewerHidden;
-  useEffect(() => {
-    if (chrome.runtime !== undefined)
-      chrome.runtime.onMessage.addListener(popupMessageListener);
-    return () => {
-      if (chrome.runtime !== undefined)
-        chrome.runtime.onMessage.removeListener(popupMessageListener);
-    };
-  }, [hidden]);
-};
-
-/**
- * Message listener callback function.  Used by the content script
- *  to execute requests from the extension popup.
- * @param request - The request from the popup, to hide or show the Companion.
- * @param sender - Object with the chrome extension id and origin url.
- * @param sendResponse -
- */
-const popupMessageListener = (
-  request: { command: string },
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: { message: string }) => void
-) => {
-  sender;
-  let response: { message: string } = { message: "" };
-  if (request.command === "appendDomRoot") {
-    store.dispatch(setViewerHidden(false));
-    response.message = "Successfully turned on.";
-  } else if (request.command === "removeDomRoot") {
-    store.dispatch(setViewerHidden(true));
-    response.message = "Successfully turned off.";
-  } else if (request.command === "sendHiddenState") {
-    response.message = getPrimaryFrameStatus()
-      ? "Hidden state is ON"
-      : "Hidden state is OFF";
-  } else {
-    response.message = "Invalid Request";
-  }
-  sendResponse(response);
-};
+// import { DOMObserver } from "./DOMObserver";
 
 /**
  * Function that calculates mathematical combinations
@@ -729,6 +683,36 @@ const onTurnToggleButtonClick = (
 ) => {
   dispatch(setPinnedTurnToggleButton(buttonName));
   dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Message listener callback function.  Used by the content script
+ *  to execute requests from the extension popup.
+ * @param request - The request from the popup, to hide or show the Companion.
+ * @param sender - Object with the chrome extension id and origin url.
+ * @param sendResponse -
+ */
+const popupMessageListener = (
+  request: { command: string },
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: { message: string }) => void
+) => {
+  sender;
+  let response: { message: string } = { message: "" };
+  if (request.command === "appendDomRoot") {
+    store.dispatch(setViewerHidden(false));
+    response.message = "Successfully turned on.";
+  } else if (request.command === "removeDomRoot") {
+    store.dispatch(setViewerHidden(true));
+    response.message = "Successfully turned off.";
+  } else if (request.command === "sendHiddenState") {
+    response.message = getPrimaryFrameStatus()
+      ? "Hidden state is ON"
+      : "Hidden state is OFF";
+  } else {
+    response.message = "Invalid Request";
+  }
+  sendResponse(response);
 };
 
 /**
@@ -1602,19 +1586,20 @@ const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
   }, [minimized]);
 };
 
-
 /**
- * Custom react hook, sets up and removes event listeners that
- * save the game before when the browser leaves the current page.
+ * Custom react hook that handles a chrome message listener that listener.  Used by the PrimaryFrame component to listen for
+ * messages from the Popup component that adds and removes the DomRoot from the client.
  */
-const useSaveGameBeforeUnloadListener = () => {
-  const viewerHidden = store.getState().content.viewerHidden;
+const usePopupChromeMessageListener = () => {
+  const hidden = store.getState().content.viewerHidden;
   useEffect(() => {
-    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    if (chrome.runtime !== undefined)
+      chrome.runtime.onMessage.addListener(popupMessageListener);
     return () => {
-      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+      if (chrome.runtime !== undefined)
+        chrome.runtime.onMessage.removeListener(popupMessageListener);
     };
-  }, [viewerHidden]);
+  }, [hidden]);
 };
 
 export {
@@ -1644,6 +1629,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  popupMessageListener,
   primaryFrameResizableHandles,
   product_Range,
   sendTurnOffRequest,
@@ -1664,5 +1650,5 @@ export {
   useJQueryResizable,
   usePopupChromeMessageListener,
   useMinimizer,
-  useSaveGameBeforeUnloadListener,
+  // useSaveGameBeforeUnloadListener,
 };
