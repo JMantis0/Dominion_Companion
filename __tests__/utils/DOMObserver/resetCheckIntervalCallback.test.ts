@@ -17,7 +17,7 @@ describe("resetCheckIntervalCallback", () => {
     const gameLog = document.createElement("div");
     gameLog.setAttribute("class", "game-log");
     document.body.appendChild(gameLog);
-    
+
     // Act
     DOMObserver.resetCheckIntervalCallback();
 

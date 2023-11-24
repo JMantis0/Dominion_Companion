@@ -1750,7 +1750,7 @@ describe("sortMainViewer", () => {
       ["CardD", { entireDeckCount: 3, zoneCount: 3 }],
       ["CardC", { entireDeckCount: 4, zoneCount: 4 }],
       ["CardE", { entireDeckCount: 5, zoneCount: 4 }],
-      ["CardF", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardF to the case from above (2 library, 1 graveyard). 
+      ["CardF", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardF to the case from above (2 library, 1 graveyard).
       ["CardG", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardG to the case from above (2 library, 1 inPlay).  This will require CardF and CardG to be compared by probability
     ]);
     const sortType = "ascending";

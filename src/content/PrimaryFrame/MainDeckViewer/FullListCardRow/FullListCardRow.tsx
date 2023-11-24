@@ -29,7 +29,7 @@ const FullListCardRow: FunctionComponent<CardRowProps> = ({
           {drawProbability}
         </div>
 
-      </main> 
+      </main>
     </React.Fragment>
   );
 };

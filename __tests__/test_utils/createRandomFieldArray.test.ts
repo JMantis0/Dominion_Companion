@@ -6,7 +6,7 @@ describe("Function createRandomFieldArray()", () => {
     it("should have 17 or less unique elements", () => {
       const randomKingdom = createRandomKingdom();
       expect(typeof createRandomFieldArray(randomKingdom)).toBe(typeof []);
-      
+
     });
   });
 });

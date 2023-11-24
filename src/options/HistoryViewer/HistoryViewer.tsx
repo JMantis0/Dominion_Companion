@@ -108,13 +108,16 @@ const HistoryViewer = () => {
                   })
               ) : (
                 <div key={-1}>
-                  <div>No game history.  Play games with the Dominion Companion extension to begin a history.</div>
+                  <div>
+                    No game history. Play games with the Dominion Companion
+                    extension to begin a history.
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
-        {/* This div sits behind the modal and blocks other elements behind the modal from being clicked while the modal is open  
+        {/* This div sits behind the modal and blocks other elements behind the modal from being clicked while the modal is open
         It also serves as a close button for the modal.*/}
         <div
           className={`${

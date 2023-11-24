@@ -54,7 +54,7 @@ describe("logObserverFunc", () => {
 
     // Act - simulate a mutation in the game log element when there are no new logs to process
     DOMObserver.logObserverFunc();
-    
+
     // Assert
     expect(getNewLogsAndUpdateDecks).not.toBeCalled();
     expect(dispatchUpdatedDecksToRedux).not.toBeCalled();

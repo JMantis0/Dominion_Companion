@@ -101,7 +101,7 @@ describe("update", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
-    
+
     // Add spy assertions for setLastEntryProcessed, addLogToLogArchive, etc
 
     expect(getMostRecentPlay).toBeCalledTimes(1);

@@ -14,7 +14,7 @@ const ViewFooter = () => {
       <div className={"text-white align-center  col-span-4 text-center whitespace-nowrap"}>
         {pd.library.length} / {pd.entireDeck.length}
       </div>
-    
+
     </main>
   );
 };

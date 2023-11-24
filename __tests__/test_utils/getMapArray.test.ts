@@ -38,6 +38,6 @@ describe("Function getMapArray()", () => {
       ["CardD", { entireDeckCount: 4, zoneCount: 4 }],
     ];
     expect(getMapArray(map)).toStrictEqual(expectedResult);
-    expect(getMapArray(map)).not.toStrictEqual(outOfOrderResult); 
+    expect(getMapArray(map)).not.toStrictEqual(outOfOrderResult);
   });
 });

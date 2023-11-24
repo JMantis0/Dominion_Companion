@@ -9,7 +9,7 @@ describe("setAsideFromLibrary", () => {
     jest.clearAllMocks();
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
-  
+
   it("should remove an instance of the provided card from the library and add it to the setAside zone", () => {
     // Arrange
     deck.setAside = ["Bandit"];
