@@ -1,11 +1,11 @@
-const path = require("path");
-const CopyPlugin = require("copy-webpack-plugin");
-const HtmlPlugin = require("html-webpack-plugin");
-const tailwindcss = require("tailwindcss");
-const autoprefixer = require("autoprefixer");
-const webpack = require("webpack");
+import path from "path";
+import CopyPlugin from "copy-webpack-plugin";
+import HtmlPlugin from "html-webpack-plugin";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
+import webpack from "webpack";
 
-module.exports = {
+export default {
   entry: {
     popup: path.resolve("./src/popup/index.tsx"),
     options: path.resolve("./src/options/index.tsx"),

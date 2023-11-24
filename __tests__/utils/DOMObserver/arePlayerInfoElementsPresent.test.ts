@@ -24,7 +24,7 @@ describe("arePlayerInfoElementsPresent", () => {
     // Arrange - Remove the <player-info-elements> from the DOM.
     document.body.removeChild(mockPlayerInfoElement1);
     document.body.removeChild(mockPlayerInfoElement2);
-    
+
     // Act and Assert - Simulate checking the DOM for <player-info-elements> when there are non present.
     expect(DOMObserver.arePlayerInfoElementsPresent()).toBe(false);
   });

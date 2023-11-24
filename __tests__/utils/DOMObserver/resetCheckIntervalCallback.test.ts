@@ -10,14 +10,14 @@ describe("resetCheckIntervalCallback", () => {
   const setInterval = jest.spyOn(global, "setInterval");
   beforeEach(() => {
     jest.clearAllMocks();
-    document.body.innerHTML=""
+    document.body.innerHTML="";
   });
   it("should not do anything if the game log is present in the DOM", () => {
     // Arrange - Add game log to the DOM
     const gameLog = document.createElement("div");
     gameLog.setAttribute("class", "game-log");
     document.body.appendChild(gameLog);
-    
+
     // Act
     DOMObserver.resetCheckIntervalCallback();
 

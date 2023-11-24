@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import CloseModalButton from "./CloseModalButton/CloseModalButton";
 
-const HistoryModal: FunctionComponent = ({}) => {
+const HistoryModal: FunctionComponent = () => {
   const pd = useSelector((state: RootState) => state.options.playerDeck);
   const od = useSelector((state: RootState) => state.options.opponentDeck);
   const gameDateTitle = useSelector(

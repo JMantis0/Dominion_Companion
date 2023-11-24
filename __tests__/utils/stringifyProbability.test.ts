@@ -7,7 +7,7 @@ describe("Function stringifyProbability", () => {
     const expectedString = "45.3%";
 
     // Act
-    let probabilityString = stringifyProbability(probability);
+    const probabilityString = stringifyProbability(probability);
 
     // Assert
     expect(probabilityString).toStrictEqual(expectedString);
@@ -18,7 +18,7 @@ describe("Function stringifyProbability", () => {
     const expectedString = "45.4%";
 
     // Act
-    let probabilityString = stringifyProbability(probability);
+    const probabilityString = stringifyProbability(probability);
 
     // Assert
     expect(probabilityString).toStrictEqual(expectedString);
@@ -29,7 +29,7 @@ describe("Function stringifyProbability", () => {
     const expectedString = "44.4%";
 
     // Act
-    let probabilityString = stringifyProbability(probability);
+    const probabilityString = stringifyProbability(probability);
 
     // Assert
     expect(probabilityString).toStrictEqual(expectedString);

@@ -63,13 +63,13 @@ const TurnButton: FunctionComponent<TurnButtonProps> = ({ buttonName }) => {
       {buttonName === "Next" &&
       // libraryLength < 5 &&
       topCardsLookAmount > libraryLength ? (
-        <FontAwesomeIcon
-          className="absolute top-0 right-0"
-          icon="circle"
-          size="xs"
-          style={{ color: "#ff0000" }}
-        />
-      ) : null}
+          <FontAwesomeIcon
+            className="absolute top-0 right-0"
+            icon="circle"
+            size="xs"
+            style={{ color: "#ff0000" }}
+          />
+        ) : null}
       <span className="pointer-events-none">
         {buttonName === "Current" ? "This" : "Next"}
       </span>

@@ -20,49 +20,8 @@ import type {
 } from ".";
 import $ from "jquery";
 import { store } from "../redux/store";
-
-/**
- * Function that handles the adding and removing of an Chrome onMessage listener.  Used by the PrimaryFrame component to listen for
- * messages from the Popup component that adds and removes the DomRoot from the client.
- * @param add - String that determines whether the listener is to be removed or added.
- * @param dispatch - Redux reducer dispatcher.
- * @param setViewerHidden - Reducer function that sets the 'hidden' redux state variable.
- * @param getViewerStatus - Function that checks the DOM to get the hidden status
- */
-const chromeListenerUseEffectHandler = (
-  add: "Add" | "Remove",
-  dispatch: Dispatch<AnyAction>,
-  setViewerHidden: ActionCreatorWithPayload<boolean, "content/setViewerHidden">,
-  getViewerStatus: Function
-) => {
-  const chromeMessageListener = (
-    request: { command: string },
-    sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: { message: string }) => void
-  ) => {
-    sender;
-    let response: { message: string } = { message: "" };
-    if (request.command === "appendDomRoot") {
-      dispatch(setViewerHidden(false));
-      response.message = "Successfully turned on.";
-    } else if (request.command === "removeDomRoot") {
-      dispatch(setViewerHidden(true));
-      response.message = "Successfully turned off.";
-    } else if (request.command === "sendHiddenState") {
-      response.message = getViewerStatus()
-        ? "Hidden state is ON"
-        : "Hidden state is OFF";
-    } else {
-      response.message = "Invalid Request";
-    }
-    sendResponse(response);
-  };
-  if (add === "Add") {
-    chrome.runtime.onMessage.addListener(chromeMessageListener);
-  } else if (add === "Remove") {
-    chrome.runtime.onMessage.removeListener(chromeMessageListener);
-  }
-};
+import { setViewerHidden } from "../redux/contentSlice";
+// import { DOMObserver } from "./DOMObserver";
 
 /**
  * Function that calculates mathematical combinations
@@ -94,7 +53,7 @@ const combineDeckListMapAndZoneListMap = (
   deckListMap: Map<string, number>,
   zoneListMap: Map<string, number>
 ): Map<string, CardCounts> => {
-  let newMap: Map<string, CardCounts> = new Map();
+  const newMap: Map<string, CardCounts> = new Map();
   // first create a list of all the cards that are in both maps...
   const cardList: string[] = Array.from(deckListMap.keys()).concat(
     Array.from(zoneListMap.keys())
@@ -126,14 +85,14 @@ const combineDeckListMapAndZoneListMap = (
  * @returns An empty split maps object
  */
 const createEmptySplitMapsObject = (): SplitMaps => {
-  let aMap: Map<string, CardCounts> = new Map();
-  let tMap: Map<string, CardCounts> = new Map();
-  let vMap: Map<string, CardCounts> = new Map();
-  let cMap: Map<string, CardCounts> = new Map();
+  const aMap: Map<string, CardCounts> = new Map();
+  const tMap: Map<string, CardCounts> = new Map();
+  const vMap: Map<string, CardCounts> = new Map();
+  const cMap: Map<string, CardCounts> = new Map();
   aMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
   tMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
   vMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
-  let emptySplitMap: SplitMaps = {
+  const emptySplitMap: SplitMaps = {
     treasures: tMap,
     actions: aMap,
     victories: vMap,
@@ -251,7 +210,7 @@ const getCumulativeHyperGeometricProbabilityForCard = (
 ): { hyperGeo: number; cumulative: number } => {
   let probability: number = 0;
   let cumProb: number = 0;
-  let secondDrawPool: string[] =
+  const secondDrawPool: string[] =
     turn === "Current"
       ? deck.graveyard
       : deck.graveyard.concat(deck.hand, deck.inPlay, deck.setAside);
@@ -335,14 +294,63 @@ const getErrorMessage = (error: unknown) => {
  * @returns - A collection of all the div's in the log-scroll-container with the class 'log-line'
  */
 const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
-  let scrollEl: Element;
-  let logLineCollection: HTMLCollectionOf<HTMLElement>;
-  scrollEl = document.getElementsByClassName("log-scroll-container")[0];
+  const scrollEl: Element = document.getElementsByClassName(
+    "log-scroll-container"
+  )[0];
   if (scrollEl === undefined) throw new Error("Element is undefined");
-  logLineCollection = scrollEl.getElementsByClassName(
-    "log-line"
-  ) as HTMLCollectionOf<HTMLElement>;
+  const logLineCollection: HTMLCollectionOf<HTMLElement> =
+    scrollEl.getElementsByClassName(
+      "log-line"
+    ) as HTMLCollectionOf<HTMLElement>;
   return logLineCollection;
+};
+
+/**
+ * Returns an array of strings that are not in the base kingdom
+ * @param kingdom - The given kingdom
+ * @returns - Array containing strings from the given kingdom that are not in the base kingdom.
+ */
+const getNonBaseCardsInKingdom = (kingdom: string[]): string[] => {
+  const nonBaseCards: string[] = kingdom.filter(
+    (card) =>
+      ![
+        "Cellar",
+        "Chapel",
+        "Moat",
+        "Harbinger",
+        "Merchant",
+        "Vassal",
+        "Village",
+        "Workshop",
+        "Bureaucrat",
+        "Gardens",
+        "Militia",
+        "Moneylender",
+        "Poacher",
+        "Remodel",
+        "Smithy",
+        "Throne Room",
+        "Bandit",
+        "Council Room",
+        "Festival",
+        "Laboratory",
+        "Library",
+        "Market",
+        "Mine",
+        "Sentry",
+        "Witch",
+        "Artisan",
+        "Copper",
+        "Silver",
+        "Gold",
+        "Province",
+        "Duchy",
+        "Estate",
+        "Curse",
+      ].includes(card)
+  );
+
+  return nonBaseCards;
 };
 
 /**
@@ -350,8 +358,7 @@ const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
  * @returns - boolean.
  */
 const getPrimaryFrameStatus = (): boolean | undefined => {
-  let status: boolean | undefined;
-  status = document
+  const status: boolean | undefined = document
     .getElementById("primaryFrame")
     ?.classList.contains("hidden");
   return status;
@@ -679,6 +686,36 @@ const onTurnToggleButtonClick = (
 };
 
 /**
+ * Message listener callback function.  Used by the content script
+ *  to execute requests from the extension popup.
+ * @param request - The request from the popup, to hide or show the Companion.
+ * @param sender - Object with the chrome extension id and origin url.
+ * @param sendResponse -
+ */
+const popupMessageListener = (
+  request: { command: string },
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: { message: string }) => void
+) => {
+  sender;
+  const response: { message: string } = { message: "" };
+  if (request.command === "appendDomRoot") {
+    store.dispatch(setViewerHidden(false));
+    response.message = "Successfully turned on.";
+  } else if (request.command === "removeDomRoot") {
+    store.dispatch(setViewerHidden(true));
+    response.message = "Successfully turned off.";
+  } else if (request.command === "sendHiddenState") {
+    response.message = getPrimaryFrameStatus()
+      ? "Hidden state is ON"
+      : "Hidden state is OFF";
+  } else {
+    response.message = "Invalid Request";
+  }
+  sendResponse(response);
+};
+
+/**
  * Creates an OptionalHandles object to be used by the PrimaryFrame component
  * to call the useJQueryResizable hook.
  * @returns - An OptionalHandles object with a custom handle for 'se' (southeast).
@@ -724,12 +761,78 @@ const product_Range = (a: number, b: number): number => {
   if (a > b) {
     throw Error("product_Range invalid parameters (a>b)");
   }
-  var prd = a,
+  let prd = a,
     i = a;
   while (i++ < b) {
     prd *= i;
   }
   return prd;
+};
+
+/**
+ * Used by the extension popup to send a request via chrome API to the content script
+ * to 'turn off' the Companion (essentially unhide it), and uses the response object to
+ * to set the popup state.
+ * @param setToggleState - the state setter for the popup.
+ */
+const sendTurnOnRequest = (
+  setToggleState: React.Dispatch<SetStateAction<"ON" | "OFF">>
+) => {
+  // Append the domRoot to client
+  (async () => {
+    let tab: chrome.tabs.Tab | undefined = undefined;
+    try {
+      [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+    } catch (e) {
+      console.error("There was an error in sendTurnOnRequest: ", e);
+    }
+    if (tab !== undefined) {
+      const response = await chrome.tabs.sendMessage(tab.id!, {
+        command: "appendDomRoot",
+      });
+      if (response.message === "Successfully turned on.") {
+        setToggleState("ON");
+      } else {
+        console.log("There was an error");
+      }
+    }
+  })();
+};
+
+/**
+ * Used by the extension popup to send a request via chrome API to the content script
+ * to 'turn off' the Companion (essentially hide it), and uses the response object to
+ * to set the popup state.
+ * @param setToggleState - the state setter for the popup.
+ */
+const sendTurnOffRequest = (
+  setToggleState: React.Dispatch<SetStateAction<"ON" | "OFF">>
+) => {
+  // Remove domRoot from client
+  (async () => {
+    let tab: chrome.tabs.Tab | undefined = undefined;
+    try {
+      [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+    } catch (e) {
+      console.error("There was an error in sendTurnOffRequest: ", e);
+    }
+    if (tab !== undefined) {
+      const response = await chrome.tabs.sendMessage(tab.id!, {
+        command: "removeDomRoot",
+      });
+      if (response.message === "Successfully turned off.") {
+        setToggleState("OFF");
+      } else {
+        console.log("There was an error");
+      }
+    }
+  })();
 };
 
 /**
@@ -754,7 +857,7 @@ const sortHistoryDeckView = (
           .sort((entryA, entryB) => {
             const cardA = entryA[0];
             const cardB = entryB[0];
-            let result: number = sortTwoCardsByName(cardA, cardB, sortType);
+            const result: number = sortTwoCardsByName(cardA, cardB, sortType);
             return result;
           })
           .forEach((entry) => {
@@ -769,7 +872,7 @@ const sortHistoryDeckView = (
           .sort((entryA, entryB) => {
             const cardATot = entryA[1].entireDeckCount;
             const cardBTot = entryB[1].entireDeckCount;
-            let result: number = sortTwoCardsByAmount(
+            const result: number = sortTwoCardsByAmount(
               cardATot,
               cardBTot,
               sortType
@@ -788,7 +891,7 @@ const sortHistoryDeckView = (
           .sort((entryA, entryB) => {
             const cardALibAmount = entryA[1].zoneCount;
             const cardBLibAmount = entryB[1].zoneCount;
-            let result = sortTwoCardsByAmount(
+            const result = sortTwoCardsByAmount(
               cardALibAmount,
               cardBLibAmount,
               sortType
@@ -1094,7 +1197,7 @@ const sortZoneView = (
           .sort((entryA, entryB) => {
             const cardA = entryA[0];
             const cardB = entryB[0];
-            let result: number = sortTwoCardsByName(cardA, cardB, sortType);
+            const result: number = sortTwoCardsByName(cardA, cardB, sortType);
             return result;
           })
           .forEach((entry) => {
@@ -1142,11 +1245,11 @@ const sortZoneView = (
 const splitCombinedMapsByCardTypes = (
   combinedMap: Map<string, CardCounts>
 ): SplitMaps => {
-  let tMap: Map<string, CardCounts> = new Map();
-  let aMap: Map<string, CardCounts> = new Map();
-  let vMap: Map<string, CardCounts> = new Map();
-  let cMap: Map<string, CardCounts> = new Map();
-  let splitMaps: SplitMaps = {
+  const tMap: Map<string, CardCounts> = new Map();
+  const aMap: Map<string, CardCounts> = new Map();
+  const vMap: Map<string, CardCounts> = new Map();
+  const cMap: Map<string, CardCounts> = new Map();
+  const splitMaps: SplitMaps = {
     treasures: tMap,
     actions: aMap,
     victories: vMap,
@@ -1192,6 +1295,77 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
 };
 
 /**
+ * Custom react hook used by the popup of the extension.  Sends a request to the extension
+ * content script to get the viewer's display status (hidden or showing)
+ * @param cb - Callback function that takes the response from the extension content as an argument.
+ * used by the popup in it's toggleState.
+ */
+const useContentViewerStatus = (cb: (viewerState: "ON" | "OFF") => void) => {
+  useEffect(() => {
+    (async () => {
+      let tab: chrome.tabs.Tab | undefined = undefined;
+      try {
+        [tab] = await chrome.tabs.query({
+          active: true,
+          lastFocusedWindow: true,
+        });
+      } catch (e) {
+        console.warn("There was an error: ", e);
+      }
+      if (tab !== undefined) {
+        console.log(tab);
+        const response = await chrome.tabs.sendMessage(tab.id!, {
+          command: "sendHiddenState",
+        });
+        console.log("response from content", response);
+        if (response.message === "Hidden state is ON") {
+          cb("OFF");
+        } else if (response.message === "Hidden state is OFF") {
+          cb("ON");
+        } else {
+          console.log("There was an error");
+        }
+      } else {
+        console.log("Invalid tab selected");
+      }
+    })();
+  }, []);
+};
+
+/**
+ * Custom react hook.  Keeps track of the height difference a container element and
+ * a element within the container updates the height difference whenever the container
+ * height changes or when any of the given dependencies change.
+ * @param containerElement - A container element.
+ * @param innerElement - An element inside the container element.
+ * @param setHeightDifference - useState setter to track the height difference.
+ * @param containerHeight - The container height used as a dependency.
+ * @param dependencies - Optional array of other  dependencies.
+ */
+const useHeightDifferentBetweenContainerAndContainedElement = (
+  containerElement: HTMLElement | HTMLDivElement | null,
+  innerElement: HTMLElement | HTMLDivElement | null,
+  setHeightDifference: React.Dispatch<SetStateAction<number>>,
+  containerHeight: number,
+  dependencies?: Array<number | string | boolean>
+) => {
+  // useMemo is preferred to useEffect here, no need to wait until the render has completed.
+  useMemo(() => {
+    if (innerElement && containerElement)
+      setHeightDifference(
+        containerElement.offsetHeight - innerElement.offsetHeight
+      );
+  }, [containerHeight]);
+
+  useEffect(() => {
+    if (innerElement && containerElement)
+      setHeightDifference(
+        containerElement.offsetHeight - innerElement.offsetHeight
+      );
+  }, dependencies);
+};
+
+/**
  * Custom React hook.  Whenever it detect a change in the given element's attributes,
  * it dispatches the value of the element's height property with the given SetStateAction.
  * @param targetElement - The element to observe for changes in height
@@ -1213,7 +1387,6 @@ const useElementHeight = (
     const obs = new MutationObserver(onElementMutation);
     setObserver(obs);
   }, [setObserver]);
-
   useEffect(() => {
     if (!observer) return;
     if (targetElement)
@@ -1366,55 +1539,76 @@ const useJQueryResizable = (
         }
       };
     } else return () => {};
-    // Trigger this effect whenever the 'minimized' redux state changes.
+    // Trigger this effect whenever the 'minimized' redux state or targetElement changes.
   }, [targetElement, minimized]);
 };
 
 /**
  * Custom React hook.  Reconciliation to allow for jQuery resizable Widget to function
  * correctly with built in minimization feature.  jQuery resizable affects the style
- * attribute of the resizable element, therefore proper minimization is not possible 
- * with tailwind classes alone. This hook modifies the style attribute 
+ * attribute of the resizable element, therefore proper minimization is not possible
+ * with tailwind classes alone. This hook modifies the style attribute
  * in a jQuery resizable friendly way, to achieve the desired effect.
- * @param targetElement 
+ * @param targetElement
  */
 const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
   // useState hook to store height of the target element just before minimization.
-  // and to restore the target element to that height upon un-minimization 
+  // and to restore the target element to that height upon un-minimization
   const [preMinimizedPrimaryFrameHeight, setPreMinimizedPrimaryFrameHeight] =
     useState<string>("");
   // Minimized Redux state for useEffect dependency.
   //TODO: instead of declaring minimized here, allow function to accept a dependency array
   const minimized = store.getState().content.minimized;
   useEffect(() => {
-    const currentHeight = targetElement
-      ?.getAttribute("style")
-      ?.match(/ height: \d+px; ?/);
     if (minimized) {
-      if (currentHeight !== null)
-        setPreMinimizedPrimaryFrameHeight(
-          targetElement?.getAttribute("style")?.match(/ height: \d+px; ?/)![0]!
-        );
-      targetElement?.setAttribute(
-        "style",
-        targetElement
-          .getAttribute("style")
-          ?.replace(/ height: \d+px; ?/, " height: 0px; ")!
-      );
+      if (targetElement !== null) {
+        const style = targetElement.getAttribute("style");
+        if (style !== null) {
+          const currentHeight = style.match(/ height: \d+px; ?/);
+          if (currentHeight !== null)
+            setPreMinimizedPrimaryFrameHeight(currentHeight[0]);
+          targetElement.setAttribute(
+            "style",
+            style.replace(/ height: \d+px; ?/, " height: 0px; ")!
+          );
+        }
+      }
     } else {
-      if (currentHeight !== null)
-        targetElement?.setAttribute(
-          "style",
-          targetElement
-            .getAttribute("style")
-            ?.replace(/ height: \d+px; ?/, preMinimizedPrimaryFrameHeight)!
-        );
+      if (targetElement !== null) {
+        const style = targetElement.getAttribute("style");
+        if (style !== null) {
+          const currentHeight = style.match(/ height: \d+px; ?/);
+          if (currentHeight !== null) {
+            targetElement.setAttribute(
+              "style",
+              style.replace(
+                / height: \d+px; ?/,
+                preMinimizedPrimaryFrameHeight
+              )!
+            );
+          }
+        }
+      }
     }
   }, [minimized]);
 };
 
+/**
+ * Custom react hook that handles a chrome message listener that listener.  Used by the PrimaryFrame component to listen for
+ * messages from the Popup component that adds and removes the DomRoot from the client.
+ */
+const usePopupChromeMessageListener = (dependencies: Array<string | boolean | number> = []) => {
+  useEffect(() => {
+    if (chrome.runtime !== undefined)
+      chrome.runtime.onMessage.addListener(popupMessageListener);
+    return () => {
+      if (chrome.runtime !== undefined)
+        chrome.runtime.onMessage.removeListener(popupMessageListener);
+    };
+  }, dependencies);
+};
+
 export {
-  chromeListenerUseEffectHandler,
   combinations,
   combineDeckListMapAndZoneListMap,
   createEmptySplitMapsObject,
@@ -1424,6 +1618,7 @@ export {
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
   getLogScrollContainerLogLines,
+  getNonBaseCardsInKingdom,
   getPrimaryFrameStatus,
   getRowColor,
   hyperGeometricProbability,
@@ -1440,8 +1635,11 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  popupMessageListener,
   primaryFrameResizableHandles,
   product_Range,
+  sendTurnOffRequest,
+  sendTurnOnRequest,
   sortHistoryDeckView,
   sortMainViewer,
   sortTwoCardsByAmount,
@@ -1451,8 +1649,12 @@ export {
   splitCombinedMapsByCardTypes,
   stringifyProbability,
   toErrorWithMessage,
+  useContentViewerStatus,
+  useHeightDifferentBetweenContainerAndContainedElement,
   useElementHeight,
   useJQueryDraggable,
   useJQueryResizable,
-  useMinimizer
+  usePopupChromeMessageListener,
+  useMinimizer,
+  // useSaveGameBeforeUnloadListener,
 };

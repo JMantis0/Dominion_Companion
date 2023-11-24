@@ -61,7 +61,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const optionsContainerRef = useRef<HTMLElement>(null);
   // Used to limit the height of the dropdown.
   const [maxScrollBarHeight, setMaxScrollBarHeight] = useState<number>(0);
-  const [selectOpen, setSelectOpen] = useState<boolean>(false);
+  const [selectOpen, setSelectOpen] = useState<boolean>(true);
 
   useEffect(() => {
     // On any render, the scroll  position is set to whatever value was previously
@@ -78,7 +78,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   useJQueryResizable(document.getElementById("select-scrollbars"), handles);
 
   useEffect(() => {
-    const optionsContainerHeight = optionsContainerRef.current?.offsetHeight!;
+    const optionsContainerHeight = optionsContainerRef.current!.offsetHeight;
     setMaxScrollBarHeight(optionsContainerHeight);
   }, [entireDeckLength, selectOpen]);
 
@@ -114,7 +114,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         <Scrollbars
           id="select-scrollbars"
           ref={selectScrollRef}
-          className={`${selectOpen ? `border-x border-y` : "hidden"}`}
+          className={`${selectOpen ? "border-x border-y" : "hidden"}`}
           autoHide={false}
           style={{
             width: "100%",
@@ -162,7 +162,7 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         >
           <main
             id="option-container"
-            className={`w-[99%] absolute`}
+            className={"w-[99%] absolute"}
             ref={optionsContainerRef}
           >
             {[...Array<number>(entireDeckLength).keys()]
@@ -203,13 +203,10 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
                     <span className="mr-2 pointer-events-none whitespace-nowrap">
                       {n}{" "}
                       <FontAwesomeIcon
-                        // className="absolute top-0 right-0"
                         icon="circle"
                         size="xs"
                         style={{
-                          color:
-                            // libraryLength < 5 &&
-                            n > libraryLength ? "#ff0000" : "transparent",
+                          color: n > libraryLength ? "#ff0000" : "transparent",
                           height: "5px",
                           marginBottom: "2.5px",
                         }}

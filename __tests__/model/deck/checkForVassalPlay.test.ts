@@ -20,7 +20,7 @@ describe("checkForVassalPlay", () => {
     deck = new Deck("", false, "", "pName", "pNick", []);
     document.body.innerHTML = "";
     /** The document body innerHTML:
-   * 
+   *
   <div class="log-scroll-container">
     <div class="log-line">pNick plays a Throne Room.</div>
     <div class="log-line">pNick plays a Vassal.</div>

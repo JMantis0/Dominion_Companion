@@ -28,7 +28,7 @@ describe("play", () => {
 
     // Act and Assert - Simulate trying to play a card that is not in hand.
     expect(() => deck.play("Pot of Greed")).toThrowError(
-      `No Pot of Greed in hand.`
+      "No Pot of Greed in hand."
     );
   });
 });

@@ -1,9 +1,8 @@
 /*global chrome*/
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { setViewerHidden } from "../../redux/contentSlice";
+import { useSelector } from "react-redux";
+import { RootState, store } from "../../redux/store";
 import MainDeckViewer from "./MainDeckViewer/MainDeckViewer";
 import DiscardZoneViewer from "./DiscardZoneViewer/DiscardZoneViewer";
 import TrashZoneViewer from "./TrashZoneViewer/TrashZoneViewer";
@@ -11,27 +10,37 @@ import OpponentViewer from "./OpponentViewer/OpponentViewer";
 import PrimaryFrameTab from "./PrimaryFrameTab/PrimaryFrameTab";
 import PrimaryFrameHeader from "./PrimaryFrameHeader/PrimaryFrameHeader";
 import {
-  chromeListenerUseEffectHandler,
-  getPrimaryFrameStatus,
   primaryFrameResizableHandles,
   useJQueryDraggable,
   useJQueryResizable,
   useElementHeight,
   useMinimizer,
+  usePopupChromeMessageListener,
+  useHeightDifferentBetweenContainerAndContainedElement,
+  getNonBaseCardsInKingdom,
 } from "../../utils/utils";
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
 // import DevDisplay from "./DevDisplay/DevDisplay";
 
-const style = `w-[250px] h-[400px]`;
+const style = "w-[250px] h-[400px]";
 const hiddenStyle = style + " hidden";
 const minimizedStyle = "w-[250px] h-[0px]";
 const collapsibleStyle =
   "backdrop-blur-sm bg-black/[.85] object-contain pb-[55px] w-fill overflow-hidden border-b-8 border-x-8 border-double border-gray-300 box-border";
 const minimizedCollapsibleStyle = collapsibleStyle + " hidden";
 
+const useSaveGameBeforeUnloadListener = () => {
+  const viewerHidden = store.getState().content.viewerHidden;
+  useEffect(() => {
+    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    return () => {
+      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
+    };
+  }, [viewerHidden]);
+};
+
 const PrimaryFrame = () => {
-  const dispatch = useDispatch();
   const od = useSelector((state: RootState) => state.content.opponentDeck);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
@@ -49,56 +58,19 @@ const PrimaryFrame = () => {
   const [primaryFrameHeight, setPrimaryFrameHeight] = useState<number>(0);
   const primaryFrameRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setPrimaryFrameHeight(primaryFrameRef.current?.offsetHeight!);
-  }, []);
-
-  useMemo(() => {
-    if (headerRef.current)
-      setCalculatedCollapsibleHeight(
-        primaryFrameHeight -
-          (headerRef.current ? headerRef.current!.offsetHeight : 0)
-      );
-  }, [primaryFrameHeight]);
-
-  useEffect(() => {
-    if (headerRef.current)
-      setCalculatedCollapsibleHeight(
-        primaryFrameHeight -
-          (headerRef.current ? headerRef.current!.offsetHeight : 0)
-      );
-  }, [minimized, baseOnly, activeStatus]);
-
-  useEffect(() => {
-    addEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-    if (chrome.runtime !== undefined)
-      chromeListenerUseEffectHandler(
-        "Add",
-        dispatch,
-        setViewerHidden,
-        getPrimaryFrameStatus
-      );
-    return () => {
-      removeEventListener("beforeunload", DOMObserver.saveBeforeUnload);
-      if (chrome.runtime !== undefined)
-        chromeListenerUseEffectHandler(
-          "Remove",
-          dispatch,
-          setViewerHidden,
-          getPrimaryFrameStatus
-        );
-    };
-    // The 'hidden' variable is needed in the dependency list, to update the event listener with the new value of hidden.
-    // Without this dependency, the event listener will have stale values for the 'hidden' variable
-  }, [hidden]);
-
+  useHeightDifferentBetweenContainerAndContainedElement(
+    primaryFrameRef.current, // Container
+    headerRef.current, // Controlled Element
+    setCalculatedCollapsibleHeight, // controlledElementHeightSetter
+    primaryFrameHeight, // dependency to detect height changes
+    [minimized, baseOnly, activeStatus] // dependency to check
+  );
+  useSaveGameBeforeUnloadListener();
+  usePopupChromeMessageListener([hidden]);
   useElementHeight(primaryFrameRef.current, setPrimaryFrameHeight);
   useJQueryDraggable(primaryFrameRef.current);
   useJQueryResizable(primaryFrameRef.current, primaryFrameResizableHandles());
   useMinimizer(primaryFrameRef.current);
-  
-
   return (
     <React.Fragment>
       <div
@@ -193,7 +165,9 @@ const PrimaryFrame = () => {
                 </div>
               </Scrollbars>
               <div
-                className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
+                className={
+                  "grid grid-cols-12 text-white absolute bottom-0 w-full"
+                }
               >
                 <PrimaryFrameTab
                   title="Discard"
@@ -208,7 +182,9 @@ const PrimaryFrame = () => {
                   position="Bottom"
                 />
                 <button
-                  className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 border-t-2`}
+                  className={
+                    "col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 border-t-2"
+                  }
                   onClick={() => {
                     chrome.runtime.sendMessage({ action: "openOptionsPage" });
                   }}
@@ -220,48 +196,11 @@ const PrimaryFrame = () => {
             </React.Fragment>
           ) : (
             <main className="text-white text-xs pointer-events-none text-center m-auto border-t-4 border-color-white">
-              {DOMObserver.kingdom
-                .filter((card) => {
-                  console.log(DOMObserver.kingdom);
-                  return ![
-                    "Cellar",
-                    "Chapel",
-                    "Moat",
-                    "Harbinger",
-                    "Merchant",
-                    "Vassal",
-                    "Village",
-                    "Workshop",
-                    "Bureaucrat",
-                    "Gardens",
-                    "Militia",
-                    "Moneylender",
-                    "Poacher",
-                    "Remodel",
-                    "Smithy",
-                    "Throne Room",
-                    "Bandit",
-                    "Council Room",
-                    "Festival",
-                    "Laboratory",
-                    "Library",
-                    "Market",
-                    "Mine",
-                    "Sentry",
-                    "Witch",
-                    "Artisan",
-                    "Copper",
-                    "Silver",
-                    "Gold",
-                    "Province",
-                    "Duchy",
-                    "Estate",
-                    "Curse",
-                  ].includes(card);
-                })
-                .map((card) => {
-                  return <div>{card}</div>;
-                })}
+              {getNonBaseCardsInKingdom(DOMObserver.kingdom).map(
+                (card, idx) => {
+                  return <div key={idx}>{card}</div>;
+                }
+              )}
             </main>
           )}
         </div>

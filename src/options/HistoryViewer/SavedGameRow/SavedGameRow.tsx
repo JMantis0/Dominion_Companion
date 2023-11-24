@@ -70,29 +70,29 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
         } last:border-0`}
         key={idx}
       >
-        <div className={`col-span-1 text-xs text-inherit`}>
+        <div className={"col-span-1 text-xs text-inherit"}>
           <FontAwesomeIcon icon={"play"} />
         </div>
-        <div className={`col-span-2 text-xs text-inherit`}>
+        <div className={"col-span-2 text-xs text-inherit"}>
           {savedGame.playerDeck.gameTitle}
         </div>
-        <div className={`col-span-2 text-xs text-inherit`}>
+        <div className={"col-span-2 text-xs text-inherit"}>
           {savedGame.playerDeck.playerName} <br></br>Rating:{" "}
           {savedGame.playerDeck.rating} <br></br> Final VP:{" "}
           {savedGame.playerDeck.currentVP}
         </div>
-        <div className={`col-span-2 text-xs text-inherit`}>
+        <div className={"col-span-2 text-xs text-inherit"}>
           {savedGame.opponentDeck.playerName} <br></br>Rating:{" "}
           {savedGame.opponentDeck.rating}
           <br></br>Final VP: {savedGame.opponentDeck.currentVP}
         </div>
-        <div className={`col-span-1 text-xs text-inherit`}>
+        <div className={"col-span-1 text-xs text-inherit"}>
           {savedGame.playerDeck.gameResult}
         </div>
-        <div className={`col-span-3 text-xs text-inherit`}>
+        <div className={"col-span-3 text-xs text-inherit"}>
           {savedGame.dateTime.substring(4, 24)}
         </div>
-        <div className={`col-span-1 text-xs text-inherit`}>
+        <div className={"col-span-1 text-xs text-inherit"}>
           <button onClick={deleteRecord}>Delete</button>
         </div>
       </div>

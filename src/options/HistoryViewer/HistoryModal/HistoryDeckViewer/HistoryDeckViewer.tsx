@@ -89,7 +89,7 @@ const HistoryDeckViewer: FunctionComponent<HistoryDeckViewerProps> = ({
               key={idx}
               cardName={card}
               cardAmountInZone={
-                splitMaps.victories!.get(card)?.entireDeckCount!
+                splitMaps.victories!.get(card)!.entireDeckCount
               }
               color={getRowColor(card)}
             />
@@ -100,7 +100,7 @@ const HistoryDeckViewer: FunctionComponent<HistoryDeckViewerProps> = ({
             <ZoneCardRow
               key={idx}
               cardName={card}
-              cardAmountInZone={splitMaps.curses!.get(card)?.entireDeckCount!}
+              cardAmountInZone={splitMaps.curses!.get(card)!.entireDeckCount}
               color={getRowColor(card)}
             />
           );
@@ -113,7 +113,7 @@ const HistoryDeckViewer: FunctionComponent<HistoryDeckViewerProps> = ({
               key={idx}
               cardName={card}
               cardAmountInZone={
-                splitMaps.treasures!.get(card)?.entireDeckCount!
+                splitMaps.treasures!.get(card)!.entireDeckCount
               }
               color={getRowColor(card)}
             />
@@ -126,7 +126,7 @@ const HistoryDeckViewer: FunctionComponent<HistoryDeckViewerProps> = ({
             <ZoneCardRow
               key={idx}
               cardName={card}
-              cardAmountInZone={splitMaps.actions!.get(card)?.entireDeckCount!}
+              cardAmountInZone={splitMaps.actions!.get(card)!.entireDeckCount}
               color={getRowColor(card)}
             />
           );

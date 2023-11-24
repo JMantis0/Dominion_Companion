@@ -14,8 +14,8 @@ const DiscardZoneViewer = () => {
   );
   return (
     <React.Fragment>
-      <div className={`text-xs text-white pointer-events-none`}>
-        {pd.playerName}'s discard pile: {pd.entireDeck.length} cards.
+      <div className={"text-xs text-white pointer-events-none"}>
+        {pd.playerName}&apos;s discard pile: {pd.entireDeck.length} cards.
       </div>
       <ZoneViewer
         deck={pd}

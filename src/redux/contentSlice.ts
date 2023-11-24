@@ -32,7 +32,6 @@ export interface ContentState {
   pinnedTurnToggleButton: "Current" | "Next";
   topCardsLookAmount: number;
   pinnedTopCardsLookAmount: number;
-  selectOpen: boolean;
   selectScrollPosition: number;
   error: string | null;
   minimized: boolean;
@@ -91,7 +90,6 @@ export const initialState: ContentState = {
   pinnedTurnToggleButton: "Current",
   topCardsLookAmount: 1,
   pinnedTopCardsLookAmount: 1,
-  selectOpen: true,
   selectScrollPosition: 0,
   error: null,
   minimized: false,
@@ -170,9 +168,6 @@ export const contentSlice = createSlice({
     setPinnedTopCardsLookAmount: (state, action: PayloadAction<number>) => {
       state.pinnedTopCardsLookAmount = action.payload;
     },
-    setSelectOpen: (state, action: PayloadAction<boolean>) => {
-      state.selectOpen = action.payload;
-    },
     setSelectScrollPosition: (state, action: PayloadAction<number>) => {
       state.selectScrollPosition = action.payload;
     },
@@ -206,7 +201,7 @@ export const {
   setPinnedTurnToggleButton,
   setTopCardsLookAmount,
   setPinnedTopCardsLookAmount,
-  setSelectOpen,
+
   setSelectScrollPosition,
   setError,
   setMinimized,

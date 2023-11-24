@@ -26,8 +26,7 @@ const PrimaryFrameHeader = () => {
   const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
   useEffect(() => {
     if (pd.gameTurn > 0 || od.gameTurn > 0) {
-      let turn: string;
-      turn =
+      const turn: string =
         "Turn - " + (pd.gameTurn <= od.gameTurn ? od.gameTurn : pd.gameTurn);
       setCurrentTurn(turn);
     }
@@ -51,12 +50,12 @@ const PrimaryFrameHeader = () => {
           <div className={baseStyle} id="header">
             <React.Fragment>
               <div
-                className={`h-full w-full align-center col-span-7 border-b-2`}
+                className={"h-full w-full align-center col-span-7 border-b-2"}
               >
                 {pd.gameTitle}
               </div>
               <div
-                className={`h-full w-full align-center col-span-5 border-b-2`}
+                className={"h-full w-full align-center col-span-5 border-b-2"}
               >
                 {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
               </div>
@@ -82,16 +81,15 @@ const PrimaryFrameHeader = () => {
         ) : baseOnly ? (
           <div
             className={
-              "text-white pointer-events-none h-full text-center m-auto mr-[25px] whitespace-nowrap text-xs overflow-hidden"
+              "text-white pointer-events-none h-full text-center m-auto whitespace-nowrap text-xs overflow-hidden"
             }
           >
             <span className="align-bottom w-full">No active game.</span>
           </div>
         ) : (
-          <div className="text-white text-xs pointer-events-none text-center m-auto mr-[25px]">
-            Sorry, <span>{pd.playerName}</span>! Non-Base cards are not
-            supported yet. Please use the base set to enjoy Dominion Companion.
-            Non-base cards detected in game:
+          <div className="text-white text-xs pointer-events-none text-center m-auto">
+            Sorry, Non-Base cards are not supported yet. Please use the base set
+            to enjoy Dominion Companion. Non-base cards detected in game:
           </div>
         )}
         <MinimizeButton />

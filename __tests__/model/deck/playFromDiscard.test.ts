@@ -31,7 +31,7 @@ describe("playFromDiscard", () => {
 
     // Act and Assert - Simulate trying to play a card from the graveyard that isn't there.
     expect(() => deck.playFromDiscard(card)).toThrowError(
-      `No Pot of Greed in discard pile.`
+      "No Pot of Greed in discard pile."
     );
   });
 });

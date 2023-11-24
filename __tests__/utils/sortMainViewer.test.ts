@@ -1647,7 +1647,7 @@ describe("sortMainViewer", () => {
 
   // Case 18
   it("should sort by amount in library (zone) correctly in ascending order, and if equal, sort by amount owned", () => {
-   //  Sort ascending by zoneCount with some equal zoneCounts, but no equal owned counts.
+    //  Sort ascending by zoneCount with some equal zoneCounts, but no equal owned counts.
 
     // Arrange
     const sortParam: SortCategory = "zone";
@@ -1740,7 +1740,7 @@ describe("sortMainViewer", () => {
 
   // Case 19
   it("should sort by amount in library (zone) correctly in ascending order, and if equal, sort by amount owned, and if owned count is equal, sort by hypergeometric probability", () => {
-     //  Sort ascending by zoneCount with some equal zoneCounts, and an  equal owned counts, but no equal probabilities.
+    //  Sort ascending by zoneCount with some equal zoneCounts, and an  equal owned counts, but no equal probabilities.
 
     // Arrange
     const sortParam: SortCategory = "zone";
@@ -1750,7 +1750,7 @@ describe("sortMainViewer", () => {
       ["CardD", { entireDeckCount: 3, zoneCount: 3 }],
       ["CardC", { entireDeckCount: 4, zoneCount: 4 }],
       ["CardE", { entireDeckCount: 5, zoneCount: 4 }],
-      ["CardF", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardF to the case from above (2 library, 1 graveyard). 
+      ["CardF", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardF to the case from above (2 library, 1 graveyard).
       ["CardG", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardG to the case from above (2 library, 1 inPlay).  This will require CardF and CardG to be compared by probability
     ]);
     const sortType = "ascending";

@@ -35,7 +35,7 @@ export const renderWithProviders = (
     ...renderOptions
   }: ExtendedRenderOptions = {}
 ) => {
-  const Wrapper = ({ children }: PropsWithChildren<{}>): JSX.Element => {
+  const Wrapper = ({ children }: PropsWithChildren<object>): JSX.Element => {
     return <Provider store={store}>{children}</Provider>;
   };
 
@@ -58,7 +58,7 @@ export const renderWithProvidersAndCSS = (
     ...renderOptions
   }: ExtendedRenderOptions = {}
 ) => {
-  const Wrapper = ({ children }: PropsWithChildren<{}>): JSX.Element => {
+  const Wrapper = ({ children }: PropsWithChildren<object>): JSX.Element => {
     return <Provider store={store}>{children}</Provider>;
   };
 
@@ -78,7 +78,7 @@ export const renderWithCSS = (
   ui: React.ReactElement,
   options?: Omit<RenderOptions, "wrapper">
 ) => {
-  const wrapper = ({ children }: PropsWithChildren<{}>): JSX.Element => {
+  const wrapper = ({ children }: PropsWithChildren<object>): JSX.Element => {
     return <React.Fragment>{children}</React.Fragment>;
   };
 

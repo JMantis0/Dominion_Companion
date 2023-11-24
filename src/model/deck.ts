@@ -191,8 +191,8 @@ export class Deck extends BaseDeck implements StoreDeck {
     resolve ambiguity for whether a play that takes place immediately after a Vassal play is
     being played from the hand, or if it is being played from discard (triggered by the Vassal).
     To resolve this ambiguity we look to the style property of the log-line elements: padding-left.
-    If a play is triggered by a vassal, the value of the padding-left property of the related log-line element 
-    is equal to the value of the padding-left property of the previous log-line element.  If the play is not 
+    If a play is triggered by a vassal, the value of the padding-left property of the related log-line element
+    is equal to the value of the padding-left property of the previous log-line element.  If the play is not
     triggered by the Vassal, but is coming from the hand, the padding-left property of the previous line will
     be less than the current line.
     */
@@ -204,11 +204,11 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     if (vassalPlayInLogs) {
       // try {
-      let logScrollElement = getLogScrollContainerLogLines();
+      const logScrollElement = getLogScrollContainerLogLines();
       try {
         let currentLinePaddingNumber: number;
-        let currentLinePaddingPercentage: string;
-        currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
+        const currentLinePaddingPercentage: string =
+          logScrollElement[len].style.paddingLeft;
         if (
           currentLinePaddingPercentage[
             currentLinePaddingPercentage.length - 1
@@ -225,8 +225,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Current line paddingLeft property does not end with %."
           );
         let previousLinePaddingNumber: number;
-        let previousLinePaddingPercentage: string;
-        previousLinePaddingPercentage =
+        const previousLinePaddingPercentage: string =
           logScrollElement[len - 1].style.paddingLeft;
         if (previousLinePaddingPercentage.slice(-1) === "%") {
           previousLinePaddingNumber = parseFloat(
@@ -259,7 +258,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           throw new Error(
             "CheckForVassalPlay error: Current line paddingLeft property does not end with %."
           );
-        let logScrollElementInnerText: string[] = [];
+        const logScrollElementInnerText: string[] = [];
         Array.from(logScrollElement).forEach((el) => {
           logScrollElementInnerText.push(el.innerText);
         });

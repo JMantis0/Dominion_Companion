@@ -19,20 +19,24 @@ const TrashZoneViewer = () => {
 
   return (
     <div className="text-xs outer-shell">
-      <div className={`text-white pointer-events-none`}>{pd.playerName}'s trash:</div>
+      <div className={"text-white pointer-events-none"}>
+        {pd.playerName}&apos;s trash:
+      </div>
       <ZoneViewer
         deck={pd}
         sortButtonState={trashSortState}
         sortDispatchFunc={setTrashSortState}
-        title={`Trash`}
+        title={"Trash"}
         zone={pd.trash}
       />
-      <div className={`text-white pointer-events-none`}>{od.playerName}'s trash:</div>
+      <div className={"text-white pointer-events-none"}>
+        {od.playerName}&apos;s trash:
+      </div>
       <ZoneViewer
         deck={od}
         sortButtonState={opponentTrashSortState}
         sortDispatchFunc={setOpponentTrashSortState}
-        title={`Trash`}
+        title={"Trash"}
         zone={od.trash}
       />
     </div>

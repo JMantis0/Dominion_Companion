@@ -6,8 +6,8 @@ import { DOMObserver } from "../../../src/utils/DOMObserver";
 describe("getPlayerNameAbbreviations() ", () => {
   it("should return the abbreviated player names correctly when their names start with with different first letters", () => {
     // Arrange
-    let playerName: string = "GoodBeard";
-    const gameLog: string = `Game #116986281, unrated.\nCard Pool: level 1\nL starts with 7 Coppers.\nL starts with 3 Estates.\nG starts with 7 Coppers.\nG starts with 3 Estates.\nL shuffles their deck.\nG shuffles their deck.`;
+    const playerName: string = "GoodBeard";
+    const gameLog: string = "Game #116986281, unrated.\nCard Pool: level 1\nL starts with 7 Coppers.\nL starts with 3 Estates.\nG starts with 7 Coppers.\nG starts with 3 Estates.\nL shuffles their deck.\nG shuffles their deck.";
 
     // Act and Assert - Simulate getting abbreviations where the names start with different letters (simplest case).
     expect(
@@ -17,8 +17,8 @@ describe("getPlayerNameAbbreviations() ", () => {
 
   it("should return the multi-letter abbreviations for the player names when they start with the same letters ", () => {
     // Arrange
-    let playerName: string = "Lord Rattingtop";
-    const gameLog: string = `Game #116986281, unrated.\nCard Pool: level 1\nLord Rattington starts with 7 Coppers.\nLord Rattington starts with 3 Estates.\nLord Rattingtop starts with 7 Coppers.\nLord Rattingtop starts with 3 Estates.\nLord Rattington shuffles their deck.\nLord Rattingtop shuffles their deck.`;
+    const playerName: string = "Lord Rattingtop";
+    const gameLog: string = "Game #116986281, unrated.\nCard Pool: level 1\nLord Rattington starts with 7 Coppers.\nLord Rattington starts with 3 Estates.\nLord Rattingtop starts with 7 Coppers.\nLord Rattingtop starts with 3 Estates.\nLord Rattington shuffles their deck.\nLord Rattingtop shuffles their deck.";
 
     // Act and Assert - Simulate getting abbreviations where the names begin with many of the same letters.
     expect(
@@ -28,8 +28,8 @@ describe("getPlayerNameAbbreviations() ", () => {
 
   it("should return the multi-letter abbreviations for the player names when one player name is same as the other except for having an extra letter", () => {
     // Arrange
-    let playerName: string = "Lord Rattingtop";
-    const gameLog: string = `Game #116986281, unrated.\nCard Pool: level 1\nLord Rattingtopy starts with 7 Coppers.\nLord Rattingtopy starts with 3 Estates.\nLord Rattingtop starts with 7 Coppers.\nLord Rattingtop starts with 3 Estates.\nLord Rattingtop shuffles their deck.\nLord Rattingtop shuffles their deck.`;
+    const playerName: string = "Lord Rattingtop";
+    const gameLog: string = "Game #116986281, unrated.\nCard Pool: level 1\nLord Rattingtopy starts with 7 Coppers.\nLord Rattingtopy starts with 3 Estates.\nLord Rattingtop starts with 7 Coppers.\nLord Rattingtop starts with 3 Estates.\nLord Rattingtop shuffles their deck.\nLord Rattingtop shuffles their deck.";
 
     // Act and Assert.
     expect(
@@ -72,7 +72,7 @@ describe("getPlayerNameAbbreviations() ", () => {
 
   it("should return empty strings if player names are not found in the log", () => {
     // Arrange - Create a sample game log without player names
-    const gameLog = `.\n.\n.\n`;
+    const gameLog = ".\n.\n.\n";
     const playerName = "Player A";
 
     // Act
