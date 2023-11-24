@@ -12,7 +12,7 @@ import ZoneCardRow, {
 
 describe("ZoneCardRow", () => {
   it("should render with the correct cardName, amount (unsure how to test color without just testing the class)", () => {
-    let props: ZoneCardRowProps = {
+    const props: ZoneCardRowProps = {
       cardName: "Card Name",
       cardAmountInZone: 44,
       color: "text-[#fff5c7]",
@@ -22,6 +22,5 @@ describe("ZoneCardRow", () => {
     const cardAmountDiv = screen.getByText(props.cardAmountInZone);
     expect(cardNameDiv).toBeInTheDocument();
     expect(cardAmountDiv).toBeInTheDocument();
-
   });
 });

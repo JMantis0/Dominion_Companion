@@ -15,7 +15,7 @@ describe("getErrorMessage", () => {
     // Non error case
     const mockNonError = "Just a string";
     const nonErrorMessage = getErrorMessage(mockNonError);
-    expect(nonErrorMessage).toStrictEqual('"Just a string"');
+    expect(nonErrorMessage).toStrictEqual("\"Just a string\"");
 
     // ErrorWithMessage case
     const mockErrorOject = {

@@ -126,7 +126,7 @@ type SortCategory = "card" | "zone" | "owned" | "probability";
 /**
  *Custom type for the dispatch functions / reducers that change the redux sortButtonState.
  */
-type SortReducer = ActionCreatorWithPayload<SortButtonState, any>;
+type SortReducer = ActionCreatorWithPayload<SortButtonState, string>;
 
 /**
  * Custom object literal type, an object with 4 properties, each a Map<string,CardCounts object,

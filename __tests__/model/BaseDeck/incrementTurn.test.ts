@@ -3,7 +3,7 @@ import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("incrementTurn", () => {
   // Instantiate BaseDeck object.
-  let deck = new BaseDeck("", false, "", "pName", "pNick", []);
+  const deck = new BaseDeck("", false, "", "pName", "pNick", []);
 
   it("should increment turn field correctly", () => {
     // Arrange

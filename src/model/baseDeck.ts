@@ -205,8 +205,7 @@ export class BaseDeck {
    * @returns
    */
   checkForTreasurePlayLine(line: string): boolean {
-    let treasureLine: boolean;
-    treasureLine =
+    const treasureLine: boolean =
       line.match(" plays ") !== null &&
       line.match(/Coppers?|Silvers?|Golds?/) !== null;
     return treasureLine;
@@ -275,8 +274,7 @@ export class BaseDeck {
    * @returns - Boolean for whether the log entry and the last entry are both treasure plays.
    */
   consecutiveTreasurePlays(entry: string): boolean {
-    let consecutiveTreasurePlays: boolean;
-    consecutiveTreasurePlays =
+    const consecutiveTreasurePlays: boolean =
       this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
       this.checkForTreasurePlayLine(entry);
     return consecutiveTreasurePlays;
@@ -367,8 +365,8 @@ export class BaseDeck {
     this.kingdom.forEach((card) => {
       const cardMatcher = card.substring(0, card.length - 1);
       if (entry.match(" " + cardMatcher) !== null) {
-        let upperSlice = entry.indexOf(cardMatcher) - 1;
-        let lowerSlice = entry.substring(0, upperSlice).lastIndexOf(" ") + 1;
+        const upperSlice = entry.indexOf(cardMatcher) - 1;
+        const lowerSlice = entry.substring(0, upperSlice).lastIndexOf(" ") + 1;
         const amountChar = entry.substring(lowerSlice, upperSlice);
         let amount = 0;
         if (amountChar == "an" || amountChar == "a") {
@@ -451,7 +449,7 @@ export class BaseDeck {
       }
     });
 
-    let amountsToPlay = [
+    const amountsToPlay = [
       numberOfCards[0] - numberOfPrevCards[0],
       numberOfCards[1] - numberOfPrevCards[1],
       numberOfCards[2] - numberOfPrevCards[2],
@@ -472,7 +470,6 @@ export class BaseDeck {
    * @returns - The number of cards to gain (to avoid over gaining)
    */
   getRepeatBuyGainCounts(currentLine: string, logArchive: string[]): number {
-    let amendedAmount: number;
     if (logArchive.length === 0) throw new Error("Empty logArchive.");
     const logArchiveCopy = logArchive.slice();
     const prevLine = this.lastEntryProcessed;
@@ -485,7 +482,6 @@ export class BaseDeck {
     const secondLastIndex = currentLine.slice(0, lastIndex).lastIndexOf(" ");
 
     let prevCount: number;
-    let currCount: number;
     if (
       prevLine
         .substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
@@ -497,11 +493,13 @@ export class BaseDeck {
         prevLine.substring(secondLastSpaceIndex! + 1, lastSpaceIndex)
       );
     }
-    currCount = parseInt(currentLine.substring(secondLastIndex + 1, lastIndex));
+    const currCount: number = parseInt(
+      currentLine.substring(secondLastIndex + 1, lastIndex)
+    );
     const removed = logArchiveCopy.pop();
     this.setLogArchive(logArchiveCopy);
     if (this.debug) console.info(`Popping off ${removed}`);
-    amendedAmount = currCount - prevCount;
+    const amendedAmount: number = currCount - prevCount;
     return amendedAmount;
   }
 
@@ -557,8 +555,7 @@ export class BaseDeck {
    * @returns - Boolean for if it applies to this deck.
    */
   logEntryAppliesToThisDeck(entry: string): boolean {
-    let applies: boolean;
-    applies =
+    const applies: boolean =
       entry.slice(0, this.playerNick.length) === this.playerNick ||
       entry.match(this.playerName) !== null;
     return applies;

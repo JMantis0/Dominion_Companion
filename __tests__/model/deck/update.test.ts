@@ -102,7 +102,7 @@ describe("update", () => {
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
     
-// Add spy assertions for setLastEntryProcessed, addLogToLogArchive, etc
+    // Add spy assertions for setLastEntryProcessed, addLogToLogArchive, etc
 
     expect(getMostRecentPlay).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);

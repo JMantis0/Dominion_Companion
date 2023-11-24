@@ -2,7 +2,7 @@ import { it, describe, expect } from "@jest/globals";
 import { createRandomKingdom, getAllIndices } from "../testUtilFuncs";
 
 describe("Function createRandomKingdom()", () => {
-  let randomKingdom = createRandomKingdom();
+  const randomKingdom = createRandomKingdom();
   it("should return a string array of length 10", () => {
     expect(randomKingdom.length).toBe(17);
   });

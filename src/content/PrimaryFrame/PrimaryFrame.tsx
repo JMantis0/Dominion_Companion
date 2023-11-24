@@ -23,7 +23,7 @@ import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
 // import DevDisplay from "./DevDisplay/DevDisplay";
 
-const style = `w-[250px] h-[400px]`;
+const style = "w-[250px] h-[400px]";
 const hiddenStyle = style + " hidden";
 const minimizedStyle = "w-[250px] h-[0px]";
 const collapsibleStyle =
@@ -66,7 +66,7 @@ const PrimaryFrame = () => {
     [minimized, baseOnly, activeStatus] // dependency to check
   );
   useSaveGameBeforeUnloadListener();
-  usePopupChromeMessageListener();
+  usePopupChromeMessageListener([hidden]);
   useElementHeight(primaryFrameRef.current, setPrimaryFrameHeight);
   useJQueryDraggable(primaryFrameRef.current);
   useJQueryResizable(primaryFrameRef.current, primaryFrameResizableHandles());
@@ -165,7 +165,9 @@ const PrimaryFrame = () => {
                 </div>
               </Scrollbars>
               <div
-                className={`grid grid-cols-12 text-white absolute bottom-0 w-full`}
+                className={
+                  "grid grid-cols-12 text-white absolute bottom-0 w-full"
+                }
               >
                 <PrimaryFrameTab
                   title="Discard"
@@ -180,7 +182,9 @@ const PrimaryFrame = () => {
                   position="Bottom"
                 />
                 <button
-                  className={`col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 border-t-2`}
+                  className={
+                    "col-span-4 border-box h-full text-xs whitespace-nowrap w-full border-l-2 border-t-2"
+                  }
                   onClick={() => {
                     chrome.runtime.sendMessage({ action: "openOptionsPage" });
                   }}
@@ -192,9 +196,11 @@ const PrimaryFrame = () => {
             </React.Fragment>
           ) : (
             <main className="text-white text-xs pointer-events-none text-center m-auto border-t-4 border-color-white">
-              {getNonBaseCardsInKingdom(DOMObserver.kingdom).map((card) => {
-                return <div>{card}</div>;
-              })}
+              {getNonBaseCardsInKingdom(DOMObserver.kingdom).map(
+                (card, idx) => {
+                  return <div key={idx}>{card}</div>;
+                }
+              )}
             </main>
           )}
         </div>

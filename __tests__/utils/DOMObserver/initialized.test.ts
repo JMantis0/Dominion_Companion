@@ -41,7 +41,7 @@ describe("initialized", () => {
 
   it("should return false if decksInitialized is false.", () => {
     // Arrange
-    DOMObserver.decksInitialized = false
+    DOMObserver.decksInitialized = false;
 
     // Act and Assert
     expect(DOMObserver.initialized()).toBe(false);

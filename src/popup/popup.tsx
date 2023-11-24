@@ -1,5 +1,9 @@
 import React, { useCallback, useState } from "react";
-import { sendTurnOffRequest, sendTurnOnRequest, useContentViewerStatus } from "../utils/utils";
+import {
+  sendTurnOffRequest,
+  sendTurnOnRequest,
+  useContentViewerStatus,
+} from "../utils/utils";
 
 const Popup = () => {
   const [toggleState, setToggleState] = useState<"ON" | "OFF">("OFF");
@@ -24,12 +28,12 @@ const Popup = () => {
           <br></br>
           <div>
             The Viewer is draggable and resizable, so position it as you desire.
-            It can also be turned on an off here. A 'How to use' guide can be
-            found here:
+            It can also be turned on an off here. A &apos;How to use&apos; guide
+            can be found here:
           </div>
         </div>
         <div className="col-span-6 grid grid-cols-12">
-          <h2 className={`col-span-12 text-center m-auto text-xs`}>
+          <h2 className={"col-span-12 text-center m-auto text-xs"}>
             Dominion Companion
           </h2>
           <div className="col-span-2"></div>

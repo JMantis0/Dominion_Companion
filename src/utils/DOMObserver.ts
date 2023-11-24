@@ -405,7 +405,7 @@ export class DOMObserver {
    * @returns Map object that contains both the player deck and opponent deck.
    */
   static createPlayerDecks(): Map<string, Deck | OpponentDeck> {
-    let deckMap: Map<string, Deck | OpponentDeck> = new Map();
+    const deckMap: Map<string, Deck | OpponentDeck> = new Map();
     const gameTitle = DOMObserver.gameLog
       .split("\n")[0]
       .substring(0, DOMObserver.gameLog.split("\n")[0].lastIndexOf(" ") - 1);
@@ -473,7 +473,7 @@ export class DOMObserver {
       gameEndReason = timeOutElements[1].innerText;
     }
     if (gameEndMessage === "The game has ended.") {
-      let [victor, defeated] = DOMObserver.getResult(
+      const [victor, defeated] = DOMObserver.getResult(
         DOMObserver.decks,
         DOMObserver.playerName,
         DOMObserver.opponentName,
@@ -507,19 +507,18 @@ export class DOMObserver {
    * @returns The array of strings containing the kingdom card available in the current game.
    */
   static getClientKingdom(): Array<string> {
-    let kingdom: Array<string>;
-    let cards = [];
+    const kingdom: string[] = [];
     const kingdomViewerGroupElement = document.getElementsByClassName(
       "kingdom-viewer-group"
     )[0];
     if (kingdomViewerGroupElement !== undefined) {
-      for (let elt of document
+      for (const elt of document
         .getElementsByClassName("kingdom-viewer-group")[0]
         .getElementsByClassName(
           "name-layer"
         ) as HTMLCollectionOf<HTMLElement>) {
         const card = elt.innerText.trim();
-        cards.push(card);
+        kingdom.push(card);
       }
     } else {
       throw Error("The kingdom-viewer-group element is not present in the DOM");
@@ -533,9 +532,8 @@ export class DOMObserver {
       "Copper",
       "Curse",
     ].forEach((card) => {
-      cards.push(card);
+      kingdom.push(card);
     });
-    kingdom = cards;
     return kingdom;
   }
 
@@ -608,10 +606,8 @@ export class DOMObserver {
   static getPlayerAndOpponentNameByComparingElementPosition(
     playerInfoElements: HTMLCollectionOf<HTMLElement>
   ): Array<string> {
-    let playerName: string;
-    let opponentName: string;
     const nameTransformMap: Map<string, number> = new Map();
-    for (let element of playerInfoElements) {
+    for (const element of playerInfoElements) {
       const nameElement = element.getElementsByTagName(
         "player-info-name"
       )[0] as HTMLElement;
@@ -623,12 +619,16 @@ export class DOMObserver {
       nameTransformMap.set(nomen, yTransForm);
     }
     //  Compare the yTransform values.  The greatest one gets assigned to player.
-    playerName = [...nameTransformMap.entries()].reduce((prev, current) => {
-      return prev[1] > current[1] ? prev : current;
-    })[0];
-    opponentName = [...nameTransformMap.entries()].reduce((prev, current) => {
-      return prev[1] < current[1] ? prev : current;
-    })[0];
+    const playerName: string = [...nameTransformMap.entries()].reduce(
+      (prev, current) => {
+        return prev[1] > current[1] ? prev : current;
+      }
+    )[0];
+    const opponentName: string = [...nameTransformMap.entries()].reduce(
+      (prev, current) => {
+        return prev[1] < current[1] ? prev : current;
+      }
+    )[0];
     // similarly, we can assign the elements to reference variables...
     return [playerName, opponentName];
   }
@@ -710,7 +710,7 @@ export class DOMObserver {
   ): string[] {
     let playerRating: string = "Rating Not Found";
     let opponentRating: string = "Rating Not Found";
-    let logArray = gameLog.split("\n");
+    const logArray = gameLog.split("\n");
     for (let i = 0; i < logArray.length; i++) {
       const entry = logArray[i];
       if (entry.match(playerName + ": ") !== null) {
@@ -795,8 +795,7 @@ export class DOMObserver {
    * @returns - HTMLCollection of the timeout elements.
    */
   static getTimeOutElements(): HTMLCollectionOf<HTMLElement> {
-    let timeOutElements: HTMLCollectionOf<HTMLElement>;
-    timeOutElements = document
+    const timeOutElements: HTMLCollectionOf<HTMLElement> = document
       .getElementsByTagName("game-ended-notification")[0]
       .getElementsByClassName("timeout") as HTMLCollectionOf<HTMLElement>;
     return timeOutElements;
@@ -924,8 +923,7 @@ export class DOMObserver {
    * @returns The boolean for presence of the kingdom-viewer-group element.
    */
   static isKingdomElementPresent(): boolean {
-    let kingdomPresent: boolean;
-    kingdomPresent =
+    const kingdomPresent: boolean =
       document.getElementsByClassName("kingdom-viewer-group").length > 0;
     return kingdomPresent;
   }
@@ -1244,7 +1242,7 @@ export class DOMObserver {
     opponentName: string,
     decks: Map<string, Deck | OpponentDeck>
   ): Map<string, Deck | OpponentDeck> {
-    let updatedDecks = new Map(decks);
+    const updatedDecks = new Map(decks);
     if (victor === playerName) {
       updatedDecks.get(playerName)!.setGameResult("Victory");
       updatedDecks.get(opponentName)!.setGameResult("Defeat");
@@ -1273,7 +1271,7 @@ export class DOMObserver {
       const mutation = mutationList[j];
       if (mutation.removedNodes.length > 0) {
         for (let i = 0; i < mutation.removedNodes.length; i++) {
-          let htmlNode = mutation.removedNodes[i].cloneNode() as HTMLElement;
+          const htmlNode = mutation.removedNodes[i].cloneNode() as HTMLElement;
           if (htmlNode.className === "game-log") {
             gameLogRemoved = true;
             break;
@@ -1282,7 +1280,7 @@ export class DOMObserver {
       }
       if (mutation.addedNodes.length > 0) {
         for (let i = 0; i < mutation.addedNodes.length; i++) {
-          let htmlNode = mutation.addedNodes[i].cloneNode() as HTMLElement;
+          const htmlNode = mutation.addedNodes[i].cloneNode() as HTMLElement;
           if (htmlNode.className === "game-log") {
             gameLogAdded = true;
             break;

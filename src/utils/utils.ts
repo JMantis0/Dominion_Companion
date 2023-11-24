@@ -53,7 +53,7 @@ const combineDeckListMapAndZoneListMap = (
   deckListMap: Map<string, number>,
   zoneListMap: Map<string, number>
 ): Map<string, CardCounts> => {
-  let newMap: Map<string, CardCounts> = new Map();
+  const newMap: Map<string, CardCounts> = new Map();
   // first create a list of all the cards that are in both maps...
   const cardList: string[] = Array.from(deckListMap.keys()).concat(
     Array.from(zoneListMap.keys())
@@ -85,14 +85,14 @@ const combineDeckListMapAndZoneListMap = (
  * @returns An empty split maps object
  */
 const createEmptySplitMapsObject = (): SplitMaps => {
-  let aMap: Map<string, CardCounts> = new Map();
-  let tMap: Map<string, CardCounts> = new Map();
-  let vMap: Map<string, CardCounts> = new Map();
-  let cMap: Map<string, CardCounts> = new Map();
+  const aMap: Map<string, CardCounts> = new Map();
+  const tMap: Map<string, CardCounts> = new Map();
+  const vMap: Map<string, CardCounts> = new Map();
+  const cMap: Map<string, CardCounts> = new Map();
   aMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
   tMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
   vMap.set("None", { zoneCount: 0, entireDeckCount: 0 });
-  let emptySplitMap: SplitMaps = {
+  const emptySplitMap: SplitMaps = {
     treasures: tMap,
     actions: aMap,
     victories: vMap,
@@ -210,7 +210,7 @@ const getCumulativeHyperGeometricProbabilityForCard = (
 ): { hyperGeo: number; cumulative: number } => {
   let probability: number = 0;
   let cumProb: number = 0;
-  let secondDrawPool: string[] =
+  const secondDrawPool: string[] =
     turn === "Current"
       ? deck.graveyard
       : deck.graveyard.concat(deck.hand, deck.inPlay, deck.setAside);
@@ -294,13 +294,14 @@ const getErrorMessage = (error: unknown) => {
  * @returns - A collection of all the div's in the log-scroll-container with the class 'log-line'
  */
 const getLogScrollContainerLogLines = (): HTMLCollectionOf<HTMLElement> => {
-  let scrollEl: Element;
-  let logLineCollection: HTMLCollectionOf<HTMLElement>;
-  scrollEl = document.getElementsByClassName("log-scroll-container")[0];
+  const scrollEl: Element = document.getElementsByClassName(
+    "log-scroll-container"
+  )[0];
   if (scrollEl === undefined) throw new Error("Element is undefined");
-  logLineCollection = scrollEl.getElementsByClassName(
-    "log-line"
-  ) as HTMLCollectionOf<HTMLElement>;
+  const logLineCollection: HTMLCollectionOf<HTMLElement> =
+    scrollEl.getElementsByClassName(
+      "log-line"
+    ) as HTMLCollectionOf<HTMLElement>;
   return logLineCollection;
 };
 
@@ -357,8 +358,7 @@ const getNonBaseCardsInKingdom = (kingdom: string[]): string[] => {
  * @returns - boolean.
  */
 const getPrimaryFrameStatus = (): boolean | undefined => {
-  let status: boolean | undefined;
-  status = document
+  const status: boolean | undefined = document
     .getElementById("primaryFrame")
     ?.classList.contains("hidden");
   return status;
@@ -698,7 +698,7 @@ const popupMessageListener = (
   sendResponse: (response?: { message: string }) => void
 ) => {
   sender;
-  let response: { message: string } = { message: "" };
+  const response: { message: string } = { message: "" };
   if (request.command === "appendDomRoot") {
     store.dispatch(setViewerHidden(false));
     response.message = "Successfully turned on.";
@@ -761,7 +761,7 @@ const product_Range = (a: number, b: number): number => {
   if (a > b) {
     throw Error("product_Range invalid parameters (a>b)");
   }
-  var prd = a,
+  let prd = a,
     i = a;
   while (i++ < b) {
     prd *= i;
@@ -857,7 +857,7 @@ const sortHistoryDeckView = (
           .sort((entryA, entryB) => {
             const cardA = entryA[0];
             const cardB = entryB[0];
-            let result: number = sortTwoCardsByName(cardA, cardB, sortType);
+            const result: number = sortTwoCardsByName(cardA, cardB, sortType);
             return result;
           })
           .forEach((entry) => {
@@ -872,7 +872,7 @@ const sortHistoryDeckView = (
           .sort((entryA, entryB) => {
             const cardATot = entryA[1].entireDeckCount;
             const cardBTot = entryB[1].entireDeckCount;
-            let result: number = sortTwoCardsByAmount(
+            const result: number = sortTwoCardsByAmount(
               cardATot,
               cardBTot,
               sortType
@@ -891,7 +891,7 @@ const sortHistoryDeckView = (
           .sort((entryA, entryB) => {
             const cardALibAmount = entryA[1].zoneCount;
             const cardBLibAmount = entryB[1].zoneCount;
-            let result = sortTwoCardsByAmount(
+            const result = sortTwoCardsByAmount(
               cardALibAmount,
               cardBLibAmount,
               sortType
@@ -1197,7 +1197,7 @@ const sortZoneView = (
           .sort((entryA, entryB) => {
             const cardA = entryA[0];
             const cardB = entryB[0];
-            let result: number = sortTwoCardsByName(cardA, cardB, sortType);
+            const result: number = sortTwoCardsByName(cardA, cardB, sortType);
             return result;
           })
           .forEach((entry) => {
@@ -1245,11 +1245,11 @@ const sortZoneView = (
 const splitCombinedMapsByCardTypes = (
   combinedMap: Map<string, CardCounts>
 ): SplitMaps => {
-  let tMap: Map<string, CardCounts> = new Map();
-  let aMap: Map<string, CardCounts> = new Map();
-  let vMap: Map<string, CardCounts> = new Map();
-  let cMap: Map<string, CardCounts> = new Map();
-  let splitMaps: SplitMaps = {
+  const tMap: Map<string, CardCounts> = new Map();
+  const aMap: Map<string, CardCounts> = new Map();
+  const vMap: Map<string, CardCounts> = new Map();
+  const cMap: Map<string, CardCounts> = new Map();
+  const splitMaps: SplitMaps = {
     treasures: tMap,
     actions: aMap,
     victories: vMap,
@@ -1300,7 +1300,7 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
  * @param cb - Callback function that takes the response from the extension content as an argument.
  * used by the popup in it's toggleState.
  */
-const useContentViewerStatus = (cb: Function) => {
+const useContentViewerStatus = (cb: (viewerState: "ON" | "OFF") => void) => {
   useEffect(() => {
     (async () => {
       let tab: chrome.tabs.Tab | undefined = undefined;
@@ -1347,7 +1347,7 @@ const useHeightDifferentBetweenContainerAndContainedElement = (
   innerElement: HTMLElement | HTMLDivElement | null,
   setHeightDifference: React.Dispatch<SetStateAction<number>>,
   containerHeight: number,
-  dependencies?: any[]
+  dependencies?: Array<number | string | boolean>
 ) => {
   // useMemo is preferred to useEffect here, no need to wait until the render has completed.
   useMemo(() => {
@@ -1560,28 +1560,35 @@ const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
   //TODO: instead of declaring minimized here, allow function to accept a dependency array
   const minimized = store.getState().content.minimized;
   useEffect(() => {
-    const currentHeight = targetElement
-      ?.getAttribute("style")
-      ?.match(/ height: \d+px; ?/);
     if (minimized) {
-      if (currentHeight !== null)
-        setPreMinimizedPrimaryFrameHeight(
-          targetElement?.getAttribute("style")?.match(/ height: \d+px; ?/)![0]!
-        );
-      targetElement?.setAttribute(
-        "style",
-        targetElement
-          .getAttribute("style")
-          ?.replace(/ height: \d+px; ?/, " height: 0px; ")!
-      );
+      if (targetElement !== null) {
+        const style = targetElement.getAttribute("style");
+        if (style !== null) {
+          const currentHeight = style.match(/ height: \d+px; ?/);
+          if (currentHeight !== null)
+            setPreMinimizedPrimaryFrameHeight(currentHeight[0]);
+          targetElement.setAttribute(
+            "style",
+            style.replace(/ height: \d+px; ?/, " height: 0px; ")!
+          );
+        }
+      }
     } else {
-      if (currentHeight !== null)
-        targetElement?.setAttribute(
-          "style",
-          targetElement
-            .getAttribute("style")
-            ?.replace(/ height: \d+px; ?/, preMinimizedPrimaryFrameHeight)!
-        );
+      if (targetElement !== null) {
+        const style = targetElement.getAttribute("style");
+        if (style !== null) {
+          const currentHeight = style.match(/ height: \d+px; ?/);
+          if (currentHeight !== null) {
+            targetElement.setAttribute(
+              "style",
+              style.replace(
+                / height: \d+px; ?/,
+                preMinimizedPrimaryFrameHeight
+              )!
+            );
+          }
+        }
+      }
     }
   }, [minimized]);
 };
@@ -1590,8 +1597,7 @@ const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
  * Custom react hook that handles a chrome message listener that listener.  Used by the PrimaryFrame component to listen for
  * messages from the Popup component that adds and removes the DomRoot from the client.
  */
-const usePopupChromeMessageListener = () => {
-  const hidden = store.getState().content.viewerHidden;
+const usePopupChromeMessageListener = (dependencies: Array<string | boolean | number> = []) => {
   useEffect(() => {
     if (chrome.runtime !== undefined)
       chrome.runtime.onMessage.addListener(popupMessageListener);
@@ -1599,7 +1605,7 @@ const usePopupChromeMessageListener = () => {
       if (chrome.runtime !== undefined)
         chrome.runtime.onMessage.removeListener(popupMessageListener);
     };
-  }, [hidden]);
+  }, dependencies);
 };
 
 export {

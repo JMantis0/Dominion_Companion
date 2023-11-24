@@ -193,6 +193,7 @@ describe("getResult", () => {
 
   it("should return the victor and defeated player names based on current VP", () => {
     // Arrange - Create sample decks with different current VP values
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decks = new Map<string, any>();
     decks.set("Player A", { currentVP: 10, gameTurn: 5 });
     decks.set("Player B", { currentVP: 15, gameTurn: 5 });
@@ -214,6 +215,7 @@ describe("getResult", () => {
 
   it("should return the victor and defeated player names based on game turn", () => {
     // Arrange - Create sample decks with different game turn values
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decks = new Map<string, any>();
     decks.set("Player A", { currentVP: 10, gameTurn: 6 });
     decks.set("Player B", { currentVP: 10, gameTurn: 5 });
@@ -233,8 +235,9 @@ describe("getResult", () => {
     expect(defeated).toBe("Player A");
   });
 
-  it('should return "None: tie" when the game is a tie', () => {
+  it("should return \"None: tie\" when the game is a tie", () => {
     // Arrange - Create sample decks with the same current VP and game turn values
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decks = new Map<string, any>();
     decks.set("Player A", { currentVP: 10, gameTurn: 5 });
     decks.set("Player B", { currentVP: 10, gameTurn: 5 });

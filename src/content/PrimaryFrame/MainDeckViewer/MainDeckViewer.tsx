@@ -49,8 +49,8 @@ const MainDeckViewer = () => {
 
   return (
     <div className="outer-shell">
-      <div className={`text-xs text-white pointer-events-none`}>
-        {pd.playerName}'s Deck: {pd.entireDeck.length} cards.
+      <div className={"text-xs text-white pointer-events-none"}>
+        {pd.playerName}&apos;s Deck: {pd.entireDeck.length} cards.
       </div>
       <div className="grid grid-cols-12">
         <div className={"col-span-10"}>
@@ -70,8 +70,8 @@ const MainDeckViewer = () => {
                 )}
                 color={getRowColor(card)}
                 cardName={card}
-                cardAmount={libraryMap.get(card)?.entireDeckCount!}
-                libraryAmount={libraryMap.get(card)?.zoneCount!}
+                cardAmount={libraryMap.get(card)!.entireDeckCount}
+                libraryAmount={libraryMap.get(card)!.zoneCount}
               />
             );
           })}

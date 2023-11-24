@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 
-const LogViewer: FunctionComponent = ({}) => {
+const LogViewer: FunctionComponent = () => {
   const logHtml = useSelector((state: RootState) => state.options.logHtml);
   const createMarkup = (html: string) => {
     const parsedHtml = html
@@ -21,7 +21,7 @@ const LogViewer: FunctionComponent = ({}) => {
 
   return (
     <div
-      className={`h-full text-white overflow-y-scroll`}
+      className={"h-full text-white overflow-y-scroll"}
       ref={logDiv}
       dangerouslySetInnerHTML={createMarkup(logHtml)}
     ></div>

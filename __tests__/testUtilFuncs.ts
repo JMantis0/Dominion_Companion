@@ -77,8 +77,8 @@ export const createRandomOpponentDeck = (): OpponentDeck => {
  * given member occurs in the array.
  */
 export const getAllIndices = (array: string[], member: string) => {
-  var indexes = [],
-    i = -1;
+  const indexes = [];
+  let i = -1;
   while ((i = array.indexOf(member, i + 1)) != -1) {
     indexes.push(i);
   }
@@ -147,10 +147,9 @@ export const createRandomKingdom = (): string[] => {
   // select ten cards at random from the kingdom pool
 
   for (let i = 0; i < 10; i++) {
-    let poolSize;
-    poolSize = kingdomPool.length;
-    let pickIdx = Math.floor(Math.random() * poolSize);
-    let pick = kingdomPool[pickIdx];
+    const poolSize = kingdomPool.length;
+    const pickIdx = Math.floor(Math.random() * poolSize);
+    const pick = kingdomPool[pickIdx];
     rKingdom.push(pick);
     kingdomPool.splice(pickIdx, 1);
   }

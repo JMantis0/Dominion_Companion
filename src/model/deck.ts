@@ -204,11 +204,11 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     if (vassalPlayInLogs) {
       // try {
-      let logScrollElement = getLogScrollContainerLogLines();
+      const logScrollElement = getLogScrollContainerLogLines();
       try {
         let currentLinePaddingNumber: number;
-        let currentLinePaddingPercentage: string;
-        currentLinePaddingPercentage = logScrollElement[len].style.paddingLeft;
+        const currentLinePaddingPercentage: string =
+          logScrollElement[len].style.paddingLeft;
         if (
           currentLinePaddingPercentage[
             currentLinePaddingPercentage.length - 1
@@ -225,8 +225,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Current line paddingLeft property does not end with %."
           );
         let previousLinePaddingNumber: number;
-        let previousLinePaddingPercentage: string;
-        previousLinePaddingPercentage =
+        const previousLinePaddingPercentage: string =
           logScrollElement[len - 1].style.paddingLeft;
         if (previousLinePaddingPercentage.slice(-1) === "%") {
           previousLinePaddingNumber = parseFloat(
@@ -259,7 +258,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           throw new Error(
             "CheckForVassalPlay error: Current line paddingLeft property does not end with %."
           );
-        let logScrollElementInnerText: string[] = [];
+        const logScrollElementInnerText: string[] = [];
         Array.from(logScrollElement).forEach((el) => {
           logScrollElementInnerText.push(el.innerText);
         });

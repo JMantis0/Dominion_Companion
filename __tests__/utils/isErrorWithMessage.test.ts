@@ -2,10 +2,10 @@ import { describe, it, expect } from "@jest/globals";
 import { isErrorWithMessage } from "../../src/utils/utils";
 import { ErrorWithMessage } from "../../src/utils";
 
-describe('isErrorWithMessage', () => {
-  it('should return true for an object with a "message" property', () => {
+describe("isErrorWithMessage", () => {
+  it("should return true for an object with a \"message\" property", () => {
     // Arrange - Create a sample error object with a "message" property
-    const errorObject = new Error('Sample error message');
+    const errorObject = new Error("Sample error message");
 
     // Act
     const result = isErrorWithMessage(errorObject);
@@ -14,9 +14,9 @@ describe('isErrorWithMessage', () => {
     expect(result).toBe(true);
   });
 
-  it('should return true for a custom error object with a "message" property', () => {
+  it("should return true for a custom error object with a \"message\" property", () => {
     // Arrange - Create a sample custom error object with a "message" property
-    const customErrorObject = { message: 'Custom error message' } as ErrorWithMessage;
+    const customErrorObject = { message: "Custom error message" } as ErrorWithMessage;
 
     // Act
     const result = isErrorWithMessage(customErrorObject);
@@ -25,9 +25,9 @@ describe('isErrorWithMessage', () => {
     expect(result).toBe(true);
   });
 
-  it('should return false for an object without a "message" property', () => {
+  it("should return false for an object without a \"message\" property", () => {
     // Arrange - Create a sample object without a "message" property
-    const objectWithoutMessage = { key: 'value' };
+    const objectWithoutMessage = { key: "value" };
 
     // Act
     const result = isErrorWithMessage(objectWithoutMessage);
@@ -36,9 +36,9 @@ describe('isErrorWithMessage', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false for a non-object value', () => {
+  it("should return false for a non-object value", () => {
     // Arrange - Create a non-object value (string)
-    const stringValue = 'This is not an error object';
+    const stringValue = "This is not an error object";
 
     // Act
     const result = isErrorWithMessage(stringValue);
@@ -47,7 +47,7 @@ describe('isErrorWithMessage', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false for null', () => {
+  it("should return false for null", () => {
     // Arrange - Create a null value
     const nullValue = null;
 
@@ -58,7 +58,7 @@ describe('isErrorWithMessage', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false for an object with a non-string "message" property', () => {
+  it("should return false for an object with a non-string \"message\" property", () => {
     // Arrange - Create an object with a non-string "message" property
     const errorObjectWithNonStringMessage = { message: 42 };
 

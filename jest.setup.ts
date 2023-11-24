@@ -1,2 +1,3 @@
-import '@testing-library/jest-dom/jest-globals'
-Object.assign(global, require("jest-chrome"));
+import "@testing-library/jest-dom/jest-globals";
+import * as jestChrome from "jest-chrome";
+Object.assign(global, jestChrome);
