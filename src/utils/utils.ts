@@ -770,6 +770,39 @@ const product_Range = (a: number, b: number): number => {
 };
 
 /**
+ * Attempts to send a request to the active tab and get the hidden status of the
+ * extension.   If a valid response is received, executes the callback with the
+ * appropriate on/off state.
+ * @param cb - The given callback (a state setter for the extension popup)
+ */
+const sendContentViewerStatusRequest = async (
+  cb: (viewerState: "ON" | "OFF") => void
+) => {
+  let tab: chrome.tabs.Tab | undefined = undefined;
+  try {
+    [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
+  } catch (e) {
+    console.error(getErrorMessage(e));
+    console.error(e);
+  }
+  if (tab !== undefined) {
+    const response = await chrome.tabs.sendMessage(tab.id!, {
+      command: "sendHiddenState",
+    });
+    if (response.message === "Hidden state is ON") {
+      cb("OFF");
+    } else if (response.message === "Hidden state is OFF") {
+      cb("ON");
+    } else {
+      console.error("There was an error");
+    }
+  }
+};
+
+/**
  * Used by the extension popup to send a request via chrome API to the content script
  * to 'turn off' the Companion (essentially unhide it), and uses the response object to
  * to set the popup state.
@@ -1299,33 +1332,7 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
  */
 const useContentViewerStatus = (cb: (viewerState: "ON" | "OFF") => void) => {
   useEffect(() => {
-    (async () => {
-      let tab: chrome.tabs.Tab | undefined = undefined;
-      try {
-        [tab] = await chrome.tabs.query({
-          active: true,
-          lastFocusedWindow: true,
-        });
-      } catch (e) {
-        console.warn("There was an error: ", e);
-      }
-      if (tab !== undefined) {
-        console.log(tab);
-        const response = await chrome.tabs.sendMessage(tab.id!, {
-          command: "sendHiddenState",
-        });
-        console.log("response from content", response);
-        if (response.message === "Hidden state is ON") {
-          cb("OFF");
-        } else if (response.message === "Hidden state is OFF") {
-          cb("ON");
-        } else {
-          console.log("There was an error");
-        }
-      } else {
-        console.log("Invalid tab selected");
-      }
-    })();
+    sendContentViewerStatusRequest(cb);
   }, []);
 };
 
@@ -1645,6 +1652,7 @@ export {
   popupMessageListener,
   primaryFrameResizableHandles,
   product_Range,
+  sendContentViewerStatusRequest,
   sendTurnOffRequest,
   sendTurnOnRequest,
   sortHistoryDeckView,
@@ -1663,5 +1671,4 @@ export {
   useJQueryResizable,
   usePopupChromeMessageListener,
   useMinimizer,
-  // useSaveGameBeforeUnloadListener,
 };

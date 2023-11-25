@@ -138,7 +138,7 @@ describe("getters", () => {
     d.store = storeMock;
     // Change the store state to verify the store getter is working.
     storeMock.dispatch(setError("MockError"));
-    expect(d.store).toStrictEqual(storeMock);
+    expect(d.getStore()).toStrictEqual(storeMock);
 
     // undoObserver field
     const nullCallback3 = () => {
