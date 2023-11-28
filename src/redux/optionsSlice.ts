@@ -12,7 +12,7 @@ import type {
 
 export interface OptionsState {
   playerDeck: StoreDeck;
-  opponentDeck: OpponentStoreDeck;
+  opponentDecks: OpponentStoreDeck[];
   sortButtonState: SortButtonState;
   savedGames: SavedGames;
   logHtml: string;
@@ -24,7 +24,7 @@ export interface OptionsState {
 
 export const initialState: OptionsState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
-  opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
+  opponentDecks: [JSON.parse(JSON.stringify(new EmptyOpponentDeck()))],
   sortButtonState: {
     category: "card",
     sort: "ascending",
@@ -44,8 +44,8 @@ export const optionsSlice = createSlice({
     setPlayerDeck: (state, action: PayloadAction<StoreDeck>) => {
       state.playerDeck = action.payload;
     },
-    setOpponentDeck: (state, action: PayloadAction<OpponentStoreDeck>) => {
-      state.opponentDeck = action.payload;
+    setOpponentDecks: (state, action: PayloadAction<OpponentStoreDeck[]>) => {
+      state.opponentDecks = action.payload;
     },
     setSavedGames: (state, action: PayloadAction<SavedGames>) => {
       console.log("Setting saved games");
@@ -71,7 +71,7 @@ export const optionsSlice = createSlice({
 
 export const {
   setPlayerDeck,
-  setOpponentDeck,
+  setOpponentDecks,
   setSavedGames,
   setLogHtml,
   setGameKeys,

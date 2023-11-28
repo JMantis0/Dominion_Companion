@@ -29,7 +29,7 @@ describe("usePopupChromeMessageListener", () => {
       "and remove the same onMessage listener when the hook unmounts",
     () => {
       // Arrange - mount the custom hook
-      const { unmount } = renderHook(usePopupChromeMessageListener);
+      const { unmount } = renderHook(() => usePopupChromeMessageListener());
 
       // Assert - Verify the listener was added, and not removed
       expect(mockChromeRuntimeOnMessageAddListener).toBeCalledTimes(1);

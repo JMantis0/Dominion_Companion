@@ -41,7 +41,7 @@ const useSaveGameBeforeUnloadListener = () => {
 };
 
 const PrimaryFrame = () => {
-  const od = useSelector((state: RootState) => state.content.opponentDeck);
+  const ods = useSelector((state: RootState) => state.content.opponentDecks);
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
   const hidden = useSelector((state: RootState) => state.content.viewerHidden);
@@ -117,7 +117,7 @@ const PrimaryFrame = () => {
                 />
                 <PrimaryFrameTab
                   title="Opponent"
-                  count={od.entireDeck.length}
+                  count={ods[0].entireDeck.length}
                   colSpan={6}
                   position="Top"
                 />

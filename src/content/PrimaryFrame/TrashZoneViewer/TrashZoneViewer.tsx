@@ -9,7 +9,7 @@ import ZoneViewer from "../ZoneViewer/ZoneViewer";
 
 const TrashZoneViewer = () => {
   const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const od = useSelector((state: RootState) => state.content.opponentDeck);
+  const ods = useSelector((state: RootState) => state.content.opponentDecks);
   const trashSortState = useSelector(
     (state: RootState) => state.content.trashSortState
   );
@@ -29,16 +29,22 @@ const TrashZoneViewer = () => {
         title={"Trash"}
         zone={pd.trash}
       />
-      <div className={"text-white pointer-events-none"}>
-        {od.playerName}&apos;s trash:
-      </div>
-      <ZoneViewer
-        deck={od}
-        sortButtonState={opponentTrashSortState}
-        sortDispatchFunc={setOpponentTrashSortState}
-        title={"Trash"}
-        zone={od.trash}
-      />
+      {ods.map((od, idx) => {
+        return (
+          <React.Fragment key={idx}>
+            <div className={"text-white pointer-events-none"}>
+              {od.playerName}&apos;s trash:
+            </div>
+            <ZoneViewer
+              deck={od}
+              sortButtonState={opponentTrashSortState}
+              sortDispatchFunc={setOpponentTrashSortState}
+              title={"Trash"}
+              zone={od.trash}
+            />
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };

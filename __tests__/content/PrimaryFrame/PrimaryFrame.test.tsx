@@ -6,15 +6,19 @@ import React from "react";
 import PrimaryFrame from "../../../src/content/PrimaryFrame/PrimaryFrame";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import { it, expect, describe, afterEach } from "@jest/globals";
-import { renderWithProviders, renderWithProvidersAndCSS } from "../assets/test-utils";
+import {
+  renderWithProviders,
+  renderWithProvidersAndCSS,
+} from "../assets/test-utils";
 import {
   setBaseOnly,
   setGameActiveStatus,
-  setOpponentDeck,
+  setOpponentDecks,
   setPlayerDeck,
 } from "../../../src/redux/contentSlice";
 import { Deck } from "../../../src/model/deck";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
+import { DOMObserver } from "../../../src/utils/DOMObserver";
 
 describe("PrimaryFrame", () => {
   afterEach(() => {
@@ -35,13 +39,13 @@ describe("PrimaryFrame", () => {
         )
       );
       store.dispatch(
-        setOpponentDeck(
+        setOpponentDecks([
           JSON.parse(
             JSON.stringify(
               new OpponentDeck("", false, "", "Opponent Name", "O", [])
             )
-          )
-        )
+          ),
+        ])
       );
     });
     const deckTab = screen.getByRole("button", { name: /Deck \d*/ });
@@ -274,18 +278,19 @@ describe("PrimaryFrame", () => {
     expect(trashViewer).not.toBeVisible();
   });
 
-  it("If non-base cards are detect, should display the div that non-base cards are not supported", () => {
+  it("If non-base cards are detected, should display a div with the card name text for each non-base card found", () => {
     // Arrange - Render the Primary frame with a provide, and get the store instance.
     const { store } = renderWithProviders(<PrimaryFrame />);
     act(() => {
       // Simulate a kingdom with non-base card
+      DOMObserver.setKingdom(["Vampire", "Fairy"]);
       store.dispatch(setBaseOnly(false));
       store.dispatch(setGameActiveStatus(true));
     });
-    const nonBaseDiv = screen.getByText(
-      "Only Base Set cards supported. Non-base cards detected in Kingdom"
-    );
-    //Verify the Non - Base kingdom div is displayed.
-    expect(nonBaseDiv).toBeInTheDocument();
+    const nonBaseDiv1 = screen.getByText("Vampire");
+    const nonBaseDiv2 = screen.getByText("Fairy");
+    //Verify that elements with the non-base card text are in the document..
+    expect(nonBaseDiv1).toBeInTheDocument();
+    expect(nonBaseDiv2).toBeInTheDocument();
   });
 });

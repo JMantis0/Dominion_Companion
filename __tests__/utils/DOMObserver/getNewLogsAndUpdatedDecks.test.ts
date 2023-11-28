@@ -31,7 +31,7 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     deckMap.set("pName", pDeck);
     deckMap.set("oName", oDeck);
     DOMObserver.playerName = "pName";
-    DOMObserver.opponentName = "oName";
+    DOMObserver.opponentNames = ["oName"];
     DOMObserver.decks = deckMap;
     jest.clearAllMocks();
   });
@@ -68,16 +68,16 @@ describe("Function getNewLogsAndUpdateDecks", () => {
     );
 
     // Act - Simulate getting new log entry within the log observer mutation callback and updating the decks.
-    const { playerStoreDeck, opponentStoreDeck } =
+    const { playerStoreDeck, opponentStoreDecks } =
       DOMObserver.getNewLogsAndUpdateDecks(gameLog);
 
     // Assert
     expect(playerStoreDeck).toStrictEqual(
       JSON.parse(JSON.stringify(expectedPlayerDeck))
     );
-    expect(opponentStoreDeck).toStrictEqual(
-      JSON.parse(JSON.stringify(expectedOpponentDeck))
-    );
+    expect(opponentStoreDecks).toStrictEqual([
+      JSON.parse(JSON.stringify(expectedOpponentDeck)),
+    ]);
   });
 
   it("should catch an error thrown by a deck's update method and call the DOMObserver errorHandler.", () => {

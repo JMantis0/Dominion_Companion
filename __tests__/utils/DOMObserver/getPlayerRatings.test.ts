@@ -9,8 +9,8 @@ describe("getPlayerRatings()", () => {
 
     // Act and Assert
     expect(
-      DOMObserver.getPlayerRatings("GoodBeard", "baysox109", gameLog)
-    ).toStrictEqual(["40.21", "43.61"]);
+      DOMObserver.getPlayerRatings("GoodBeard", ["baysox109"], gameLog)
+    ).toStrictEqual({ playerRating: "40.21", opponentRatings: ["43.61"] });
   });
 
   it("It should return two numbers, one rating for each player", () => {
@@ -19,8 +19,8 @@ describe("getPlayerRatings()", () => {
       "Game #118965591, rated.\nbaysox109: 43.61\nGoodBeard: 40.21";
     // Act and Assert
     expect(
-      DOMObserver.getPlayerRatings("GoodBeard", "baysox109", gameLog)
-    ).toStrictEqual(["40.21", "43.61"]);
+      DOMObserver.getPlayerRatings("GoodBeard", ["baysox109"], gameLog)
+    ).toStrictEqual({ playerRating: "40.21", opponentRatings: ["43.61"] });
   });
 
   it("should return player and opponent ratings", () => {
@@ -32,18 +32,18 @@ describe("getPlayerRatings()", () => {
       "Player B: Rating 1800\n" +
       "...\n";
     const playerName = "Player A";
-    const opponentName = "Player B";
+    const opponentNames = ["Player B"];
 
     // Act
-    const [playerRating, opponentRating] = DOMObserver.getPlayerRatings(
+    const { playerRating, opponentRatings } = DOMObserver.getPlayerRatings(
       playerName,
-      opponentName,
+      opponentNames,
       gameLog
     );
 
     // Assert
     expect(playerRating).toBe("1700");
-    expect(opponentRating).toBe("1800");
+    expect(opponentRatings).toStrictEqual(["1800"]);
   });
 
   it("should handle player names in reverse order", () => {
@@ -55,18 +55,18 @@ describe("getPlayerRatings()", () => {
       "Player A: Rating 1700\n" +
       "...\n";
     const playerName = "Player A";
-    const opponentName = "Player B";
+    const opponentNames = ["Player B"];
 
     // Act
-    const [playerRating, opponentRating] = DOMObserver.getPlayerRatings(
+    const { playerRating, opponentRatings } = DOMObserver.getPlayerRatings(
       playerName,
-      opponentName,
+      opponentNames,
       gameLog
     );
 
     // Assert
     expect(playerRating).toBe("1700");
-    expect(opponentRating).toBe("1800");
+    expect(opponentRatings).toStrictEqual(["1800"]);
   });
 
   it("should handle player ratings not found", () => {
@@ -78,17 +78,17 @@ describe("getPlayerRatings()", () => {
       "Player B starts with ...\n" +
       "...\n";
     const playerName = "Player A";
-    const opponentName = "Player B";
+    const opponentNames = ["Player B"];
 
     // Act
-    const [playerRating, opponentRating] = DOMObserver.getPlayerRatings(
+    const { playerRating, opponentRatings } = DOMObserver.getPlayerRatings(
       playerName,
-      opponentName,
+      opponentNames,
       gameLog
     );
 
     // Assert
     expect(playerRating).toBe("Rating Not Found");
-    expect(opponentRating).toBe("Rating Not Found");
+    expect(opponentRatings).toStrictEqual([]);
   });
 });

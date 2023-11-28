@@ -28,21 +28,23 @@ describe("Function dispatchUpdatedDecksToRedux()", () => {
         new Deck("", false, "", "pName", "pNick", ["Card1", "Card2"])
       )
     );
-    const opponentStoreDeck = JSON.parse(
-      JSON.stringify(
-        new OpponentDeck("", false, "", "oName", "oNick", ["Card1", "Card2"])
-      )
-    );
+    const opponentStoreDecks = [
+      JSON.parse(
+        JSON.stringify(
+          new OpponentDeck("", false, "", "oName", "oNick", ["Card1", "Card2"])
+        )
+      ),
+    ];
 
     // Act - simulate dispatching the actions with the provided decks.
-    DOMObserver.dispatchUpdatedDecksToRedux(playerStoreDeck, opponentStoreDeck);
+    DOMObserver.dispatchUpdatedDecksToRedux(playerStoreDeck, opponentStoreDecks);
 
     // Assert - Verify the redux state contains the new StoreDeck data.
     expect(storeMock.getState().content.playerDeck).toStrictEqual(
       playerStoreDeck
     );
-    expect(storeMock.getState().content.opponentDeck).toStrictEqual(
-      opponentStoreDeck
+    expect(storeMock.getState().content.opponentDecks).toStrictEqual(
+      opponentStoreDecks
     );
   });
 });

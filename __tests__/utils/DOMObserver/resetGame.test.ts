@@ -52,17 +52,35 @@ describe("resetGame", () => {
     DOMObserver.playerName = "Player Name";
     DOMObserver.playerNick = "P";
     DOMObserver.playerRating = "321";
-    DOMObserver.opponentName = "Opponent Name";
-    DOMObserver.opponentNick = "O";
-    DOMObserver.opponentRating = "123";
+    DOMObserver.opponentNames = ["Opponent Name1", "Opponent Name2"];
+    DOMObserver.opponentNicks = ["O1", "O2"];
+    DOMObserver.opponentRatings = ["O1Rating", "O2Rating"];
     DOMObserver.decks = new Map([
       [
         DOMObserver.playerName,
         new Deck("Title", false, "321", DOMObserver.playerName, "P", []),
       ],
       [
-        DOMObserver.opponentName,
-        new OpponentDeck("", false, "123", DOMObserver.opponentName, "O", []),
+        DOMObserver.opponentNames[0],
+        new OpponentDeck(
+          "",
+          false,
+          DOMObserver.opponentRatings[0],
+          DOMObserver.opponentNames[0],
+          DOMObserver.opponentNicks[0],
+          []
+        ),
+      ],
+      [
+        DOMObserver.opponentNames[1],
+        new OpponentDeck(
+          "",
+          false,
+          DOMObserver.opponentRatings[1],
+          DOMObserver.opponentNames[1],
+          DOMObserver.opponentNicks[1],
+          []
+        ),
       ],
     ]);
     DOMObserver.kingdom = ["Card1", "Card2"];
@@ -82,37 +100,42 @@ describe("resetGame", () => {
     jest.clearAllMocks();
   });
 
-  it("should set the 'initialized' fields to false, assign empty strings to the logsProcessed, gameLog, playerName, and opponentName fields, assign a new Map to the decks field, set the kingdom to an empty array, set baseOnly to true, dispatch the setBaseOnly ActionCreator with payload of true, and disconnect the any mutation observers", () => {
-    // Arrangement takes place in the above beforeEach clause.
-    // Act - Simulate reset the game when no MutationObservers are assigned.
-    DOMObserver.resetGame();
+  it(
+    "should set the 'initialized' fields to false, assign empty strings to the logsProcessed, gameLog, playerName, and opponentName fields, " +
+      "assign a new Map to the decks field, set the kingdom to an empty array, set baseOnly to true, dispatch the setBaseOnly ActionCreator with " +
+      "payload of true, and disconnect the any mutation observers",
+    () => {
+      // Arrangement takes place in the above beforeEach clause.
+      // Act - Simulate reset the game when no MutationObservers are assigned.
+      DOMObserver.resetGame();
 
-    // Assert
-    expect(DOMObserver.playersInitialized).toBe(false);
-    expect(DOMObserver.logInitialized).toBe(false);
-    expect(DOMObserver.kingdomInitialized).toBe(false);
-    expect(DOMObserver.decksInitialized).toBe(false);
-    expect(DOMObserver.logsProcessed).toBe("");
-    expect(DOMObserver.gameLog).toBe("");
-    expect(DOMObserver.playerName).toBe("");
-    expect(DOMObserver.playerNick).toBe("");
-    expect(DOMObserver.playerRating).toBe("");
-    expect(DOMObserver.opponentName).toBe("");
-    expect(DOMObserver.opponentNick).toBe("");
-    expect(DOMObserver.opponentRating).toBe("");
-    expect(DOMObserver.decks).toStrictEqual(
-      new Map([
-        ["", new Deck("", false, "", "", "", [])],
-        ["", new OpponentDeck("", false, "", "", "", [])],
-      ])
-    );
-    expect(DOMObserver.kingdom).toStrictEqual([]);
-    expect(DOMObserver.baseOnly).toBe(true);
-    expect(storeMock.getState().content.baseOnly).toBe(true);
-    expect(storeMock.getState().content.error).toBe(null);
-    expect(DOMObserver.gameLogObserver).toBe(undefined);
-    expect(DOMObserver.gameEndObserver).toBe(undefined);
-    expect(DOMObserver.undoObserver).toBe(undefined);
-    expect(observerDisconnect).toBeCalledTimes(3);
-  });
+      // Assert
+      expect(DOMObserver.playersInitialized).toBe(false);
+      expect(DOMObserver.logInitialized).toBe(false);
+      expect(DOMObserver.kingdomInitialized).toBe(false);
+      expect(DOMObserver.decksInitialized).toBe(false);
+      expect(DOMObserver.logsProcessed).toBe("");
+      expect(DOMObserver.gameLog).toBe("");
+      expect(DOMObserver.playerName).toBe("");
+      expect(DOMObserver.playerNick).toBe("");
+      expect(DOMObserver.playerRating).toBe("");
+      expect(DOMObserver.opponentNames).toStrictEqual([]);
+      expect(DOMObserver.opponentNicks).toStrictEqual([]);
+      expect(DOMObserver.opponentRatings).toStrictEqual([]);
+      expect(DOMObserver.decks).toStrictEqual(
+        new Map([
+          ["", new Deck("", false, "", "", "", [])],
+          ["", new OpponentDeck("", false, "", "", "", [])],
+        ])
+      );
+      expect(DOMObserver.kingdom).toStrictEqual([]);
+      expect(DOMObserver.baseOnly).toBe(true);
+      expect(storeMock.getState().content.baseOnly).toBe(true);
+      expect(storeMock.getState().content.error).toBe(null);
+      expect(DOMObserver.gameLogObserver).toBe(undefined);
+      expect(DOMObserver.gameEndObserver).toBe(undefined);
+      expect(DOMObserver.undoObserver).toBe(undefined);
+      expect(observerDisconnect).toBeCalledTimes(3);
+    }
+  );
 });

@@ -49,7 +49,15 @@ interface ErrorWithMessage extends Error {
 /**
  * Custom type for deck field gameResult.
  */
-type GameResult = "Victory" | "Defeat" | "Tie" | "Unfinished";
+type GameResult =
+  | "Victory"
+  | "Defeat"
+  | "Tie"
+  | "Unfinished"
+  | "2nd Place"
+  | "3rd Place"
+  | "4th Place"
+  | "5th Place";
 
 /**
  * Type used to stringify and store in Chrome Local Storage
@@ -98,7 +106,7 @@ type PrimaryFrameTabType = "Deck" | "Discard" | "Trash" | "Opponent";
 interface SavedGame {
   logArchive: string;
   playerDeck: StoreDeck;
-  opponentDeck: OpponentStoreDeck;
+  opponentDecks: OpponentStoreDeck[];
   dateTime: string;
   logHtml: string;
 }

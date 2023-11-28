@@ -28,11 +28,13 @@ module.exports = {
   plugins: ["@typescript-eslint", "react"],
   ignorePatterns: ["**/dist/**/*", "**/coverage/**/*"],
   rules: {
-    indent: ["error", 2, { SwitchCase: 1 }],
-    "linebreak-style": ["error", "unix"],
+    "@typescript-eslint/no-unused-vars": "warn",
+    "no-unused-vars": "off",
+    indent: ["warn", 2, { SwitchCase: 1 }],
+    "linebreak-style": ["error", "windows"],
     quotes: ["error", "double"],
     semi: ["error", "always"],
-    "no-trailing-spaces": "error",
+    "no-trailing-spaces": "warn",
   },
   settings: {
     react: {

@@ -6,7 +6,7 @@ import { DOMObserver } from "../../../src/utils/DOMObserver";
 import contentSlice, {
   setBaseOnly,
   setError,
-  setOpponentDeck,
+  setOpponentDecks,
   setPlayerDeck,
 } from "../../../src/redux/contentSlice";
 import { DOMStore } from "../../../src/utils";
@@ -75,17 +75,24 @@ describe("initIntervalCallback", () => {
     DOMObserver.playerName = "Player Name";
     DOMObserver.playerNick = "P";
     DOMObserver.playerRating = "321";
-    DOMObserver.opponentName = "Opponent Name";
-    DOMObserver.opponentNick = "O";
-    DOMObserver.opponentRating = "123";
+    DOMObserver.opponentNames = ["Opponent Name"];
+    DOMObserver.opponentNicks = ["O"];
+    DOMObserver.opponentRatings = ["123"];
     DOMObserver.decks = new Map([
       [
         DOMObserver.playerName,
         new Deck("Title", false, "321", DOMObserver.playerName, "P", []),
       ],
       [
-        DOMObserver.opponentName,
-        new OpponentDeck("", false, "123", DOMObserver.opponentName, "O", []),
+        DOMObserver.opponentNames[0],
+        new OpponentDeck(
+          "",
+          false,
+          "123",
+          DOMObserver.opponentNames[0],
+          "O",
+          []
+        ),
       ],
     ]);
     DOMObserver.kingdom = ["Card1", "Card2"];
@@ -105,11 +112,11 @@ describe("initIntervalCallback", () => {
       )
     );
     storeMock.dispatch(
-      setOpponentDeck(
+      setOpponentDecks([
         JSON.parse(
-          JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
-        )
-      )
+          JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentNames[0]))
+        ),
+      ])
     );
     storeMock.dispatch(setBaseOnly(false));
     storeMock.dispatch(setError("MockError"));
@@ -248,11 +255,11 @@ describe("initIntervalCallback", () => {
     expect(DOMObserver.ratedGame).toBe(true);
     expect(DOMObserver.logInitialized).toBe(true);
     expect(DOMObserver.playerName).toBe("Player");
-    expect(DOMObserver.opponentName).toBe("Opponent");
+    expect(DOMObserver.opponentNames).toStrictEqual(["Opponent"]);
     expect(DOMObserver.playerNick).toBe("P");
-    expect(DOMObserver.opponentNick).toBe("O");
+    expect(DOMObserver.opponentNicks).toStrictEqual(["O"]);
     expect(DOMObserver.playerRating).toBe("123.45");
-    expect(DOMObserver.opponentRating).toBe("543.21");
+    expect(DOMObserver.opponentRatings).toStrictEqual(["543.21"]);
     expect(DOMObserver.playersInitialized).toBe(true);
     expect(DOMObserver.kingdom).toStrictEqual([
       "Vassal",
@@ -292,9 +299,9 @@ describe("initIntervalCallback", () => {
     expect(DOMObserver.store.getState().content.playerDeck).toStrictEqual(
       JSON.parse(JSON.stringify(expectedDeck))
     );
-    expect(DOMObserver.store.getState().content.opponentDeck).toStrictEqual(
-      JSON.parse(JSON.stringify(expectedOpponentDeck))
-    );
+    expect(DOMObserver.store.getState().content.opponentDecks).toStrictEqual([
+      JSON.parse(JSON.stringify(expectedOpponentDeck)),
+    ]);
     expect(DOMObserver.decks).toStrictEqual(expectedDeckMap);
     expect(DOMObserver.logsProcessed).toBe(
       "Game #133465515, rated.\nPlayer: 123.45\nOpponent: 543.21\n\nCard Pool: level 1\nP starts with 7 Coppers.\nP starts with 3 Estates.\nO starts with 7 Coppers.\nO starts with 3 Estates."
@@ -426,11 +433,11 @@ describe("initIntervalCallback", () => {
     expect(DOMObserver.ratedGame).toBe(true);
     expect(DOMObserver.logInitialized).toBe(true);
     expect(DOMObserver.playerName).toBe("Player");
-    expect(DOMObserver.opponentName).toBe("Opponent");
+    expect(DOMObserver.opponentNames).toStrictEqual(["Opponent"]);
     expect(DOMObserver.playerNick).toBe("P");
-    expect(DOMObserver.opponentNick).toBe("O");
+    expect(DOMObserver.opponentNicks).toStrictEqual(["O"]);
     expect(DOMObserver.playerRating).toBe("123.45");
-    expect(DOMObserver.opponentRating).toBe("543.21");
+    expect(DOMObserver.opponentRatings).toStrictEqual(["543.21"]);
     expect(DOMObserver.playersInitialized).toBe(true);
     expect(DOMObserver.kingdom).toStrictEqual([
       "Vampire",
@@ -459,9 +466,9 @@ describe("initIntervalCallback", () => {
     expect(DOMObserver.store.getState().content.playerDeck).toStrictEqual(
       JSON.parse(JSON.stringify(new EmptyDeck()))
     );
-    expect(DOMObserver.store.getState().content.opponentDeck).toStrictEqual(
-      JSON.parse(JSON.stringify(new EmptyOpponentDeck()))
-    );
+    expect(DOMObserver.store.getState().content.opponentDecks).toStrictEqual([
+      JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
+    ]);
     expect(DOMObserver.decks).toStrictEqual(expectedDeckMap);
     expect(DOMObserver.logsProcessed).toBe("");
     expect(saveGameData).not.toBeCalled();

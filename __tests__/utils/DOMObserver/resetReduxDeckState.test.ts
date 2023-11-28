@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
 import contentSlice, {
-  setOpponentDeck,
+  setOpponentDecks,
   setPlayerDeck,
 } from "../../../src/redux/contentSlice";
 import { EmptyOpponentDeck } from "../../../src/model/emptyOpponentDeck";
@@ -38,14 +38,14 @@ describe("resetReduxDeckState", () => {
       )
     );
     storeMock.dispatch(
-      setOpponentDeck(
-        JSON.parse(
+      setOpponentDecks(
+        [JSON.parse(
           JSON.stringify(
             new OpponentDeck("Title", true, "Rating", "Opponent Name", "n", [
               "Card1",
             ])
           )
-        )
+        )]
       )
     );
   });
@@ -57,8 +57,8 @@ describe("resetReduxDeckState", () => {
     expect(store.getState().content.playerDeck).toStrictEqual(
       JSON.parse(JSON.stringify(new EmptyDeck()))
     );
-    expect(store.getState().content.opponentDeck).toStrictEqual(
-      JSON.parse(JSON.stringify(new EmptyOpponentDeck()))
+    expect(store.getState().content.opponentDecks).toStrictEqual(
+      [JSON.parse(JSON.stringify(new EmptyOpponentDeck()))]
     );
   });
 });

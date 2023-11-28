@@ -722,22 +722,22 @@ const popupMessageListener = (
  */
 const primaryFrameResizableHandles = (): OptionalHandles => {
   const primaryFrameResizableHandle = document.createElement("div");
-  primaryFrameResizableHandle?.setAttribute(
+  primaryFrameResizableHandle.setAttribute(
     "id",
     "primary-frame-resizable-handle"
   );
   // Configure style to pull icon inward away from the frame border.
-  primaryFrameResizableHandle?.setAttribute(
+  primaryFrameResizableHandle.setAttribute(
     "style",
     "bottom: 8px; right: 8px; z-index:90;"
   );
-  primaryFrameResizableHandle?.setAttribute(
+  primaryFrameResizableHandle.setAttribute(
     "class",
     "ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se"
   );
   // Configure the style attribute to link handle to the Resizable icon resource.
   if (chrome.runtime !== null && chrome.runtime !== undefined) {
-    const handleStyle = primaryFrameResizableHandle?.getAttribute("style");
+    const handleStyle = primaryFrameResizableHandle.getAttribute("style");
     primaryFrameResizableHandle!.setAttribute(
       "style",
       handleStyle +
@@ -770,36 +770,67 @@ const product_Range = (a: number, b: number): number => {
 };
 
 /**
+ * Attempts to send a request to the active tab and get the hidden status of the
+ * extension.   If a valid response is received, executes the callback with the
+ * appropriate on/off state.
+ * @param cb - The given callback (a state setter for the extension popup)
+ */
+const sendContentViewerStatusRequest = async (
+  cb: (viewerState: "ON" | "OFF") => void
+) => {
+  let tab: chrome.tabs.Tab | undefined = undefined;
+  try {
+    [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
+  } catch (e) {
+    console.error(getErrorMessage(e));
+    console.error(e);
+  }
+  if (tab !== undefined) {
+    const response = await chrome.tabs.sendMessage(tab.id!, {
+      command: "sendHiddenState",
+    });
+    if (response.message === "Hidden state is ON") {
+      cb("OFF");
+    } else if (response.message === "Hidden state is OFF") {
+      cb("ON");
+    } else {
+      console.error("There was an error");
+    }
+  }
+};
+
+/**
  * Used by the extension popup to send a request via chrome API to the content script
  * to 'turn off' the Companion (essentially unhide it), and uses the response object to
  * to set the popup state.
  * @param setToggleState - the state setter for the popup.
  */
-const sendTurnOnRequest = (
+const sendTurnOnRequest = async (
   setToggleState: React.Dispatch<SetStateAction<"ON" | "OFF">>
 ) => {
-  // Append the domRoot to client
-  (async () => {
-    let tab: chrome.tabs.Tab | undefined = undefined;
-    try {
-      [tab] = await chrome.tabs.query({
-        active: true,
-        lastFocusedWindow: true,
-      });
-    } catch (e) {
-      console.error("There was an error in sendTurnOnRequest: ", e);
+  let tab: chrome.tabs.Tab | undefined = undefined;
+  try {
+    [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
+  } catch (e) {
+    console.error(getErrorMessage(e));
+    console.error(e);
+  }
+  if (tab !== undefined) {
+    const response = await chrome.tabs.sendMessage(tab.id!, {
+      command: "appendDomRoot",
+    });
+    if (response.message === "Successfully turned on.") {
+      setToggleState("ON");
+    } else {
+      console.error("Invalid response message:", response.message);
     }
-    if (tab !== undefined) {
-      const response = await chrome.tabs.sendMessage(tab.id!, {
-        command: "appendDomRoot",
-      });
-      if (response.message === "Successfully turned on.") {
-        setToggleState("ON");
-      } else {
-        console.log("There was an error");
-      }
-    }
-  })();
+  }
 };
 
 /**
@@ -808,31 +839,30 @@ const sendTurnOnRequest = (
  * to set the popup state.
  * @param setToggleState - the state setter for the popup.
  */
-const sendTurnOffRequest = (
+const sendTurnOffRequest = async (
   setToggleState: React.Dispatch<SetStateAction<"ON" | "OFF">>
 ) => {
   // Remove domRoot from client
-  (async () => {
-    let tab: chrome.tabs.Tab | undefined = undefined;
-    try {
-      [tab] = await chrome.tabs.query({
-        active: true,
-        lastFocusedWindow: true,
-      });
-    } catch (e) {
-      console.error("There was an error in sendTurnOffRequest: ", e);
+  let tab: chrome.tabs.Tab | undefined = undefined;
+  try {
+    [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
+  } catch (e) {
+    console.error(getErrorMessage(e));
+    console.error(e);
+  }
+  if (tab !== undefined) {
+    const response = await chrome.tabs.sendMessage(tab.id!, {
+      command: "removeDomRoot",
+    });
+    if (response.message === "Successfully turned off.") {
+      setToggleState("OFF");
+    } else {
+      console.error("Invalid response message:", response.message);
     }
-    if (tab !== undefined) {
-      const response = await chrome.tabs.sendMessage(tab.id!, {
-        command: "removeDomRoot",
-      });
-      if (response.message === "Successfully turned off.") {
-        setToggleState("OFF");
-      } else {
-        console.log("There was an error");
-      }
-    }
-  })();
+  }
 };
 
 /**
@@ -1302,33 +1332,7 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
  */
 const useContentViewerStatus = (cb: (viewerState: "ON" | "OFF") => void) => {
   useEffect(() => {
-    (async () => {
-      let tab: chrome.tabs.Tab | undefined = undefined;
-      try {
-        [tab] = await chrome.tabs.query({
-          active: true,
-          lastFocusedWindow: true,
-        });
-      } catch (e) {
-        console.warn("There was an error: ", e);
-      }
-      if (tab !== undefined) {
-        console.log(tab);
-        const response = await chrome.tabs.sendMessage(tab.id!, {
-          command: "sendHiddenState",
-        });
-        console.log("response from content", response);
-        if (response.message === "Hidden state is ON") {
-          cb("OFF");
-        } else if (response.message === "Hidden state is OFF") {
-          cb("ON");
-        } else {
-          console.log("There was an error");
-        }
-      } else {
-        console.log("Invalid tab selected");
-      }
-    })();
+    sendContentViewerStatusRequest(cb);
   }, []);
 };
 
@@ -1498,6 +1502,14 @@ const useJQueryResizable = (
   //TODO: instead of declaring minimized here, allow function to accept a dependency array
   const minimized = store.getState().content.minimized;
   useEffect(() => {
+    let targetIsResizable: object | undefined = undefined;
+    try {
+      if (targetElement)
+        targetIsResizable = $(targetElement).resizable("instance");
+    } catch (e) {
+      console.error(getErrorMessage(e));
+      console.error(e);
+    }
     // Only execute if...
     if (
       // ...targetElement is truthy,...
@@ -1505,7 +1517,7 @@ const useJQueryResizable = (
       // ...minimized is false,...
       !minimized &&
       // ... and the targetElement is not currently resizable.
-      $(targetElement).resizable("instance") === undefined
+      targetIsResizable === undefined
     ) {
       try {
         let options = DEFAULT_OPTIONS;
@@ -1597,7 +1609,9 @@ const useMinimizer = (targetElement: HTMLDivElement | HTMLElement | null) => {
  * Custom react hook that handles a chrome message listener that listener.  Used by the PrimaryFrame component to listen for
  * messages from the Popup component that adds and removes the DomRoot from the client.
  */
-const usePopupChromeMessageListener = (dependencies: Array<string | boolean | number> = []) => {
+const usePopupChromeMessageListener = (
+  dependencies: Array<string | boolean | number> = []
+) => {
   useEffect(() => {
     if (chrome.runtime !== undefined)
       chrome.runtime.onMessage.addListener(popupMessageListener);
@@ -1638,6 +1652,7 @@ export {
   popupMessageListener,
   primaryFrameResizableHandles,
   product_Range,
+  sendContentViewerStatusRequest,
   sendTurnOffRequest,
   sendTurnOnRequest,
   sortHistoryDeckView,
@@ -1656,5 +1671,4 @@ export {
   useJQueryResizable,
   usePopupChromeMessageListener,
   useMinimizer,
-  // useSaveGameBeforeUnloadListener,
 };

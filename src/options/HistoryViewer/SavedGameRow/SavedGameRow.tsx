@@ -5,7 +5,7 @@ import {
   setGameKeys,
   setLogHtml,
   setModalSwitch,
-  setOpponentDeck,
+  setOpponentDecks,
   setPlayerDeck,
   setSelectedRecord,
 } from "../../../redux/optionsSlice";
@@ -39,8 +39,7 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
     dispatch(setSelectedRecord(idx));
     dispatch(setLogHtml(html));
     dispatch(setPlayerDeck(savedGame.playerDeck));
-    dispatch(setOpponentDeck(savedGame.opponentDeck));
-    dispatch(setOpponentDeck(savedGame.opponentDeck));
+    dispatch(setOpponentDecks(savedGame.opponentDecks));
     dispatch(setGameDateTitle(savedGame.dateTime));
     dispatch(setModalSwitch(true));
   };
@@ -81,11 +80,16 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
           {savedGame.playerDeck.rating} <br></br> Final VP:{" "}
           {savedGame.playerDeck.currentVP}
         </div>
-        <div className={"col-span-2 text-xs text-inherit"}>
-          {savedGame.opponentDeck.playerName} <br></br>Rating:{" "}
-          {savedGame.opponentDeck.rating}
-          <br></br>Final VP: {savedGame.opponentDeck.currentVP}
-        </div>
+        {savedGame.opponentDecks.map((opponentDeck, idx) => {
+          return (
+            <React.Fragment key={idx}>
+              <div className={"col-span-2 text-xs text-inherit"}>
+                {opponentDeck.playerName} <br></br>Rating: {opponentDeck.rating}
+                <br></br>Final VP: {opponentDeck.currentVP}
+              </div>
+            </React.Fragment>
+          );
+        })}
         <div className={"col-span-1 text-xs text-inherit"}>
           {savedGame.playerDeck.gameResult}
         </div>
