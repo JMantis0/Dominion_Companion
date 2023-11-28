@@ -94,16 +94,16 @@ describe("getters", () => {
     expect(d.getLogsProcessed()).toBe("Log1\nLog2\nLog3\nLog4");
 
     // opponentName field
-    d.opponentName = "Peter Piper";
-    expect(d.getOpponentName()).toBe("Peter Piper");
+    d.opponentNames = ["Peter Piper"];
+    expect(d.getOpponentNames()).toStrictEqual(["Peter Piper"]);
 
     // opponentNick field
-    d.opponentNick = "Op";
-    expect(d.getOpponentNick()).toBe("Op");
+    d.opponentNicks = ["Op"];
+    expect(d.getOpponentNicks()).toStrictEqual(["Op"]);
 
     // opponentRating field
-    d.opponentRating = "12345";
-    expect(d.getOpponentRating()).toBe("12345");
+    d.opponentRatings = ["12345"];
+    expect(d.getOpponentRatings()).toStrictEqual(["12345"]);
 
     // playersInitialized field
     d.playersInitialized = true;

@@ -13,7 +13,7 @@ import type {
 
 export interface ContentState {
   playerDeck: StoreDeck;
-  opponentDeck: OpponentStoreDeck;
+  opponentDecks: OpponentStoreDeck[];
   sortButtonState: SortButtonState;
   discardSortState: SortButtonState;
   opponentSortState: SortButtonState;
@@ -39,7 +39,7 @@ export interface ContentState {
 
 export const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
-  opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
+  opponentDecks: [JSON.parse(JSON.stringify(new EmptyOpponentDeck()))],
   sortButtonState: {
     category: "probability",
     sort: "ascending",
@@ -78,7 +78,7 @@ export const initialState: ContentState = {
     none: {
       logArchive: "none",
       playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
-      opponentDeck: JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
+      opponentDecks: [JSON.parse(JSON.stringify(new EmptyOpponentDeck()))],
       dateTime: "none",
       logHtml: "none",
     },
@@ -102,8 +102,8 @@ export const contentSlice = createSlice({
     setPlayerDeck: (state, action: PayloadAction<StoreDeck>) => {
       state.playerDeck = action.payload;
     },
-    setOpponentDeck: (state, action: PayloadAction<OpponentStoreDeck>) => {
-      state.opponentDeck = action.payload;
+    setOpponentDecks: (state, action: PayloadAction<OpponentStoreDeck[]>) => {
+      state.opponentDecks = action.payload;
     },
     setSortedButtonsState: (state, action: PayloadAction<SortButtonState>) => {
       state.sortButtonState = action.payload;
@@ -182,7 +182,7 @@ export const contentSlice = createSlice({
 
 export const {
   setPlayerDeck,
-  setOpponentDeck,
+  setOpponentDecks,
   setSortedButtonsState,
   setViewerHidden,
   setDiscardSortState,
@@ -197,12 +197,11 @@ export const {
   setPrimaryFrameTab,
   setPinnedPrimaryFrameTab,
   setBaseOnly,
-  setTurnToggleButton,
+  setPinnedTopCardsLookAmount,
   setPinnedTurnToggleButton,
   setTopCardsLookAmount,
-  setPinnedTopCardsLookAmount,
-
   setSelectScrollPosition,
+  setTurnToggleButton,
   setError,
   setMinimized,
 } = contentSlice.actions;

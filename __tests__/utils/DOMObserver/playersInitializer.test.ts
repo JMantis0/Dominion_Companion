@@ -38,12 +38,12 @@ describe("playersInitializer, should check if the player-info-element are presen
     // Act - Simulate calling the playersInitializer.
     DOMObserver.playersInitializer();
     expect(DOMObserver.playerName).toBe("Player Name");
-    expect(DOMObserver.opponentName).toBe("Opponent Name");
+    expect(DOMObserver.opponentNames).toStrictEqual(["Opponent Name"]);
     expect(DOMObserver.playerRating).toBe("123.45");
-    expect(DOMObserver.opponentRating).toBe("543.21");
+    expect(DOMObserver.opponentRatings).toStrictEqual(["543.21"]);
     expect(DOMObserver.playerNick).toBe("P");
-    expect(DOMObserver.opponentNick).toBe("O");
-    expect(DOMObserver.playersInitialized).toBe(true);
+    expect(DOMObserver.opponentNicks).toStrictEqual(["O"]);
+    expect(DOMObserver.playersInitialized).toStrictEqual(true);
   });
 
   it("if present and game is not rated it should initialize the player related fields, but not the ratings.", () => {
@@ -68,11 +68,11 @@ describe("playersInitializer, should check if the player-info-element are presen
     // Act - Simulate calling the playersInitializer.
     DOMObserver.playersInitializer();
     expect(DOMObserver.playerName).toBe("Player Name");
-    expect(DOMObserver.opponentName).toBe("Opponent Name");
+    expect(DOMObserver.opponentNames).toStrictEqual(["Opponent Name"]);
     expect(DOMObserver.playerRating).toBe("");
-    expect(DOMObserver.opponentRating).toBe("");
+    expect(DOMObserver.opponentRatings).toStrictEqual([]);
     expect(DOMObserver.playerNick).toBe("P");
-    expect(DOMObserver.opponentNick).toBe("O");
+    expect(DOMObserver.opponentNicks).toStrictEqual(["O"]);
     expect(DOMObserver.playersInitialized).toBe(true);
   });
 
@@ -85,11 +85,11 @@ describe("playersInitializer, should check if the player-info-element are presen
 
     // Assert
     expect(DOMObserver.playerName).toBe("");
-    expect(DOMObserver.opponentName).toBe("");
+    expect(DOMObserver.opponentNames).toStrictEqual([]);
     expect(DOMObserver.playerRating).toBe("");
-    expect(DOMObserver.opponentRating).toBe("");
+    expect(DOMObserver.opponentRatings).toStrictEqual([]);
     expect(DOMObserver.playerNick).toBe("");
-    expect(DOMObserver.opponentNick).toBe("");
+    expect(DOMObserver.opponentNicks).toStrictEqual([]);
     expect(DOMObserver.playersInitialized).toBe(false);
   });
 });

@@ -30,7 +30,7 @@ describe("logObserverFunc", () => {
       ["oName", new OpponentDeck("", false, "", "oName", "o", ["Copper"])],
     ]);
     DOMObserver.playerName = "pName";
-    DOMObserver.opponentName = "oName";
+    DOMObserver.opponentNames = ["oName"];
     storeMock = configureStore({
       reducer: { content: contentSlice, options: optionsSlice },
       middleware: [],
@@ -93,9 +93,9 @@ describe("logObserverFunc", () => {
     expect(storeMock.getState().content.playerDeck).toStrictEqual(
       JSON.parse(JSON.stringify(expectedDeck))
     );
-    expect(storeMock.getState().content.opponentDeck).toStrictEqual(
-      JSON.parse(JSON.stringify(expectedOpponentDeck))
-    );
+    expect(storeMock.getState().content.opponentDecks).toStrictEqual([
+      JSON.parse(JSON.stringify(expectedOpponentDeck)),
+    ]);
     // Verify the logsProcessed field was updated correctly.
     expect(DOMObserver.logsProcessed).toBe(
       "Log1\no buys and gains a Copper.\nLog3\np buys and gains a Copper."

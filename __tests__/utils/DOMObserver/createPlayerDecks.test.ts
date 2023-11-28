@@ -12,9 +12,9 @@ describe("createPlayerDecks", () => {
     DOMObserver.playerRating = "1000";
     DOMObserver.playerName = "pName";
     DOMObserver.playerNick = "pNick";
-    DOMObserver.opponentName = "oName";
-    DOMObserver.opponentNick = "oNick";
-    DOMObserver.opponentRating = "3000";
+    DOMObserver.opponentNames = ["oName"];
+    DOMObserver.opponentNicks = ["oNick"];
+    DOMObserver.opponentRatings = ["3000"];
 
     const pDeck = new Deck(
       "Game #1234",
@@ -27,15 +27,15 @@ describe("createPlayerDecks", () => {
     const oDeck = new OpponentDeck(
       "Game #1234",
       DOMObserver.ratedGame,
-      DOMObserver.opponentRating,
-      DOMObserver.opponentName,
-      DOMObserver.opponentNick,
+      DOMObserver.opponentRatings[0],
+      DOMObserver.opponentNames[0],
+      DOMObserver.opponentNicks[0],
       DOMObserver.kingdom
     );
     // Manually create the expected map
     const expectedMap = new Map([
       [DOMObserver.playerName, pDeck],
-      [DOMObserver.opponentName, oDeck],
+      [DOMObserver.opponentNames[0], oDeck],
     ]);
 
     // Assert - Simulating creating a deck with the given parameters.  Compare the manually constructed map to the returned map.

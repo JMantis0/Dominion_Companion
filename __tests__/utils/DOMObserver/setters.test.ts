@@ -77,16 +77,16 @@ describe("DOMObserver setters", () => {
     expect(d.logsProcessed).toBe("Log1\nLog2\nLog3\nLogN");
 
     // opponentName field
-    d.setOpponentName("Opponent");
-    expect(d.opponentName).toBe("Opponent");
+    d.setOpponentNames(["Opponent1", "Opponent2"]);
+    expect(d.opponentNames).toStrictEqual(["Opponent1", "Opponent2"]);
 
     // opponentNick field
-    d.setOpponentNick("O");
-    expect(d.opponentNick).toBe("O");
+    d.setOpponentNicks(["O1", "O2"]);
+    expect(d.opponentNicks).toStrictEqual(["O1", "O2"]);
 
     // opponentRating field
-    d.setOpponentRating("123456");
-    expect(d.opponentRating).toBe("123456");
+    d.setOpponentRatings(["123", "456"]);
+    expect(d.opponentRatings).toStrictEqual(["123", "456"]);
 
     // playersInitialized field
     d.setPlayersInitialized(true);

@@ -2,7 +2,7 @@ import {
   setBaseOnly,
   setError,
   setGameActiveStatus,
-  setOpponentDeck,
+  setOpponentDecks,
   setPlayerDeck,
   setSavedGames,
 } from "../redux/contentSlice";
@@ -101,16 +101,16 @@ export class DOMObserver {
    * Stores the value of the opponent name.
    * Use - invoking Deck object constructor
    */
-  static opponentName: string = "";
+  static opponentNames: string[] = [];
   /**
    * Stores the value of the opponent's abbreviated name used in the client ".game-log" element.
    * Use - invoking Deck object constructor
    */
-  static opponentNick: string = "";
+  static opponentNicks: string[] = [];
   /**
    * Rating of the player of opponent deck.
    */
-  static opponentRating: string = "";
+  static opponentRatings: string[] = [];
   /**
    * Use - Flow control.
    * False value means the 'playerName', 'playerNick', 'opponentName', and 'opponentNick' fields are not initialized.
@@ -227,23 +227,23 @@ export class DOMObserver {
   static setLogsProcessed(logsProcessed: string): void {
     DOMObserver.logsProcessed = logsProcessed;
   }
-  static getOpponentName(): string {
-    return DOMObserver.opponentName;
+  static getOpponentNames(): string[] {
+    return DOMObserver.opponentNames;
   }
-  static setOpponentName(opponentName: string): void {
-    DOMObserver.opponentName = opponentName;
+  static setOpponentNames(opponentNames: string[]): void {
+    DOMObserver.opponentNames = opponentNames;
   }
-  static getOpponentNick(): string {
-    return DOMObserver.opponentNick;
+  static getOpponentNicks(): string[] {
+    return DOMObserver.opponentNicks;
   }
-  static setOpponentNick(opponentNick: string): void {
-    DOMObserver.opponentNick = opponentNick;
+  static setOpponentNicks(opponentNicks: string[]): void {
+    DOMObserver.opponentNicks = opponentNicks;
   }
-  static getOpponentRating(): string {
-    return DOMObserver.opponentRating;
+  static getOpponentRatings(): string[] {
+    return DOMObserver.opponentRatings;
   }
-  static setOpponentRating(opponentRating: string): void {
-    DOMObserver.opponentRating = opponentRating;
+  static setOpponentRatings(opponentRatings: string[]): void {
+    DOMObserver.opponentRatings = opponentRatings;
   }
   static getPlayersInitialized(): boolean {
     return DOMObserver.playersInitialized;
@@ -318,8 +318,6 @@ export class DOMObserver {
     ) {
       return true;
     } else if (procArr.length > gLogArr.length) {
-      console.log("Processed Logs:", procArr);
-      console.log("gameLog:", gLogArr);
       throw new Error("Processed logs Larger than game log");
     } else if (gLogArr.length > procArr.length) {
       areNewLogs = true;
@@ -420,17 +418,19 @@ export class DOMObserver {
         DOMObserver.kingdom
       )
     );
-    deckMap.set(
-      DOMObserver.opponentName,
-      new OpponentDeck(
-        gameTitle,
-        DOMObserver.ratedGame,
-        DOMObserver.opponentRating,
-        DOMObserver.opponentName,
-        DOMObserver.opponentNick,
-        DOMObserver.kingdom
-      )
-    );
+    DOMObserver.opponentNames.forEach((opponentName: string, idx) => {
+      deckMap.set(
+        opponentName,
+        new OpponentDeck(
+          gameTitle,
+          DOMObserver.ratedGame,
+          DOMObserver.opponentRatings[idx],
+          opponentName,
+          DOMObserver.opponentNicks[idx],
+          DOMObserver.kingdom
+        )
+      );
+    });
     return deckMap;
   }
 
@@ -456,10 +456,10 @@ export class DOMObserver {
    */
   static dispatchUpdatedDecksToRedux(
     playerStoreDeck: StoreDeck,
-    opponentStoreDeck: OpponentStoreDeck
+    opponentStoreDecks: OpponentStoreDeck[]
   ): void {
     DOMObserver.dispatch(setPlayerDeck(playerStoreDeck));
-    DOMObserver.dispatch(setOpponentDeck(opponentStoreDeck));
+    DOMObserver.dispatch(setOpponentDecks(opponentStoreDecks));
   }
 
   /**
@@ -473,26 +473,30 @@ export class DOMObserver {
       gameEndReason = timeOutElements[1].innerText;
     }
     if (gameEndMessage === "The game has ended.") {
-      const [victor, defeated] = DOMObserver.getResult(
+      const { victor, defeated } = DOMObserver.getResult(
         DOMObserver.decks,
         DOMObserver.playerName,
-        DOMObserver.opponentName,
+        DOMObserver.opponentNames,
         gameEndReason
       );
       DOMObserver.decks = DOMObserver.setDecksGameResults(
         victor,
         defeated,
         DOMObserver.playerName,
-        DOMObserver.opponentName,
+        DOMObserver.opponentNames,
         DOMObserver.decks
       );
+      const opponentStoreDecks: OpponentStoreDeck[] = [];
+      DOMObserver.opponentNames.forEach((opponentName: string) => {
+        opponentStoreDecks.push(
+          JSON.parse(JSON.stringify(DOMObserver.decks.get(opponentName)))
+        );
+      });
       DOMObserver.dispatchUpdatedDecksToRedux(
         JSON.parse(
           JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
         ),
-        JSON.parse(
-          JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
-        )
+        opponentStoreDecks
       );
       DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
     }
@@ -568,7 +572,7 @@ export class DOMObserver {
    */
   static getNewLogsAndUpdateDecks(gameLog: string): {
     playerStoreDeck: StoreDeck;
-    opponentStoreDeck: OpponentStoreDeck;
+    opponentStoreDecks: OpponentStoreDeck[];
   } {
     const newLogsToDispatch = DOMObserver.getUndispatchedLogs(
       DOMObserver.logsProcessed,
@@ -578,20 +582,24 @@ export class DOMObserver {
       .slice();
     try {
       DOMObserver.decks.get(DOMObserver.playerName)!.update(newLogsToDispatch);
-      DOMObserver.decks
-        .get(DOMObserver.opponentName)!
-        .update(newLogsToDispatch);
+      DOMObserver.opponentNames.forEach((opponentName: string) => {
+        DOMObserver.decks.get(opponentName)!.update(newLogsToDispatch);
+      });
     } catch (error: unknown) {
       const errorWithMessage = toErrorWithMessage(error);
       DOMObserver.handleDeckError(errorWithMessage);
     }
+    const opponentStoreDecks: OpponentStoreDeck[] = [];
+    DOMObserver.opponentNames.forEach((opponentName: string) => {
+      opponentStoreDecks.push(
+        JSON.parse(JSON.stringify(DOMObserver.decks.get(opponentName)))
+      );
+    });
     return {
       playerStoreDeck: JSON.parse(
         JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))
       ),
-      opponentStoreDeck: JSON.parse(
-        JSON.stringify(DOMObserver.decks.get(DOMObserver.opponentName))
-      ),
+      opponentStoreDecks,
     };
   }
 
@@ -605,7 +613,7 @@ export class DOMObserver {
    */
   static getPlayerAndOpponentNameByComparingElementPosition(
     playerInfoElements: HTMLCollectionOf<HTMLElement>
-  ): Array<string> {
+  ): { playerName: string; opponentNames: string[] } {
     const nameTransformMap: Map<string, number> = new Map();
     for (const element of playerInfoElements) {
       const nameElement = element.getElementsByTagName(
@@ -624,13 +632,12 @@ export class DOMObserver {
         return prev[1] > current[1] ? prev : current;
       }
     )[0];
-    const opponentName: string = [...nameTransformMap.entries()].reduce(
-      (prev, current) => {
-        return prev[1] < current[1] ? prev : current;
-      }
-    )[0];
+    const allNames = Array.from(nameTransformMap.keys());
+    const playerNameIndex = allNames.indexOf(playerName);
+    allNames.splice(playerNameIndex, 1);
+    const opponentNames = allNames;
     // similarly, we can assign the elements to reference variables...
-    return [playerName, opponentName];
+    return { playerName, opponentNames };
   }
 
   /**
@@ -661,38 +668,50 @@ export class DOMObserver {
    */
   static getPlayerNameAbbreviations(
     gameLog: string,
-    playerName: string
-  ): Array<string> {
-    let playerNick: string = "";
-    let opponentNick: string = "";
+    playerName: string,
+    opponentNames: string[]
+  ): { playerNick: string; opponentNicks: string[] } {
     const gameLogArr = gameLog.split("\n");
-    let n1: string;
-    let n2: string;
+
     let i: number = 0;
     for (i; i < gameLogArr.length; i++) {
       if (gameLogArr[i].match(" starts with ") !== null) {
         break;
       }
     }
-    if (i !== gameLogArr.length) {
-      n1 = gameLogArr[i]; // n1 player is the player going first.
-      n2 = gameLogArr[i + 2];
-      for (i = 0; i <= Math.min(n1.length, n2.length); i++) {
-        if (n1[i].toLowerCase() !== n2[i].toLowerCase()) {
-          n1 = n1.substring(0, i + 1).trim();
-          n2 = n2.substring(0, i + 1).trim();
+
+    let j: number = i;
+    for (j; j < gameLogArr.length; j++) {
+      if (gameLogArr[j].match(" starts with ") === null) break;
+    }
+
+    const opponentNicks: string[] = [];
+    for (let f = 0; f < opponentNames.length; f++) {
+      for (let x = i; x < j; x++) {
+        const nick = gameLogArr[x].substring(
+          0,
+          gameLogArr[x].indexOf(" starts with ")
+        );
+        if (nick === opponentNames[f].substring(0, nick.length)) {
+          opponentNicks.push(nick);
           break;
         }
       }
-      if (playerName.substring(0, n1.length) == n1) {
-        playerNick = n1;
-        opponentNick = n2;
-      } else {
-        playerNick = n2;
-        opponentNick = n1;
+    }
+
+    let playerNick: string = "";
+    for (let x = i; x < j; x++) {
+      const nick = gameLogArr[x].substring(
+        0,
+        gameLogArr[x].indexOf(" starts with ")
+      );
+      if (nick === playerName.substring(0, nick.length)) {
+        playerNick = nick;
+        break;
       }
     }
-    return [playerNick, opponentNick];
+
+    return { playerNick, opponentNicks };
   }
 
   /**
@@ -705,21 +724,25 @@ export class DOMObserver {
    */
   static getPlayerRatings(
     playerName: string,
-    opponentName: string,
+    opponentNames: string[],
     gameLog: string
-  ): string[] {
+  ): { playerRating: string; opponentRatings: string[] } {
     let playerRating: string = "Rating Not Found";
-    let opponentRating: string = "Rating Not Found";
+    const opponentRatings: string[] = [];
     const logArray = gameLog.split("\n");
     for (let i = 0; i < logArray.length; i++) {
       const entry = logArray[i];
       if (entry.match(playerName + ": ") !== null) {
         playerRating = entry.substring(entry.lastIndexOf(" ") + 1);
-      } else if (entry.match(opponentName + ": ") !== null) {
-        opponentRating = entry.substring(entry.lastIndexOf(" ") + 1);
+      } else {
+        for (let j = 0; j < opponentNames.length; j++) {
+          if (entry.match(opponentNames[j] + ": ") !== null) {
+            opponentRatings.push(entry.substring(entry.lastIndexOf(" ") + 1));
+          }
+        }
       }
     }
-    return [playerRating, opponentRating];
+    return { playerRating, opponentRatings };
   }
 
   /**
@@ -750,43 +773,141 @@ export class DOMObserver {
   static getResult(
     decks: Map<string, Deck | OpponentDeck>,
     playerName: string,
-    opponentName: string,
+    opponentNames: string[],
     gameEndReason: string
-  ): string[] {
+  ): { victor: string; defeated: string[] } {
     let victor: string;
-    let defeated: string;
-    if (gameEndReason === `${playerName} has resigned.`) {
-      victor = opponentName;
-      defeated = playerName;
-    } else if (gameEndReason === `${opponentName} has resigned.`) {
-      victor = playerName;
-      defeated = opponentName;
-    } else if (
-      decks.get(opponentName)!.currentVP < decks.get(playerName)!.currentVP
-    ) {
-      victor = playerName;
-      defeated = opponentName;
-    } else if (
-      decks.get(opponentName)!.currentVP > decks.get(playerName)!.currentVP
-    ) {
-      victor = opponentName;
-      defeated = playerName;
-    } else if (
-      decks.get(opponentName)!.gameTurn > decks.get(playerName)!.gameTurn
-    ) {
-      victor = playerName;
-      defeated = opponentName;
-    } else if (
-      decks.get(opponentName)!.gameTurn < decks.get(playerName)!.gameTurn
-    ) {
-      victor = opponentName;
-      defeated = playerName;
+    let defeated: string[] = [];
+    if (opponentNames.length === 1) {
+      const opponentName = opponentNames[0];
+      if (gameEndReason === `${playerName} has resigned.`) {
+        victor = opponentName;
+        defeated = [playerName];
+      } else if (gameEndReason === `${opponentName} has resigned.`) {
+        victor = playerName;
+        defeated = [opponentName];
+      } else if (
+        decks.get(opponentName)!.currentVP < decks.get(playerName)!.currentVP
+      ) {
+        victor = playerName;
+        defeated = [opponentName];
+      } else if (
+        decks.get(opponentName)!.currentVP > decks.get(playerName)!.currentVP
+      ) {
+        victor = opponentName;
+        defeated = [playerName];
+      } else if (
+        decks.get(opponentName)!.gameTurn > decks.get(playerName)!.gameTurn
+      ) {
+        victor = playerName;
+        defeated = [opponentName];
+      } else if (
+        decks.get(opponentName)!.gameTurn < decks.get(playerName)!.gameTurn
+      ) {
+        victor = opponentName;
+        defeated = [playerName];
+      } else {
+        victor = "None: tie";
+        defeated = ["None: tie"];
+      }
+    } else if (gameEndReason.match(" has resigned.") !== null) {
+      const allNames = opponentNames.concat(playerName);
+      const resigned: string[] = [];
+      for (let i = 0; i < allNames.length; i++) {
+        const name = allNames[i];
+        if (gameEndReason === `${name} has resigned.`) {
+          resigned.push(name);
+          allNames.splice(allNames.indexOf(resigned[0]), 1);
+          break;
+        }
+      }
+      // Here order the other non-defeated names by vp and turns.
+      allNames.sort((a, b) => {
+        const deckA = decks.get(a)!;
+        const deckB = decks.get(b)!;
+        let result = deckB.currentVP - deckA.currentVP;
+        if (result === 0) {
+          result = deckB.gameTurn - deckB.gameTurn;
+        }
+        return result;
+      });
+      victor = allNames[0];
+      defeated = allNames.concat(resigned).slice(1);
     } else {
-      victor = "None: tie";
-      defeated = "None: tie";
+      const allNames = opponentNames.concat(playerName);
+      allNames.sort((a, b) => {
+        const deckA = decks.get(a)!;
+        const deckB = decks.get(b)!;
+        let result = deckB.currentVP - deckA.currentVP;
+        if (result === 0) {
+          result = deckB.gameTurn - deckB.gameTurn;
+        }
+        return result;
+      });
+      victor = allNames[0];
+      defeated = allNames.slice(1);
     }
+    return { victor, defeated };
+  }
 
-    return [victor, defeated];
+  /**
+   * Gets the result for games that have more than one opponent.
+   * @param playerName - The name of the player.
+   * @param opponentNames - The names of all the opponents.
+   * @param gameEndReason - The game end reason.
+   * @param decks - Map of the decks
+   * @returns - an object with a victor string and a defeated array, sorted by place.
+   */
+  static getResultMultiPlayer(
+    playerName: string,
+    opponentNames: string[],
+    gameEndReason: string,
+    decks: Map<string, Deck | OpponentDeck>
+  ): { victor: string; defeated: string[] } {
+    let victor: string;
+    let defeated: string[] = [];
+    if (gameEndReason.match(" has resigned.") !== null) {
+      const allNames = opponentNames.concat(playerName);
+      const resigned: string[] = [];
+      for (let i = 0; i < allNames.length; i++) {
+        const name = allNames[i];
+        if (gameEndReason === `${name} has resigned.`) {
+          resigned.push(name);
+          allNames.splice(allNames.indexOf(resigned[0]), 1);
+          break;
+        }
+      }
+      // Here order the other non-defeated names by vp and turns.
+      allNames.sort((a, b) => {
+        console.log("name a is ", a);
+        console.log("name b is ", b);
+        const deckA = decks.get(a)!;
+        const deckB = decks.get(b)!;
+        console.log("deckA is ", deckA);
+        console.log("deckB is ", deckB);
+        let result = deckB.currentVP - deckA.currentVP;
+        if (result === 0) {
+          result = deckB.gameTurn - deckB.gameTurn;
+        }
+        return result;
+      });
+      victor = allNames[0];
+      defeated = allNames.concat(resigned).slice(1);
+    } else {
+      const allNames = opponentNames.concat(playerName);
+      allNames.sort((a, b) => {
+        const deckA = decks.get(a)!;
+        const deckB = decks.get(b)!;
+        let result = deckB.currentVP - deckA.currentVP;
+        if (result === 0) {
+          result = deckA.gameTurn - deckB.gameTurn;
+        }
+        return result;
+      });
+      victor = allNames[0];
+      defeated = allNames.slice(1);
+    }
+    return { victor, defeated };
   }
 
   /**
@@ -1023,11 +1144,13 @@ export class DOMObserver {
     }
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
-      const { playerStoreDeck, opponentStoreDeck } =
-        DOMObserver.getNewLogsAndUpdateDecks(gameLog);
+      const storeDecks = DOMObserver.getNewLogsAndUpdateDecks(gameLog);
+      const playerStoreDeck: StoreDeck = storeDecks.playerStoreDeck;
+      const opponentStoreDecks: OpponentStoreDeck[] =
+        storeDecks.opponentStoreDecks;
       DOMObserver.dispatchUpdatedDecksToRedux(
         playerStoreDeck,
-        opponentStoreDeck
+        opponentStoreDecks
       );
       DOMObserver.logsProcessed = gameLog;
     }
@@ -1073,26 +1196,28 @@ export class DOMObserver {
    */
   static playersInitializer(): void {
     if (DOMObserver.arePlayerInfoElementsPresent()) {
-      const [playerName, opponentName] =
+      const { playerName, opponentNames } =
         DOMObserver.getPlayerAndOpponentNameByComparingElementPosition(
           DOMObserver.getPlayerInfoElements()
         );
       DOMObserver.setPlayerName(playerName);
-      DOMObserver.setOpponentName(opponentName);
-      const [playerNick, opponentNick] = DOMObserver.getPlayerNameAbbreviations(
-        DOMObserver.gameLog,
-        DOMObserver.playerName
-      );
-      DOMObserver.setPlayerNick(playerNick);
-      DOMObserver.setOpponentNick(opponentNick);
-      if (DOMObserver.ratedGame) {
-        const [playerRating, opponentRating] = DOMObserver.getPlayerRatings(
+      DOMObserver.setOpponentNames(opponentNames);
+      const { playerNick, opponentNicks } =
+        DOMObserver.getPlayerNameAbbreviations(
+          DOMObserver.gameLog,
           DOMObserver.playerName,
-          DOMObserver.opponentName,
+          DOMObserver.opponentNames
+        );
+      DOMObserver.setPlayerNick(playerNick);
+      DOMObserver.setOpponentNicks(opponentNicks);
+      if (DOMObserver.ratedGame) {
+        const { playerRating, opponentRatings } = DOMObserver.getPlayerRatings(
+          DOMObserver.playerName,
+          DOMObserver.opponentNames,
           DOMObserver.gameLog
         );
         DOMObserver.setPlayerRating(playerRating);
-        DOMObserver.setOpponentRating(opponentRating);
+        DOMObserver.setOpponentRatings(opponentRatings);
       }
       DOMObserver.setPlayersInitialized(true);
     }
@@ -1113,9 +1238,9 @@ export class DOMObserver {
     DOMObserver.setPlayerName("");
     DOMObserver.setPlayerNick("");
     DOMObserver.setPlayerRating("");
-    DOMObserver.setOpponentName("");
-    DOMObserver.setOpponentNick("");
-    DOMObserver.setOpponentRating("");
+    DOMObserver.setOpponentNames([]);
+    DOMObserver.setOpponentNicks([]);
+    DOMObserver.setOpponentRatings([]);
     DOMObserver.setDecks(
       new Map([
         ["", new Deck("", false, "", "", "", [])],
@@ -1142,7 +1267,7 @@ export class DOMObserver {
 
   static resetReduxDeckState() {
     DOMObserver.dispatch(
-      setOpponentDeck(JSON.parse(JSON.stringify(new EmptyOpponentDeck())))
+      setOpponentDecks([JSON.parse(JSON.stringify(new EmptyOpponentDeck()))])
     );
     DOMObserver.dispatch(
       setPlayerDeck(JSON.parse(JSON.stringify(new EmptyDeck())))
@@ -1193,12 +1318,14 @@ export class DOMObserver {
     gameLog: string,
     decks: Map<string, Deck | OpponentDeck>
   ) {
+    const opponentDecks: OpponentStoreDeck[] = [];
+    DOMObserver.opponentNames.forEach((opponentName) => {
+      opponentDecks.push(JSON.parse(JSON.stringify(decks.get(opponentName))));
+    });
     const savedGame: SavedGame = {
       logArchive: gameLog,
       playerDeck: JSON.parse(JSON.stringify(decks.get(DOMObserver.playerName))),
-      opponentDeck: JSON.parse(
-        JSON.stringify(decks.get(DOMObserver.opponentName))
-      ),
+      opponentDecks: opponentDecks,
       dateTime: new Date().toString(),
       logHtml: document.getElementsByClassName("game-log")[0].innerHTML,
     };
@@ -1237,21 +1364,47 @@ export class DOMObserver {
    */
   static setDecksGameResults(
     victor: string,
-    defeated: string,
+    defeated: string[],
     playerName: string,
-    opponentName: string,
+    opponentNames: string[],
     decks: Map<string, Deck | OpponentDeck>
   ): Map<string, Deck | OpponentDeck> {
     const updatedDecks = new Map(decks);
-    if (victor === playerName) {
-      updatedDecks.get(playerName)!.setGameResult("Victory");
-      updatedDecks.get(opponentName)!.setGameResult("Defeat");
-    } else if (defeated === playerName) {
-      updatedDecks.get(opponentName)!.setGameResult("Victory");
-      updatedDecks.get(playerName)!.setGameResult("Defeat");
-    } else {
-      updatedDecks.get(playerName)!.setGameResult("Tie");
-      updatedDecks.get(opponentName)!.setGameResult("Tie");
+    // For two player games
+    if (opponentNames.length === 1) {
+      if (victor === playerName) {
+        updatedDecks.get(playerName)!.setGameResult("Victory");
+        updatedDecks.get(opponentNames[0])!.setGameResult("Defeat");
+      } else if (defeated[0] === playerName) {
+        updatedDecks.get(opponentNames[0])!.setGameResult("Victory");
+        updatedDecks.get(playerName)!.setGameResult("Defeat");
+      } else {
+        updatedDecks.get(playerName)!.setGameResult("Tie");
+        updatedDecks.get(opponentNames[0])!.setGameResult("Tie");
+      }
+    }
+    // For 3 and greater player games
+    else {
+      // The defeated Array is sorted by place.
+      // Assign a result of 3rd place out of n where n is the number of players.
+      const placements: {
+        [index: number]: "2nd Place" | "3rd Place" | "4th Place" | "5th Place";
+      } = {
+        0: "2nd Place",
+        1: "3rd Place",
+        2: "4th Place",
+        3: "5th Place",
+      };
+      // set victor
+      updatedDecks.get(victor)!.setGameResult("Victory");
+      // set last place defeated
+      const defeatedPlayers = defeated.slice();
+      const lastPlaceName = defeatedPlayers.pop()!;
+      updatedDecks.get(lastPlaceName)!.setGameResult("Defeat");
+      defeatedPlayers.forEach((player, idx) => {
+        const result = placements[idx];
+        updatedDecks.get(player)?.setGameResult(result);
+      });
     }
     return updatedDecks;
   }

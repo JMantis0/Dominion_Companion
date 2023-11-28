@@ -15,7 +15,7 @@ const maximizedBorder = " border-t-8 border-x-8";
 const PrimaryFrameHeader = () => {
   const [currentTurn, setCurrentTurn] = useState<string>("Starting");
   const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const od = useSelector((state: RootState) => state.content.opponentDeck);
+  const ods = useSelector((state: RootState) => state.content.opponentDecks);
   const primaryFrameTab = useSelector(
     (state: RootState) => state.content.primaryFrameTab
   );
@@ -25,9 +25,8 @@ const PrimaryFrameHeader = () => {
   );
   const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
   useEffect(() => {
-    if (pd.gameTurn > 0 || od.gameTurn > 0) {
-      const turn: string =
-        "Turn - " + (pd.gameTurn <= od.gameTurn ? od.gameTurn : pd.gameTurn);
+    if (pd.gameTurn > 0) {
+      const turn: string = "Turn - " + pd.gameTurn;
       setCurrentTurn(turn);
     }
   }, [pd, primaryFrameTab]);
@@ -68,14 +67,22 @@ const PrimaryFrameHeader = () => {
                 ) : null}
               </div>
               <div className="col-span-2 text-center text-white">vs.</div>
-              <div className="col-span-5 max-h-[29px]">
+              {ods.map((od, idx) => {
+                return (
+                  <div key={idx}>
+                    <div>{od.playerName}</div>;
+                    {od.ratedGame ? <div>{od.rating}</div> : null}
+                  </div>
+                );
+              })}
+              {/* <div className="col-span-5 max-h-[29px]">
                 <div className="text-center text-white">{od.playerName}</div>
                 {pd.ratedGame ? (
                   <div className="text-[9px] relative -top-1 text-center text-white">
                     ( {od.rating} )
                   </div>
                 ) : null}
-              </div>
+              </div> */}
             </React.Fragment>
           </div>
         ) : baseOnly ? (

@@ -13,7 +13,7 @@ import {
 import {
   setBaseOnly,
   setGameActiveStatus,
-  setOpponentDeck,
+  setOpponentDecks,
   setPlayerDeck,
 } from "../../../src/redux/contentSlice";
 import { Deck } from "../../../src/model/deck";
@@ -39,13 +39,13 @@ describe("PrimaryFrame", () => {
         )
       );
       store.dispatch(
-        setOpponentDeck(
+        setOpponentDecks([
           JSON.parse(
             JSON.stringify(
               new OpponentDeck("", false, "", "Opponent Name", "O", [])
             )
-          )
-        )
+          ),
+        ])
       );
     });
     const deckTab = screen.getByRole("button", { name: /Deck \d*/ });
