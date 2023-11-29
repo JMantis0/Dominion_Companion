@@ -9,6 +9,7 @@ import {
 import {
   DOMStore,
   ErrorWithMessage,
+  GameResult,
   OpponentStoreDeck,
   SavedGame,
   SavedGames,
@@ -473,17 +474,24 @@ export class DOMObserver {
       gameEndReason = timeOutElements[1].innerText;
     }
     if (gameEndMessage === "The game has ended.") {
-      const { victor, defeated } = DOMObserver.getResult(
-        DOMObserver.decks,
-        DOMObserver.playerName,
-        DOMObserver.opponentNames,
-        gameEndReason
-      );
+      let results: Map<number, string[]>;
+      if (DOMObserver.opponentNames.length === 1) {
+        results = DOMObserver.getResult(
+          DOMObserver.decks,
+          DOMObserver.playerName,
+          DOMObserver.opponentNames,
+          gameEndReason
+        );
+      } else {
+        results = DOMObserver.getResultMultiPlayer(
+          DOMObserver.decks,
+          DOMObserver.playerName,
+          DOMObserver.opponentNames,
+          gameEndReason
+        );
+      }
       DOMObserver.decks = DOMObserver.setDecksGameResults(
-        victor,
-        defeated,
-        DOMObserver.playerName,
-        DOMObserver.opponentNames,
+        results,
         DOMObserver.decks
       );
       const opponentStoreDecks: OpponentStoreDeck[] = [];
@@ -775,79 +783,39 @@ export class DOMObserver {
     playerName: string,
     opponentNames: string[],
     gameEndReason: string
-  ): { victor: string; defeated: string[] } {
-    let victor: string;
-    let defeated: string[] = [];
-    if (opponentNames.length === 1) {
-      const opponentName = opponentNames[0];
-      if (gameEndReason === `${playerName} has resigned.`) {
-        victor = opponentName;
-        defeated = [playerName];
-      } else if (gameEndReason === `${opponentName} has resigned.`) {
-        victor = playerName;
-        defeated = [opponentName];
-      } else if (
-        decks.get(opponentName)!.currentVP < decks.get(playerName)!.currentVP
-      ) {
-        victor = playerName;
-        defeated = [opponentName];
-      } else if (
-        decks.get(opponentName)!.currentVP > decks.get(playerName)!.currentVP
-      ) {
-        victor = opponentName;
-        defeated = [playerName];
-      } else if (
-        decks.get(opponentName)!.gameTurn > decks.get(playerName)!.gameTurn
-      ) {
-        victor = playerName;
-        defeated = [opponentName];
-      } else if (
-        decks.get(opponentName)!.gameTurn < decks.get(playerName)!.gameTurn
-      ) {
-        victor = opponentName;
-        defeated = [playerName];
-      } else {
-        victor = "None: tie";
-        defeated = ["None: tie"];
-      }
-    } else if (gameEndReason.match(" has resigned.") !== null) {
-      const allNames = opponentNames.concat(playerName);
-      const resigned: string[] = [];
-      for (let i = 0; i < allNames.length; i++) {
-        const name = allNames[i];
-        if (gameEndReason === `${name} has resigned.`) {
-          resigned.push(name);
-          allNames.splice(allNames.indexOf(resigned[0]), 1);
-          break;
-        }
-      }
-      // Here order the other non-defeated names by vp and turns.
-      allNames.sort((a, b) => {
-        const deckA = decks.get(a)!;
-        const deckB = decks.get(b)!;
-        let result = deckB.currentVP - deckA.currentVP;
-        if (result === 0) {
-          result = deckB.gameTurn - deckB.gameTurn;
-        }
-        return result;
-      });
-      victor = allNames[0];
-      defeated = allNames.concat(resigned).slice(1);
+  ): Map<number, string[]> {
+    const opponentName = opponentNames[0];
+    const resultMap = new Map<number, string[]>();
+    if (gameEndReason === `${playerName} has resigned.`) {
+      resultMap.set(1, [opponentName]);
+      resultMap.set(2, [playerName]);
+    } else if (gameEndReason === `${opponentName} has resigned.`) {
+      resultMap.set(1, [playerName]);
+      resultMap.set(2, [opponentName]);
+    } else if (
+      decks.get(opponentName)!.currentVP < decks.get(playerName)!.currentVP
+    ) {
+      resultMap.set(1, [playerName]);
+      resultMap.set(2, [opponentName]);
+    } else if (
+      decks.get(opponentName)!.currentVP > decks.get(playerName)!.currentVP
+    ) {
+      resultMap.set(1, [opponentName]);
+      resultMap.set(2, [playerName]);
+    } else if (
+      decks.get(opponentName)!.gameTurn > decks.get(playerName)!.gameTurn
+    ) {
+      resultMap.set(1, [playerName]);
+      resultMap.set(2, [opponentName]);
+    } else if (
+      decks.get(opponentName)!.gameTurn < decks.get(playerName)!.gameTurn
+    ) {
+      resultMap.set(1, [opponentName]);
+      resultMap.set(2, [playerName]);
     } else {
-      const allNames = opponentNames.concat(playerName);
-      allNames.sort((a, b) => {
-        const deckA = decks.get(a)!;
-        const deckB = decks.get(b)!;
-        let result = deckB.currentVP - deckA.currentVP;
-        if (result === 0) {
-          result = deckB.gameTurn - deckB.gameTurn;
-        }
-        return result;
-      });
-      victor = allNames[0];
-      defeated = allNames.slice(1);
+      resultMap.set(1, [playerName, opponentName]);
     }
-    return { victor, defeated };
+    return resultMap;
   }
 
   /**
@@ -859,16 +827,14 @@ export class DOMObserver {
    * @returns - an object with a victor string and a defeated array, sorted by place.
    */
   static getResultMultiPlayer(
+    decks: Map<string, Deck | OpponentDeck>,
     playerName: string,
     opponentNames: string[],
-    gameEndReason: string,
-    decks: Map<string, Deck | OpponentDeck>
-  ): { victor: string; defeated: string[] } {
-    let victor: string;
-    let defeated: string[] = [];
+    gameEndReason: string
+  ): Map<number, string[]> {
+    const allNames = opponentNames.concat(playerName);
+    const resigned: string[] = [];
     if (gameEndReason.match(" has resigned.") !== null) {
-      const allNames = opponentNames.concat(playerName);
-      const resigned: string[] = [];
       for (let i = 0; i < allNames.length; i++) {
         const name = allNames[i];
         if (gameEndReason === `${name} has resigned.`) {
@@ -877,37 +843,55 @@ export class DOMObserver {
           break;
         }
       }
-      // Here order the other non-defeated names by vp and turns.
-      allNames.sort((a, b) => {
-        console.log("name a is ", a);
-        console.log("name b is ", b);
-        const deckA = decks.get(a)!;
-        const deckB = decks.get(b)!;
-        console.log("deckA is ", deckA);
-        console.log("deckB is ", deckB);
-        let result = deckB.currentVP - deckA.currentVP;
-        if (result === 0) {
-          result = deckB.gameTurn - deckB.gameTurn;
-        }
-        return result;
-      });
-      victor = allNames[0];
-      defeated = allNames.concat(resigned).slice(1);
-    } else {
-      const allNames = opponentNames.concat(playerName);
-      allNames.sort((a, b) => {
-        const deckA = decks.get(a)!;
-        const deckB = decks.get(b)!;
-        let result = deckB.currentVP - deckA.currentVP;
-        if (result === 0) {
-          result = deckA.gameTurn - deckB.gameTurn;
-        }
-        return result;
-      });
-      victor = allNames[0];
-      defeated = allNames.slice(1);
     }
-    return { victor, defeated };
+    const tiedPlayers: Map<string, string[]> = new Map();
+    allNames.sort((a, b) => {
+      const deckA = decks.get(a)!;
+      const deckB = decks.get(b)!;
+      let result = deckB.currentVP - deckA.currentVP;
+      if (result === 0) {
+        result = deckA.gameTurn - deckB.gameTurn;
+      }
+      if (result === 0) {
+        const tiedKey = deckA.currentVP + " VP " + deckA.gameTurn + " Turns";
+        const alreadyTied = tiedPlayers.has(tiedKey)
+          ? tiedPlayers.get(tiedKey)!
+          : [];
+        const playersToAdd = [];
+        if (!alreadyTied.includes(a)) playersToAdd.push(a);
+        if (!alreadyTied.includes(b)) playersToAdd.push(b);
+        tiedPlayers.set(tiedKey, alreadyTied.concat(playersToAdd).sort());
+      }
+      return result;
+    });
+    const resultMap = new Map<number, string[]>();
+    const tiedPlayerNames = Array.from(tiedPlayers.values());
+    for (let i = 0; i < allNames.length; i++) {
+      const place = i + 1;
+      const player = allNames[i];
+      let tiedPlayer: boolean = false;
+      let tiedIndex: number = -1;
+      tiedPlayerNames.forEach((nameSet, idx) => {
+        if (nameSet.includes(player)) {
+          tiedPlayer = true;
+          tiedIndex = idx;
+        }
+      });
+      if (tiedPlayer) {
+        resultMap.set(place, tiedPlayerNames[tiedIndex]);
+        console.log(tiedPlayerNames, player);
+        console.log(allNames);
+        i += tiedPlayerNames[0].length - 1;
+        tiedPlayerNames.splice(tiedIndex, 1);
+      } else {
+        resultMap.set(place, [player]);
+      }
+    }
+
+    if (resigned.length === 1) {
+      resultMap.set(allNames.length + 1, [resigned[0]]);
+    }
+    return resultMap;
   }
 
   /**
@@ -1363,49 +1347,29 @@ export class DOMObserver {
    * @returns - The updated decks.
    */
   static setDecksGameResults(
-    victor: string,
-    defeated: string[],
-    playerName: string,
-    opponentNames: string[],
+    resultMap: Map<number, string[]>,
     decks: Map<string, Deck | OpponentDeck>
   ): Map<string, Deck | OpponentDeck> {
     const updatedDecks = new Map(decks);
-    // For two player games
-    if (opponentNames.length === 1) {
-      if (victor === playerName) {
-        updatedDecks.get(playerName)!.setGameResult("Victory");
-        updatedDecks.get(opponentNames[0])!.setGameResult("Defeat");
-      } else if (defeated[0] === playerName) {
-        updatedDecks.get(opponentNames[0])!.setGameResult("Victory");
-        updatedDecks.get(playerName)!.setGameResult("Defeat");
-      } else {
-        updatedDecks.get(playerName)!.setGameResult("Tie");
-        updatedDecks.get(opponentNames[0])!.setGameResult("Tie");
-      }
-    }
-    // For 3 and greater player games
-    else {
-      // The defeated Array is sorted by place.
-      // Assign a result of 3rd place out of n where n is the number of players.
-      const placements: {
-        [index: number]: "2nd Place" | "3rd Place" | "4th Place" | "5th Place";
-      } = {
-        0: "2nd Place",
-        1: "3rd Place",
-        2: "4th Place",
-        3: "5th Place",
-      };
-      // set victor
-      updatedDecks.get(victor)!.setGameResult("Victory");
-      // set last place defeated
-      const defeatedPlayers = defeated.slice();
-      const lastPlaceName = defeatedPlayers.pop()!;
-      updatedDecks.get(lastPlaceName)!.setGameResult("Defeat");
-      defeatedPlayers.forEach((player, idx) => {
-        const result = placements[idx];
-        updatedDecks.get(player)?.setGameResult(result);
+
+    const placements: {
+      [index: number]: GameResult;
+    } = {
+      1: "1st Place",
+      2: "2nd Place",
+      3: "3rd Place",
+      4: "4th Place",
+      5: "5th Place",
+      6: "6th Place",
+    };
+    const entries = Array.from(resultMap.entries());
+    entries.forEach((entry) => {
+      const [place, playerNames] = entry;
+      playerNames.forEach((playerName) => {
+        updatedDecks.get(playerName)?.setGameResult(placements[place]);
       });
-    }
+    });
+
     return updatedDecks;
   }
 

@@ -54,10 +54,12 @@ type GameResult =
   | "Defeat"
   | "Tie"
   | "Unfinished"
+  | "1st Place"
   | "2nd Place"
   | "3rd Place"
   | "4th Place"
-  | "5th Place";
+  | "5th Place"
+  | "6th Place";
 
 /**
  * Type used to stringify and store in Chrome Local Storage
