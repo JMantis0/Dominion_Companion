@@ -511,6 +511,29 @@ export class DOMObserver {
   }
 
   /**
+   * Gets and returns the game log element's innerText, removing the
+   * last line if it matches 'Premoves'.
+   * Purpose: Update the global gameLog variable.
+   * @returns The string of innerText of the game-log element.
+   */
+  static getClientGameLog(): string {
+    const gameLogElement = document.getElementsByClassName(
+      "game-log"
+    )[0] as HTMLElement;
+    if (gameLogElement === undefined) {
+      throw new Error("No game-log element present in the DOM.");
+    }
+    let gameLog = gameLogElement.innerText;
+    if (
+      gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
+      null
+    ) {
+      gameLog = gameLog.split("\n").slice(0, -1).join("\n");
+    }
+    return gameLog;
+  }
+
+  /**
    * Gets the kingdom-viewer-group element from the DOM and iterates through the
    * name-layer elements within it.  Extracts the innerText of each name-layer and
    * pushes it to an array of strings.  Then adds default strings to the array, and
@@ -547,29 +570,6 @@ export class DOMObserver {
       kingdom.push(card);
     });
     return kingdom;
-  }
-
-  /**
-   * Gets and returns the game log element's innerText, removing the
-   * last line if it matches 'Premoves'.
-   * Purpose: Update the global gameLog variable.
-   * @returns The string of innerText of the game-log element.
-   */
-  static getClientGameLog(): string {
-    const gameLogElement = document.getElementsByClassName(
-      "game-log"
-    )[0] as HTMLElement;
-    if (gameLogElement === undefined) {
-      throw new Error("No game-log element present in the DOM.");
-    }
-    let gameLog = gameLogElement.innerText;
-    if (
-      gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
-      null
-    ) {
-      gameLog = gameLog.split("\n").slice(0, -1).join("\n");
-    }
-    return gameLog;
   }
 
   /**
@@ -833,6 +833,7 @@ export class DOMObserver {
     gameEndReason: string
   ): Map<number, string[]> {
     const allNames = opponentNames.concat(playerName);
+    // If a player resigned, gets that playerName.
     const resigned: string[] = [];
     if (gameEndReason.match(" has resigned.") !== null) {
       for (let i = 0; i < allNames.length; i++) {
@@ -844,6 +845,8 @@ export class DOMObserver {
         }
       }
     }
+    // Sorts the playerNames by their VP/Turns and
+    // collects details for any tied players.Cl
     const tiedPlayers: Map<string, string[]> = new Map();
     allNames.sort((a, b) => {
       const deckA = decks.get(a)!;
@@ -864,6 +867,7 @@ export class DOMObserver {
       }
       return result;
     });
+    // Creates the result map to return.
     const resultMap = new Map<number, string[]>();
     const tiedPlayerNames = Array.from(tiedPlayers.values());
     for (let i = 0; i < allNames.length; i++) {
@@ -879,15 +883,13 @@ export class DOMObserver {
       });
       if (tiedPlayer) {
         resultMap.set(place, tiedPlayerNames[tiedIndex]);
-        console.log(tiedPlayerNames, player);
-        console.log(allNames);
-        i += tiedPlayerNames[0].length - 1;
+        i += tiedPlayerNames[tiedIndex].length - 1;
         tiedPlayerNames.splice(tiedIndex, 1);
       } else {
         resultMap.set(place, [player]);
       }
     }
-
+    // If any player resigned adds that player to last place.
     if (resigned.length === 1) {
       resultMap.set(allNames.length + 1, [resigned[0]]);
     }
@@ -1104,28 +1106,8 @@ export class DOMObserver {
    * are new logs, they are obtained with the getUndispatchedLogs() method and
    * the Deck objects' update() methods are invoked using the new logs as an argument,
    * and finally, the global variable 'logsProcessed' is updated.
-   * @param mutationList
    */
-  static logObserverFunc(mutationList?: MutationRecord[]) {
-    if (mutationList) {
-      //   console.log("Added and removed nodes");
-      //   for (let j = 0; j < mutationList.length; j++) {
-      //     if (mutationList[j].addedNodes.length > 0) {
-      //       console.log("Added");
-      //       for (let i = 0; i < mutationList[j].addedNodes.length; i++) {
-      //         const el = mutationList[j].addedNodes[i] as HTMLElement;
-      //         console.log(`${i} ${el.innerText}`);
-      //       }
-      //     }
-      //     if (mutationList[j].removedNodes.length > 0) {
-      //       console.log("Removed");
-      //       for (let i = 0; i < mutationList[j].removedNodes.length; i++) {
-      //         const el = mutationList[j].removedNodes[i] as HTMLElement;
-      //         console.log(`${i} ${el.innerText}`);
-      //       }
-      //     }
-      //   }
-    }
+  static logObserverFunc() {
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
       const storeDecks = DOMObserver.getNewLogsAndUpdateDecks(gameLog);
@@ -1249,25 +1231,6 @@ export class DOMObserver {
     }
   }
 
-  static resetReduxDeckState() {
-    DOMObserver.dispatch(
-      setOpponentDecks([JSON.parse(JSON.stringify(new EmptyOpponentDeck()))])
-    );
-    DOMObserver.dispatch(
-      setPlayerDeck(JSON.parse(JSON.stringify(new EmptyDeck())))
-    );
-  }
-
-  /**
-   * Callback method used for the 'beforeunload' event listener.
-   * Added on render, removed on unmount.
-   * @param event - The BeforeUnloadEvent
-   */
-  static saveBeforeUnload() {
-    if (store.getState().content.gameActiveStatus)
-      DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
-  }
-
   /**
    * Callback for the resetInterval.  If it detects the game log is present, it clears itself
    * starts the initInterval.
@@ -1283,6 +1246,22 @@ export class DOMObserver {
   }
 
   /**
+   * Dispatches the setOpponentDecks action with an array of an empty OpponentStoreDeck
+   * and setPlayerDeck action with an empty StoreDeck, effectively resetting the
+   * redux Deck State.
+   */
+  static resetReduxDeckState() {
+    const emptyStoreDeck: StoreDeck = JSON.parse(
+      JSON.stringify(new EmptyDeck())
+    );
+    const emptyOpponentDecks: OpponentStoreDeck[] = [
+      JSON.parse(JSON.stringify(new EmptyOpponentDeck())),
+    ];
+    DOMObserver.dispatch(setPlayerDeck(emptyStoreDeck));
+    DOMObserver.dispatch(setOpponentDecks(emptyOpponentDecks));
+  }
+
+  /**
    * Clears the resetInterval an and begins the initInterval.  Invoked
    * by clicking the Fix/Reset button in the PrimaryFrame component.
    */
@@ -1293,6 +1272,17 @@ export class DOMObserver {
       1000
     );
   }
+
+  /**
+   * Callback method used for the 'beforeunload' event listener.
+   * Added on render, removed on unmount.
+   * @param event - The BeforeUnloadEvent
+   */
+  static saveBeforeUnload() {
+    if (store.getState().content.gameActiveStatus)
+      DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
+  }
+
   /**
    * Saves the game to chrome local storage to be used by the History features.
    * @param gameLog - value of the ameLog field.
