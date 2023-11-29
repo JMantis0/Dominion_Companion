@@ -1,104 +1,249 @@
-import { describe, it, expect, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
 
 describe("Function setDecksGameResults", () => {
   // Instantiate Deck and OpponentDeck objects
-  let pDeck = new Deck("", false, "", "pName", "pNick", []);
-  let oDeck = new OpponentDeck("", false, "", "oName", "oNick", []);
-  let expectedPDeck = new Deck("", false, "", "pName", "pNick", []);
-  let expectedODeck = new OpponentDeck("", false, "", "oName", "oNick", []);
+  let pd: Deck;
+  let epd: Deck;
+  let od1: OpponentDeck;
+  let eod1: OpponentDeck;
   describe("when there is exactly one opponent", () => {
-    afterEach(() => {
-      pDeck = new Deck("", false, "", "pName", "pNick", []);
-      oDeck = new OpponentDeck("", false, "", "oName", "oNick", []);
-      expectedPDeck = new Deck("", false, "", "pName", "pNick", []);
-      expectedODeck = new OpponentDeck("", false, "", "oName", "oNick", []);
+    beforeEach(() => {
+      pd = new Deck("", false, "", "Player", "", []);
+      epd = new Deck("", false, "", "Player", "", []);
+      od1 = new OpponentDeck("", false, "", "Opponent 1", "", []);
+      eod1 = new OpponentDeck("", false, "", "Opponent 1", "", []);
       jest.clearAllMocks();
     });
-    it("should set the player deck gameResult as 'Victory' and the opponent deck gameResult as 'Victory' when the player is the victor, and return the decks ", () => {
+    it("should set the game result by the ranks in the given resultMap (player wins)", () => {
+      // Arrange - A result map where the player won.
+      const resultMap: Map<number, string[]> = new Map([
+        [1, ["Player"]],
+        [2, ["Opponent 1"]],
+      ]);
+
+      const decks = new Map<string, Deck | OpponentDeck>([
+        ["Player", pd],
+        ["Opponent 1", od1],
+      ]);
+
+      const updatedDecks = new Map<string, Deck | OpponentDeck>([
+        ["Player", epd],
+        ["Opponent 1", eod1],
+      ]);
+      updatedDecks.get("Player")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 1")!.gameResult = "2nd Place";
+
+      // Act and Assert - Simulate setting deck results where the player won.
+      // Verify the correct decks are returned
+      expect(decks).not.toStrictEqual(updatedDecks);
+      expect(DOMObserver.setDecksGameResults(resultMap, decks)).toStrictEqual(
+        updatedDecks
+      );
+    });
+
+    it("should set the game result by the ranks in the given resultMap, (opponent wins)", () => {
+      // Arrange - A result map where the opponent won.
+      const resultMap: Map<number, string[]> = new Map([
+        [1, ["Opponent 1"]],
+        [2, ["Player"]],
+      ]);
+      const decks = new Map<string, Deck | OpponentDeck>([
+        ["Player", pd],
+        ["Opponent 1", od1],
+      ]);
+
+      const updatedDecks = new Map<string, Deck | OpponentDeck>([
+        ["Player", epd],
+        ["Opponent 1", eod1],
+      ]);
+      updatedDecks.get("Player")!.gameResult = "2nd Place";
+      updatedDecks.get("Opponent 1")!.gameResult = "1st Place";
+
+      // Act and Assert - Simulate setting deck results where the player won.
+      // Verify the correct decks are returned
+      expect(decks).not.toStrictEqual(updatedDecks);
+      expect(DOMObserver.setDecksGameResults(resultMap, decks)).toStrictEqual(
+        updatedDecks
+      );
+    });
+
+    it("should set players that are tied in the same place", () => {
+      // Arrange - A result map where the opponent won.
+      const resultMap: Map<number, string[]> = new Map([
+        [1, ["Opponent 1", "Player"]],
+      ]);
+      const decks = new Map<string, Deck | OpponentDeck>([
+        ["Player", pd],
+        ["Opponent 1", od1],
+      ]);
+
+      const updatedDecks = new Map<string, Deck | OpponentDeck>([
+        ["Player", epd],
+        ["Opponent 1", eod1],
+      ]);
+
+      updatedDecks.get("Player")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 1")!.gameResult = "1st Place";
+
+      // Act and Assert - Simulate setting deck results where the player won.
+      // Verify the correct decks are returned
+      expect(decks).not.toStrictEqual(updatedDecks);
+      expect(DOMObserver.setDecksGameResults(resultMap, decks)).toStrictEqual(
+        updatedDecks
+      );
+    });
+  });
+
+  describe("when there are multiple opponents", () => {
+    let od2: OpponentDeck;
+    let od3: OpponentDeck;
+    let od4: OpponentDeck;
+    let od5: OpponentDeck;
+    let eod2: OpponentDeck;
+    let eod3: OpponentDeck;
+    let eod4: OpponentDeck;
+    let eod5: OpponentDeck;
+    beforeEach(() => {
+      od2 = new OpponentDeck("", false, "", "Opponent 2", "", []);
+      eod2 = new OpponentDeck("", false, "", "Opponent 2", "", []);
+      od3 = new OpponentDeck("", false, "", "Opponent 3", "", []);
+      eod3 = new OpponentDeck("", false, "", "Opponent 3", "", []);
+      od4 = new OpponentDeck("", false, "", "Opponent 4", "", []);
+      eod4 = new OpponentDeck("", false, "", "Opponent 4", "", []);
+      od5 = new OpponentDeck("", false, "", "Opponent 5", "", []);
+      eod5 = new OpponentDeck("", false, "", "Opponent 5", "", []);
+      jest.clearAllMocks();
+    });
+
+    it("should set all players for First place if all players are tied.", () => {
+      // Arrange - A result map where all players are tied.
+      const resultMap: Map<number, string[]> = new Map([
+        [
+          1,
+          [
+            "Opponent 1",
+            "Opponent 2",
+            "Opponent 3",
+            "Opponent 4",
+            "Opponent 5",
+            "Player",
+          ],
+        ],
+      ]);
+      const decks = new Map<string, Deck | OpponentDeck>([
+        ["Player", pd],
+        ["Opponent 1", od1],
+        ["Opponent 2", od2],
+        ["Opponent 3", od3],
+        ["Opponent 4", od4],
+        ["Opponent 5", od5],
+      ]);
+
+      const updatedDecks = new Map<string, Deck | OpponentDeck>([
+        ["Player", epd],
+        ["Opponent 1", eod1],
+        ["Opponent 2", eod2],
+        ["Opponent 3", eod3],
+        ["Opponent 4", eod4],
+        ["Opponent 5", eod5],
+      ]);
+      // Arranging the results on expected decks
+      updatedDecks.get("Player")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 1")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 2")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 3")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 4")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 5")!.gameResult = "1st Place";
+
+      // Act and Assert - Verify the decks were updated correctly.
+      expect(decks).not.toStrictEqual(updatedDecks);
+      expect(DOMObserver.setDecksGameResults(resultMap, decks)).toStrictEqual(
+        updatedDecks
+      );
+    });
+
+    it("should set gameResults correctly when no players are tied", () => {
       // Arrange
-      const victor = "pName";
-      const defeated = ["oName"];
-      const playerName = "pName";
-      const opponentNames = ["oName"];
+      const resultMap: Map<number, string[]> = new Map([
+        [1, ["Opponent 1"]],
+        [2, ["Opponent 2"]],
+        [3, ["Opponent 3"]],
+        [4, ["Opponent 4"]],
+        [5, ["Opponent 5"]],
+        [6, ["Player"]],
+      ]);
       const decks = new Map<string, Deck | OpponentDeck>([
-        [playerName, pDeck],
-        [opponentNames[0], oDeck],
+        ["Player", pd],
+        ["Opponent 1", od1],
+        ["Opponent 2", od2],
+        ["Opponent 3", od3],
+        ["Opponent 4", od4],
+        ["Opponent 5", od5],
       ]);
-      expectedPDeck.gameResult = "Victory";
-      expectedODeck.gameResult = "Defeat";
+
       const updatedDecks = new Map<string, Deck | OpponentDeck>([
-        [playerName, expectedPDeck],
-        [opponentNames[0], expectedODeck],
+        ["Player", epd],
+        ["Opponent 1", eod1],
+        ["Opponent 2", eod2],
+        ["Opponent 3", eod3],
+        ["Opponent 4", eod4],
+        ["Opponent 5", eod5],
       ]);
-      // Act and Assert - Simulate setting  deck results where the victor is the player.
-      expect(
-        DOMObserver.setDecksGameResults(
-          victor,
-          defeated,
-          playerName,
-          opponentNames,
-          decks
-        )
-      ).toStrictEqual(updatedDecks);
+
+      updatedDecks.get("Player")!.gameResult = "6th Place";
+      updatedDecks.get("Opponent 1")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 2")!.gameResult = "2nd Place";
+      updatedDecks.get("Opponent 3")!.gameResult = "3rd Place";
+      updatedDecks.get("Opponent 4")!.gameResult = "4th Place";
+      updatedDecks.get("Opponent 5")!.gameResult = "5th Place";
+
+      // Act and Assert
+      expect(decks).not.toStrictEqual(updatedDecks);
+      expect(DOMObserver.setDecksGameResults(resultMap, decks)).toStrictEqual(
+        updatedDecks
+      );
     });
 
-    it("should set the opponent deck gameResult as 'Victory' and the player deck gameResult as 'Defeat' when the opponent is the victor, and return the decks ", () => {
-      const victor = "oName";
-      const defeated = ["pName"];
-      const playerName = "pName";
-      const opponentNames = ["oName"];
+    it("should set gameResults correctly when there are multiple ties", () => {
+      // Arrange
+      const resultMap: Map<number, string[]> = new Map([
+        [1, ["Opponent 1"]],
+        [2, ["Opponent 2", "Opponent 3"]],
+        [4, ["Opponent 4"]],
+        [5, ["Opponent 5", "Player"]],
+      ]);
       const decks = new Map<string, Deck | OpponentDeck>([
-        [playerName, pDeck],
-        [opponentNames[0], oDeck],
+        ["Player", pd],
+        ["Opponent 1", od1],
+        ["Opponent 2", od2],
+        ["Opponent 3", od3],
+        ["Opponent 4", od4],
+        ["Opponent 5", od5],
       ]);
-      expectedODeck.gameResult = "Victory";
-      expectedPDeck.gameResult = "Defeat";
+
       const updatedDecks = new Map<string, Deck | OpponentDeck>([
-        [playerName, expectedPDeck],
-        [opponentNames[0], expectedODeck],
+        ["Player", epd],
+        ["Opponent 1", eod1],
+        ["Opponent 2", eod2],
+        ["Opponent 3", eod3],
+        ["Opponent 4", eod4],
+        ["Opponent 5", eod5],
       ]);
 
-      // Act and Assert - Simulate setting deck results where the victor is the opponent.
-      expect(
-        DOMObserver.setDecksGameResults(
-          victor,
-          defeated,
-          playerName,
-          opponentNames,
-          decks
-        )
-      ).toStrictEqual(updatedDecks);
-    });
-
-    it("should set the player deck gameResult and the opponent deck gameResult as 'Tie' the player is neither victor nor defeated", () => {
-      const victor = "None: tie";
-      const defeated = ["None: tie"];
-      const playerName = "pName";
-      const opponentNames = ["oName"];
-      const decks = new Map<string, Deck | OpponentDeck>([
-        [playerName, pDeck],
-        [opponentNames[0], oDeck],
-      ]);
-      expectedPDeck.gameResult = "Tie";
-      expectedODeck.gameResult = "Tie";
-      const updatedDecks = new Map<string, Deck | OpponentDeck>([
-        [playerName, expectedPDeck],
-        [opponentNames[0], expectedODeck],
-      ]);
-
-      // Act and Assert - Simulate setting deck results where game result is tie.
-      expect(
-        DOMObserver.setDecksGameResults(
-          victor,
-          defeated,
-          playerName,
-          opponentNames,
-          decks
-        )
-      ).toStrictEqual(updatedDecks);
+      updatedDecks.get("Player")!.gameResult = "5th Place";
+      updatedDecks.get("Opponent 1")!.gameResult = "1st Place";
+      updatedDecks.get("Opponent 2")!.gameResult = "2nd Place";
+      updatedDecks.get("Opponent 3")!.gameResult = "2nd Place";
+      updatedDecks.get("Opponent 4")!.gameResult = "4th Place";
+      updatedDecks.get("Opponent 5")!.gameResult = "5th Place";
+      // Act and Assert
+      expect(decks).not.toStrictEqual(updatedDecks);
+      expect(DOMObserver.setDecksGameResults(resultMap, decks)).toStrictEqual(
+        updatedDecks
+      );
     });
   });
 });

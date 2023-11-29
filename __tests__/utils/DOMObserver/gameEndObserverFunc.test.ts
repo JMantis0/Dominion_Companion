@@ -65,25 +65,41 @@ describe("gameEndObserverFunc", () => {
     // Mock result 3 game results.
     jest
       .spyOn(DOMObserver, "getResult")
-      .mockReturnValueOnce({ victor: "pName", defeated: ["oName"] })
-      .mockReturnValueOnce({ victor: "oName", defeated: ["pName"] })
-      .mockReturnValueOnce({victor:"None: tie", defeated:["None:tie"]});
+      .mockReturnValueOnce(
+        new Map([
+          [1, ["pName"]],
+          [2, ["oName"]],
+        ])
+      )
+      .mockReturnValueOnce(
+        new Map([
+          [1, ["oName"]],
+          [2, ["pName"]],
+        ])
+      )
+      .mockReturnValueOnce(new Map([[1, ["pName", "oName"]]]));
 
     // Act - Simulate game end with player as the victor.
     DOMObserver.gameEndObserverFunc();
 
     // Assert - Verify Redux state and decks properly updated
-    expect(storeMock.getState().content.playerDeck.gameResult).toBe("Victory");
-    expect(storeMock.getState().content.opponentDecks[0].gameResult).toBe("Defeat");
+    expect(storeMock.getState().content.playerDeck.gameResult).toBe(
+      "1st Place"
+    );
+    expect(storeMock.getState().content.opponentDecks[0].gameResult).toBe(
+      "2nd Place"
+    );
     expect(saveGameData).toBeCalledWith(DOMObserver.gameLog, DOMObserver.decks);
 
     // 2nd act - Simulate game end with opponent as the victor.
     DOMObserver.gameEndObserverFunc();
 
     // Assert - Verify Redux state and decks properly updated
-    expect(storeMock.getState().content.playerDeck.gameResult).toBe("Defeat");
+    expect(storeMock.getState().content.playerDeck.gameResult).toBe(
+      "2nd Place"
+    );
     expect(storeMock.getState().content.opponentDecks[0].gameResult).toBe(
-      "Victory"
+      "1st Place"
     );
     expect(saveGameData).toBeCalledWith(DOMObserver.gameLog, DOMObserver.decks);
 
@@ -91,8 +107,12 @@ describe("gameEndObserverFunc", () => {
     DOMObserver.gameEndObserverFunc();
 
     // Assert - Verify Redux state and decks properly updated
-    expect(storeMock.getState().content.playerDeck.gameResult).toBe("Tie");
-    expect(storeMock.getState().content.opponentDecks[0].gameResult).toBe("Tie");
+    expect(storeMock.getState().content.playerDeck.gameResult).toBe(
+      "1st Place"
+    );
+    expect(storeMock.getState().content.opponentDecks[0].gameResult).toBe(
+      "1st Place"
+    );
     expect(saveGameData).toBeCalledWith(DOMObserver.gameLog, DOMObserver.decks);
   });
 
