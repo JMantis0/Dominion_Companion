@@ -1664,7 +1664,6 @@ const useViewerSorter = (
       unsortedMap,
       sortButtonState.sort
     );
-    console.log("New Sorted map needed", sortedMap);
     setMap(sortedMap);
   }, [newSort, newZone]);
 };
