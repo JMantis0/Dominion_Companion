@@ -309,4 +309,45 @@ describe("getResultMultiPlayer", () => {
       ])
     );
   });
+
+  it(
+    "should work when there are multiple ranks tied for, " +
+      " with different number of players tied for one rank than the other",
+    () => {
+      // Arrange 6 decks where 3 players are tied for one rank, and 2 players for another.
+      pd.setCurrentVP(5);
+      od1.setCurrentVP(5);
+      od2.setCurrentVP(5);
+      od3.setCurrentVP(20);
+      od4.setCurrentVP(20);
+      const od5 = new OpponentDeck(
+        mockTitle,
+        false,
+        "",
+        "Opponent 5",
+        "Opponent 5",
+        []
+      );
+      od5.setCurrentVP(10);
+      decks.set("Opponent 5", od5);
+      opponentNames.push("Opponent 5");
+      const gameEndReason = "The game has ended.";
+
+      // Act - Get result when there are 3 separate ties.
+      const resultMap = DOMObserver.getResultMultiPlayer(
+        decks,
+        "Player Name",
+        opponentNames,
+        gameEndReason
+      );
+      // Assert - Verify map is created and returned correctly.
+      expect(resultMap).toStrictEqual(
+        new Map([
+          [1, ["Opponent 3", "Opponent 4"]],
+          [3, ["Opponent 5"]],
+          [4, ["Opponent 1", "Opponent 2", "Player Name"]],
+        ])
+      );
+    }
+  );
 });

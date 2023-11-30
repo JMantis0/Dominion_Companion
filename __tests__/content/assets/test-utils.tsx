@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { render } from "@testing-library/react";
+import { render, renderHook } from "@testing-library/react";
 import type { RenderOptions } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import type { PreloadedState } from "@reduxjs/toolkit";
@@ -12,6 +12,7 @@ import contentSlice from "../../../src/redux/contentSlice";
 import optionsSlice from "../../../src/redux/optionsSlice";
 import { initialState as initialContentState } from "../../../src/redux/contentSlice";
 import { initialState as initialOptionsState } from "../../../src/redux/optionsSlice";
+import { DOMStore } from "../../../src/utils";
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
@@ -90,4 +91,14 @@ export const renderWithCSS = (
   document.head.appendChild(style);
 
   return { ...render(ui, { wrapper, ...options }) };
+};
+
+export const renderHookWithProviders = (
+  hook: (initialProps: unknown) => unknown,
+  store: DOMStore
+) => {
+  const Wrapper = ({ children }: PropsWithChildren<object>): JSX.Element => {
+    return <Provider store={store}>{children}</Provider>;
+  };
+  return { store, ...renderHook(hook, { wrapper: Wrapper }) };
 };

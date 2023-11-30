@@ -1,9 +1,5 @@
-import React, { useState, useEffect, FunctionComponent } from "react";
-import {
-  getCountsFromArray,
-  getRowColor,
-  sortZoneView,
-} from "../../../utils/utils";
+import React, { useState, FunctionComponent } from "react";
+import { getRowColor, useViewerSorter } from "../../../utils/utils";
 import ZoneCardRow from "./ZoneCardRow/ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader/ZoneViewHeader";
 import type {
@@ -28,16 +24,7 @@ const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
   sortDispatchFunc,
 }) => {
   const [map, setMap] = useState<Map<string, number>>(new Map());
-  // const pd = useSelector((state: RootState) => state.content.playerDeck);
-  useEffect(() => {
-    const unsortedMap = getCountsFromArray(zone);
-    const sortedMap = sortZoneView(
-      sortButtonState.category,
-      unsortedMap,
-      sortButtonState.sort
-    );
-    setMap(sortedMap);
-  }, [deck, sortButtonState]);
+  useViewerSorter(zone, sortButtonState, setMap, [deck, sortButtonState]);
   return (
     <div className="text-xs outer-shell">
       <ZoneViewHeader
