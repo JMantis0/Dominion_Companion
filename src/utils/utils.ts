@@ -20,8 +20,9 @@ import type {
   StoreDeck,
 } from ".";
 import $ from "jquery";
-import { store } from "../redux/store";
+import { RootState, store } from "../redux/store";
 import { setViewerHidden } from "../redux/contentSlice";
+import { Serializable } from "child_process";
 // import { DOMObserver } from "./DOMObserver";
 
 /**
@@ -687,6 +688,27 @@ const onTurnToggleButtonClick = (
 };
 
 /**
+ * Selector function for the OpponentViewer component.
+ * @param state - The extension's redux RootState.
+ * @returns - Object with parts of the redux state needed by the OpponentViewer.
+ */
+const opponentViewerStateSelectorFunction = (
+  state: RootState
+): {
+  opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>;
+  opponentSortState: SortButtonState;
+} => {
+  const odData: Array<{ playerName: string; entireDeck: string[] }> = [];
+  state.content.opponentDecks.forEach((od) => {
+    odData.push({ playerName: od.playerName, entireDeck: od.entireDeck });
+  });
+  return {
+    opponentDeckData: odData,
+    opponentSortState: state.content.opponentSortState,
+  };
+};
+
+/**
  * Message listener callback function.  Used by the content script
  *  to execute requests from the extension popup.
  * @param request - The request from the popup, to hide or show the Companion.
@@ -1302,6 +1324,21 @@ const splitCombinedMapsByCardTypes = (
 };
 
 /**
+ * Custom equality function for useSelector hooks.  Compares old
+ * value and new value by their stringified values instead of
+ * references.  Used to prevent unnecessary rerenders.
+ * @param oldValue - The old useSelector value.
+ * @param newValue - The updated useSelector value.
+ * @returns - Boolean for whether the oldValue and newValue have equal stringified values.
+ */
+const stringifiedEqualityFunction = (
+  oldValue: Serializable,
+  newValue: Serializable
+): boolean => {
+  return JSON.stringify(oldValue) === JSON.stringify(newValue);
+};
+
+/**
  * Function that stringifies a numeric probability.
  * @param probabilityFloat - Numeric probability
  * @returns - Stringified probability rounded to 1 decimal place and with a %
@@ -1695,6 +1732,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  opponentViewerStateSelectorFunction,
   popupMessageListener,
   primaryFrameResizableHandles,
   product_Range,
@@ -1708,6 +1746,7 @@ export {
   sortTwoCardsByProbability,
   sortZoneView,
   splitCombinedMapsByCardTypes,
+  stringifiedEqualityFunction,
   stringifyProbability,
   toErrorWithMessage,
   useContentViewerStatus,
