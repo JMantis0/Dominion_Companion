@@ -10,6 +10,7 @@ import {
 import type {
   CardCounts,
   ErrorWithMessage,
+  OpponentStoreDeck,
   OptionalHandles,
   PrimaryFrameTabType,
   SortButtonState,
@@ -1622,6 +1623,32 @@ const usePopupChromeMessageListener = (
   }, dependencies);
 };
 
+/**
+ * Custom hook that creates a sortedMap from map from a zone and dispatches
+ * it as an action to a React SetStateAction.
+ * @param zone - The given array representing a deck zone.
+ * @param sortButtonState - A SortButtonState with sort instructions
+ * @param setMap - th React SetStateAction
+ * @param dependencies - An array of dependencies for the useEffect hook.
+ */
+const useViewerSorter = (
+  zone: string[],
+  sortButtonState: SortButtonState,
+  setMap: (value: React.SetStateAction<Map<string, number>>) => void,
+  dependencies?: Array<SortButtonState | OpponentStoreDeck | StoreDeck>
+) => {
+  useEffect(() => {
+    const unsortedMap = getCountsFromArray(zone);
+    const sortedMap = sortZoneView(
+      sortButtonState.category,
+      unsortedMap,
+      sortButtonState.sort
+    );
+    console.log("sorted Map", sortedMap);
+    setMap(sortedMap);
+  }, dependencies);
+};
+
 export {
   combinations,
   combineDeckListMapAndZoneListMap,
@@ -1671,4 +1698,5 @@ export {
   useJQueryResizable,
   usePopupChromeMessageListener,
   useMinimizer,
+  useViewerSorter,
 };
