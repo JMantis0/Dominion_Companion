@@ -18,7 +18,6 @@ const OpponentViewer = () => {
               {od.playerName}&apos;s Deck: {od.entireDeck.length} cards.
             </div>
             <ZoneViewer
-              deck={od}
               sortButtonState={opponentSortState}
               sortDispatchFunc={setOpponentSortState}
               title={`${od.playerName}'s Deck`}

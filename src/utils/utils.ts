@@ -5,12 +5,12 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type {
   CardCounts,
   ErrorWithMessage,
-  OpponentStoreDeck,
   OptionalHandles,
   PrimaryFrameTabType,
   SortButtonState,
@@ -1634,9 +1634,29 @@ const usePopupChromeMessageListener = (
 const useViewerSorter = (
   zone: string[],
   sortButtonState: SortButtonState,
-  setMap: (value: React.SetStateAction<Map<string, number>>) => void,
-  dependencies?: Array<SortButtonState | OpponentStoreDeck | StoreDeck>
+  setMap: (value: React.SetStateAction<Map<string, number>>) => void
 ) => {
+  const [newZone, setNewZone] = useState(zone);
+  const [newSort, setNewSort] = useState(sortButtonState);
+  const prevRef = useRef<{ prevZone: string[]; prevSort: SortButtonState }>({
+    prevZone: zone,
+    prevSort: sortButtonState,
+  });
+  useEffect(() => {
+    if (JSON.stringify(prevRef.current.prevZone) !== JSON.stringify(zone)) {
+      prevRef.current.prevZone = zone;
+      setNewZone(zone);
+    }
+  }, [zone]);
+  useEffect(() => {
+    if (
+      JSON.stringify(prevRef.current.prevSort) !==
+      JSON.stringify(sortButtonState)
+    ) {
+      prevRef.current.prevSort = sortButtonState;
+      setNewSort(sortButtonState);
+    }
+  }, [sortButtonState]);
   useEffect(() => {
     const unsortedMap = getCountsFromArray(zone);
     const sortedMap = sortZoneView(
@@ -1644,9 +1664,9 @@ const useViewerSorter = (
       unsortedMap,
       sortButtonState.sort
     );
-    console.log("sorted Map", sortedMap);
+    console.log("New Sorted map needed", sortedMap);
     setMap(sortedMap);
-  }, dependencies);
+  }, [newSort, newZone]);
 };
 
 export {

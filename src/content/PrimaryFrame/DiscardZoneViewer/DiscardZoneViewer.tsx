@@ -18,7 +18,6 @@ const DiscardZoneViewer = () => {
         {pd.playerName}&apos;s discard pile: {pd.entireDeck.length} cards.
       </div>
       <ZoneViewer
-        deck={pd}
         zone={discardZone}
         title="Discard Pile"
         sortButtonState={dzSortState}

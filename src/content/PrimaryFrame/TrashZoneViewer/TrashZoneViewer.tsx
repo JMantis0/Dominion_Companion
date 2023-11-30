@@ -23,7 +23,6 @@ const TrashZoneViewer = () => {
         {pd.playerName}&apos;s trash:
       </div>
       <ZoneViewer
-        deck={pd}
         sortButtonState={trashSortState}
         sortDispatchFunc={setTrashSortState}
         title={"Trash"}
@@ -36,7 +35,6 @@ const TrashZoneViewer = () => {
               {od.playerName}&apos;s trash:
             </div>
             <ZoneViewer
-              deck={od}
               sortButtonState={opponentTrashSortState}
               sortDispatchFunc={setOpponentTrashSortState}
               title={"Trash"}

@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { describe, it, expect, jest } from "@jest/globals";
-import { OpponentStoreDeck, SortButtonState } from "../../src/utils";
+import { SortButtonState } from "../../src/utils";
 import { useViewerSorter } from "../../src/utils/utils";
 import { OpponentDeck } from "../../src/model/opponentDeck";
 import { renderHook } from "@testing-library/react";
@@ -28,20 +28,15 @@ describe("useViewerSorter", () => {
       []
     );
 
-    let opponentStoreDeck = opponentDeck as OpponentStoreDeck;
-
     // Act - Simulate an initial render
     const { rerender } = renderHook(
-      ({ sortButtonState, setMap, opponentStoreDeck }) =>
-        useViewerSorter(opponentDeck.entireDeck, sortButtonState, setMap, [
-          opponentStoreDeck,
-          sortButtonState,
-        ]),
+      ({ zone, sortButtonState, setMap }) =>
+        useViewerSorter(zone, sortButtonState, setMap),
       {
         initialProps: {
+          zone: opponentDeck.entireDeck,
           sortButtonState,
           setMap,
-          opponentStoreDeck,
         },
       }
     );
@@ -63,13 +58,12 @@ describe("useViewerSorter", () => {
 
     // Add a card to the deck and reassign the opponentStoreDeck
     opponentDeck.addCardToEntireDeck("Vassal");
-    opponentStoreDeck = JSON.parse(JSON.stringify(opponentStoreDeck));
 
     // Rerender with the updated opponentStoreDeck
     rerender({
+      zone: opponentDeck.entireDeck,
       sortButtonState,
       setMap,
-      opponentStoreDeck,
     });
 
     // Build 2nd expected Map, for the rerender
@@ -90,9 +84,9 @@ describe("useViewerSorter", () => {
 
     // Rerender with a descending sortButtonState
     rerender({
+      zone: opponentDeck.entireDeck,
       sortButtonState: { category: "zone", sort: "descending" },
       setMap,
-      opponentStoreDeck,
     });
 
     // Build 3rd expected map, for 2nd rerender
@@ -114,12 +108,12 @@ describe("useViewerSorter", () => {
 
     // Rerender with a descending sortButtonState, with a different category.
     rerender({
+      zone: opponentDeck.entireDeck,
       sortButtonState: { category: "card", sort: "ascending" },
       setMap,
-      opponentStoreDeck,
     });
 
-    // Build 3rd expected map, for 2nd rerender
+    // Build 4th expected map, for 3rd rerender
     const expectedMap4 = new Map([
       ["Copper", 7],
       ["Estate", 3],
@@ -135,5 +129,13 @@ describe("useViewerSorter", () => {
     // Assert 4 - Verify setMap was called with the correct sortedMap
     expect(setMap).toBeCalledTimes(4);
     expect(sortedMapArray4).toStrictEqual(expectedMapArray4);
+
+    // Rerender with the same props and confirm setMap is not called a 5th time
+    rerender({
+      zone: opponentDeck.entireDeck,
+      sortButtonState: { category: "card", sort: "ascending" },
+      setMap,
+    });
+    expect(setMap).toBeCalledTimes(4);
   });
 });
