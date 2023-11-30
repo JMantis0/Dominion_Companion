@@ -41,8 +41,16 @@ const useSaveGameBeforeUnloadListener = () => {
 };
 
 const PrimaryFrame = () => {
-  const ods = useSelector((state: RootState) => state.content.opponentDecks);
-  const pd = useSelector((state: RootState) => state.content.playerDeck);
+  // const ods = useSelector((state: RootState) => state.content.opponentDecks);
+  const pdEntireDeckLength = useSelector(
+    (state: RootState) => state.content.playerDeck.entireDeck.length
+  );
+  const pdTrashLength = useSelector(
+    (state: RootState) => state.content.playerDeck.trash.length
+  );
+  const pdDiscardLength = useSelector(
+    (state: RootState) => state.content.playerDeck.graveyard.length
+  );
   const baseOnly = useSelector((state: RootState) => state.content.baseOnly);
   const hidden = useSelector((state: RootState) => state.content.viewerHidden);
   const activeStatus = useSelector(
@@ -111,13 +119,14 @@ const PrimaryFrame = () => {
               <main className="text-white grid grid-cols-12 mb-[10px] border-t-2">
                 <PrimaryFrameTab
                   title="Deck"
-                  count={pd.entireDeck.length}
+                  count={pdEntireDeckLength}
                   colSpan={6}
                   position="Top"
                 />
                 <PrimaryFrameTab
                   title="Opponent"
-                  count={ods[0].entireDeck.length}
+                  // count={ods[0].entireDeck.length}
+                  count={0}
                   colSpan={6}
                   position="Top"
                 />
@@ -171,13 +180,13 @@ const PrimaryFrame = () => {
               >
                 <PrimaryFrameTab
                   title="Discard"
-                  count={pd.graveyard.length}
+                  count={pdDiscardLength}
                   colSpan={4}
                   position="Bottom"
                 />
                 <PrimaryFrameTab
                   title="Trash"
-                  count={pd.trash.length}
+                  count={pdTrashLength}
                   colSpan={4}
                   position="Bottom"
                 />
