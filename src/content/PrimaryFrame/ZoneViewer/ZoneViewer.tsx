@@ -1,30 +1,26 @@
 import React, { useState, FunctionComponent } from "react";
-import { getRowColor, useViewerSorter } from "../../../utils/utils";
+import { getRowColor, useZoneViewerSorter } from "../../../utils/utils";
 import ZoneCardRow from "./ZoneCardRow/ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader/ZoneViewHeader";
 import type {
   SortButtonState,
   SortReducer,
-  StoreDeck,
-  OpponentStoreDeck,
 } from "../../../utils";
 
 type ZoneViewerProps = {
-  deck: StoreDeck | OpponentStoreDeck;
   zone: string[];
   title: string;
   sortButtonState: SortButtonState;
   sortDispatchFunc: SortReducer;
 };
 const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
-  deck,
   zone,
   title,
   sortButtonState,
   sortDispatchFunc,
 }) => {
   const [map, setMap] = useState<Map<string, number>>(new Map());
-  useViewerSorter(zone, sortButtonState, setMap, [deck, sortButtonState]);
+  useZoneViewerSorter(zone, sortButtonState, setMap);
   return (
     <div className="text-xs outer-shell">
       <ZoneViewHeader

@@ -1,9 +1,11 @@
 import { sortMainViewer } from "../../src/utils/utils";
 import { describe, it, expect } from "@jest/globals";
-import { CardCounts, SortCategory, StoreDeck } from "../../src/utils";
+import {
+  CardCounts,
+  DeckZones,
+  SortCategory,
+} from "../../src/utils";
 import { getMapArray } from "../testUtilFuncs";
-
-
 
 describe("sortMainViewer", () => {
   // Following 4 cases are for sortParam "probability" and sortTpe "ascending".
@@ -26,20 +28,7 @@ describe("sortMainViewer", () => {
       ["CardD", { entireDeckCount: 4, zoneCount: 4 }],
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -67,7 +56,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -110,20 +98,7 @@ describe("sortMainViewer", () => {
       ["CardF", { entireDeckCount: 2, zoneCount: 0 }], //  2 CardE added to the above case, 0 in library 2 in graveyard.
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -152,7 +127,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE", "CardF", "CardF"],
       inPlay: ["CardE"], // Placing 1 card E in inPlay.  This card will not be considered in the hypergeometric probability because the parameter for turn is "Current".
       hand: [],
-      trash: [],
       setAside: [],
     };
     // topCardsLookAmount set greater than library size but less than library size + graveyard size
@@ -201,20 +175,7 @@ describe("sortMainViewer", () => {
       ["CardG", { entireDeckCount: 3, zoneCount: 0 }], // 3 CardG added to the case above (2 to graveyard, 1 to inPlay).  zoneCount and hypergeometric probability is equal to cardF, so should sort by entireDeckCount
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -249,7 +210,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE", "CardF", "CardF", "CardG", "CardG"],
       inPlay: ["CardG", "CardE"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 11; //Similar to above, setting topCardsLookAmount to one greater than the library size.
@@ -297,20 +257,7 @@ describe("sortMainViewer", () => {
       ["CardG", { entireDeckCount: 3, zoneCount: 0 }],
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -356,7 +303,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardG", "CardE", "CardH"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 11;
@@ -403,20 +349,7 @@ describe("sortMainViewer", () => {
       ["CardB", { entireDeckCount: 1, zoneCount: 1 }],
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardB",
         "CardA",
@@ -444,7 +377,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -487,20 +419,7 @@ describe("sortMainViewer", () => {
       ["CardF", { entireDeckCount: 2, zoneCount: 0 }], //  2 CardE added to the above case, 0 in library 2 in graveyard.
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -529,7 +448,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE", "CardF", "CardF"],
       inPlay: ["CardE"], // Placing 1 card E in inPlay.  This card will not be considered in the hypergeometric probability because the parameter for turn is "Current".
       hand: [],
-      trash: [],
       setAside: [],
     };
     // topCardsLookAmount set greater than library size but less than library size + graveyard size
@@ -578,20 +496,7 @@ describe("sortMainViewer", () => {
       ["CardG", { entireDeckCount: 3, zoneCount: 0 }], // 3 CardG added to the case above (2 to graveyard, 1 to inPlay).  zoneCount and hypergeometric probability is equal to cardF, so should sort by entireDeckCount
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -626,7 +531,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE", "CardF", "CardF", "CardG", "CardG"],
       inPlay: ["CardG", "CardE"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 11; //Similar to above, setting topCardsLookAmount to one greater than the library size.
@@ -674,20 +578,7 @@ describe("sortMainViewer", () => {
       ["CardG", { entireDeckCount: 3, zoneCount: 0 }],
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -733,7 +624,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardG", "CardE", "CardH"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 11;
@@ -778,20 +668,7 @@ describe("sortMainViewer", () => {
       ["CardD", { entireDeckCount: 4, zoneCount: 4 }],
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -819,7 +696,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -861,20 +737,7 @@ describe("sortMainViewer", () => {
       ["CardE", { entireDeckCount: 3, zoneCount: 2 }], // Adding 3 CardE to the Case 9 above. (2 to library, 1 to graveyard.)  Since owned count is the same as CardC, it should be sorted by zoneCount.
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -907,7 +770,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE"],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -951,20 +813,7 @@ describe("sortMainViewer", () => {
       ["CardG", { entireDeckCount: 4, zoneCount: 0 }], // Adding 4 CardG to Case10 from above (4 to graveyard).  since it has equal owned count and equal zoneCount to cardF, it should sort by the hypergeometric probability.
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -1014,7 +863,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardF"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 13; // Setting topCardsLookAmount to 13 (library size + 1) to ensure that hypergeometric probability for drawing CardF and CardG are not equal;
@@ -1064,20 +912,7 @@ describe("sortMainViewer", () => {
       ["CardF", { entireDeckCount: 4, zoneCount: 0 }],
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -1133,7 +968,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardF"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1; // Setting topCardsLookAmount to 1
@@ -1177,20 +1011,7 @@ describe("sortMainViewer", () => {
       ["CardA", { entireDeckCount: 1, zoneCount: 1 }],
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -1218,7 +1039,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -1260,20 +1080,7 @@ describe("sortMainViewer", () => {
       ["CardE", { entireDeckCount: 3, zoneCount: 2 }], // Adding 3 CardE to the Case 9 above. (2 to library, 1 to graveyard.)  Since owned count is the same as CardC, it should be sorted by zoneCount.
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -1306,7 +1113,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE"],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -1351,20 +1157,7 @@ describe("sortMainViewer", () => {
       ["CardG", { entireDeckCount: 4, zoneCount: 0 }], // Adding 4 CardG to Case10 from above (4 to graveyard).  since it has equal owned count and equal zoneCount to cardF, it should sort by the hypergeometric probability.
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -1414,7 +1207,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardF"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 13; // Setting topCardsLookAmount to 13 (library size + 1) to ensure that hypergeometric probability for drawing CardF and CardG are not equal;
@@ -1464,20 +1256,7 @@ describe("sortMainViewer", () => {
       ["CardF", { entireDeckCount: 4, zoneCount: 0 }],
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -1533,7 +1312,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardF"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1; // Setting topCardsLookAmount to 1
@@ -1576,20 +1354,7 @@ describe("sortMainViewer", () => {
       ["CardC", { entireDeckCount: 4, zoneCount: 4 }],
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardB",
         "CardA",
@@ -1617,7 +1382,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -1659,20 +1423,7 @@ describe("sortMainViewer", () => {
       ["CardE", { entireDeckCount: 5, zoneCount: 4 }], //  Adding 5 CardE to the above case, (4 library, 1 graveyard), which will require CardE and CardC to be compared by amount owned.
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardB",
         "CardA",
@@ -1709,7 +1460,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE"],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -1750,24 +1500,11 @@ describe("sortMainViewer", () => {
       ["CardD", { entireDeckCount: 3, zoneCount: 3 }],
       ["CardC", { entireDeckCount: 4, zoneCount: 4 }],
       ["CardE", { entireDeckCount: 5, zoneCount: 4 }],
-      ["CardF", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardF to the case from above (2 library, 1 graveyard).
-      ["CardG", { entireDeckCount: 3, zoneCount: 2 }],  // Adding 3 CardG to the case from above (2 library, 1 inPlay).  This will require CardF and CardG to be compared by probability
+      ["CardF", { entireDeckCount: 3, zoneCount: 2 }], // Adding 3 CardF to the case from above (2 library, 1 graveyard).
+      ["CardG", { entireDeckCount: 3, zoneCount: 2 }], // Adding 3 CardG to the case from above (2 library, 1 inPlay).  This will require CardF and CardG to be compared by probability
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardB",
         "CardA",
@@ -1814,7 +1551,6 @@ describe("sortMainViewer", () => {
       graveyard: ["CardE", "CardF"],
       inPlay: ["CardG"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 19;
@@ -1849,7 +1585,6 @@ describe("sortMainViewer", () => {
   it("should sort by amount in library (zone) correctly in ascending order, and if equal, sort by amount owned, and if owned count is equal, sort by hypergeometric probability, and if hyperGeometric is equal, should sort by cardName", () => {
     //  Sort ascending by zoneCount with some equal zoneCounts, and equal owned counts, and equal probabilities.
 
-
     // Arrange
     const sortParam: SortCategory = "zone";
     const unsortedMap: Map<string, CardCounts> = new Map([
@@ -1860,24 +1595,11 @@ describe("sortMainViewer", () => {
       ["CardE", { entireDeckCount: 5, zoneCount: 4 }],
       ["CardF", { entireDeckCount: 3, zoneCount: 2 }],
       ["CardG", { entireDeckCount: 3, zoneCount: 2 }],
-      ["CardH", { entireDeckCount: 6, zoneCount: 3 }],  //  Adding 6 CardH (3 library, 3 graveyard)
-      ["CardI", { entireDeckCount: 6, zoneCount: 3 }],  //  and 6 CardI (3 library, 3 graveyard)  making CardH and CardI have equal zoneCounts, owned counts, and probability, and they should be sorted by name
+      ["CardH", { entireDeckCount: 6, zoneCount: 3 }], //  Adding 6 CardH (3 library, 3 graveyard)
+      ["CardI", { entireDeckCount: 6, zoneCount: 3 }], //  and 6 CardI (3 library, 3 graveyard)  making CardH and CardI have equal zoneCounts, owned counts, and probability, and they should be sorted by name
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardB",
         "CardA",
@@ -1951,7 +1673,6 @@ describe("sortMainViewer", () => {
       ],
       inPlay: ["CardG"],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -1995,20 +1716,7 @@ describe("sortMainViewer", () => {
       ["CardA", { entireDeckCount: 1, zoneCount: 1 }],
     ]);
     const sortType = "ascending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardA",
         "CardB",
@@ -2036,7 +1744,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -2074,20 +1781,7 @@ describe("sortMainViewer", () => {
       ["CardC", { entireDeckCount: 4, zoneCount: 4 }],
     ]);
     const sortType = "descending";
-    const pd: StoreDeck = {
-      currentVP: 0,
-      gameResult: "Unfinished",
-      gameTitle: "",
-      gameTurn: 0,
-      kingdom: [],
-      lastEntryProcessed: "",
-      logArchive: [],
-      playerName: "",
-      playerNick: "",
-      rating: "",
-      treasurePopped: false,
-      waitToDrawLibraryLook: false,
-      waitToShuffle: false,
+    const pd: DeckZones = {
       entireDeck: [
         "CardB",
         "CardA",
@@ -2115,7 +1809,6 @@ describe("sortMainViewer", () => {
       graveyard: [],
       inPlay: [],
       hand: [],
-      trash: [],
       setAside: [],
     };
     const topCardsLookAmount = 1;
@@ -2141,7 +1834,6 @@ describe("sortMainViewer", () => {
 
     expect(getMapArray(sortedMap)).toEqual(getMapArray(expectedSortedMap));
   });
-
 
   // Could add cases for turn parameter equal to "Next" but it not necessary since that will be tested in the cetCumulativeProbabilityForCard tests.
 });

@@ -28,7 +28,7 @@ module.exports = {
   plugins: ["@typescript-eslint", "react"],
   ignorePatterns: ["**/dist/**/*", "**/coverage/**/*"],
   rules: {
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": "error",
     "no-unused-vars": "off",
     indent: ["warn", 2, { SwitchCase: 1 }],
     "linebreak-style": ["error", "windows"],

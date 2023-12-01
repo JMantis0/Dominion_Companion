@@ -2,46 +2,44 @@
  * @jest-environment jsdom
  */
 import { describe, it, expect, jest } from "@jest/globals";
-import { OpponentStoreDeck, SortButtonState } from "../../src/utils";
-import { useViewerSorter } from "../../src/utils/utils";
-import { OpponentDeck } from "../../src/model/opponentDeck";
+import { SortButtonState } from "../../src/utils";
+import { useZoneViewerSorter } from "../../src/utils/utils";
 import { renderHook } from "@testing-library/react";
 import { getMapArray } from "../testUtilFuncs";
 
-describe("useViewerSorter", () => {
+describe("useZoneViewerSorter", () => {
   const setMap = jest.fn() as jest.MockedFunction<
     (value: React.SetStateAction<Map<string, number>>) => void
   >;
 
   it("should, given an array, return a sortedMap containing the array Data", () => {
-    // Arrange -
+    // Arrange - Create a mock sortButtonState and a mockZone.
     const sortButtonState: SortButtonState = {
       category: "zone",
       sort: "ascending",
     };
-    const opponentDeck = new OpponentDeck(
-      "MockTitle",
-      false,
-      "MockRating",
-      "Opponent",
-      "O",
-      []
-    );
-
-    let opponentStoreDeck = opponentDeck as OpponentStoreDeck;
+    const mockZone = [
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Estate",
+    ];
 
     // Act - Simulate an initial render
     const { rerender } = renderHook(
-      ({ sortButtonState, setMap, opponentStoreDeck }) =>
-        useViewerSorter(opponentDeck.entireDeck, sortButtonState, setMap, [
-          opponentStoreDeck,
-          sortButtonState,
-        ]),
+      ({ zone, sortButtonState, setMap }) =>
+        useZoneViewerSorter(zone, sortButtonState, setMap),
       {
         initialProps: {
+          zone: mockZone,
           sortButtonState,
           setMap,
-          opponentStoreDeck,
         },
       }
     );
@@ -61,15 +59,14 @@ describe("useViewerSorter", () => {
     expect(setMap).toBeCalledTimes(1);
     expect(sortedMapArray).toStrictEqual(expectedMapArray);
 
-    // Add a card to the deck and reassign the opponentStoreDeck
-    opponentDeck.addCardToEntireDeck("Vassal");
-    opponentStoreDeck = JSON.parse(JSON.stringify(opponentStoreDeck));
+    // Add a card to the zone.
+    mockZone.push("Vassal");
 
-    // Rerender with the updated opponentStoreDeck
+    // Rerender with the updated zone.
     rerender({
+      zone: mockZone.slice(),
       sortButtonState,
       setMap,
-      opponentStoreDeck,
     });
 
     // Build 2nd expected Map, for the rerender
@@ -78,6 +75,7 @@ describe("useViewerSorter", () => {
       ["Estate", 3],
       ["Vassal", 1],
     ]);
+
     // Get the map created by the hook
     const sortedMap2 = setMap.mock.calls[1][0] as Map<string, number>;
     // Convert maps to arrays for order comparison.
@@ -90,9 +88,9 @@ describe("useViewerSorter", () => {
 
     // Rerender with a descending sortButtonState
     rerender({
+      zone: mockZone,
       sortButtonState: { category: "zone", sort: "descending" },
       setMap,
-      opponentStoreDeck,
     });
 
     // Build 3rd expected map, for 2nd rerender
@@ -114,12 +112,12 @@ describe("useViewerSorter", () => {
 
     // Rerender with a descending sortButtonState, with a different category.
     rerender({
+      zone: mockZone,
       sortButtonState: { category: "card", sort: "ascending" },
       setMap,
-      opponentStoreDeck,
     });
 
-    // Build 3rd expected map, for 2nd rerender
+    // Build 4th expected map, for 3rd rerender
     const expectedMap4 = new Map([
       ["Copper", 7],
       ["Estate", 3],
@@ -135,5 +133,13 @@ describe("useViewerSorter", () => {
     // Assert 4 - Verify setMap was called with the correct sortedMap
     expect(setMap).toBeCalledTimes(4);
     expect(sortedMapArray4).toStrictEqual(expectedMapArray4);
+
+    // Rerender with the same props and confirm setMap is not called a 5th time
+    rerender({
+      zone: mockZone,
+      sortButtonState: { category: "card", sort: "ascending" },
+      setMap,
+    });
+    expect(setMap).toBeCalledTimes(4);
   });
 });

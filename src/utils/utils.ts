@@ -5,23 +5,25 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type {
   CardCounts,
+  DeckZones,
   ErrorWithMessage,
-  OpponentStoreDeck,
+  MainDeckViewerState,
   OptionalHandles,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
   SortReducer,
   SplitMaps,
-  StoreDeck,
 } from ".";
 import $ from "jquery";
-import { store } from "../redux/store";
+import { RootState, store } from "../redux/store";
 import { setViewerHidden } from "../redux/contentSlice";
+import { Serializable } from "child_process";
 // import { DOMObserver } from "./DOMObserver";
 
 /**
@@ -171,6 +173,26 @@ const customSelectResizableHandles = (): OptionalHandles => {
 };
 
 /**
+ * Selector function for the DiscardZoneViewer component.
+ * @param state - The extension's redux RootState.
+ * @returns - Object with parts of the redux state needed by the DiscardZoneViewer.
+ */
+const discardZoneViewerStateSelectorFunction = (
+  state: RootState
+): {
+  deckData: { playerName: string; graveyard: string[] };
+  discardSortState: SortButtonState;
+} => {
+  return {
+    deckData: {
+      playerName: state.content.playerDeck.playerName,
+      graveyard: state.content.playerDeck.graveyard,
+    },
+    discardSortState: state.content.discardSortState,
+  };
+};
+
+/**
  * Function takes a given array of strings and creates a Map object that has a key for each unique
  * string in the array.  The values for each key are the number of instances that string occurs
  * in the array.
@@ -203,7 +225,7 @@ const getCountsFromArray = (
  * @returns - An object literal with both the hypergeometric and the cumulative hypergeometric probabilities described above.
  */
 const getCumulativeHyperGeometricProbabilityForCard = (
-  deck: StoreDeck,
+  deck: DeckZones,
   cardName: string,
   turn: "Current" | "Next",
   successCount: number,
@@ -451,6 +473,26 @@ const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
   );
 };
 
+const mainDeckViewerStateSelectorFunction = (
+  state: RootState
+): MainDeckViewerState => {
+  const deck = state.content.playerDeck;
+  return {
+    playerName: deck.playerName,
+    deck: {
+      entireDeck: deck.entireDeck,
+      graveyard: deck.graveyard,
+      hand: deck.hand,
+      inPlay: deck.inPlay,
+      library: deck.library,
+      setAside: deck.setAside,
+    },
+    sortButtonState: state.content.sortButtonState,
+    turnToggleButton: state.content.turnToggleButton,
+    topCardsLookAmount: state.content.topCardsLookAmount,
+  };
+};
+
 /**
  * Function that is called by mouseEnter events on an option (it's actually a div) in the CustomSelect.
  * Sets the topCardsLookAmount to the value of the 'option' that the mouse is entering.
@@ -684,6 +726,27 @@ const onTurnToggleButtonClick = (
 ) => {
   dispatch(setPinnedTurnToggleButton(buttonName));
   dispatch(setTurnToggleButton(buttonName));
+};
+
+/**
+ * Selector function for the OpponentViewer component.
+ * @param state - The extension's redux RootState.
+ * @returns - Object with parts of the redux state needed by the OpponentViewer.
+ */
+const opponentViewerStateSelectorFunction = (
+  state: RootState
+): {
+  opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>;
+  opponentSortState: SortButtonState;
+} => {
+  const odData: Array<{ playerName: string; entireDeck: string[] }> = [];
+  state.content.opponentDecks.forEach((od) => {
+    odData.push({ playerName: od.playerName, entireDeck: od.entireDeck });
+  });
+  return {
+    opponentDeckData: odData,
+    opponentSortState: state.content.opponentSortState,
+  };
 };
 
 /**
@@ -958,7 +1021,7 @@ const sortMainViewer = (
   sortParam: SortCategory,
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
-  pd: StoreDeck,
+  pd: DeckZones,
   topCardsLookAmount: number,
   turn: "Current" | "Next"
 ): Map<string, CardCounts> => {
@@ -1177,7 +1240,7 @@ const sortTwoCardsByProbability = (
   cardA: string,
   cardB: string,
   sortType: "ascending" | "descending",
-  deck: StoreDeck,
+  deck: DeckZones,
   topCardsLookAmount: number,
   turn: "Current" | "Next"
 ): number => {
@@ -1299,6 +1362,21 @@ const splitCombinedMapsByCardTypes = (
     }
   });
   return splitMaps;
+};
+
+/**
+ * Custom equality function for useSelector hooks.  Compares old
+ * value and new value by their stringified values instead of
+ * references.  Used to prevent unnecessary rerenders.
+ * @param oldValue - The old useSelector value.
+ * @param newValue - The updated useSelector value.
+ * @returns - Boolean for whether the oldValue and newValue have equal stringified values.
+ */
+const stringifiedEqualityFunction = (
+  oldValue: Serializable,
+  newValue: Serializable
+): boolean => {
+  return JSON.stringify(oldValue) === JSON.stringify(newValue);
 };
 
 /**
@@ -1624,6 +1702,35 @@ const usePopupChromeMessageListener = (
 };
 
 /**
+ * Custom hook that hook that sorts the MainDeckViewer Component by creating
+ * a sorted map that combines the deck's library and entire deck list into
+ * a map of CardCounts, sorting it, and dispatching it with the given
+ * SetStateAction.
+ * @param mainDeckViewerState - the portion of redux state needed by the component.
+ * @param setLibraryMap - A react SetStateAction.
+ */
+const useMainDeckViewerSorter = (
+  mainDeckViewerState: MainDeckViewerState,
+  setLibraryMap: (value: React.SetStateAction<Map<string, CardCounts>>) => void
+) => {
+  useEffect(() => {
+    const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
+      getCountsFromArray(mainDeckViewerState.deck.entireDeck),
+      getCountsFromArray(mainDeckViewerState.deck.library)
+    );
+    const sortedCombinedMap = sortMainViewer(
+      mainDeckViewerState.sortButtonState.category,
+      unsortedCombinedMap,
+      mainDeckViewerState.sortButtonState.sort,
+      mainDeckViewerState.deck,
+      mainDeckViewerState.topCardsLookAmount,
+      mainDeckViewerState.turnToggleButton
+    );
+    setLibraryMap(sortedCombinedMap);
+  }, [mainDeckViewerState]);
+};
+
+/**
  * Custom hook that creates a sortedMap from map from a zone and dispatches
  * it as an action to a React SetStateAction.
  * @param zone - The given array representing a deck zone.
@@ -1631,12 +1738,35 @@ const usePopupChromeMessageListener = (
  * @param setMap - th React SetStateAction
  * @param dependencies - An array of dependencies for the useEffect hook.
  */
-const useViewerSorter = (
+const useZoneViewerSorter = (
   zone: string[],
   sortButtonState: SortButtonState,
-  setMap: (value: React.SetStateAction<Map<string, number>>) => void,
-  dependencies?: Array<SortButtonState | OpponentStoreDeck | StoreDeck>
+  setMap: (value: React.SetStateAction<Map<string, number>>) => void
 ) => {
+  const [newZone, setNewZone] = useState(zone.slice());
+  const [newSort, setNewSort] = useState(sortButtonState);
+  const prevRef = useRef<{
+    prevZone: string[];
+    prevSortState: SortButtonState;
+  }>({
+    prevZone: zone.slice(),
+    prevSortState: sortButtonState,
+  });
+  useEffect(() => {
+    if (JSON.stringify(prevRef.current.prevZone) !== JSON.stringify(zone)) {
+      prevRef.current.prevZone = zone.slice();
+      setNewZone(zone.slice());
+    }
+  }, [zone]);
+  useEffect(() => {
+    if (
+      JSON.stringify(prevRef.current.prevSortState) !==
+      JSON.stringify(sortButtonState)
+    ) {
+      prevRef.current.prevSortState = sortButtonState;
+      setNewSort(sortButtonState);
+    }
+  }, [sortButtonState]);
   useEffect(() => {
     const unsortedMap = getCountsFromArray(zone);
     const sortedMap = sortZoneView(
@@ -1644,9 +1774,8 @@ const useViewerSorter = (
       unsortedMap,
       sortButtonState.sort
     );
-    console.log("sorted Map", sortedMap);
     setMap(sortedMap);
-  }, dependencies);
+  }, [newSort, newZone]);
 };
 
 export {
@@ -1655,6 +1784,7 @@ export {
   createEmptySplitMapsObject,
   cumulativeHyperGeometricProbability,
   customSelectResizableHandles,
+  discardZoneViewerStateSelectorFunction,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,
@@ -1664,6 +1794,7 @@ export {
   getRowColor,
   hyperGeometricProbability,
   isErrorWithMessage,
+  mainDeckViewerStateSelectorFunction,
   onMouseEnterOption,
   onMouseEnterTurnButton,
   onMouseLeaveOption,
@@ -1676,6 +1807,7 @@ export {
   onSortButtonClick,
   onToggleSelect,
   onTurnToggleButtonClick,
+  opponentViewerStateSelectorFunction,
   popupMessageListener,
   primaryFrameResizableHandles,
   product_Range,
@@ -1689,6 +1821,7 @@ export {
   sortTwoCardsByProbability,
   sortZoneView,
   splitCombinedMapsByCardTypes,
+  stringifiedEqualityFunction,
   stringifyProbability,
   toErrorWithMessage,
   useContentViewerStatus,
@@ -1698,5 +1831,6 @@ export {
   useJQueryResizable,
   usePopupChromeMessageListener,
   useMinimizer,
-  useViewerSorter,
+  useMainDeckViewerSorter,
+  useZoneViewerSorter,
 };

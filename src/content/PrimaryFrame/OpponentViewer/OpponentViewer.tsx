@@ -1,28 +1,31 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { setOpponentSortState } from "../../../redux/contentSlice";
-import { RootState } from "../../../redux/store";
 import ZoneViewer from "../ZoneViewer/ZoneViewer";
+import {
+  opponentViewerStateSelectorFunction,
+  stringifiedEqualityFunction,
+} from "../../../utils/utils";
 
 const OpponentViewer = () => {
-  const ods = useSelector((state: RootState) => state.content.opponentDecks);
-  const opponentSortState = useSelector(
-    (state: RootState) => state.content.opponentSortState
+  const opponentViewerState = useSelector(
+    opponentViewerStateSelectorFunction,
+    stringifiedEqualityFunction
   );
   return (
     <React.Fragment>
-      {ods.map((od, idx) => {
+      {opponentViewerState.opponentDeckData.map((opponentDeck, idx) => {
         return (
           <React.Fragment key={idx}>
             <div className={"text-xs text-white pointer-events-none"}>
-              {od.playerName}&apos;s Deck: {od.entireDeck.length} cards.
+              {opponentDeck.playerName}&apos;s Deck:{" "}
+              {opponentDeck.entireDeck.length} cards.
             </div>
             <ZoneViewer
-              deck={od}
-              sortButtonState={opponentSortState}
+              sortButtonState={opponentViewerState.opponentSortState}
               sortDispatchFunc={setOpponentSortState}
-              title={`${od.playerName}'s Deck`}
-              zone={od.entireDeck}
+              title={`${opponentDeck.playerName}'s Deck`}
+              zone={opponentDeck.entireDeck}
             />
           </React.Fragment>
         );

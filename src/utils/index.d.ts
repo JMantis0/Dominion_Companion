@@ -18,6 +18,18 @@ interface CardCounts {
   zoneCount: number;
 }
 
+/**
+ * Type used by the getCumulativeHyperGeometricProbabilityForCard parameter.
+ */
+type DeckZones = {
+  library: string[];
+  hand: string[];
+  graveyard: string[];
+  entireDeck: string[];
+  setAside: string[];
+  inPlay: string[];
+};
+
 // Type for the redux store.  This type allows for an empty middleware array for faster testing.
 type DOMStore = ToolkitStore<
   {
@@ -60,6 +72,14 @@ type GameResult =
   | "4th Place"
   | "5th Place"
   | "6th Place";
+
+type MainDeckViewerState = {
+  playerName: string;
+  deck: DeckZones;
+  sortButtonState: SortButtonState;
+  turnToggleButton: "Current" | "Next";
+  topCardsLookAmount: number;
+};
 
 /**
  * Type used to stringify and store in Chrome Local Storage
@@ -178,9 +198,11 @@ interface StoreDeck {
 
 export {
   CardCounts,
+  DeckZones,
   DOMStore,
   ErrorWithMessage,
   GameResult,
+  MainDeckViewerState,
   OpponentStoreDeck,
   OptionalHandles,
   PrimaryFrameTabType,
