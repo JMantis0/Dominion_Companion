@@ -1,5 +1,5 @@
 import React, { useState, FunctionComponent } from "react";
-import { getRowColor, useViewerSorter } from "../../../utils/utils";
+import { getRowColor, useZoneViewerSorter } from "../../../utils/utils";
 import ZoneCardRow from "./ZoneCardRow/ZoneCardRow";
 import ZoneViewHeader from "./ZoneViewHeader/ZoneViewHeader";
 import type {
@@ -20,7 +20,7 @@ const ZoneViewer: FunctionComponent<ZoneViewerProps> = ({
   sortDispatchFunc,
 }) => {
   const [map, setMap] = useState<Map<string, number>>(new Map());
-  useViewerSorter(zone, sortButtonState, setMap);
+  useZoneViewerSorter(zone, sortButtonState, setMap);
   return (
     <div className="text-xs outer-shell">
       <ZoneViewHeader

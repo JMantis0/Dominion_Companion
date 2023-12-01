@@ -1680,6 +1680,8 @@ const usePopupChromeMessageListener = (
   }, dependencies);
 };
 
+const useMainDeckViewerSorter = () => {};
+
 /**
  * Custom hook that creates a sortedMap from map from a zone and dispatches
  * it as an action to a React SetStateAction.
@@ -1688,7 +1690,7 @@ const usePopupChromeMessageListener = (
  * @param setMap - th React SetStateAction
  * @param dependencies - An array of dependencies for the useEffect hook.
  */
-const useViewerSorter = (
+const useZoneViewerSorter = (
   zone: string[],
   sortButtonState: SortButtonState,
   setMap: (value: React.SetStateAction<Map<string, number>>) => void
@@ -1777,5 +1779,6 @@ export {
   useJQueryResizable,
   usePopupChromeMessageListener,
   useMinimizer,
-  useViewerSorter,
+  useMainDeckViewerSorter,
+  useZoneViewerSorter,
 };

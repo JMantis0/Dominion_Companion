@@ -3,12 +3,12 @@
  */
 import { describe, it, expect, jest } from "@jest/globals";
 import { SortButtonState } from "../../src/utils";
-import { useViewerSorter } from "../../src/utils/utils";
+import { useZoneViewerSorter } from "../../src/utils/utils";
 import { OpponentDeck } from "../../src/model/opponentDeck";
 import { renderHook } from "@testing-library/react";
 import { getMapArray } from "../testUtilFuncs";
 
-describe("useViewerSorter", () => {
+describe("useZoneViewerSorter", () => {
   const setMap = jest.fn() as jest.MockedFunction<
     (value: React.SetStateAction<Map<string, number>>) => void
   >;
@@ -31,7 +31,7 @@ describe("useViewerSorter", () => {
     // Act - Simulate an initial render
     const { rerender } = renderHook(
       ({ zone, sortButtonState, setMap }) =>
-        useViewerSorter(zone, sortButtonState, setMap),
+        useZoneViewerSorter(zone, sortButtonState, setMap),
       {
         initialProps: {
           zone: opponentDeck.entireDeck,
