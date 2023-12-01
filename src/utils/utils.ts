@@ -172,6 +172,26 @@ const customSelectResizableHandles = (): OptionalHandles => {
 };
 
 /**
+ * Selector function for the DiscardZoneViewer component.
+ * @param state - The extension's redux RootState.
+ * @returns - Object with parts of the redux state needed by the DiscardZoneViewer.
+ */
+const discardZoneViewerStateSelectorFunction = (
+  state: RootState
+): {
+  deckData: { playerName: string; graveyard: string[] };
+  discardSortState: SortButtonState;
+} => {
+  return {
+    deckData: {
+      playerName: state.content.playerDeck.playerName,
+      graveyard: state.content.playerDeck.graveyard,
+    },
+    discardSortState: state.content.discardSortState,
+  };
+};
+
+/**
  * Function takes a given array of strings and creates a Map object that has a key for each unique
  * string in the array.  The values for each key are the number of instances that string occurs
  * in the array.
@@ -1711,6 +1731,7 @@ export {
   createEmptySplitMapsObject,
   cumulativeHyperGeometricProbability,
   customSelectResizableHandles,
+  discardZoneViewerStateSelectorFunction,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,

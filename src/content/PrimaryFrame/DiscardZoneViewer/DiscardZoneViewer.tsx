@@ -1,26 +1,27 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { setDiscardSortState } from "../../../redux/contentSlice";
-import { RootState } from "../../../redux/store";
 import ZoneViewer from "../ZoneViewer/ZoneViewer";
+import {
+  discardZoneViewerStateSelectorFunction,
+  stringifiedEqualityFunction,
+} from "../../../utils/utils";
 
 const DiscardZoneViewer = () => {
-  const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const discardZone = useSelector(
-    (state: RootState) => state.content.playerDeck.graveyard
-  );
-  const dzSortState = useSelector(
-    (state: RootState) => state.content.discardSortState
+  const discardZoneViewerState = useSelector(
+    discardZoneViewerStateSelectorFunction,
+    stringifiedEqualityFunction
   );
   return (
     <React.Fragment>
       <div className={"text-xs text-white pointer-events-none"}>
-        {pd.playerName}&apos;s discard pile: {pd.entireDeck.length} cards.
+        {discardZoneViewerState.deckData.playerName}&apos;s discard pile:{" "}
+        {discardZoneViewerState.deckData.graveyard.length} cards.
       </div>
       <ZoneViewer
-        zone={discardZone}
+        zone={discardZoneViewerState.deckData.graveyard}
         title="Discard Pile"
-        sortButtonState={dzSortState}
+        sortButtonState={discardZoneViewerState.discardSortState}
         sortDispatchFunc={setDiscardSortState}
       />
     </React.Fragment>
