@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
 import {
-  combineDeckListMapAndZoneListMap,
-  getCountsFromArray,
-  sortMainViewer,
   getRowColor,
   getCumulativeHyperGeometricProbabilityForCard,
   stringifyProbability,
+  stringifiedEqualityFunction,
+  useMainDeckViewerSorter,
+  mainDeckViewerStateSelectorFunction,
 } from "../../../utils/utils";
 import FullListCardRow from "./FullListCardRow/FullListCardRow";
 import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
@@ -20,37 +19,16 @@ const MainDeckViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
-  const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const sortButtonState = useSelector(
-    (state: RootState) => state.content.sortButtonState
+  const mainDeckViewerState = useSelector(
+    mainDeckViewerStateSelectorFunction,
+    stringifiedEqualityFunction
   );
-  const turnToggleButton = useSelector(
-    (state: RootState) => state.content.turnToggleButton
-  );
-  const topCardsLookAmount = useSelector(
-    (state: RootState) => state.content.topCardsLookAmount
-  );
-
-  useEffect(() => {
-    const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
-      getCountsFromArray(pd.entireDeck),
-      getCountsFromArray(pd.library)
-    );
-    const sortedCombinedMap = sortMainViewer(
-      sortButtonState.category,
-      unsortedCombinedMap,
-      sortButtonState.sort,
-      pd,
-      topCardsLookAmount,
-      turnToggleButton
-    );
-    setLibraryMap(sortedCombinedMap);
-  }, [pd, sortButtonState, turnToggleButton, topCardsLookAmount]);
-
+  useMainDeckViewerSorter(mainDeckViewerState, setLibraryMap);
   return (
     <div className="outer-shell">
       <div className={"text-xs text-white pointer-events-none"}>
-        {pd.playerName}&apos;s Deck: {pd.entireDeck.length} cards.
+        {mainDeckViewerState.playerName}&apos;s Deck:{" "}
+        {mainDeckViewerState.deck.entireDeck.length} cards.
       </div>
       <div className="grid grid-cols-12">
         <div className={"col-span-10"}>
@@ -61,11 +39,11 @@ const MainDeckViewer = () => {
                 key={idx}
                 drawProbability={stringifyProbability(
                   getCumulativeHyperGeometricProbabilityForCard(
-                    pd,
+                    mainDeckViewerState.deck,
                     card,
-                    turnToggleButton,
+                    mainDeckViewerState.turnToggleButton,
                     1,
-                    topCardsLookAmount
+                    mainDeckViewerState.topCardsLookAmount
                   ).cumulative
                 )}
                 color={getRowColor(card)}
@@ -86,5 +64,4 @@ const MainDeckViewer = () => {
     </div>
   );
 };
-
 export default MainDeckViewer;

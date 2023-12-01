@@ -10,14 +10,15 @@ import {
 } from "react";
 import type {
   CardCounts,
+  DeckZones,
   ErrorWithMessage,
+  MainDeckViewerState,
   OptionalHandles,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
   SortReducer,
   SplitMaps,
-  StoreDeck,
 } from ".";
 import $ from "jquery";
 import { RootState, store } from "../redux/store";
@@ -224,7 +225,7 @@ const getCountsFromArray = (
  * @returns - An object literal with both the hypergeometric and the cumulative hypergeometric probabilities described above.
  */
 const getCumulativeHyperGeometricProbabilityForCard = (
-  deck: StoreDeck,
+  deck: DeckZones,
   cardName: string,
   turn: "Current" | "Next",
   successCount: number,
@@ -470,6 +471,26 @@ const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
     "message" in error &&
     typeof (error as Record<string, unknown>).message === "string"
   );
+};
+
+const mainDeckViewerStateSelectorFunction = (
+  state: RootState
+): MainDeckViewerState => {
+  const deck = state.content.playerDeck;
+  return {
+    playerName: deck.playerName,
+    deck: {
+      entireDeck: deck.entireDeck,
+      graveyard: deck.graveyard,
+      hand: deck.hand,
+      inPlay: deck.inPlay,
+      library: deck.library,
+      setAside: deck.setAside,
+    },
+    sortButtonState: state.content.sortButtonState,
+    turnToggleButton: state.content.turnToggleButton,
+    topCardsLookAmount: state.content.topCardsLookAmount,
+  };
 };
 
 /**
@@ -1000,7 +1021,7 @@ const sortMainViewer = (
   sortParam: SortCategory,
   unsortedMap: Map<string, CardCounts>,
   sortType: "ascending" | "descending",
-  pd: StoreDeck,
+  pd: DeckZones,
   topCardsLookAmount: number,
   turn: "Current" | "Next"
 ): Map<string, CardCounts> => {
@@ -1219,7 +1240,7 @@ const sortTwoCardsByProbability = (
   cardA: string,
   cardB: string,
   sortType: "ascending" | "descending",
-  deck: StoreDeck,
+  deck: DeckZones,
   topCardsLookAmount: number,
   turn: "Current" | "Next"
 ): number => {
@@ -1680,7 +1701,34 @@ const usePopupChromeMessageListener = (
   }, dependencies);
 };
 
-const useMainDeckViewerSorter = () => {};
+/**
+ * Custom hook that hook that sorts the MainDeckViewer Component by creating
+ * a sorted map that combines the deck's library and entire deck list into
+ * a map of CardCounts, sorting it, and dispatching it with the given
+ * SetStateAction.
+ * @param mainDeckViewerState - the portion of redux state needed by the component.
+ * @param setLibraryMap - A react SetStateAction.
+ */
+const useMainDeckViewerSorter = (
+  mainDeckViewerState: MainDeckViewerState,
+  setLibraryMap: (value: React.SetStateAction<Map<string, CardCounts>>) => void
+) => {
+  useEffect(() => {
+    const unsortedCombinedMap = combineDeckListMapAndZoneListMap(
+      getCountsFromArray(mainDeckViewerState.deck.entireDeck),
+      getCountsFromArray(mainDeckViewerState.deck.library)
+    );
+    const sortedCombinedMap = sortMainViewer(
+      mainDeckViewerState.sortButtonState.category,
+      unsortedCombinedMap,
+      mainDeckViewerState.sortButtonState.sort,
+      mainDeckViewerState.deck,
+      mainDeckViewerState.topCardsLookAmount,
+      mainDeckViewerState.turnToggleButton
+    );
+    setLibraryMap(sortedCombinedMap);
+  }, [mainDeckViewerState]);
+};
 
 /**
  * Custom hook that creates a sortedMap from map from a zone and dispatches
@@ -1695,24 +1743,27 @@ const useZoneViewerSorter = (
   sortButtonState: SortButtonState,
   setMap: (value: React.SetStateAction<Map<string, number>>) => void
 ) => {
-  const [newZone, setNewZone] = useState(zone);
+  const [newZone, setNewZone] = useState(zone.slice());
   const [newSort, setNewSort] = useState(sortButtonState);
-  const prevRef = useRef<{ prevZone: string[]; prevSort: SortButtonState }>({
-    prevZone: zone,
-    prevSort: sortButtonState,
+  const prevRef = useRef<{
+    prevZone: string[];
+    prevSortState: SortButtonState;
+  }>({
+    prevZone: zone.slice(),
+    prevSortState: sortButtonState,
   });
   useEffect(() => {
     if (JSON.stringify(prevRef.current.prevZone) !== JSON.stringify(zone)) {
-      prevRef.current.prevZone = zone;
-      setNewZone(zone);
+      prevRef.current.prevZone = zone.slice();
+      setNewZone(zone.slice());
     }
   }, [zone]);
   useEffect(() => {
     if (
-      JSON.stringify(prevRef.current.prevSort) !==
+      JSON.stringify(prevRef.current.prevSortState) !==
       JSON.stringify(sortButtonState)
     ) {
-      prevRef.current.prevSort = sortButtonState;
+      prevRef.current.prevSortState = sortButtonState;
       setNewSort(sortButtonState);
     }
   }, [sortButtonState]);
@@ -1743,6 +1794,7 @@ export {
   getRowColor,
   hyperGeometricProbability,
   isErrorWithMessage,
+  mainDeckViewerStateSelectorFunction,
   onMouseEnterOption,
   onMouseEnterTurnButton,
   onMouseLeaveOption,

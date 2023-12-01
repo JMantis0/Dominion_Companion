@@ -1,24 +1,57 @@
 import { describe, it, expect } from "@jest/globals";
-import { Deck } from "../../src/model/deck";
 import {
   cumulativeHyperGeometricProbability,
   getCumulativeHyperGeometricProbabilityForCard,
   hyperGeometricProbability,
 } from "../../src/utils/utils";
+import { DeckZones } from "../../src/utils";
 
 describe("Function getCumulativeHyperGeometricProbabilityForCard()", () => {
-  let lib: string[];
-  let gy: string[];
-  let deck: Deck;
   describe("When given a sample size smaller than the library length", () => {
-    deck = new Deck("Title", false, "Rating", "PlayerName", "PlayerNick", [
-      "Kingdom",
-    ]);
-    lib = ["Vassal", "Laboratory", "Sentry", "Silver"];
-    gy = ["Harbinger", "Militia", "Copper"];
-    deck.setLibrary(deck.getLibrary().concat(lib));
-    deck.setGraveyard(gy);
-    deck.setEntireDeck(deck.getLibrary().concat(gy));
+    // Create a mockDeckZones object
+    const deck: DeckZones = {
+      library: [
+        "Vassal",
+        "Laboratory",
+        "Sentry",
+        "Silver",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Estate",
+        "Estate",
+        "Estate",
+      ],
+      hand: [],
+      graveyard: ["Harbinger", "Militia", "Copper"],
+      entireDeck: [
+        "Vassal",
+        "Laboratory",
+        "Sentry",
+        "Silver",
+        "Harbinger",
+        "Militia",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Copper",
+        "Estate",
+        "Estate",
+        "Estate",
+        "Harbinger",
+        "Militia",
+        "Copper",
+      ],
+      setAside: [],
+      inPlay: [],
+    };
     it("Should return correct probability", () => {
       expect(
         getCumulativeHyperGeometricProbabilityForCard(
@@ -417,9 +450,14 @@ describe("hyperGeometricProbability", () => {
 
   // Add more test cases as needed () => {
   it("should calculate the cumulative hypergeometric probability for a card when drawing one card", () => {
-    const deck: Deck = new Deck("title", false, "", "name", "nick", []);
-    deck.setLibrary(["Card A", "Card A", "Card B", "Card B", "Card B"]);
-
+    const deck: DeckZones = {
+      library: ["Card A", "Card A", "Card B", "Card B", "Card B"],
+      hand: [],
+      entireDeck: [],
+      graveyard: [],
+      inPlay: [],
+      setAside: [],
+    };
     const cardName = "Card A";
     const turn = "Current";
     const successCount = 1;
@@ -443,9 +481,14 @@ describe("hyperGeometricProbability", () => {
   });
 
   it("should handle the case when the card is in the graveyard", () => {
-    const deck: Deck = new Deck("title", false, "", "name", "nick", []);
-    deck.setLibrary(["Card A", "Card B", "Card C", "Card D", "Card E"]);
-    deck.setGraveyard(["Card A"]);
+    const deck: DeckZones = {
+      library: ["Card A", "Card B", "Card C", "Card D", "Card E"],
+      hand: [],
+      entireDeck: [],
+      graveyard: ["Card A"],
+      inPlay: [],
+      setAside: [],
+    };
 
     const cardName = "Card A";
     const turn = "Current";
@@ -470,9 +513,14 @@ describe("hyperGeometricProbability", () => {
   });
 
   it("should handle the case when drawing more cards than available in the library", () => {
-    const deck: Deck = new Deck("title", false, "", "name", "nick", []);
-    deck.setLibrary(["Card A", "Card B", "Card C", "Card D", "Card E"]);
-    deck.setGraveyard([]);
+    const deck: DeckZones = {
+      library: ["Card A", "Card B", "Card C", "Card D", "Card E"],
+      hand: [],
+      entireDeck: [],
+      graveyard: [],
+      inPlay: [],
+      setAside: [],
+    };
 
     const cardName = "Card A";
     const turn = "Current";
@@ -499,40 +547,41 @@ describe("hyperGeometricProbability", () => {
   // Case where turn is Next and the second draw pool includes nonempty hand and inPlay cards.
   it("should calculate probability correctly for the next turn when the topCardLook amount exceeds library size", () => {
     //Arrange
-    const deck = new Deck("Title", false, "rating", "Name", "nick", [
-      "Kingdom",
-    ]);
-    deck.setEntireDeck([
-      "Card1",
-      "Card2",
-      "Card2",
-      "Card3",
-      "Card3",
-      "Card3",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card5",
-      "Card5",
-      "Card5",
-      "Card5",
-      "Card5",
-    ]);
-    deck.setLibrary(["Card5"]);
-    deck.setGraveyard([
-      "Card2",
-      "Card2",
-      "Card3",
-      "Card3",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card5",
-    ]);
-    deck.setHand(["Card5", "Card5", "Card5", "Card1"]);
-    deck.setInPlay(["Card3"]);
+    const deck: DeckZones = {
+      library: ["Card5"],
+      hand: ["Card5", "Card5", "Card5", "Card1"],
+      entireDeck: [
+        "Card1",
+        "Card2",
+        "Card2",
+        "Card3",
+        "Card3",
+        "Card3",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card5",
+        "Card5",
+        "Card5",
+        "Card5",
+        "Card5",
+      ],
+      graveyard: [
+        "Card2",
+        "Card2",
+        "Card3",
+        "Card3",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card5",
+      ],
+      inPlay: ["Card3"],
+      setAside: [],
+    };
+
     const cardName = "Card1";
     const turn = "Next";
     const successCount = 1;
@@ -557,40 +606,41 @@ describe("hyperGeometricProbability", () => {
   });
   it("should calculate probability correctly for the next turn when the topCardLook amount exceeds library size", () => {
     //Arrange
-    const deck = new Deck("Title", false, "rating", "Name", "nick", [
-      "Kingdom",
-    ]);
-    deck.setEntireDeck([
-      "Card1",
-      "Card2",
-      "Card2",
-      "Card3",
-      "Card3",
-      "Card3",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card5",
-      "Card5",
-      "Card5",
-      "Card5",
-      "Card5",
-    ]);
-    deck.setLibrary(["Card5"]);
-    deck.setGraveyard([
-      "Card2",
-      "Card2",
-      "Card3",
-      "Card3",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card4",
-      "Card5",
-    ]);
-    deck.setHand(["Card5", "Card5", "Card5", "Card1"]);
-    deck.setInPlay(["Card3"]);
+    const deck: DeckZones = {
+      entireDeck: [
+        "Card1",
+        "Card2",
+        "Card2",
+        "Card3",
+        "Card3",
+        "Card3",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card5",
+        "Card5",
+        "Card5",
+        "Card5",
+        "Card5",
+      ],
+      graveyard: [
+        "Card2",
+        "Card2",
+        "Card3",
+        "Card3",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card4",
+        "Card5",
+      ],
+      hand: ["Card5", "Card5", "Card5", "Card1"],
+      inPlay: ["Card3"],
+      library: ["Card5"],
+      setAside: [],
+    };
+
     const cardName = "Card1";
     const turn = "Next";
     const successCount = 1;

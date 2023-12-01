@@ -4,7 +4,6 @@
 import { describe, it, expect, jest } from "@jest/globals";
 import { SortButtonState } from "../../src/utils";
 import { useZoneViewerSorter } from "../../src/utils/utils";
-import { OpponentDeck } from "../../src/model/opponentDeck";
 import { renderHook } from "@testing-library/react";
 import { getMapArray } from "../testUtilFuncs";
 
@@ -14,19 +13,23 @@ describe("useZoneViewerSorter", () => {
   >;
 
   it("should, given an array, return a sortedMap containing the array Data", () => {
-    // Arrange -
+    // Arrange - Create a mock sortButtonState and a mockZone.
     const sortButtonState: SortButtonState = {
       category: "zone",
       sort: "ascending",
     };
-    const opponentDeck = new OpponentDeck(
-      "MockTitle",
-      false,
-      "MockRating",
-      "Opponent",
-      "O",
-      []
-    );
+    const mockZone = [
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Estate",
+    ];
 
     // Act - Simulate an initial render
     const { rerender } = renderHook(
@@ -34,7 +37,7 @@ describe("useZoneViewerSorter", () => {
         useZoneViewerSorter(zone, sortButtonState, setMap),
       {
         initialProps: {
-          zone: opponentDeck.entireDeck,
+          zone: mockZone,
           sortButtonState,
           setMap,
         },
@@ -56,12 +59,12 @@ describe("useZoneViewerSorter", () => {
     expect(setMap).toBeCalledTimes(1);
     expect(sortedMapArray).toStrictEqual(expectedMapArray);
 
-    // Add a card to the deck and reassign the opponentStoreDeck
-    opponentDeck.addCardToEntireDeck("Vassal");
+    // Add a card to the zone.
+    mockZone.push("Vassal");
 
-    // Rerender with the updated opponentStoreDeck
+    // Rerender with the updated zone.
     rerender({
-      zone: opponentDeck.entireDeck,
+      zone: mockZone.slice(),
       sortButtonState,
       setMap,
     });
@@ -72,6 +75,7 @@ describe("useZoneViewerSorter", () => {
       ["Estate", 3],
       ["Vassal", 1],
     ]);
+
     // Get the map created by the hook
     const sortedMap2 = setMap.mock.calls[1][0] as Map<string, number>;
     // Convert maps to arrays for order comparison.
@@ -84,7 +88,7 @@ describe("useZoneViewerSorter", () => {
 
     // Rerender with a descending sortButtonState
     rerender({
-      zone: opponentDeck.entireDeck,
+      zone: mockZone,
       sortButtonState: { category: "zone", sort: "descending" },
       setMap,
     });
@@ -108,7 +112,7 @@ describe("useZoneViewerSorter", () => {
 
     // Rerender with a descending sortButtonState, with a different category.
     rerender({
-      zone: opponentDeck.entireDeck,
+      zone: mockZone,
       sortButtonState: { category: "card", sort: "ascending" },
       setMap,
     });
@@ -132,7 +136,7 @@ describe("useZoneViewerSorter", () => {
 
     // Rerender with the same props and confirm setMap is not called a 5th time
     rerender({
-      zone: opponentDeck.entireDeck,
+      zone: mockZone,
       sortButtonState: { category: "card", sort: "ascending" },
       setMap,
     });

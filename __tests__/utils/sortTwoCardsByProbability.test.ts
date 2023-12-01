@@ -1,30 +1,16 @@
 import { describe, it, expect } from "@jest/globals";
 import { sortTwoCardsByProbability } from "../../src/utils/utils";
-import { StoreDeck } from "../../src/utils";
+import { DeckZones } from "../../src/utils";
 
 describe("Function sortTwoCardsByProbability()", () => {
   //Arrange
 
-  const deck: StoreDeck = {
-    currentVP: 0,
-    gameResult: "Unfinished",
-    gameTitle: "",
-    gameTurn: 0,
-    kingdom: [],
-    lastEntryProcessed: "",
-    logArchive: [],
-    playerName: "",
-    playerNick: "",
-    rating: "",
-    treasurePopped: false,
-    waitToDrawLibraryLook: false,
-    waitToShuffle: false,
+  const deck: DeckZones = {
     entireDeck: ["Card1", "Card1", "Card2", "Card3"],
     library: ["Card1", "Card1", "Card2", "Card3"],
     graveyard: [],
     inPlay: [],
     hand: [],
-    trash: [],
     setAside: [],
   };
   const topCardsLookAmount = 1;
