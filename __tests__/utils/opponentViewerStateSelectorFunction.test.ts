@@ -22,7 +22,7 @@ describe("opponentViewerStateSelectorFunction", () => {
     });
   });
 
-  it("should return an object with the opponentDecks and opponentSortState of the given redux state", () => {
+  it("should return an object with the opponentDecks data and opponentSortState of the given redux state", () => {
     //  Arrange
     // Mock a value for state.content.opponentDecks
     const mockOpponentDecks: OpponentStoreDeck[] = [
@@ -91,7 +91,10 @@ describe("opponentViewerStateSelectorFunction", () => {
     // Assert - Verify the object contains the correct state.
     expect(opponentViewerState).toStrictEqual({
       opponentDeckData: expectedOpponentDeckData,
-      opponentSortState: mockOpponentSortState,
+      opponentSortState: {
+        category: "zone",
+        sort: "descending",
+      },
     });
   });
 });
