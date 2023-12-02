@@ -7,7 +7,8 @@
     "watch": "set NODE_ENVIRONMENT=dev && webpack --watch --progress --config webpack.dev.js",
     "start": "react-scripts start",
     "build": "set NODE_ENVIRONMENT=prod && webpack --config webpack.prod.js",
-    "typedoc": "typedoc"
+    "typedoc": "typedoc",
+    "test:ci": "yarn jest ./__tests__"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
