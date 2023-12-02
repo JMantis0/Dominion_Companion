@@ -5,6 +5,7 @@ import {
   setOpponentDecks,
   setPlayerDeck,
   setSavedGames,
+  setUpdatedDecks,
 } from "../redux/contentSlice";
 import {
   DOMStore,
@@ -455,12 +456,14 @@ export class DOMObserver {
    * @param playerStoreDeck - The JSON version of playerDeck.
    * @param opponentStoreDeck - The JSON version of opponentDeck.
    */
-  static dispatchUpdatedDecksToRedux(
+  static 
+  (
     playerStoreDeck: StoreDeck,
     opponentStoreDecks: OpponentStoreDeck[]
   ): void {
-    DOMObserver.dispatch(setPlayerDeck(playerStoreDeck));
-    DOMObserver.dispatch(setOpponentDecks(opponentStoreDecks));
+    DOMObserver.dispatch(
+      setUpdatedDecks({ playerStoreDeck, opponentStoreDecks })
+    );
   }
 
   /**

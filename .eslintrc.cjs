@@ -31,7 +31,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "error",
     "no-unused-vars": "off",
     indent: ["warn", 2, { SwitchCase: 1 }],
-    "linebreak-style": ["error", "windows"],
+    "linebreak-style": ["error", "unix"],
     quotes: ["error", "double"],
     semi: ["error", "always"],
     "no-trailing-spaces": "warn",
