@@ -8,7 +8,7 @@
     "start": "react-scripts start",
     "build": "set NODE_ENVIRONMENT=prod && webpack --config webpack.prod.js",
     "typedoc": "typedoc",
-    "test:ci": "yarn jest ./__tests__"
+    "test:ci": "yarn jest ./__tests__ --ci --reporters='default' --reporters='./github-actions-reporter'"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
