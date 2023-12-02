@@ -109,6 +109,16 @@ export const contentSlice = createSlice({
     setMinimized: (state, action: PayloadAction<boolean>) => {
       state.minimized = action.payload;
     },
+    setUpdatedDecks: (
+      state,
+      action: PayloadAction<{
+        playerStoreDeck: StoreDeck;
+        opponentStoreDecks: OpponentStoreDeck[];
+      }>
+    ) => {
+      state.playerDeck = action.payload.playerStoreDeck;
+      state.opponentDecks = action.payload.opponentStoreDecks;
+    },
   },
 });
 
@@ -128,6 +138,7 @@ export const {
   setTurnToggleButton,
   setError,
   setMinimized,
+  setUpdatedDecks,
 } = contentSlice.actions;
 export const selectContent = (state: RootState) => state.content;
 export default contentSlice.reducer;
