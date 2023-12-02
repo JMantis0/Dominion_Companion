@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import MinimizeButton from "../MinimizeButton/MinimizeButton";
 
 const containerStyle =
-  "backdrop-blur-sm bg-black/[.85] text-white border-double min-h-[25px] box-content";
+  "backdrop-blur-sm bg-black/[.85] text-white border-double box-content";
 
 const baseStyle =
   "grid grid grid-cols-12 pointer-events-none w-full overflow-hidden text-xs ";
@@ -15,7 +15,6 @@ const maximizedBorder = " border-t-8 border-x-8";
 const PrimaryFrameHeader = () => {
   const [currentTurn, setCurrentTurn] = useState<string>("Starting");
   const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const ods = useSelector((state: RootState) => state.content.opponentDecks);
   const primaryFrameTab = useSelector(
     (state: RootState) => state.content.primaryFrameTab
   );
@@ -58,31 +57,6 @@ const PrimaryFrameHeader = () => {
               >
                 {pd.gameResult === "Unfinished" ? currentTurn : pd.gameResult}
               </div>
-              <div className="col-span-5 max-h-[29px]">
-                <div className="text-center text-white">{pd.playerName}</div>
-                {pd.ratedGame ? (
-                  <div className="text-[9px] relative -top-1 text-center text-white">
-                    ( {pd.rating} )
-                  </div>
-                ) : null}
-              </div>
-              <div className="col-span-2 text-center text-white">vs.</div>
-              {ods.map((od, idx) => {
-                return (
-                  <div key={idx}>
-                    <div>{od.playerName}</div>;
-                    {od.ratedGame ? <div>{od.rating}</div> : null}
-                  </div>
-                );
-              })}
-              {/* <div className="col-span-5 max-h-[29px]">
-                <div className="text-center text-white">{od.playerName}</div>
-                {pd.ratedGame ? (
-                  <div className="text-[9px] relative -top-1 text-center text-white">
-                    ( {od.rating} )
-                  </div>
-                ) : null}
-              </div> */}
             </React.Fragment>
           </div>
         ) : baseOnly ? (

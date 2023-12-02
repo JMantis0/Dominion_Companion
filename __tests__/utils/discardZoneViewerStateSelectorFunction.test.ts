@@ -1,10 +1,7 @@
 import { beforeEach, describe, it, expect } from "@jest/globals";
-import { DOMStore, SortButtonState } from "../../src/utils";
+import { DOMStore } from "../../src/utils";
 import { configureStore } from "@reduxjs/toolkit";
-import contentSlice, {
-  setDiscardSortState,
-  setPlayerDeck,
-} from "../../src/redux/contentSlice";
+import contentSlice, { setPlayerDeck } from "../../src/redux/contentSlice";
 import optionsSlice from "../../src/redux/optionsSlice";
 import { Deck } from "../../src/model/deck";
 import { act } from "@testing-library/react";
@@ -34,16 +31,10 @@ describe("discardZoneViewerStateSelectorFunction", () => {
       []
     );
     playerDeck.setGraveyard(["Vassal", "Sentry"]);
-    // Mock a value for state.content.discardSortState
-    const discardSortState: SortButtonState = {
-      category: "zone",
-      sort: "ascending",
-    };
 
     // Dispatch the mocked values to the redux store
     act(() => {
       store.dispatch(setPlayerDeck(playerDeck));
-      store.dispatch(setDiscardSortState(discardSortState));
     });
 
     // Get the state after dispatching the mock values
@@ -51,14 +42,8 @@ describe("discardZoneViewerStateSelectorFunction", () => {
 
     // Act and Assert - Verify the returned state is correct.
     expect(discardZoneViewerStateSelectorFunction(state)).toStrictEqual({
-      deckData: {
-        playerName: "Player",
-        graveyard: ["Vassal", "Sentry"],
-      },
-      discardSortState: {
-        category: "zone",
-        sort: "ascending",
-      },
+      playerName: "Player",
+      graveyard: ["Vassal", "Sentry"],
     });
   });
 });

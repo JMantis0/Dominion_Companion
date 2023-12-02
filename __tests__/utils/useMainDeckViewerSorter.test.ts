@@ -3,7 +3,11 @@
  */
 
 import { describe, expect, it, jest } from "@jest/globals";
-import { CardCounts, MainDeckViewerState } from "../../src/utils";
+import {
+  CardCounts,
+  MainDeckViewerState,
+  SortButtonState,
+} from "../../src/utils";
 import { renderHook } from "@testing-library/react";
 import { useMainDeckViewerSorter } from "../../src/utils/utils";
 import { getMapArray } from "../testUtilFuncs";
@@ -48,15 +52,23 @@ describe("useMainDeckViewerSorter", () => {
         setAside: [],
       },
       playerName: "",
-      sortButtonState: { category: "card", sort: "ascending" },
+
       topCardsLookAmount: 1,
       turnToggleButton: "Current",
     };
 
+    let sortButtonState: SortButtonState = {
+      category: "card",
+      sort: "ascending",
+    };
     // Act 1 - initial render the hook
     const { rerender } = renderHook(
       ({ mainDeckViewerState, setLibraryMap }) =>
-        useMainDeckViewerSorter(mainDeckViewerState, setLibraryMap),
+        useMainDeckViewerSorter(
+          mainDeckViewerState,
+          sortButtonState,
+          setLibraryMap
+        ),
       {
         initialProps: {
           mainDeckViewerState: mockMainDeckViewerState,
@@ -103,7 +115,7 @@ describe("useMainDeckViewerSorter", () => {
     );
 
     // Simulate a change in sortButtonState.
-    mockMainDeckViewerState.sortButtonState = {
+    sortButtonState = {
       category: "card",
       sort: "descending",
     };

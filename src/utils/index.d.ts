@@ -30,6 +30,11 @@ type DeckZones = {
   inPlay: string[];
 };
 
+type DiscardZoneViewerState = {
+  playerName: string;
+  graveyard: string[];
+};
+
 // Type for the redux store.  This type allows for an empty middleware array for faster testing.
 type DOMStore = ToolkitStore<
   {
@@ -76,7 +81,6 @@ type GameResult =
 type MainDeckViewerState = {
   playerName: string;
   deck: DeckZones;
-  sortButtonState: SortButtonState;
   turnToggleButton: "Current" | "Next";
   topCardsLookAmount: number;
 };
@@ -101,6 +105,10 @@ interface OpponentStoreDeck {
   treasurePopped: boolean;
 }
 
+type OpponentViewerState = {
+  opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>
+}
+
 /**
  * Type for optional custom handles to be consumed by JQuery resizable widget
  */
@@ -121,6 +129,15 @@ type OptionalHandles = {
  * Custom type for PrimaryFrameTab
  */
 type PrimaryFrameTabType = "Deck" | "Discard" | "Trash" | "Opponent";
+
+/**
+ * State type for TrashZoneViewer component.
+ */
+type TrashZoneViewerState = {
+  playerName: string;
+  playerTrash: string[];
+  opponentTrashData: Array<{ playerName: string; trashZone: string[] }>;
+};
 
 /**
  * Type for a SavedGame as stored in chrome local storage as JSON
@@ -199,13 +216,16 @@ interface StoreDeck {
 export {
   CardCounts,
   DeckZones,
+  DiscardZoneViewerState,
   DOMStore,
   ErrorWithMessage,
   GameResult,
   MainDeckViewerState,
   OpponentStoreDeck,
+  OpponentViewerState,
   OptionalHandles,
   PrimaryFrameTabType,
+  TrashZoneViewerState,
   SavedGame,
   SavedGames,
   SortButtonState,

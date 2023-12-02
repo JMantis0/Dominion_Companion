@@ -3,11 +3,8 @@ import { opponentViewerStateSelectorFunction } from "../../src/utils/utils";
 import { act } from "@testing-library/react";
 import optionsSlice from "../../src/redux/optionsSlice";
 import { OpponentDeck } from "../../src/model/opponentDeck";
-import { DOMStore, OpponentStoreDeck, SortButtonState } from "../../src/utils";
-import contentSlice, {
-  setOpponentSortState,
-  setOpponentDecks,
-} from "../../src/redux/contentSlice";
+import { DOMStore, OpponentStoreDeck } from "../../src/utils";
+import contentSlice, { setOpponentDecks } from "../../src/redux/contentSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 describe("opponentViewerStateSelectorFunction", () => {
@@ -52,15 +49,9 @@ describe("opponentViewerStateSelectorFunction", () => {
       ),
     ];
 
-    // Mock value for state.content.opponentSortState
-    const mockOpponentSortState: SortButtonState = {
-      category: "zone",
-      sort: "descending",
-    };
     // Dispatch values to the redux state.
     act(() => {
       store.dispatch(setOpponentDecks(mockOpponentDecks));
-      store.dispatch(setOpponentSortState(mockOpponentSortState));
     });
 
     // Get the state after dispatching the mocked values.
@@ -85,16 +76,11 @@ describe("opponentViewerStateSelectorFunction", () => {
     // Act - Get the opponentViewerState
     const opponentViewerState: {
       opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>;
-      opponentSortState: SortButtonState;
     } = opponentViewerStateSelectorFunction(state);
 
     // Assert - Verify the object contains the correct state.
     expect(opponentViewerState).toStrictEqual({
       opponentDeckData: expectedOpponentDeckData,
-      opponentSortState: {
-        category: "zone",
-        sort: "descending",
-      },
     });
   });
 });

@@ -1,15 +1,15 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, SetStateAction } from "react";
 import SortButton from "../../SortButton/SortButton";
-import type { SortButtonState, SortReducer } from "../../../../utils";
+import type { SortButtonState } from "../../../../utils";
 
 type ZoneViewHeaderProps = {
-  dispatchFunc: SortReducer;
   currentSortState: SortButtonState;
+  setSortButtonState: React.Dispatch<SetStateAction<SortButtonState>>;
 };
 
 const ZoneViewHeader: FunctionComponent<ZoneViewHeaderProps> = ({
-  dispatchFunc,
   currentSortState,
+  setSortButtonState,
 }) => {
   return (
     <React.Fragment>
@@ -18,16 +18,16 @@ const ZoneViewHeader: FunctionComponent<ZoneViewHeaderProps> = ({
           <SortButton
             title="Card"
             category="card"
-            reducer={dispatchFunc}
             currentSortState={currentSortState}
+            setSortButtonState={setSortButtonState}
           />
         </div>
         <div className="col-span-5 whitespace-nowrap">
           <SortButton
             title="Amount"
             category="zone"
-            reducer={dispatchFunc}
             currentSortState={currentSortState}
+            setSortButtonState={setSortButtonState}
           />
         </div>
       </div>
