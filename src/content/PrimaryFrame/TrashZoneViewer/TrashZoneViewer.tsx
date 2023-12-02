@@ -1,45 +1,30 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import {
-  setOpponentTrashSortState,
-  setTrashSortState,
-} from "../../../redux/contentSlice";
-import { RootState } from "../../../redux/store";
 import ZoneViewer from "../ZoneViewer/ZoneViewer";
+import {
+  stringifiedEqualityFunction,
+  trashZoneViewerStateSelectorFunction,
+} from "../../../utils/utils";
+import { TrashZoneViewerState } from "../../../utils";
 
 const TrashZoneViewer = () => {
-  const pd = useSelector((state: RootState) => state.content.playerDeck);
-  const ods = useSelector((state: RootState) => state.content.opponentDecks);
-  const trashSortState = useSelector(
-    (state: RootState) => state.content.trashSortState
+  const trashZoneViewerState: TrashZoneViewerState = useSelector(
+    trashZoneViewerStateSelectorFunction,
+    stringifiedEqualityFunction
   );
-  const opponentTrashSortState = useSelector(
-    (state: RootState) => state.content.opponentTrashSortState
-  );
-
   return (
     <div className="text-xs outer-shell">
       <div className={"text-white pointer-events-none"}>
-        {pd.playerName}&apos;s trash:
+        {trashZoneViewerState.playerName}&apos;s trash:
       </div>
-      <ZoneViewer
-        sortButtonState={trashSortState}
-        sortDispatchFunc={setTrashSortState}
-        title={"Trash"}
-        zone={pd.trash}
-      />
-      {ods.map((od, idx) => {
+      <ZoneViewer title={"Trash"} zone={trashZoneViewerState.playerTrash} />
+      {trashZoneViewerState.opponentTrashData.map((opponentTrashData, idx) => {
         return (
           <React.Fragment key={idx}>
             <div className={"text-white pointer-events-none"}>
-              {od.playerName}&apos;s trash:
+              {opponentTrashData.playerName}&apos;s trash:
             </div>
-            <ZoneViewer
-              sortButtonState={opponentTrashSortState}
-              sortDispatchFunc={setOpponentTrashSortState}
-              title={"Trash"}
-              zone={od.trash}
-            />
+            <ZoneViewer title={"Trash"} zone={opponentTrashData.trashZone} />
           </React.Fragment>
         );
       })}

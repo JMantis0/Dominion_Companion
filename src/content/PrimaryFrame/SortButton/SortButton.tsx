@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, SetStateAction } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faSortUp,
@@ -6,41 +6,29 @@ import {
   faSort,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useDispatch } from "react-redux";
 import { onSortButtonClick } from "../../../utils/utils";
-import type {
-  SortButtonState,
-  SortCategory,
-  SortReducer,
-} from "../../../utils";
+import type { SortButtonState, SortCategory } from "../../../utils";
 
 library.add(faSortUp, faSortDown, faSort);
 
 type SortButtonProps = {
   title: string;
   category: SortCategory;
-  /**
-   * A reducer from the content slice.
-   */
-  reducer: SortReducer;
-  /**
-   * A portion of the redux state from the content slice, one of the SortedButton states.
-   */
   currentSortState: SortButtonState;
+  setSortButtonState: React.Dispatch<SetStateAction<SortButtonState>>;
 };
 
 const SortButton: FunctionComponent<SortButtonProps> = ({
   title,
   category,
-  reducer,
   currentSortState,
+  setSortButtonState,
 }) => {
-  const dispatch = useDispatch();
   return (
     <div>
       <button
         onClick={() => {
-          onSortButtonClick(category, currentSortState, dispatch, reducer);
+          onSortButtonClick(category, currentSortState, setSortButtonState);
         }}
         className={`w-full border-y border-x hover:bg-[#383838] ${
           currentSortState.category === category

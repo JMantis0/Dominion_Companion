@@ -1,14 +1,16 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { setSortedButtonsState } from "../../../../redux/contentSlice";
-import { RootState } from "../../../../redux/store";
+import React, { FunctionComponent, SetStateAction } from "react";
 import SortButton from "../../SortButton/SortButton";
+import { SortButtonState } from "../../../../utils";
 
-const MainDeckViewHeader = () => {
-  const sortButtonState = useSelector(
-    (state: RootState) => state.content.sortButtonState
-  );
+type MainDeckViewHeaderProps = {
+  sortButtonState: SortButtonState;
+  setSortButtonState: React.Dispatch<SetStateAction<SortButtonState>>;
+};
 
+const MainDeckViewHeader: FunctionComponent<MainDeckViewHeaderProps> = ({
+  sortButtonState,
+  setSortButtonState,
+}) => {
   return (
     <React.Fragment>
       <div className={"text-xs text-white grid grid-cols-10 col-span-10"}>
@@ -16,33 +18,32 @@ const MainDeckViewHeader = () => {
           <SortButton
             title="Card"
             category="card"
-            reducer={setSortedButtonsState}
             currentSortState={sortButtonState}
+            setSortButtonState={setSortButtonState}
           />
         </div>
         <div className="col-span-2 whitespace-nowrap">
           <SortButton
             title="D #"
             category="zone"
-            reducer={setSortedButtonsState}
             currentSortState={sortButtonState}
+            setSortButtonState={setSortButtonState}
           />
         </div>
-
         <div className="col-span-2 whitespace-nowrap">
           <SortButton
             title="T #"
             category="owned"
-            reducer={setSortedButtonsState}
             currentSortState={sortButtonState}
+            setSortButtonState={setSortButtonState}
           />
         </div>
         <div className="col-span-3 whitespace-nowrap">
           <SortButton
             title="Drw%"
             category="probability"
-            reducer={setSortedButtonsState}
             currentSortState={sortButtonState}
+            setSortButtonState={setSortButtonState}
           />
         </div>
       </div>

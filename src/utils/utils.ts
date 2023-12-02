@@ -1,6 +1,6 @@
 import { AnyAction, Dispatch } from "redux";
 import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
-import {
+import React, {
   SetStateAction,
   useCallback,
   useEffect,
@@ -13,18 +13,18 @@ import type {
   DeckZones,
   ErrorWithMessage,
   MainDeckViewerState,
+  OpponentViewerState,
   OptionalHandles,
   PrimaryFrameTabType,
   SortButtonState,
   SortCategory,
-  SortReducer,
   SplitMaps,
+  TrashZoneViewerState,
 } from ".";
 import $ from "jquery";
 import { RootState, store } from "../redux/store";
 import { setViewerHidden } from "../redux/contentSlice";
 import { Serializable } from "child_process";
-// import { DOMObserver } from "./DOMObserver";
 
 /**
  * Function that calculates mathematical combinations
@@ -179,16 +179,10 @@ const customSelectResizableHandles = (): OptionalHandles => {
  */
 const discardZoneViewerStateSelectorFunction = (
   state: RootState
-): {
-  deckData: { playerName: string; graveyard: string[] };
-  discardSortState: SortButtonState;
-} => {
+): { playerName: string; graveyard: string[] } => {
   return {
-    deckData: {
-      playerName: state.content.playerDeck.playerName,
-      graveyard: state.content.playerDeck.graveyard,
-    },
-    discardSortState: state.content.discardSortState,
+    playerName: state.content.playerDeck.playerName,
+    graveyard: state.content.playerDeck.graveyard,
   };
 };
 
@@ -487,7 +481,6 @@ const mainDeckViewerStateSelectorFunction = (
       library: deck.library,
       setAside: deck.setAside,
     },
-    sortButtonState: state.content.sortButtonState,
     turnToggleButton: state.content.turnToggleButton,
     topCardsLookAmount: state.content.topCardsLookAmount,
   };
@@ -673,8 +666,7 @@ const onSelectScroll = (
 const onSortButtonClick = (
   sortCategory: SortCategory,
   currentSortButtonState: SortButtonState,
-  dispatch: Dispatch<AnyAction>,
-  sortReducer: SortReducer
+  setSortButtonState: React.Dispatch<SetStateAction<SortButtonState>>
 ) => {
   let sortToDispatch: "ascending" | "descending";
   if (currentSortButtonState.category !== sortCategory) {
@@ -683,12 +675,10 @@ const onSortButtonClick = (
     sortToDispatch =
       currentSortButtonState.sort === "ascending" ? "descending" : "ascending";
   }
-  dispatch(
-    sortReducer({
-      category: sortCategory,
-      sort: sortToDispatch,
-    })
-  );
+  setSortButtonState({
+    category: sortCategory,
+    sort: sortToDispatch,
+  });
 };
 
 /**
@@ -735,17 +725,13 @@ const onTurnToggleButtonClick = (
  */
 const opponentViewerStateSelectorFunction = (
   state: RootState
-): {
-  opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>;
-  opponentSortState: SortButtonState;
-} => {
+): OpponentViewerState => {
   const odData: Array<{ playerName: string; entireDeck: string[] }> = [];
   state.content.opponentDecks.forEach((od) => {
     odData.push({ playerName: od.playerName, entireDeck: od.entireDeck });
   });
   return {
     opponentDeckData: odData,
-    opponentSortState: state.content.opponentSortState,
   };
 };
 
@@ -1403,6 +1389,26 @@ const toErrorWithMessage = (maybeError: unknown): ErrorWithMessage => {
   }
 };
 
+const trashZoneViewerStateSelectorFunction = (
+  state: RootState
+): TrashZoneViewerState => {
+  const opponentTrashData: Array<{
+    playerName: string;
+    trashZone: string[];
+  }> = [];
+  state.content.opponentDecks.forEach((opponentDeck) => {
+    opponentTrashData.push({
+      playerName: opponentDeck.playerName,
+      trashZone: opponentDeck.trash,
+    });
+  });
+  return {
+    playerName: state.content.playerDeck.playerName,
+    playerTrash: state.content.playerDeck.trash,
+    opponentTrashData,
+  };
+};
+
 /**
  * Custom react hook used by the popup of the extension.  Sends a request to the extension
  * content script to get the viewer's display status (hidden or showing)
@@ -1711,6 +1717,7 @@ const usePopupChromeMessageListener = (
  */
 const useMainDeckViewerSorter = (
   mainDeckViewerState: MainDeckViewerState,
+  sortButtonState: SortButtonState,
   setLibraryMap: (value: React.SetStateAction<Map<string, CardCounts>>) => void
 ) => {
   useEffect(() => {
@@ -1719,15 +1726,15 @@ const useMainDeckViewerSorter = (
       getCountsFromArray(mainDeckViewerState.deck.library)
     );
     const sortedCombinedMap = sortMainViewer(
-      mainDeckViewerState.sortButtonState.category,
+      sortButtonState.category,
       unsortedCombinedMap,
-      mainDeckViewerState.sortButtonState.sort,
+      sortButtonState.sort,
       mainDeckViewerState.deck,
       mainDeckViewerState.topCardsLookAmount,
       mainDeckViewerState.turnToggleButton
     );
     setLibraryMap(sortedCombinedMap);
-  }, [mainDeckViewerState]);
+  }, [mainDeckViewerState, sortButtonState]);
 };
 
 /**
@@ -1823,6 +1830,7 @@ export {
   splitCombinedMapsByCardTypes,
   stringifiedEqualityFunction,
   stringifyProbability,
+  trashZoneViewerStateSelectorFunction,
   toErrorWithMessage,
   useContentViewerStatus,
   useHeightDifferentBetweenContainerAndContainedElement,

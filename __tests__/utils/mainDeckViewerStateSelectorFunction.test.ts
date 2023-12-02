@@ -23,7 +23,6 @@ describe("mainDeckViewerStateSelectorFunction", () => {
               new Deck("MockTitle", false, "MockRating", "Player Name", "P", [])
             )
           ),
-          sortButtonState: { category: "owned", sort: "descending" },
           topCardsLookAmount: 2,
           turnToggleButton: "Next",
         },
@@ -66,7 +65,6 @@ describe("mainDeckViewerStateSelectorFunction", () => {
         setAside: [],
       },
       playerName: "Player Name",
-      sortButtonState: { category: "owned", sort: "descending" },
       topCardsLookAmount: 2,
       turnToggleButton: "Next",
     };

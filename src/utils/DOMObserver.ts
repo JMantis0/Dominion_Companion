@@ -1279,7 +1279,7 @@ export class DOMObserver {
    * @param event - The BeforeUnloadEvent
    */
   static saveBeforeUnload() {
-    if (store.getState().content.gameActiveStatus)
+    if (store.getState().content.gameActiveStatus && DOMObserver.initialized())
       DOMObserver.saveGameData(DOMObserver.gameLog, DOMObserver.decks);
   }
 
@@ -1326,7 +1326,6 @@ export class DOMObserver {
     ]);
     DOMObserver.dispatch(setSavedGames(allSavedGames));
   }
-
   /**
    * Sets the given results to the given decks and returns the updated decks.
    * @param victor - The name of the winner of the game.

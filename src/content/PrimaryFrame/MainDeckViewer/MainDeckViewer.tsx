@@ -13,17 +13,30 @@ import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
 import CustomSelect from "./CustomSelect/CustomSelect";
 import TurnButton from "./TurnButton/TurnButton";
-import type { CardCounts } from "../../../utils";
+import {
+  SortButtonState,
+  CardCounts,
+  MainDeckViewerState,
+} from "../../../utils";
 
 const MainDeckViewer = () => {
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
-  const mainDeckViewerState = useSelector(
+  const [mainDeckViewerSortButtonSate, setMainDeckViewerSortButtonState] =
+    useState<SortButtonState>({
+      category: "probability",
+      sort: "ascending",
+    });
+  const mainDeckViewerState: MainDeckViewerState = useSelector(
     mainDeckViewerStateSelectorFunction,
     stringifiedEqualityFunction
   );
-  useMainDeckViewerSorter(mainDeckViewerState, setLibraryMap);
+  useMainDeckViewerSorter(
+    mainDeckViewerState,
+    mainDeckViewerSortButtonSate,
+    setLibraryMap
+  );
   return (
     <div className="outer-shell">
       <div className={"text-xs text-white pointer-events-none"}>
@@ -32,7 +45,10 @@ const MainDeckViewer = () => {
       </div>
       <div className="grid grid-cols-12">
         <div className={"col-span-10"}>
-          <MainDeckViewHeader />
+          <MainDeckViewHeader
+            setSortButtonState={setMainDeckViewerSortButtonState}
+            sortButtonState={mainDeckViewerSortButtonSate}
+          />
           {Array.from(libraryMap.keys()).map((card, idx) => {
             return (
               <FullListCardRow

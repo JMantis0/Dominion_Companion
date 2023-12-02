@@ -1,14 +1,14 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { setOpponentSortState } from "../../../redux/contentSlice";
 import ZoneViewer from "../ZoneViewer/ZoneViewer";
 import {
   opponentViewerStateSelectorFunction,
   stringifiedEqualityFunction,
 } from "../../../utils/utils";
+import { OpponentViewerState } from "../../../utils";
 
 const OpponentViewer = () => {
-  const opponentViewerState = useSelector(
+  const opponentViewerState: OpponentViewerState = useSelector(
     opponentViewerStateSelectorFunction,
     stringifiedEqualityFunction
   );
@@ -22,8 +22,6 @@ const OpponentViewer = () => {
               {opponentDeck.entireDeck.length} cards.
             </div>
             <ZoneViewer
-              sortButtonState={opponentViewerState.opponentSortState}
-              sortDispatchFunc={setOpponentSortState}
               title={`${opponentDeck.playerName}'s Deck`}
               zone={opponentDeck.entireDeck}
             />

@@ -7,21 +7,12 @@ import type {
   OpponentStoreDeck,
   PrimaryFrameTabType,
   SavedGames,
-  SortButtonState,
   StoreDeck,
 } from "../utils";
 
 export interface ContentState {
   playerDeck: StoreDeck;
   opponentDecks: OpponentStoreDeck[];
-  sortButtonState: SortButtonState;
-  discardSortState: SortButtonState;
-  opponentSortState: SortButtonState;
-  opponentTrashSortState: SortButtonState;
-  trashSortState: SortButtonState;
-  inPlaySortState: SortButtonState;
-  handSortState: SortButtonState;
-  setAsideSortState: SortButtonState;
   viewerHidden: boolean;
   gameActiveStatus: boolean;
   savedGames: SavedGames;
@@ -40,38 +31,6 @@ export interface ContentState {
 export const initialState: ContentState = {
   playerDeck: JSON.parse(JSON.stringify(new EmptyDeck())),
   opponentDecks: [JSON.parse(JSON.stringify(new EmptyOpponentDeck()))],
-  sortButtonState: {
-    category: "probability",
-    sort: "ascending",
-  },
-  discardSortState: {
-    category: "zone",
-    sort: "ascending",
-  },
-  opponentSortState: {
-    category: "zone",
-    sort: "ascending",
-  },
-  opponentTrashSortState: {
-    category: "zone",
-    sort: "ascending",
-  },
-  trashSortState: {
-    category: "zone",
-    sort: "ascending",
-  },
-  inPlaySortState: {
-    category: "zone",
-    sort: "ascending",
-  },
-  handSortState: {
-    category: "zone",
-    sort: "ascending",
-  },
-  setAsideSortState: {
-    category: "zone",
-    sort: "ascending",
-  },
   viewerHidden: false,
   gameActiveStatus: false,
   savedGames: {
@@ -104,33 +63,6 @@ export const contentSlice = createSlice({
     },
     setOpponentDecks: (state, action: PayloadAction<OpponentStoreDeck[]>) => {
       state.opponentDecks = action.payload;
-    },
-    setSortedButtonsState: (state, action: PayloadAction<SortButtonState>) => {
-      state.sortButtonState = action.payload;
-    },
-    setDiscardSortState: (state, action: PayloadAction<SortButtonState>) => {
-      state.discardSortState = action.payload;
-    },
-    setOpponentSortState: (state, action: PayloadAction<SortButtonState>) => {
-      state.opponentSortState = action.payload;
-    },
-    setOpponentTrashSortState: (
-      state,
-      action: PayloadAction<SortButtonState>
-    ) => {
-      state.opponentTrashSortState = action.payload;
-    },
-    setTrashSortState: (state, action: PayloadAction<SortButtonState>) => {
-      state.trashSortState = action.payload;
-    },
-    setInPlaySortState: (state, action: PayloadAction<SortButtonState>) => {
-      state.inPlaySortState = action.payload;
-    },
-    setHandSortState: (state, action: PayloadAction<SortButtonState>) => {
-      state.handSortState = action.payload;
-    },
-    setSetAsideSortState: (state, action: PayloadAction<SortButtonState>) => {
-      state.setAsideSortState = action.payload;
     },
     setViewerHidden: (state, action: PayloadAction<boolean>) => {
       state.viewerHidden = action.payload;
@@ -183,15 +115,7 @@ export const contentSlice = createSlice({
 export const {
   setPlayerDeck,
   setOpponentDecks,
-  setSortedButtonsState,
   setViewerHidden,
-  setDiscardSortState,
-  setOpponentSortState,
-  setOpponentTrashSortState,
-  setTrashSortState,
-  setInPlaySortState,
-  setHandSortState,
-  setSetAsideSortState,
   setGameActiveStatus,
   setSavedGames,
   setPrimaryFrameTab,
