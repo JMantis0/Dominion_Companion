@@ -66,6 +66,23 @@ export const optionsSlice = createSlice({
     setGameDateTitle: (state, action: PayloadAction<string>) => {
       state.gameDateTitle = action.payload;
     },
+    setModalDisplayOnData: (
+      state,
+      action: PayloadAction<{
+        idx: number;
+        html: string;
+        playerDeck: StoreDeck;
+        opponentDecks: OpponentStoreDeck[];
+        dateTime: string;
+      }>
+    ) => {
+      state.selectedRecord = action.payload.idx;
+      state.logHtml = action.payload.html;
+      state.playerDeck = action.payload.playerDeck;
+      state.opponentDecks = action.payload.opponentDecks;
+      state.gameDateTitle = action.payload.dateTime;
+      state.modalSwitch = true;
+    },
   },
 });
 
@@ -78,6 +95,7 @@ export const {
   setSelectedRecord,
   setModalSwitch,
   setGameDateTitle,
+  setModalDisplayOnData,
 } = optionsSlice.actions;
 export const selectContent = (state: RootState) => state.options;
 export default optionsSlice.reducer;

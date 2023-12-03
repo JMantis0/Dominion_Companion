@@ -1,13 +1,9 @@
 import React, { BaseSyntheticEvent, FunctionComponent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setGameDateTitle,
   setGameKeys,
   setLogHtml,
-  setModalSwitch,
-  setOpponentDecks,
-  setPlayerDeck,
-  setSelectedRecord,
+  setModalDisplayOnData,
 } from "../../../redux/optionsSlice";
 import { RootState } from "../../../redux/store";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -36,12 +32,14 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
 
   const handleRecordClick = (e: BaseSyntheticEvent, html: string) => {
     e;
-    dispatch(setSelectedRecord(idx));
-    dispatch(setLogHtml(html));
-    dispatch(setPlayerDeck(savedGame.playerDeck));
-    dispatch(setOpponentDecks(savedGame.opponentDecks));
-    dispatch(setGameDateTitle(savedGame.dateTime));
-    dispatch(setModalSwitch(true));
+    const modalDisplayData = {
+      idx,
+      html,
+      playerDeck: savedGame.playerDeck,
+      opponentDecks: savedGame.opponentDecks,
+      dateTime: savedGame.dateTime,
+    };
+    dispatch(setModalDisplayOnData(modalDisplayData));
   };
 
   const deleteRecord = (e: BaseSyntheticEvent) => {
@@ -80,16 +78,39 @@ const SavedGameRow: FunctionComponent<SavedGameRowProps> = ({
           {savedGame.playerDeck.rating} <br></br> Final VP:{" "}
           {savedGame.playerDeck.currentVP}
         </div>
-        {savedGame.opponentDecks.map((opponentDeck, idx) => {
-          return (
-            <React.Fragment key={idx}>
-              <div className={"col-span-2 text-xs text-inherit"}>
-                {opponentDeck.playerName} <br></br>Rating: {opponentDeck.rating}
-                <br></br>Final VP: {opponentDeck.currentVP}
-              </div>
-            </React.Fragment>
-          );
-        })}
+        <div className={"col-span-2 text-xs text-inherit"}>
+          {savedGame.opponentDecks
+            .slice()
+            .sort((deckA, deckB) => {
+              let result = deckB.currentVP - deckA.currentVP;
+              if (result === 0) {
+                result = deckB.currentVP - deckA.currentVP;
+              }
+              if (result === 0) {
+                if (deckA.playerName > deckB.playerName) {
+                  result = 1;
+                } else if (deckA.playerName < deckB.playerName) {
+                  result = -1;
+                }
+              }
+              return result;
+            })
+            .map((opponentDeck, idx) => {
+              return (
+                <React.Fragment key={idx}>
+                  <div>
+                    {opponentDeck.playerName} {opponentDeck.currentVP}VP{" "}
+                    <br></br>
+                    {opponentDeck.rating && (
+                      <React.Fragment>
+                        Rating {opponentDeck.rating} <br></br>
+                      </React.Fragment>
+                    )}
+                  </div>
+                </React.Fragment>
+              );
+            })}
+        </div>
         <div className={"col-span-1 text-xs text-inherit"}>
           {savedGame.playerDeck.gameResult}
         </div>

@@ -52,28 +52,13 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   const pinnedTopCardsLookAmount = useSelector(
     (state: RootState) => state.content.pinnedTopCardsLookAmount
   );
-  const selectScrollPosition = useSelector(
-    (state: RootState) => state.content.selectScrollPosition
-  );
-  // Used to access get the scroll position.
-  const selectScrollRef = useRef<Scrollbars>(null);
   // Used to get the options container height.
   const optionsContainerRef = useRef<HTMLElement>(null);
   // Used to limit the height of the dropdown.
   const [maxScrollBarHeight, setMaxScrollBarHeight] = useState<number>(0);
   const [selectOpen, setSelectOpen] = useState<boolean>(true);
 
-  useEffect(() => {
-    // On any render, the scroll  position is set to whatever value was previously
-    // set to the redux variable selectScrollPosition.
-    if (
-      selectScrollRef.current !== undefined &&
-      selectScrollRef.current !== null
-    ) {
-      selectScrollRef.current!.scrollTop(selectScrollPosition);
-    }
-  });
-
+  console.log("Rendering select");
   const handles = useMemo(() => customSelectResizableHandles(), []);
   useJQueryResizable(document.getElementById("select-scrollbars"), handles);
 
@@ -113,7 +98,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
         </button>
         <Scrollbars
           id="select-scrollbars"
-          ref={selectScrollRef}
           className={`${selectOpen ? "border-x border-y" : "hidden"}`}
           autoHide={false}
           style={{

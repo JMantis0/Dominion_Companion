@@ -9,7 +9,6 @@ import { RootState } from "../../redux/store";
 import SavedGameRow from "./SavedGameRow/SavedGameRow";
 import HistoryModal from "./HistoryModal/HistoryModal";
 import type { SavedGame, SavedGames } from "../../utils";
-
 const HistoryViewer = () => {
   const dispatch = useDispatch();
   const gameKeys = useSelector((state: RootState) => state.options.gameKeys);
@@ -21,33 +20,43 @@ const HistoryViewer = () => {
   );
 
   useEffect(() => {
-    const storageListenerFunc = (
+    let storageListenerFunc: (
       changes: {
         [key: string]: chrome.storage.StorageChange;
       },
       namespace: "sync" | "local" | "managed" | "session"
-    ) => {
-      namespace;
-      changes;
+    ) => void;
+    if (chrome.storage !== undefined) {
+      storageListenerFunc = (
+        changes: {
+          [key: string]: chrome.storage.StorageChange;
+        },
+        namespace: "sync" | "local" | "managed" | "session"
+      ) => {
+        namespace;
+        changes;
+        getSavedGames();
+      };
       getSavedGames();
-    };
-    getSavedGames();
-    chrome.storage.onChanged.addListener(storageListenerFunc);
+      chrome.storage.onChanged.addListener(storageListenerFunc);
+    }
     return () => {
-      chrome.storage.onChanged.removeListener(storageListenerFunc);
+      if (chrome.storage !== undefined)
+        chrome.storage.onChanged.removeListener(storageListenerFunc);
     };
   }, []);
 
   const getSavedGames = () => {
-    chrome.storage.local.get(["gameKeys"]).then(async (result) => {
-      const gameKeys = result.gameKeys;
-      await chrome.storage.local.get([...gameKeys]).then((result) => {
-        const savedGames = result as SavedGames;
+    if (chrome.storage !== undefined)
+      chrome.storage.local.get(["gameKeys"]).then(async (result) => {
+        const gameKeys = result.gameKeys;
+        await chrome.storage.local.get([...gameKeys]).then((result) => {
+          const savedGames = result as SavedGames;
 
-        dispatch(setGameKeys(gameKeys));
-        dispatch(setSavedGames(savedGames));
+          dispatch(setGameKeys(gameKeys));
+          dispatch(setSavedGames(savedGames));
+        });
       });
-    });
   };
 
   useEffect(() => {
@@ -80,7 +89,7 @@ const HistoryViewer = () => {
                   Player (You)
                 </div>
                 <div className={"col-span-2 text-xs border-2 text-white"}>
-                  Opponent
+                  Opponent(s)
                 </div>
                 <div className={"col-span-1 text-xs border-2 text-white"}>
                   Result

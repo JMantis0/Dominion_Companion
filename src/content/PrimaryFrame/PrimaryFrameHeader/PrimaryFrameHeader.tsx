@@ -1,24 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { RootState } from "../../../redux/store";
 import { useSelector } from "react-redux";
-import MinimizeButton from "../MinimizeButton/MinimizeButton";
 
 const containerStyle =
-  "backdrop-blur-sm bg-black/[.85] text-white border-double box-content";
-
+  "backdrop-blur-sm bg-black/[.85] text-white box-content";
 const baseStyle =
   "grid grid grid-cols-12 pointer-events-none w-full overflow-hidden text-xs ";
-
-const minimizedBorder = " border-8";
-const maximizedBorder = " border-t-8 border-x-8";
-
 const PrimaryFrameHeader = () => {
   const [currentTurn, setCurrentTurn] = useState<string>("Starting");
   const pd = useSelector((state: RootState) => state.content.playerDeck);
   const primaryFrameTab = useSelector(
     (state: RootState) => state.content.primaryFrameTab
   );
-  const minimized = useSelector((state: RootState) => state.content.minimized);
   const gameActiveStatus = useSelector(
     (state: RootState) => state.content.gameActiveStatus
   );
@@ -36,14 +29,7 @@ const PrimaryFrameHeader = () => {
 
   return (
     <React.Fragment>
-      <div
-        id="headerContainer"
-        className={
-          minimized
-            ? containerStyle + minimizedBorder
-            : containerStyle + maximizedBorder
-        }
-      >
+      <div id="headerContainer" className={containerStyle}>
         {gameActiveStatus && baseOnly ? (
           <div className={baseStyle} id="header">
             <React.Fragment>
@@ -73,7 +59,6 @@ const PrimaryFrameHeader = () => {
             to enjoy Dominion Companion. Non-base cards detected in game:
           </div>
         )}
-        <MinimizeButton />
       </div>
     </React.Fragment>
   );
