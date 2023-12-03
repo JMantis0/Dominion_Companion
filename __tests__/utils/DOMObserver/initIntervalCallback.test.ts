@@ -26,6 +26,7 @@ describe("initIntervalCallback", () => {
   let playerInfoElement2: HTMLElement;
   let playerInfoNameElement2: HTMLElement;
   let kingdomViewerElement: HTMLElement;
+  let cardStacksElement: HTMLElement;
   let nameElement1: HTMLElement;
   let nameElement2: HTMLElement;
   let nameElement3: HTMLElement;
@@ -168,12 +169,15 @@ describe("initIntervalCallback", () => {
     nameElement5.innerText = "Chapel";
     kingdomViewerElement = document.createElement("div");
     kingdomViewerElement.classList.add("kingdom-viewer-group");
-    kingdomViewerElement.appendChild(nameElement1);
-    kingdomViewerElement.appendChild(nameElement2);
-    kingdomViewerElement.appendChild(nameElement3);
-    kingdomViewerElement.appendChild(nameElement4);
-    kingdomViewerElement.appendChild(nameElement5);
+    cardStacksElement = document.createElement("div");
+    cardStacksElement.classList.add("card-stacks");
+    cardStacksElement.appendChild(nameElement1);
+    cardStacksElement.appendChild(nameElement2);
+    cardStacksElement.appendChild(nameElement3);
+    cardStacksElement.appendChild(nameElement4);
+    cardStacksElement.appendChild(nameElement5);
     document.body.appendChild(kingdomViewerElement);
+    document.body.appendChild(cardStacksElement);
 
     // Add game end element to document for MutationObserver
     gameEndElement = document.createElement("game-ended-notification");
@@ -186,20 +190,7 @@ describe("initIntervalCallback", () => {
       "123.45",
       "Player",
       "P",
-      [
-        "Vassal",
-        "Bureaucrat",
-        "Sentry",
-        "Market",
-        "Chapel",
-        "Province",
-        "Gold",
-        "Duchy",
-        "Silver",
-        "Estate",
-        "Copper",
-        "Curse",
-      ]
+      ["Vassal", "Bureaucrat", "Sentry", "Market", "Chapel"]
     );
 
     const expectedOpponentDeck = new OpponentDeck(
@@ -208,20 +199,7 @@ describe("initIntervalCallback", () => {
       "543.21",
       "Opponent",
       "O",
-      [
-        "Vassal",
-        "Bureaucrat",
-        "Sentry",
-        "Market",
-        "Chapel",
-        "Province",
-        "Gold",
-        "Duchy",
-        "Silver",
-        "Estate",
-        "Copper",
-        "Curse",
-      ]
+      ["Vassal", "Bureaucrat", "Sentry", "Market", "Chapel"]
     );
 
     // Update the expected decks with the gameLog
@@ -267,13 +245,6 @@ describe("initIntervalCallback", () => {
       "Sentry",
       "Market",
       "Chapel",
-      "Province",
-      "Gold",
-      "Duchy",
-      "Silver",
-      "Estate",
-      "Copper",
-      "Curse",
     ]);
     expect(DOMObserver.baseOnly).toBe(true);
     expect(DOMObserver.store.getState().content.baseOnly).toBe(true);
@@ -362,12 +333,15 @@ describe("initIntervalCallback", () => {
     nameElement5.innerText = "Minstrel";
     kingdomViewerElement = document.createElement("div");
     kingdomViewerElement.classList.add("kingdom-viewer-group");
-    kingdomViewerElement.appendChild(nameElement1);
-    kingdomViewerElement.appendChild(nameElement2);
-    kingdomViewerElement.appendChild(nameElement3);
-    kingdomViewerElement.appendChild(nameElement4);
-    kingdomViewerElement.appendChild(nameElement5);
+    cardStacksElement = document.createElement("div");
+    cardStacksElement.classList.add("card-stacks");
+    cardStacksElement.appendChild(nameElement1);
+    cardStacksElement.appendChild(nameElement2);
+    cardStacksElement.appendChild(nameElement3);
+    cardStacksElement.appendChild(nameElement4);
+    cardStacksElement.appendChild(nameElement5);
     document.body.appendChild(kingdomViewerElement);
+    document.body.appendChild(cardStacksElement);
 
     // Add game end element to document for MutationObserver
     gameEndElement = document.createElement("game-ended-notification");
@@ -380,20 +354,7 @@ describe("initIntervalCallback", () => {
       "123.45",
       "Player",
       "P",
-      [
-        "Vampire",
-        "Ogre",
-        "Plebeian",
-        "Lancer",
-        "Minstrel",
-        "Province",
-        "Gold",
-        "Duchy",
-        "Silver",
-        "Estate",
-        "Copper",
-        "Curse",
-      ]
+      ["Vampire", "Ogre", "Plebeian", "Lancer", "Minstrel"]
     );
 
     const expectedOpponentDeck = new OpponentDeck(
@@ -402,20 +363,7 @@ describe("initIntervalCallback", () => {
       "543.21",
       "Opponent",
       "O",
-      [
-        "Vampire",
-        "Ogre",
-        "Plebeian",
-        "Lancer",
-        "Minstrel",
-        "Province",
-        "Gold",
-        "Duchy",
-        "Silver",
-        "Estate",
-        "Copper",
-        "Curse",
-      ]
+      ["Vampire", "Ogre", "Plebeian", "Lancer", "Minstrel"]
     );
 
     const expectedDeckMap = new Map([
@@ -445,13 +393,6 @@ describe("initIntervalCallback", () => {
       "Plebeian",
       "Lancer",
       "Minstrel",
-      "Province",
-      "Gold",
-      "Duchy",
-      "Silver",
-      "Estate",
-      "Copper",
-      "Curse",
     ]);
     expect(DOMObserver.baseOnly).toBe(false);
     expect(DOMObserver.store.getState().content.baseOnly).toBe(false);

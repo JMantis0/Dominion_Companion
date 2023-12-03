@@ -38,7 +38,7 @@ describe("Method update", () => {
       "Chapel",
       "Copper",
       "Estate",
-      "Militia"
+      "Militia",
     ]);
     jest.clearAllMocks();
   });
@@ -208,7 +208,7 @@ describe("Method update", () => {
     );
     expect(
       getConsecutiveTreasurePlayCounts.mock.results[0].value
-    ).toStrictEqual([1, 0, 0]);
+    ).toStrictEqual([1, 0, 0, 0]);
     // Verify update to archives and VP are called.
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith("pNick plays 2 Coppers.");

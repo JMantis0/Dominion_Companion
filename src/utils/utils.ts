@@ -365,6 +365,8 @@ const getNonBaseCardsInKingdom = (kingdom: string[]): string[] => {
         "Duchy",
         "Estate",
         "Curse",
+        "Colony",
+        "Platinum",
       ].includes(card)
   );
 
@@ -394,8 +396,14 @@ const getRowColor = (cardName: string): string => {
   const treasureClass: string = "text-[#F4FF00]";
   const curseClass: string = "text-purple-400";
   const reactionClass: string = "text-[#6eccff]";
-  const victories: string[] = ["Estate", "Duchy", "Province", "Gardens"];
-  const treasures: string[] = ["Copper", "Silver", "Gold"];
+  const victories: string[] = [
+    "Estate",
+    "Duchy",
+    "Province",
+    "Gardens",
+    "Colony",
+  ];
+  const treasures: string[] = ["Copper", "Silver", "Gold", "Platinum"];
   if (treasures.indexOf(cardName) > -1) {
     color = treasureClass;
   } else if (victories.indexOf(cardName) > -1) {
@@ -468,6 +476,11 @@ const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
   );
 };
 
+/**
+ * Redux state selector for the MainDeckViewer component.
+ * @param state - The Redux Store State.
+ * @returns - The portion of state needed by the MainDeckViewer.
+ */
 const mainDeckViewerStateSelectorFunction = (
   state: RootState
 ): MainDeckViewerState => {
@@ -1738,6 +1751,13 @@ const useMainDeckViewerSorter = (
   }, [mainDeckViewerState, sortButtonState]);
 };
 
+/**
+ * Custom Hook used to restore the previously set scroll position on the
+ * given Scrollbars element when a tab changes.
+ * @param scrollElement - a Scrollbars element.
+ * @param scrollPosition - the scroll positions saved in useState.
+ * @param primaryFrameTab - The currently pinned PrimaryFrameTab.
+ */
 const useSavedScrollPositions = (
   scrollElement: Scrollbars | null,
   scrollPosition: {

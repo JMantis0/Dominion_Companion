@@ -57,8 +57,6 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   // Used to limit the height of the dropdown.
   const [maxScrollBarHeight, setMaxScrollBarHeight] = useState<number>(0);
   const [selectOpen, setSelectOpen] = useState<boolean>(true);
-
-  console.log("Rendering select");
   const handles = useMemo(() => customSelectResizableHandles(), []);
   useJQueryResizable(document.getElementById("select-scrollbars"), handles);
 

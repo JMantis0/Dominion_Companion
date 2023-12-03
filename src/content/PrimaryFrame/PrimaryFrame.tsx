@@ -40,12 +40,6 @@ const useSaveGameBeforeUnloadListener = () => {
 };
 
 const PrimaryFrame = () => {
-  const [scrollPosition, setScrollPosition] = useState<{
-    deck: number;
-    opponent: number;
-    discard: number;
-    trash: number;
-  }>({ deck: 0, opponent: 0, discard: 0, trash: 0 });
   const opponentDeckData = useSelector((state: RootState) => {
     return {
       numberOfOpponents: state.content.opponentDecks.length,
@@ -71,6 +65,12 @@ const PrimaryFrame = () => {
   );
   const error = useSelector((state: RootState) => state.content.error);
   const minimized = useSelector((state: RootState) => state.content.minimized);
+  const [scrollPosition, setScrollPosition] = useState<{
+    deck: number;
+    opponent: number;
+    discard: number;
+    trash: number;
+  }>({ deck: 0, opponent: 0, discard: 0, trash: 0 });
   const primaryFrameRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<Scrollbars>(null);
   useSaveGameBeforeUnloadListener();

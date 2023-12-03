@@ -20,6 +20,10 @@ import {
 } from "../../../utils";
 
 const MainDeckViewer = () => {
+  const mainDeckViewerState: MainDeckViewerState = useSelector(
+    mainDeckViewerStateSelectorFunction,
+    stringifiedEqualityFunction
+  );
   const [libraryMap, setLibraryMap] = useState<Map<string, CardCounts>>(
     new Map()
   );
@@ -28,10 +32,6 @@ const MainDeckViewer = () => {
       category: "probability",
       sort: "ascending",
     });
-  const mainDeckViewerState: MainDeckViewerState = useSelector(
-    mainDeckViewerStateSelectorFunction,
-    stringifiedEqualityFunction
-  );
   useMainDeckViewerSorter(
     mainDeckViewerState,
     mainDeckViewerSortButtonSate,

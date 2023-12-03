@@ -70,8 +70,33 @@ describe("getActCardsAndCounts", () => {
     deck.lastEntryProcessed = "pNick plays 2 Coppers and a Silver.";
     const line = "pNick plays 2 Coppers and 2 Silvers.";
     const expectedAct: string = "plays";
-    const expectedCards: string[] = ["Copper", "Silver", "Gold"];
-    const expectedNumber: number[] = [0, 1, 0];
+    const expectedCards: string[] = ["Copper", "Silver", "Gold", "Platinum"];
+    const expectedNumber: number[] = [0, 1, 0, 0];
+    const expectedLogArchive = ["Log1"];
+    // Act
+    const {
+      act: resultAct,
+      cards: resultCards,
+      numberOfCards: resultNumbers,
+    } = deck.getActCardsAndCounts(line);
+    const resultLogArchive = deck.logArchive;
+
+    // Assert
+    expect;
+    expect(resultAct).toStrictEqual(expectedAct);
+    expect(expectedCards).toStrictEqual(resultCards);
+    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultLogArchive).toStrictEqual(expectedLogArchive);
+  });
+
+  it("should handle consecutive Platinum plays correctly", () => {
+    // Arrange
+    deck.logArchive = ["Log1", "pNick plays 2 Coppers and a Silver."];
+    deck.lastEntryProcessed = "pNick plays 2 Coppers and a Platinum.";
+    const line = "pNick plays 2 Coppers and 2 Platinums.";
+    const expectedAct: string = "plays";
+    const expectedCards: string[] = ["Copper", "Silver", "Gold", "Platinum"];
+    const expectedNumber: number[] = [0, 0, 0, 1];
     const expectedLogArchive = ["Log1"];
     // Act
     const {

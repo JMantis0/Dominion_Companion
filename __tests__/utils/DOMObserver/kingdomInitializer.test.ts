@@ -12,6 +12,7 @@ import optionsSlice from "../../../src/redux/optionsSlice";
 describe("kingdomInitializer should check if the kingdom-viewer-group element is present in the DOM and...", () => {
   // Declare element references
   let kingdomViewerElement: HTMLElement;
+  let cardStacksElement: HTMLElement;
   let nameElement1: HTMLElement;
   let nameElement2: HTMLElement;
   let nameElement3: HTMLElement;
@@ -54,14 +55,17 @@ describe("kingdomInitializer should check if the kingdom-viewer-group element is
 
     kingdomViewerElement = document.createElement("div");
     kingdomViewerElement.classList.add("kingdom-viewer-group");
+    cardStacksElement = document.createElement("div");
+    cardStacksElement.classList.add("card-stacks");
 
-    kingdomViewerElement.appendChild(nameElement1);
-    kingdomViewerElement.appendChild(nameElement2);
-    kingdomViewerElement.appendChild(nameElement3);
-    kingdomViewerElement.appendChild(nameElement4);
-    kingdomViewerElement.appendChild(nameElement5);
+    cardStacksElement.appendChild(nameElement1);
+    cardStacksElement.appendChild(nameElement2);
+    cardStacksElement.appendChild(nameElement3);
+    cardStacksElement.appendChild(nameElement4);
+    cardStacksElement.appendChild(nameElement5);
 
     document.body.appendChild(kingdomViewerElement);
+    document.body.appendChild(cardStacksElement);
     storeMock.dispatch(setBaseOnlyRedux(false));
     // Act - Simulate calling the kingdomInitializer when the kingdom element is present and it is a base kingdom.
     DOMObserver.kingdomInitializer();
@@ -74,13 +78,6 @@ describe("kingdomInitializer should check if the kingdom-viewer-group element is
       "Sentry",
       "Market",
       "Chapel",
-      "Province",
-      "Gold",
-      "Duchy",
-      "Silver",
-      "Estate",
-      "Copper",
-      "Curse",
     ]);
     // Verify baseOnly was set correctly
     expect(DOMObserver.baseOnly).toBe(true);
@@ -110,14 +107,17 @@ describe("kingdomInitializer should check if the kingdom-viewer-group element is
 
     kingdomViewerElement = document.createElement("div");
     kingdomViewerElement.classList.add("kingdom-viewer-group");
+    cardStacksElement = document.createElement("div");
+    cardStacksElement.classList.add("card-stacks");
 
-    kingdomViewerElement.appendChild(nameElement1);
-    kingdomViewerElement.appendChild(nameElement2);
-    kingdomViewerElement.appendChild(nameElement3);
-    kingdomViewerElement.appendChild(nameElement4);
-    kingdomViewerElement.appendChild(nameElement5);
+    cardStacksElement.appendChild(nameElement1);
+    cardStacksElement.appendChild(nameElement2);
+    cardStacksElement.appendChild(nameElement3);
+    cardStacksElement.appendChild(nameElement4);
+    cardStacksElement.appendChild(nameElement5);
 
     document.body.appendChild(kingdomViewerElement);
+    document.body.appendChild(cardStacksElement);
     storeMock.dispatch(setBaseOnlyRedux(true));
     // Act - Simulate calling the kingdomInitializer when the kingdom element is present and it is a base kingdom.
     DOMObserver.kingdomInitializer();
@@ -129,13 +129,6 @@ describe("kingdomInitializer should check if the kingdom-viewer-group element is
       "Plebeian",
       "Lancer",
       "Minstrel",
-      "Province",
-      "Gold",
-      "Duchy",
-      "Silver",
-      "Estate",
-      "Copper",
-      "Curse",
     ]);
     expect(DOMObserver.baseOnly).toBe(false);
     expect(storeMock.getState().content.baseOnly).toBe(false);

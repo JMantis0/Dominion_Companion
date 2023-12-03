@@ -18,7 +18,7 @@ describe("getConsecutiveTreasurePlayCounts", () => {
       deck.getConsecutiveTreasurePlayCounts(
         "pNick plays 2 Coppers and 2 Silvers. (+$4)"
       )
-    ).toStrictEqual([1, 0, 0]);
+    ).toStrictEqual([1, 0, 0, 0]);
   });
 
   it("should return an array with the correct number of Silvers to play", () => {
@@ -30,7 +30,7 @@ describe("getConsecutiveTreasurePlayCounts", () => {
       deck.getConsecutiveTreasurePlayCounts(
         "pNick plays 2 Coppers and a Silver. (+$4)"
       )
-    ).toStrictEqual([0, 1, 0]);
+    ).toStrictEqual([0, 1, 0, 0]);
   });
 
   it("should return an array with the correct number of Golds to play", () => {
@@ -42,7 +42,19 @@ describe("getConsecutiveTreasurePlayCounts", () => {
       deck.getConsecutiveTreasurePlayCounts(
         "pNick plays 2 Coppers and a Gold. (+$4)"
       )
-    ).toStrictEqual([0, 0, 1]);
+    ).toStrictEqual([0, 0, 1, 0]);
+  });
+
+  it("should return an array with the correct number of Platinums to play", () => {
+    // Arrange
+    deck.lastEntryProcessed = "pNick plays 2 Coppers. (+$2)";
+
+    // Act and Assert - Simulate playing a Gold after playing 2 Coppers.
+    expect(
+      deck.getConsecutiveTreasurePlayCounts(
+        "pNick plays 2 Coppers and a Platinum. (+$4)"
+      )
+    ).toStrictEqual([0, 0, 0, 1]);
   });
 
   it("should return an array with the correct number of each treasure to play even if there are multiple treasures that have differences greater than 1", () => {
@@ -54,18 +66,19 @@ describe("getConsecutiveTreasurePlayCounts", () => {
       deck.getConsecutiveTreasurePlayCounts(
         "pNick plays 5 Coppers, 3 Silvers, and 2 Golds. (+$4)"
       )
-    ).toStrictEqual([3, 3, 2]);
+    ).toStrictEqual([3, 3, 2, 0]);
   });
 
   it("should return an array with the correct number of each treasure to play (all treasures in both lines)", () => {
     // Arrange
-    deck.lastEntryProcessed = "pNick plays 2 Coppers, 2 Silvers, and 3 Golds. (+$15)";
+    deck.lastEntryProcessed =
+      "pNick plays 2 Coppers, 2 Silvers, and 3 Golds. (+$15)";
 
     // Act and Assert - Simulate playing multiple treasures on a single line.
     expect(
       deck.getConsecutiveTreasurePlayCounts(
         "pNick plays 5 Coppers, 5 Silvers, and 10 Golds. (+$4)"
       )
-    ).toStrictEqual([3, 3, 7]);
+    ).toStrictEqual([3, 3, 7, 0]);
   });
 });
