@@ -2,7 +2,7 @@ import { GameResult } from "../utils";
 
 export class BaseDeck {
   currentVP: number = 3;
-  debug: boolean = process.env.NODE_ENVIRONMENT === "dev";
+  debug: boolean = true;
   entireDeck: Array<string> = [];
   gameResult: GameResult;
   gameTitle: string;
@@ -336,6 +336,7 @@ export class BaseDeck {
       "shuffles their deck",
       "topdecks",
       "trashes",
+      "passes",
     ];
     const entryWithoutNickName = entry.slice(this.playerNick.length);
     for (let i = 0; i < actionArray.length; i++) {

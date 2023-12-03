@@ -124,7 +124,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by a Lookout from setAside.", () => {
     // Arrange deck state
-    deck.latestPlay = "Sentry";
+    deck.latestPlay = "Lookout";
     deck.library = ["Copper"];
     deck.hand = ["Market"];
     deck.graveyard = ["Bureaucrat"];

@@ -26,7 +26,10 @@ describe("Method update", () => {
     OpponentDeck.prototype,
     "getActCardsAndCounts"
   );
-
+  const handleIncomingPasses = jest.spyOn(
+    OpponentDeck.prototype,
+    "handleIncomingPasses"
+  );
   const processDeckChanges = jest
     .spyOn(OpponentDeck.prototype, "processDeckChanges")
     .mockImplementation(() => null); // Remove implementation for processDeckChanges
@@ -74,6 +77,7 @@ describe("Method update", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
+    expect(handleIncomingPasses).not.toBeCalled();
   });
 
   // Case: Doesn't apply to deck, non consecutive treasure play
@@ -111,6 +115,7 @@ describe("Method update", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
+    expect(handleIncomingPasses).toBeCalledTimes(1);
   });
 
   // Case: Multiple logs, some apply to the deck, some do not.
@@ -178,6 +183,7 @@ describe("Method update", () => {
     expect(updateArchives).nthCalledWith(2, log[1]);
     expect(updateArchives).nthCalledWith(3, log[2]);
     expect(updateVP).toBeCalledTimes(3);
+    expect(handleIncomingPasses).toBeCalledTimes(2);
   });
 
   // Case: Log entry doesn't apply to the deck and is a consecutive treasure play.
@@ -213,5 +219,6 @@ describe("Method update", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith("pNick plays 2 Coppers.");
     expect(updateVP).toBeCalledTimes(1);
+    expect(handleIncomingPasses).toBeCalledTimes(1);
   });
 });

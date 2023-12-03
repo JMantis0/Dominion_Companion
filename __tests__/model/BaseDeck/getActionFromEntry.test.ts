@@ -83,8 +83,14 @@ describe("getActionFromEntry", () => {
   });
 
   it("should get action 'aside with Library' correctly", () => {
+    // Act and Assert
     expect(
       deck.getActionFromEntry("pNick sets a Cellar aside with Library.")
     ).toBe("aside with Library");
+  });
+
+  it("should get action 'passes' correctly", () => {
+    // Act and Assert
+    expect(deck.getActionFromEntry("L passes an Estate to G.")).toBe("passes");
   });
 });

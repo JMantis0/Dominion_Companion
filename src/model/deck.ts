@@ -35,6 +35,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       }
       this.library.push("Copper");
     }
+    this.debug = true;
   }
 
   getGraveyard() {
@@ -555,6 +556,31 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Update function checks if any passes are incoming.
+   * @param act - The act from the given line.
+   * @param line - The given line being processed.
+   * @param cards - The card names on the given line.
+   * @param numberOfCards - The amounts of the cards on the given line.
+   */
+  handleIncomingPasses(
+    act: string,
+    line: string,
+    cards: string[],
+    numberOfCards: number[]
+  ) {
+    if (act === "passes") {
+      // Check if the passing is done to this deck.
+      const lineWithoutPeriod = line.substring(0, line.length - 1);
+      const passTo = lineWithoutPeriod.substring(
+        lineWithoutPeriod.length - this.playerNick.length
+      );
+      if (passTo === this.playerNick) {
+        this.processPassesLine(cards, numberOfCards, "incoming");
+      }
+    }
+  }
+
+  /**
    * Checks if a cleanUp is needed.
    * @param entry - A log entry to be checked.
    */
@@ -715,6 +741,8 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "reveals":
         this.processRevealsLine(cards, numberOfCards);
         break;
+      case "passes":
+        this.processPassesLine(cards, numberOfCards);
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -839,6 +867,39 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Update method handles passes of cards from one player to another.
+   * @param cards - The cards being passed.
+   * @param numberOfCards - The amounts of each card being passed
+   * @param passDirection - If 'incoming' the pass is being made to the invoking deck,
+   * otherwise it is being passed from the invoking deck.
+   */
+  processPassesLine(
+    cards: string[],
+    numberOfCards: number[],
+    passDirection?: "incoming"
+  ) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        if (passDirection === "incoming") {
+          const handCopy = this.hand.slice();
+          handCopy.push(cards[i]);
+          this.setHand(handCopy);
+          this.addCardToEntireDeck(cards[i]);
+        } else {
+          const index = this.hand.indexOf(cards[i]);
+          if (index < 0) {
+            throw new Error(`No ${cards[i]} in hand.`);
+          }
+          const handCopy = this.hand.slice();
+          handCopy.splice(index, 1);
+          this.setHand(handCopy);
+          this.removeCardFromEntireDeck(cards[i]);
+        }
+      }
+    }
+  }
+
+  /**
    * Update function.  Plays cards according to the provided information
    * @param line - The current line being processed.
    * @param cards - Array of card names to be played.
@@ -888,7 +949,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (mostRecentPlay === "Sentry") {
+        if (["Sentry", "Lookout"].includes(mostRecentPlay)) {
           this.topDeckFromSetAside(cards[i]);
         } else if (mostRecentPlay === "Harbinger") {
           this.topDeckFromGraveyard(cards[i]);
@@ -1124,6 +1185,8 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.shuffleAndCleanUpIfNeeded(line);
         this.drawLookedAtCardIfNeeded(act);
         this.processDeckChanges(line, act, cards, numberOfCards);
+      } else {
+        this.handleIncomingPasses(act, line, cards, numberOfCards);
       }
       this.updateArchives(line);
       this.updateVP();
