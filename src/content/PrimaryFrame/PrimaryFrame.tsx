@@ -1,5 +1,10 @@
 /*global chrome*/
-import React, { UIEvent, useEffect, useRef, useState } from "react";
+import React, {
+  UIEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useSelector } from "react-redux";
 import { RootState, store } from "../../redux/store";
@@ -71,19 +76,21 @@ const PrimaryFrame = () => {
     discard: number;
     trash: number;
   }>({ deck: 0, opponent: 0, discard: 0, trash: 0 });
-  const primaryFrameRef = useRef<HTMLDivElement>(null);
+  const [primaryFrameRef, setPrimaryFrameRef] = useState<HTMLElement | null>(
+    null
+  );
   const scrollRef = useRef<Scrollbars>(null);
   useSaveGameBeforeUnloadListener();
   usePopupChromeMessageListener([hidden]);
-  useJQueryDraggable(primaryFrameRef.current);
-  useJQueryResizable(primaryFrameRef.current, primaryFrameResizableHandles());
-  useMinimizer(primaryFrameRef.current);
+  useJQueryDraggable(primaryFrameRef);
+  useJQueryResizable(primaryFrameRef, primaryFrameResizableHandles());
+  useMinimizer(primaryFrameRef);
   useSavedScrollPositions(scrollRef.current, scrollPosition, primaryFrameTab);
   return (
     <React.Fragment>
       <div
         id="primaryFrame"
-        ref={primaryFrameRef}
+        ref={setPrimaryFrameRef}
         className={hidden ? hiddenStyle : minimized ? minimizedStyle : style}
       >
         <MinimizeButton />
