@@ -76,21 +76,21 @@ const PrimaryFrame = () => {
     discard: number;
     trash: number;
   }>({ deck: 0, opponent: 0, discard: 0, trash: 0 });
-  const [primaryFrameRef, setPrimaryFrameRef] = useState<HTMLElement | null>(
+  const [primaryFrameElement, setPrimaryFrameElement] = useState<HTMLElement | null>(
     null
   );
   const scrollRef = useRef<Scrollbars>(null);
   useSaveGameBeforeUnloadListener();
   usePopupChromeMessageListener([hidden]);
-  useJQueryDraggable(primaryFrameRef);
-  useJQueryResizable(primaryFrameRef, primaryFrameResizableHandles());
-  useMinimizer(primaryFrameRef);
+  useJQueryDraggable(primaryFrameElement);
+  useJQueryResizable(primaryFrameElement, primaryFrameResizableHandles());
+  useMinimizer(primaryFrameElement);
   useSavedScrollPositions(scrollRef.current, scrollPosition, primaryFrameTab);
   return (
     <React.Fragment>
       <div
         id="primaryFrame"
-        ref={setPrimaryFrameRef}
+        ref={setPrimaryFrameElement}
         className={hidden ? hiddenStyle : minimized ? minimizedStyle : style}
       >
         <MinimizeButton />
