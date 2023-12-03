@@ -382,6 +382,8 @@ export class DOMObserver {
       "Duchy",
       "Estate",
       "Curse",
+      "Colony",
+      "Platinum",
     ];
     for (let i = 0; i < kingdom.length; i++) {
       if (!baseCards.includes(kingdom[i])) {
@@ -542,34 +544,23 @@ export class DOMObserver {
    * @returns The array of strings containing the kingdom card available in the current game.
    */
   static getClientKingdom(): Array<string> {
-    const kingdom: string[] = [];
+    const kingdomSet = new Set<string>();
     const kingdomViewerGroupElement = document.getElementsByClassName(
       "kingdom-viewer-group"
     )[0];
     if (kingdomViewerGroupElement !== undefined) {
       for (const elt of document
-        .getElementsByClassName("kingdom-viewer-group")[0]
+        .getElementsByClassName("card-stacks")[0]
         .getElementsByClassName(
           "name-layer"
         ) as HTMLCollectionOf<HTMLElement>) {
         const card = elt.innerText.trim();
-        kingdom.push(card);
+        if (card !== "") kingdomSet.add(card);
       }
     } else {
       throw Error("The kingdom-viewer-group element is not present in the DOM");
     }
-    [
-      "Province",
-      "Gold",
-      "Duchy",
-      "Silver",
-      "Estate",
-      "Copper",
-      "Curse",
-    ].forEach((card) => {
-      kingdom.push(card);
-    });
-    return kingdom;
+    return Array.from(kingdomSet);
   }
 
   /**

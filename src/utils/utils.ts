@@ -365,6 +365,8 @@ const getNonBaseCardsInKingdom = (kingdom: string[]): string[] => {
         "Duchy",
         "Estate",
         "Curse",
+        "Colony",
+        "Platinum",
       ].includes(card)
   );
 
@@ -394,8 +396,14 @@ const getRowColor = (cardName: string): string => {
   const treasureClass: string = "text-[#F4FF00]";
   const curseClass: string = "text-purple-400";
   const reactionClass: string = "text-[#6eccff]";
-  const victories: string[] = ["Estate", "Duchy", "Province", "Gardens"];
-  const treasures: string[] = ["Copper", "Silver", "Gold"];
+  const victories: string[] = [
+    "Estate",
+    "Duchy",
+    "Province",
+    "Gardens",
+    "Colony",
+  ];
+  const treasures: string[] = ["Copper", "Silver", "Gold", "Platinum"];
   if (treasures.indexOf(cardName) > -1) {
     color = treasureClass;
   } else if (victories.indexOf(cardName) > -1) {

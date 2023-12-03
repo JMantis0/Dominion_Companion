@@ -207,7 +207,7 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(/Coppers?|Silvers?|Golds?/) !== null;
+      line.match(/Coppers?|Silvers?|Golds?|Platinums?/) !== null;
     return treasureLine;
   }
 
@@ -410,7 +410,7 @@ export class BaseDeck {
     // The two lines must be compared to see how many additional treasures must be
     // processed
     const prevLine = this.lastEntryProcessed;
-    const treasures = ["Copper", "Silver", "Gold"];
+    const treasures = ["Copper", "Silver", "Gold", "Platinum"];
 
     // get the total number of each treasure that was played on the last line
     const numberOfPrevCards: Array<number> = [];
@@ -453,6 +453,7 @@ export class BaseDeck {
       numberOfCards[0] - numberOfPrevCards[0],
       numberOfCards[1] - numberOfPrevCards[1],
       numberOfCards[2] - numberOfPrevCards[2],
+      numberOfCards[3] - numberOfPrevCards[3],
     ];
 
     const archiveCopy = this.logArchive.slice();
@@ -624,6 +625,8 @@ export class BaseDeck {
             return 3 + accumulatedVP;
           case "Province":
             return 6 + accumulatedVP;
+          case "Colony":
+            return 10 + accumulatedVP;
           case "Curse":
             return accumulatedVP - 1;
           default:
