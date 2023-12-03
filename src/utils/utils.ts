@@ -468,6 +468,11 @@ const isErrorWithMessage = (error: unknown): error is ErrorWithMessage => {
   );
 };
 
+/**
+ * Redux state selector for the MainDeckViewer component.
+ * @param state - The Redux Store State.
+ * @returns - The portion of state needed by the MainDeckViewer.
+ */
 const mainDeckViewerStateSelectorFunction = (
   state: RootState
 ): MainDeckViewerState => {
@@ -1738,6 +1743,13 @@ const useMainDeckViewerSorter = (
   }, [mainDeckViewerState, sortButtonState]);
 };
 
+/**
+ * Custom Hook used to restore the previously set scroll position on the
+ * given Scrollbars element when a tab changes.
+ * @param scrollElement - a Scrollbars element.
+ * @param scrollPosition - the scroll positions saved in useState.
+ * @param primaryFrameTab - The currently pinned PrimaryFrameTab.
+ */
 const useSavedScrollPositions = (
   scrollElement: Scrollbars | null,
   scrollPosition: {
