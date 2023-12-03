@@ -1,9 +1,16 @@
 name: Tests CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
+    name: jest tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
