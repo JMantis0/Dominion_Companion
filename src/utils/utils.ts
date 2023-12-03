@@ -23,7 +23,7 @@ import type {
 } from ".";
 import $ from "jquery";
 import { RootState, store } from "../redux/store";
-import { setViewerHidden } from "../redux/contentSlice";
+import { setMinimized, setViewerHidden } from "../redux/contentSlice";
 import { Serializable } from "child_process";
 import Scrollbars from "react-custom-scrollbars-2";
 
@@ -765,6 +765,7 @@ const popupMessageListener = (
   const response: { message: string } = { message: "" };
   if (request.command === "appendDomRoot") {
     store.dispatch(setViewerHidden(false));
+    store.dispatch(setMinimized(false));
     response.message = "Successfully turned on.";
   } else if (request.command === "removeDomRoot") {
     store.dispatch(setViewerHidden(true));

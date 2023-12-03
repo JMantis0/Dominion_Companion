@@ -79,6 +79,29 @@ describe("processLooksAtLine", () => {
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
+  it("should move the cards to setAside if look is caused by a Lookout", () => {
+    // Arrange
+    deck.latestPlay = "Lookout";
+    deck.hand = ["Bureaucrat"];
+    deck.library = ["Province", "Copper", "Copper", "Estate"];
+    deck.setAside = [];
+    deck.waitToDrawLibraryLook = false;
+
+    // Arguments for function being tested.
+    const cards = ["Copper", "Estate"];
+    const numberOfCards = [2, 1];
+
+    // Act - Simulate looking at 2 Coppers and an Estate with a Lookout.
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    // Assert - Verify cards were moved from library to setAside
+    expect(deck.setAside).toStrictEqual(["Copper", "Copper", "Estate"]);
+    expect(deck.library).toStrictEqual(["Province"]);
+    // Verify hand and waitToDrawLibraryLook are unchanged.
+    expect(deck.hand).toStrictEqual(["Bureaucrat"]);
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
   it("should draw certain cards immediately if they are looked at by a Library", () => {
     // Arrange
     deck.latestPlay = "Library";
