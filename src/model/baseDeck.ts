@@ -297,7 +297,7 @@ export class BaseDeck {
     if (this.consecutiveTreasurePlays(line)) {
       number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
-      cards = ["Copper", "Silver", "Gold"];
+      cards = ["Copper", "Silver", "Gold", "Platinum"];
     } else {
       act = this.getActionFromEntry(line);
       [cards, number] = this.getCardsAndCountsFromEntry(line);
