@@ -93,7 +93,7 @@ interface OpponentStoreDeck {
   gameTurn: number;
   gameResult: GameResult;
   ratedGame: boolean;
-  rating: string;
+  rating?: string;
   entireDeck: Array<string>;
   playerName: string;
   playerNick: string;
@@ -103,11 +103,12 @@ interface OpponentStoreDeck {
   lastEntryProcessed: string;
   logArchive: Array<string>;
   treasurePopped: boolean;
+  debug: boolean;
 }
 
 type OpponentViewerState = {
-  opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>
-}
+  opponentDeckData: Array<{ playerName: string; entireDeck: string[] }>;
+};
 
 /**
  * Type for optional custom handles to be consumed by JQuery resizable widget
@@ -128,7 +129,12 @@ type OptionalHandles = {
 /**
  * Custom type for PrimaryFrameTab
  */
-type PrimaryFrameTabType = "Deck" | "Discard" | "Trash" | "Opponent";
+type PrimaryFrameTabType =
+  | "Deck"
+  | "Discard"
+  | "Trash"
+  | "Opponent"
+  | "Opponents";
 
 /**
  * State type for TrashZoneViewer component.
@@ -200,6 +206,7 @@ interface StoreDeck {
   inPlay: Array<string>;
   kingdom: Array<string>;
   lastEntryProcessed: string;
+  latestPlay: string;
   library: Array<string>;
   logArchive: Array<string>;
   playerName: string;
@@ -211,6 +218,7 @@ interface StoreDeck {
   treasurePopped: boolean;
   waitToDrawLibraryLook: boolean;
   waitToShuffle: boolean;
+  debug: boolean;
 }
 
 export {

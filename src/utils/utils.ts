@@ -25,6 +25,7 @@ import $ from "jquery";
 import { RootState, store } from "../redux/store";
 import { setViewerHidden } from "../redux/contentSlice";
 import { Serializable } from "child_process";
+import Scrollbars from "react-custom-scrollbars-2";
 
 /**
  * Function that calculates mathematical combinations
@@ -1737,6 +1738,42 @@ const useMainDeckViewerSorter = (
   }, [mainDeckViewerState, sortButtonState]);
 };
 
+const useSavedScrollPositions = (
+  scrollElement: Scrollbars | null,
+  scrollPosition: {
+    discard: number;
+    deck: number;
+    trash: number;
+    opponent: number;
+  },
+  primaryFrameTab: PrimaryFrameTabType
+) => {
+  useEffect(() => {
+    // On any render, the scroll  position is set to whatever value was previously
+    // set to the redux variable selectScrollPosition.
+    if (scrollElement !== undefined && scrollElement !== null) {
+      let computedKey = primaryFrameTab.toLowerCase();
+      if (computedKey === "opponents") computedKey = "opponent";
+      switch (computedKey) {
+        case "opponent":
+          scrollElement.scrollTop(scrollPosition.opponent);
+          break;
+        case "discard":
+          scrollElement.scrollTop(scrollPosition.discard);
+          break;
+        case "deck":
+          scrollElement.scrollTop(scrollPosition.deck);
+          break;
+        case "trash":
+          scrollElement.scrollTop(scrollPosition.trash);
+          break;
+        default:
+          throw new Error("invalid primaryFrameTab");
+      }
+    }
+  }, [primaryFrameTab]);
+};
+
 /**
  * Custom hook that creates a sortedMap from map from a zone and dispatches
  * it as an action to a React SetStateAction.
@@ -1840,5 +1877,6 @@ export {
   usePopupChromeMessageListener,
   useMinimizer,
   useMainDeckViewerSorter,
+  useSavedScrollPositions,
   useZoneViewerSorter,
 };

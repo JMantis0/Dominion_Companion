@@ -11,7 +11,7 @@ import {
 import FullListCardRow from "./FullListCardRow/FullListCardRow";
 import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
-import CustomSelect from "./CustomSelect/CustomSelect";
+import CustomSelect from "./TopCardsSelect/TopCardsSelect";
 import TurnButton from "./TurnButton/TurnButton";
 import {
   SortButtonState,

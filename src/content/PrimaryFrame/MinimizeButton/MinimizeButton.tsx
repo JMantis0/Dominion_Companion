@@ -13,7 +13,7 @@ import { setMinimized } from "../../../redux/contentSlice";
 library.add(faWindowMinimize, faWindowRestore, faAnglesDown, faAnglesUp);
 
 const baseStyle =
-  "absolute -left-[33px] -top-[8px] border-[2px] bg-slate-800 w-[25px] h-[25px] box-border ";
+  "absolute -right-[0px] -top-[25px] border-[2px] bg-slate-800 w-[25px] h-[25px] box-border ";
 const minStyle = "text-green-300 border-green-300 ";
 const maxStyle = "text-red-300 border-red-300 ";
 const minimizedStyle = baseStyle + minStyle;

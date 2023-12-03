@@ -1,5 +1,5 @@
 /*global chrome*/
-import React, { useEffect, useRef, useState } from "react";
+import React, { UIEvent, useEffect, useRef, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useSelector } from "react-redux";
 import { RootState, store } from "../../redux/store";
@@ -13,22 +13,21 @@ import {
   primaryFrameResizableHandles,
   useJQueryDraggable,
   useJQueryResizable,
-  useElementHeight,
   useMinimizer,
   usePopupChromeMessageListener,
-  useHeightDifferentBetweenContainerAndContainedElement,
   getNonBaseCardsInKingdom,
+  stringifiedEqualityFunction,
+  useSavedScrollPositions,
 } from "../../utils/utils";
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
-// import DevDisplay from "./DevDisplay/DevDisplay";
+import MinimizeButton from "./MinimizeButton/MinimizeButton";
 
 const style = "w-[250px] h-[400px]";
 const hiddenStyle = style + " hidden";
 const minimizedStyle = "w-[250px] h-[0px]";
 const collapsibleStyle =
-  "backdrop-blur-sm bg-black/[.85] object-contain pb-[55px] w-fill overflow-hidden border-b-8 border-x-8 border-double border-gray-300 box-border";
-const minimizedCollapsibleStyle = collapsibleStyle + " hidden";
+  "backdrop-blur-sm bg-black/[.85] object-contain pb-[65px] w-fill overflow-hidden border-8 border-double border-gray-300 box-border h-full";
 
 const useSaveGameBeforeUnloadListener = () => {
   const viewerHidden = store.getState().content.viewerHidden;
@@ -41,7 +40,18 @@ const useSaveGameBeforeUnloadListener = () => {
 };
 
 const PrimaryFrame = () => {
-  // const ods = useSelector((state: RootState) => state.content.opponentDecks);
+  const [scrollPosition, setScrollPosition] = useState<{
+    deck: number;
+    opponent: number;
+    discard: number;
+    trash: number;
+  }>({ deck: 0, opponent: 0, discard: 0, trash: 0 });
+  const opponentDeckData = useSelector((state: RootState) => {
+    return {
+      numberOfOpponents: state.content.opponentDecks.length,
+      singleOpponentDeckSize: state.content.opponentDecks[0].entireDeck.length,
+    };
+  }, stringifiedEqualityFunction);
   const pdEntireDeckLength = useSelector(
     (state: RootState) => state.content.playerDeck.entireDeck.length
   );
@@ -61,24 +71,14 @@ const PrimaryFrame = () => {
   );
   const error = useSelector((state: RootState) => state.content.error);
   const minimized = useSelector((state: RootState) => state.content.minimized);
-  const [calculatedCollapsibleHeight, setCalculatedCollapsibleHeight] =
-    useState<number>(0);
-  const [primaryFrameHeight, setPrimaryFrameHeight] = useState<number>(0);
   const primaryFrameRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  useHeightDifferentBetweenContainerAndContainedElement(
-    primaryFrameRef.current, // Container
-    headerRef.current, // Controlled Element
-    setCalculatedCollapsibleHeight, // controlledElementHeightSetter
-    primaryFrameHeight, // dependency to detect height changes
-    [minimized, baseOnly, activeStatus] // dependency to check
-  );
+  const scrollRef = useRef<Scrollbars>(null);
   useSaveGameBeforeUnloadListener();
   usePopupChromeMessageListener([hidden]);
-  useElementHeight(primaryFrameRef.current, setPrimaryFrameHeight);
   useJQueryDraggable(primaryFrameRef.current);
   useJQueryResizable(primaryFrameRef.current, primaryFrameResizableHandles());
   useMinimizer(primaryFrameRef.current);
+  useSavedScrollPositions(scrollRef.current, scrollPosition, primaryFrameTab);
   return (
     <React.Fragment>
       <div
@@ -86,14 +86,12 @@ const PrimaryFrame = () => {
         ref={primaryFrameRef}
         className={hidden ? hiddenStyle : minimized ? minimizedStyle : style}
       >
-        <div id="headerRef" ref={headerRef}>
-          <PrimaryFrameHeader />
-        </div>
+        <MinimizeButton />
         <div
           id="collapsible"
-          style={{ height: minimized ? "0" : calculatedCollapsibleHeight }}
-          className={minimized ? minimizedCollapsibleStyle : collapsibleStyle}
+          className={minimized ? "hidden" : collapsibleStyle}
         >
+          <PrimaryFrameHeader />
           {activeStatus && baseOnly ? (
             <React.Fragment>
               <div
@@ -124,14 +122,22 @@ const PrimaryFrame = () => {
                   position="Top"
                 />
                 <PrimaryFrameTab
-                  title="Opponent"
-                  // count={ods[0].entireDeck.length}
-                  count={0}
+                  title={
+                    opponentDeckData.numberOfOpponents === 1
+                      ? "Opponent"
+                      : "Opponents"
+                  }
+                  count={
+                    opponentDeckData.numberOfOpponents === 1
+                      ? opponentDeckData.singleOpponentDeckSize
+                      : opponentDeckData.numberOfOpponents
+                  }
                   colSpan={6}
                   position="Top"
                 />
               </main>
               <Scrollbars
+                ref={scrollRef}
                 autoHide={false}
                 renderTrackHorizontal={(props) => (
                   <div
@@ -152,11 +158,20 @@ const PrimaryFrame = () => {
                     }}
                   />
                 )}
+                onScroll={(e: UIEvent) => {
+                  const element = e.target as HTMLElement;
+                  const selectScrollPosition = element.scrollTop;
+                  let computedKey = primaryFrameTab.toLowerCase();
+                  if (computedKey === "opponents") computedKey = "opponent";
+                  setScrollPosition({
+                    ...scrollPosition,
+                    [computedKey]: selectScrollPosition,
+                  });
+                }}
               >
                 <div className="p-1 mr-2">
                   <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                     <MainDeckViewer />
-                    {/* <DevDisplay/> */}
                   </div>
                   <div
                     className={primaryFrameTab !== "Discard" ? "hidden" : ""}
@@ -164,7 +179,11 @@ const PrimaryFrame = () => {
                     <DiscardZoneViewer />
                   </div>
                   <div
-                    className={primaryFrameTab !== "Opponent" ? "hidden" : ""}
+                    className={
+                      primaryFrameTab.match(/Opponents?/) === null
+                        ? "hidden"
+                        : ""
+                    }
                   >
                     <OpponentViewer />
                   </div>
