@@ -11,7 +11,7 @@ import {
 import FullListCardRow from "./FullListCardRow/FullListCardRow";
 import MainDeckViewHeader from "./MainDeckViewHeader/MainDeckViewHeader";
 import ViewFooter from "./ViewFooter/ViewFooter";
-import CustomSelect from "./TopCardsSelect/TopCardsSelect";
+import TopCardsSelect from "./TopCardsSelect/TopCardsSelect";
 import TurnButton from "./TurnButton/TurnButton";
 import {
   SortButtonState,
@@ -72,7 +72,7 @@ const MainDeckViewer = () => {
           <ViewFooter />
         </div>
         <div className={"col-span-2"}>
-          <CustomSelect colSpan={12} />
+          <TopCardsSelect colSpan={12} />
           <TurnButton buttonName="Current" />
           <TurnButton buttonName="Next" />
         </div>

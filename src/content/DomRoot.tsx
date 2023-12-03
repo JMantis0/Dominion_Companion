@@ -16,7 +16,7 @@ const DomRoot: FunctionComponent = () => {
     };
   }, []);
   return (
-    <div id="domRoot" className="-z-100 relative h-[0px] w-[0px]">
+    <div id="domRoot" className="-z-100 relative h-[0px] w-[0px] left-2/3 top-[25px]">
       <PrimaryFrame />
     </div>
   );

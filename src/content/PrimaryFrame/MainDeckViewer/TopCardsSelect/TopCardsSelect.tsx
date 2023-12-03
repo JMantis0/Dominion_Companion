@@ -34,11 +34,11 @@ import {
 } from "../../../../utils/utils";
 library.add(faAngleUp, faAngleDown, faCircle);
 
-export type CustomSelectProps = {
+export type TopCardsSelectProps = {
   colSpan: number;
 };
 
-const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
+const TopCardsSelect: FunctionComponent<TopCardsSelectProps> = ({ colSpan }) => {
   const dispatch: Dispatch<AnyAction> = useDispatch();
   const entireDeckLength = useSelector(
     (state: RootState) => state.content.playerDeck.entireDeck.length
@@ -204,4 +204,4 @@ const CustomSelect: FunctionComponent<CustomSelectProps> = ({ colSpan }) => {
   );
 };
 
-export default CustomSelect;
+export default TopCardsSelect;
