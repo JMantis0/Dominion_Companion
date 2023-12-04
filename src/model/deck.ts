@@ -864,9 +864,10 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to gain.
    */
   processGainsLine(line: string, cards: string[], numberOfCards: number[]) {
+    const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (this.isBureaucratGain()) {
+        if (["Bureaucrat", "Armory"].includes(mostRecentPlay)) {
           this.gainIntoLibrary(cards[i]);
         } else if (this.isArtisanGain() || this.isMineGain()) {
           this.gainIntoHand(cards[i]);
