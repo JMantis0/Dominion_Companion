@@ -390,8 +390,8 @@ export class DOMObserver {
       "Masquerade", // Done
       "Menagerie", //Done
       "Oasis", //Done
-      "Sage",
-      "Sea Chart",
+      "Sage", //Done
+      "Sea Chart", //Done
       "Sentinel", //Done
       "Shanty Town",
       "Storeroom",

@@ -230,6 +230,32 @@ describe("processDeckChanges", () => {
     expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
+  it("should only call method processTopDecksLine when the act is 'back onto their deck'.", () => {
+    // Arguments for function being tested
+    const line = "pNick topdecks a Festival.";
+    const act = "back onto their deck";
+    const cards: string[] = ["Festival"];
+    const numberOfCards: number[] = [1];
+
+    // Act - simulate processing a topdecks line.
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processTopDecks method is called, and is called with the correct arguments.
+    expect(processTopDecksLine).toBeCalledTimes(1);
+    expect(processTopDecksLine).toBeCalledWith(cards, numberOfCards);
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+  });
+
   it("should only call method processLooksAtLine when the act is 'looks at'.", () => {
     // Arguments for function being tested
     const line = "pNick looks at a Cellar.";

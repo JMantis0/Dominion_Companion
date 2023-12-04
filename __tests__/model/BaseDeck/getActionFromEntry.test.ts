@@ -102,4 +102,11 @@ describe("getActionFromEntry", () => {
       deck.getActionFromEntry("pNick puts an Estate into their hand.")
     ).toBe("into their hand");
   });
+
+  it("should get action 'back onto their deck' correctly", () => {
+    // Act and Assert
+    expect(
+      deck.getActionFromEntry("pNick puts an Estate back onto their deck.")
+    ).toBe("back onto their deck");
+  });
 });

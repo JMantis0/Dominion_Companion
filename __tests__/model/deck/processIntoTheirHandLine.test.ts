@@ -7,7 +7,19 @@ describe("processIntoTheirHandLine", () => {
   beforeEach(() => {
     deck = new Deck("", false, "", "Player", "P", []);
   });
-  it("should draw cards put into hand from setAside when caused by a Sage", () => {
+
+  it("should draw cards into hand from setAside when caused by a Sage", () => {
+    // Arrange
+    deck.latestPlay = "Sage";
+    deck.setAside = ["Copper", "Copper", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Vassal"], [1]);
+
+    expect(deck.setAside).toStrictEqual(["Copper", "Copper"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
+  });
+  it("should draw cards into hand from setAside when caused by a Sea Chart", () => {
     // Arrange
     deck.latestPlay = "Sage";
     deck.setAside = ["Copper", "Copper", "Vassal"];

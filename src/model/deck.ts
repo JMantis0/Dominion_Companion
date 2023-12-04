@@ -800,6 +800,9 @@ export class Deck extends BaseDeck implements StoreDeck {
         break;
       case "into their hand":
         this.processIntoTheirHandLine(cards, numberOfCards);
+        break;
+      case "back onto their deck":
+        this.processTopDecksLine(cards, numberOfCards);
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -1008,7 +1011,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   processRevealsLine(cards: string[], numberOfCards: number[]): void {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Bandit", "Sage"].includes(this.latestPlay)) {
+        if (["Bandit", "Sage", "Sea Chart"].includes(this.latestPlay)) {
           this.setAsideFromLibrary(cards[i]);
         }
       }
@@ -1024,7 +1027,11 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Lookout", "Sentinel"].includes(mostRecentPlay)) {
+        if (
+          ["Sentry", "Lookout", "Sentinel", "Sea Chart"].includes(
+            mostRecentPlay
+          )
+        ) {
           this.topDeckFromSetAside(cards[i]);
         } else if (mostRecentPlay === "Harbinger") {
           this.topDeckFromGraveyard(cards[i]);
