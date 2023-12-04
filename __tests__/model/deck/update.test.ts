@@ -48,6 +48,10 @@ describe("update", () => {
     Deck.prototype,
     "handleConsecutiveMerchantBonus"
   );
+  const handleIncomingPasses = jest.spyOn(
+    Deck.prototype,
+    "handleIncomingPasses"
+  );
 
   const setLogArchive = jest.spyOn(Deck.prototype, "setLogArchive");
 
@@ -106,6 +110,7 @@ describe("update", () => {
 
     expect(getMostRecentPlay).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
+    expect(handleIncomingPasses).toBeCalledTimes(1);
   });
 
   it("should correctly handle single log lines that are non-consecutive treasure plays that do not apply to the deck", () => {
@@ -135,6 +140,7 @@ describe("update", () => {
     expect(updateVP).toBeCalledTimes(1);
     expect(getMostRecentPlay).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
+    expect(handleIncomingPasses).toBeCalledTimes(1);
   });
 
   it("should correctly handle single log lines that apply to the deck", () => {
@@ -168,6 +174,7 @@ describe("update", () => {
     expect(updateVP).toBeCalledTimes(1);
     expect(getMostRecentPlay).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
+    expect(handleIncomingPasses).not.toBeCalled();
   });
 
   it("should correctly handle log arrays with multiple lines ", () => {
@@ -214,6 +221,7 @@ describe("update", () => {
     expect(updateVP).toBeCalledTimes(3);
     expect(getMostRecentPlay).toBeCalledTimes(3);
     expect(setLatestPlay).toBeCalledTimes(3);
+    expect(handleIncomingPasses).toBeCalledTimes(1);
   });
 
   it("should correctly identify and remove repeat buy gains done by an opponent", () => {

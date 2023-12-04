@@ -10,7 +10,9 @@ describe("Method processDeckChanges", () => {
   const processTrashesLine = jest
     .spyOn(OpponentDeck.prototype, "processTrashesLine")
     .mockImplementation(() => null);
-
+  const processPassesLine = jest
+    .spyOn(OpponentDeck.prototype, "processPassesLine")
+    .mockImplementation(() => null);
   beforeEach(() => {
     jest.clearAllMocks();
     deck = new OpponentDeck("", false, "", "pName", "pNick", []);
@@ -32,6 +34,7 @@ describe("Method processDeckChanges", () => {
     expect(processGainsLine).toBeCalledTimes(1);
     expect(processGainsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processTrashesLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
   });
 
   it("Should use the provided act (trashes) to call the correct line processor", () => {
@@ -50,5 +53,25 @@ describe("Method processDeckChanges", () => {
     expect(processTrashesLine).toBeCalledTimes(1);
     expect(processTrashesLine).toBeCalledWith(cards, numberOfCards);
     expect(processGainsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+  });
+
+  it("Should use the provided act (passes) to call the correct line processor", () => {
+    // Arrange
+
+    // Arguments for function being tested
+    const line = "pNick passes a Curse to oNick.";
+    const act = "passes";
+    const cards: string[] = ["Curse"];
+    const numberOfCards: number[] = [1];
+
+    // Act - simulate processing a trashes line.
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processTrashesLine method is called and it is called with the correct arguments.
+    expect(processPassesLine).toBeCalledTimes(1);
+    expect(processPassesLine).toBeCalledWith(cards, numberOfCards);
+    expect(processGainsLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
   });
 });

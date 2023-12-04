@@ -10,7 +10,7 @@ describe("processTrashesLine", () => {
     jest.clearAllMocks();
   });
 
-  it("should trash cards not trashed by Sentry or Bandit from hand.", () => {
+  it("should trash cards not trashed by Sentry, Bandit, or Lookout from hand.", () => {
     //Arrange
     deck.latestPlay = "Moneylender";
     deck.hand = ["Copper", "Estate"];
@@ -65,7 +65,7 @@ describe("processTrashesLine", () => {
     const cards = ["Silver"];
     const numberOfCards = [1];
 
-    // Act - simulate trashing a Silver from library by a Bandit.
+    // Act - simulate trashing a Silver from setAside by a Bandit.
     deck.processTrashesLine(cards, numberOfCards);
 
     // Assert - Verify the card was removed from setAside and entireDeck
@@ -73,5 +73,79 @@ describe("processTrashesLine", () => {
     expect(deck.entireDeck).toStrictEqual(["Silver", "Estate"]);
     // Verify hand is not changed
     expect(deck.hand).toStrictEqual(["Silver"]);
+  });
+
+  it("should trash cards trashed by Lookout from setAside.", () => {
+    // Arrange
+    deck.latestPlay = "Lookout";
+    deck.setAside = ["Silver", "Estate", "Estate"];
+    deck.hand = ["Silver"];
+    deck.entireDeck = ["Silver", "Silver", "Estate", "Estate"];
+    // Arguments for function being tested.
+    const cards = ["Estate"];
+    const numberOfCards = [1];
+
+    // Act - simulate trashing an Estate from setAside by a Lookout.
+    deck.processTrashesLine(cards, numberOfCards);
+
+    // Assert - Verify the card was removed from setAside and entireDeck
+    expect(deck.setAside).toStrictEqual(["Silver", "Estate"]);
+    expect(deck.entireDeck).toStrictEqual(["Silver", "Silver", "Estate"]);
+    // Verify hand is not changed
+    expect(deck.hand).toStrictEqual(["Silver"]);
+  });
+
+  it("should trash cards trashed by Sentinel from setAside.", () => {
+    // Arrange
+    deck.latestPlay = "Sentinel";
+    deck.setAside = ["Silver", "Estate", "Copper", "Copper", "Copper"];
+    deck.hand = ["Silver", "Estate"];
+    deck.entireDeck = [
+      "Silver",
+      "Estate",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Silver",
+      "Estate",
+    ];
+    // Arguments for function being tested.
+    const cards = ["Estate", "Copper"];
+    const numberOfCards = [1, 1];
+
+    // Act - simulate trashing an Estate from setAside by a Lookout.
+    deck.processTrashesLine(cards, numberOfCards);
+
+    // Assert - Verify the card was removed from setAside and entireDeck
+    expect(deck.entireDeck).toStrictEqual([
+      "Silver",
+      "Copper",
+      "Copper",
+      "Silver",
+      "Estate",
+    ]);
+    expect(deck.setAside).toStrictEqual(["Silver", "Copper", "Copper"]);
+    // Verify hand is not changed
+    expect(deck.hand).toStrictEqual(["Silver", "Estate"]);
+  });
+
+  it("should trash cards trashed by Swindler from library.", () => {
+    // Arrange
+    deck.latestPlay = "Swindler";
+    deck.library = ["Silver", "Estate"];
+    deck.hand = ["Silver", "Estate"];
+    deck.entireDeck = ["Silver", "Silver", "Estate", "Estate"];
+    // Arguments for function being tested.
+    const cards = ["Estate"];
+    const numberOfCards = [1];
+
+    // Act - simulate trashing an Estate from library by a Swindler.
+    deck.processTrashesLine(cards, numberOfCards);
+
+    // Assert - Verify the card was removed from library and entireDeck
+    expect(deck.entireDeck).toStrictEqual(["Silver", "Silver", "Estate"]);
+    expect(deck.library).toStrictEqual(["Silver"]);
+    // Verify hand is not changed
+    expect(deck.hand).toStrictEqual(["Silver", "Estate"]);
   });
 });

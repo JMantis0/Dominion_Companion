@@ -14,7 +14,31 @@ export class OpponentDeck extends BaseDeck {
     kingdom: Array<string>
   ) {
     super(gameTitle, ratedGame, rating, playerName, playerNick, kingdom);
-    this.setDebug(false);
+  }
+
+  /**
+   * Update function checks if any passes are incoming.
+   * @param act - The act from the given line.
+   * @param line - The given line being processed.
+   * @param cards - The card names on the given line.
+   * @param numberOfCards - The amounts of the cards on the given line.
+   */
+  handleIncomingPasses(
+    act: string,
+    line: string,
+    cards: string[],
+    numberOfCards: number[]
+  ) {
+    if (act === "passes") {
+      // Check if the passing is done to this deck.
+      const lineWithoutPeriod = line.substring(0, line.length - 1);
+      const passTo = lineWithoutPeriod.substring(
+        lineWithoutPeriod.length - this.playerNick.length
+      );
+      if (passTo === this.playerNick) {
+        this.processPassesLine(cards, numberOfCards, "incoming");
+      }
+    }
   }
 
   /**
@@ -37,6 +61,9 @@ export class OpponentDeck extends BaseDeck {
         break;
       case "trashes":
         this.processTrashesLine(cards, numberOfCards);
+        break;
+      case "passes":
+        this.processPassesLine(cards, numberOfCards);
     }
   }
 
@@ -60,6 +87,29 @@ export class OpponentDeck extends BaseDeck {
           }
         }
         this.addCardToEntireDeck(cards[i]);
+      }
+    }
+  }
+
+  /**
+   * Update method handles passes of cards from one player to another.
+   * @param cards - The cards being passed.
+   * @param numberOfCards - The amounts of each card being passed
+   * @param passDirection - If 'incoming' the pass is being made to the invoking deck,
+   * otherwise it is being passed from the invoking deck.
+   */
+  processPassesLine(
+    cards: string[],
+    numberOfCards: number[],
+    passDirection?: "incoming"
+  ) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        if (passDirection === "incoming") {
+          this.addCardToEntireDeck(cards[i]);
+        } else {
+          this.removeCardFromEntireDeck(cards[i]);
+        }
       }
     }
   }
@@ -91,6 +141,8 @@ export class OpponentDeck extends BaseDeck {
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
       if (this.logEntryAppliesToThisDeck(line)) {
         this.processDeckChanges(line, act, cards, numberOfCards);
+      } else {
+        this.handleIncomingPasses(act, line, cards, numberOfCards);
       }
       this.updateArchives(line);
       this.updateVP();

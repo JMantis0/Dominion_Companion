@@ -36,6 +36,12 @@ describe("processDeckChanges", () => {
   const processRevealsLine = jest
     .spyOn(Deck.prototype, "processRevealsLine")
     .mockImplementation(() => null);
+  const processPassesLine = jest
+    .spyOn(Deck.prototype, "processPassesLine")
+    .mockImplementation(() => null);
+  const processIntoTheirHandLine = jest
+    .spyOn(Deck.prototype, "processIntoTheirHandLine")
+    .mockImplementation(() => null);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -64,6 +70,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call method processGainsLine when the act is 'gains'.", () => {
@@ -88,6 +96,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should should only call method processDrawsLine when the act is 'draws'.", () => {
@@ -112,6 +122,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call method processDiscardsLine when the act is 'discards'", () => {
@@ -136,6 +148,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call processPlaysLine when the act is 'plays'", () => {
@@ -160,6 +174,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call method processTrashesLine when the act is 'trashes'.", () => {
@@ -184,6 +200,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call method processTopDecksLine when the act is 'topdecks'.", () => {
@@ -208,6 +226,8 @@ describe("processDeckChanges", () => {
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call method processLooksAtLine when the act is 'looks at'.", () => {
@@ -232,6 +252,8 @@ describe("processDeckChanges", () => {
     expect(setWaitToShuffle).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
   });
 
   it("should only call method processRevealsLine when the act is 'reveals'.", () => {
@@ -254,5 +276,55 @@ describe("processDeckChanges", () => {
     expect(processDrawsLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+  });
+
+  it("should only call method processPassesLine when the act is 'passes'.", () => {
+    const line = "P passes a Lurker to L";
+    const act = "passes";
+    const cards = ["Lurker"];
+    const numberOfCards = [1];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
+    expect(processPassesLine).toBeCalledTimes(1);
+    expect(processPassesLine).toBeCalledWith(cards, numberOfCards);
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(processTopDecksLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+  });
+
+  it("should only call method processIntoTheirHandLine when the act is 'into their hand'.", () => {
+    const line = "P puts a Vassal into their hand.";
+    const act = "into their hand";
+    const cards = ["Vassal"];
+    const numberOfCards = [1];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
+    expect(processIntoTheirHandLine).toBeCalledTimes(1);
+    expect(processIntoTheirHandLine).toBeCalledWith(cards, numberOfCards);
+    expect(processPassesLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(processTopDecksLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
   });
 });

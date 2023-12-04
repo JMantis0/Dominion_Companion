@@ -23,7 +23,7 @@ import type {
 } from ".";
 import $ from "jquery";
 import { RootState, store } from "../redux/store";
-import { setViewerHidden } from "../redux/contentSlice";
+import { setMinimized, setViewerHidden } from "../redux/contentSlice";
 import { Serializable } from "child_process";
 import Scrollbars from "react-custom-scrollbars-2";
 
@@ -185,6 +185,29 @@ const discardZoneViewerStateSelectorFunction = (
     playerName: state.content.playerDeck.playerName,
     graveyard: state.content.playerDeck.graveyard,
   };
+};
+
+/**
+ * Gets and returns the game log element's innerText, removing the
+ * last line if it matches 'Premoves'.
+ * Purpose: Update the global gameLog variable.
+ * @returns The string of innerText of the game-log element.
+ */
+const getClientGameLog = (): string => {
+  const gameLogElement = document.getElementsByClassName(
+    "game-log"
+  )[0] as HTMLElement;
+  if (gameLogElement === undefined) {
+    throw new Error("No game-log element present in the DOM.");
+  }
+  let gameLog = gameLogElement.innerText;
+  if (
+    gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
+    null
+  ) {
+    gameLog = gameLog.split("\n").slice(0, -1).join("\n");
+  }
+  return gameLog;
 };
 
 /**
@@ -765,6 +788,7 @@ const popupMessageListener = (
   const response: { message: string } = { message: "" };
   if (request.command === "appendDomRoot") {
     store.dispatch(setViewerHidden(false));
+    store.dispatch(setMinimized(false));
     response.message = "Successfully turned on.";
   } else if (request.command === "removeDomRoot") {
     store.dispatch(setViewerHidden(true));
@@ -1849,6 +1873,7 @@ export {
   cumulativeHyperGeometricProbability,
   customSelectResizableHandles,
   discardZoneViewerStateSelectorFunction,
+  getClientGameLog,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,

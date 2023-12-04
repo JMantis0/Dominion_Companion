@@ -1,10 +1,5 @@
 /*global chrome*/
-import React, {
-  UIEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { UIEvent, useEffect, useRef, useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { useSelector } from "react-redux";
 import { RootState, store } from "../../redux/store";
@@ -27,6 +22,7 @@ import {
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
 import MinimizeButton from "./MinimizeButton/MinimizeButton";
+// import DevDisplay from "./DevDisplay/DevDisplay";
 
 const style = "w-[250px] h-[400px]";
 const hiddenStyle = style + " hidden";
@@ -76,9 +72,8 @@ const PrimaryFrame = () => {
     discard: number;
     trash: number;
   }>({ deck: 0, opponent: 0, discard: 0, trash: 0 });
-  const [primaryFrameElement, setPrimaryFrameElement] = useState<HTMLElement | null>(
-    null
-  );
+  const [primaryFrameElement, setPrimaryFrameElement] =
+    useState<HTMLElement | null>(null);
   const scrollRef = useRef<Scrollbars>(null);
   useSaveGameBeforeUnloadListener();
   usePopupChromeMessageListener([hidden]);
@@ -179,6 +174,7 @@ const PrimaryFrame = () => {
                 <div className="p-1 mr-2">
                   <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                     <MainDeckViewer />
+                    {/* <DevDisplay /> */}
                   </div>
                   <div
                     className={primaryFrameTab !== "Discard" ? "hidden" : ""}

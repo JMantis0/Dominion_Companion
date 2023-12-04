@@ -123,4 +123,50 @@ describe("processDiscardsLine", () => {
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
     expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
+
+  // Case - Discard from setAside: Lookout
+  it("should discard from setAside when the latestPlay is a Lookout", () => {
+    // Arrange
+    deck.latestPlay = "Lookout";
+    deck.setAside = ["Province", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    const cards = ["Province"];
+    const numberOfCards = [1];
+
+    // Act - Simulate discarding a Province cards with Lookout.
+    deck.processDiscardsLine(cards, numberOfCards);
+
+    //Assert - Verify the setAside and graveyard zones contain the expected cards.
+    expect(deck.setAside).toStrictEqual(["Silver"]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Province"]);
+    // Verify other zones were not discarded from.
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
+  });
+
+  // Case - Discard from setAside: Sage
+  it("should discard from setAside when the latestPlay is a Sage", () => {
+    // Arrange
+    deck.latestPlay = "Sage";
+    deck.setAside = ["Province", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    const cards = ["Province", "Silver"];
+    const numberOfCards = [1, 1];
+
+    // Act - Simulate discarding a Province cards with Lookout.
+    deck.processDiscardsLine(cards, numberOfCards);
+
+    //Assert - Verify the setAside and graveyard zones contain the expected cards.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Province", "Silver"]);
+    // Verify other zones were not discarded from.
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
+  });
 });

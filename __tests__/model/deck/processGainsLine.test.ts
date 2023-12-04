@@ -182,4 +182,32 @@ describe("processGainsLine", () => {
     // Verify the logArchive was not changed.
     expect(deck.logArchive).toStrictEqual(["pNick plays an Bureaucrat."]);
   });
+
+  it("should add cards gained by Armory to library.", () => {
+    // Arrange
+    const cards = ["Courier"];
+    const numberOfCards = [1];
+    const line = "pNick gains a Courier.";
+    deck.latestPlay = "Armory";
+    deck.graveyard = [];
+    deck.hand = ["Artisan"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan", "Armory"];
+
+    // Act - Simulate gaining a Silver by playing a Bureaucrat.
+    deck.processGainsLine(line, cards, numberOfCards);
+
+    // Assert - Verify a Silver was added to library and entireDeck.
+    expect(deck.library).toStrictEqual(["Copper", "Courier"]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Artisan",
+      "Armory",
+      "Courier",
+    ]);
+    // Verify nothing was gained into hand or graveyard.
+    expect(deck.hand).toStrictEqual(["Artisan"]);
+    expect(deck.graveyard).toStrictEqual([]);
+    // Verify the logArchive was not changed.
+  });
 });

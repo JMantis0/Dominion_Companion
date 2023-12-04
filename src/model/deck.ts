@@ -1,4 +1,5 @@
 import {
+  getClientGameLog,
   getErrorMessage,
   getLogScrollContainerLogLines,
   toErrorWithMessage,
@@ -35,6 +36,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       }
       this.library.push("Copper");
     }
+    this.debug = true;
   }
 
   getGraveyard() {
@@ -329,6 +331,20 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Returns a boolean for whether the current line and the most recent
+   * logArchive entry are consecutive Sage reveals.
+   * @param line - The given line.
+   * @returns - Boolean
+   */
+  consecutiveSageReveals(line: string): boolean {
+    return (
+      line.match(" reveals ") !== null &&
+      this.latestPlay === "Sage" &&
+      this.lastEntryProcessed.match(" reveals ") !== null
+    );
+  }
+
+  /**
    * Checks hand field array to see if card is there.  If yes,
    * removes an instance of that card from the hand field array
    * and adds an instance of that card to the graveyard field array.
@@ -439,21 +455,19 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   drawFromSetAside(card: string): void {
-    const index = this.setAside.indexOf(card);
+    let index = this.setAside.indexOf(card);
     if (index < 0) {
-      throw new Error(`No ${card} in setAside.`);
-    } else {
-      if (this.debug)
-        console.info(
-          `Drawing ${card} set aside by Library from setAside into hand.`
-        );
-      const handCopy = this.hand.slice();
-      const setAsideCopy = this.setAside.slice();
-      handCopy.push(card);
-      setAsideCopy.splice(index, 1);
-      this.setHand(handCopy);
-      this.setSetAside(setAsideCopy);
+      this.reconcileMissingSageProcess();
+      index = this.setAside.indexOf(card);
     }
+    if (index < 0) throw new Error(`No ${card} in setAside.`);
+    if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
+    const handCopy = this.hand.slice();
+    const setAsideCopy = this.setAside.slice();
+    handCopy.push(card);
+    setAsideCopy.splice(index, 1);
+    this.setHand(handCopy);
+    this.setSetAside(setAsideCopy);
   }
 
   /**
@@ -505,6 +519,47 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Function gets required details from the current line
+   * @param line - Current line being processed through the update method.
+   * @returns - on object containing the act from the line, an array of cards from the line
+   * and a corresponding array of numbers for the amounts of cards from the line.
+   */
+  getActCardsAndCounts(line: string): {
+    act: string;
+    cards: string[];
+    numberOfCards: number[];
+  } {
+    let act: string = "";
+    let cards: Array<string> = [];
+    let number: Array<number> = [];
+    if (this.consecutiveTreasurePlays(line)) {
+      number = this.getConsecutiveTreasurePlayCounts(line);
+      act = "plays";
+      cards = ["Copper", "Silver", "Gold", "Platinum"];
+    } else if (this.consecutiveSageReveals(line)) {
+      [cards, number] = this.handleConsecutiveReveals(line);
+      act = "reveals";
+    } else {
+      act = this.getActionFromEntry(line);
+      [cards, number] = this.getCardsAndCountsFromEntry(line);
+      //Pop off repeated buy log entry if needed
+      if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
+        number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
+      }
+    }
+    const lineInfo: {
+      act: string;
+      cards: string[];
+      numberOfCards: number[];
+    } = {
+      act: act,
+      cards: cards,
+      numberOfCards: number,
+    };
+    return lineInfo;
+  }
+
+  /**
    * Function looks at the logArchive, starting with the last entry, and looks at each entry
    * until it finds a play, and returns the card in that entry that was played.
    * entry
@@ -552,6 +607,31 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
 
     return mostRecentCardPlayed;
+  }
+
+  /**
+   * Update function checks if any passes are incoming.
+   * @param act - The act from the given line.
+   * @param line - The given line being processed.
+   * @param cards - The card names on the given line.
+   * @param numberOfCards - The amounts of the cards on the given line.
+   */
+  handleIncomingPasses(
+    act: string,
+    line: string,
+    cards: string[],
+    numberOfCards: number[]
+  ) {
+    if (act === "passes") {
+      // Check if the passing is done to this deck.
+      const lineWithoutPeriod = line.substring(0, line.length - 1);
+      const passTo = lineWithoutPeriod.substring(
+        lineWithoutPeriod.length - this.playerNick.length
+      );
+      if (passTo === this.playerNick) {
+        this.processPassesLine(cards, numberOfCards, "incoming");
+      }
+    }
   }
 
   /**
@@ -715,6 +795,11 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "reveals":
         this.processRevealsLine(cards, numberOfCards);
         break;
+      case "passes":
+        this.processPassesLine(cards, numberOfCards);
+        break;
+      case "into their hand":
+        this.processIntoTheirHandLine(cards, numberOfCards);
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -733,7 +818,11 @@ export class Deck extends BaseDeck implements StoreDeck {
     // const libraryDiscard = this.checkForLibraryDiscard(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Library", "Bandit"].includes(mostRecentPlay)) {
+        if (
+          ["Sentry", "Library", "Bandit", "Lookout", "Sage"].includes(
+            mostRecentPlay
+          )
+        ) {
           this.discardFromSetAside(cards[i]);
         } else if (["Vassal"].includes(mostRecentPlay)) {
           this.discardFromLibrary(cards[i]);
@@ -775,9 +864,10 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to gain.
    */
   processGainsLine(line: string, cards: string[], numberOfCards: number[]) {
+    const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (this.isBureaucratGain()) {
+        if (["Bureaucrat", "Armory"].includes(mostRecentPlay)) {
           this.gainIntoLibrary(cards[i]);
         } else if (this.isArtisanGain() || this.isMineGain()) {
           this.gainIntoHand(cards[i]);
@@ -798,6 +888,19 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Update function.  Draws cards from setAside.
+   * @param cards - The given cards.
+   * @param numberOfCards - The amounts of the given cards.
+   */
+  processIntoTheirHandLine(cards: string[], numberOfCards: number[]) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        this.drawFromSetAside(cards[i]);
+      }
+    }
+  }
+
+  /**
    * Update function.  Specific to Library card.  Draws cards that are
    * moved to hand by Library, or sets waitToDrawLibraryLook to true if
    * more context is needed before deciding to draw.
@@ -808,7 +911,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Bandit"].includes(mostRecentPlay)) {
+        if (
+          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
+        ) {
           this.setAsideFromLibrary(cards[i]);
         } else if (mostRecentPlay === "Library") {
           const cardsToDrawNow: string[] = [
@@ -831,6 +936,39 @@ export class Deck extends BaseDeck implements StoreDeck {
           }
         } else {
           // Looks at line was not caused by a Sentry, Bandit, or Library.  Nothing to process.
+        }
+      }
+    }
+  }
+
+  /**
+   * Update method handles passes of cards from one player to another.
+   * @param cards - The cards being passed.
+   * @param numberOfCards - The amounts of each card being passed
+   * @param passDirection - If 'incoming' the pass is being made to the invoking deck,
+   * otherwise it is being passed from the invoking deck.
+   */
+  processPassesLine(
+    cards: string[],
+    numberOfCards: number[],
+    passDirection?: "incoming"
+  ) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        if (passDirection === "incoming") {
+          const handCopy = this.hand.slice();
+          handCopy.push(cards[i]);
+          this.setHand(handCopy);
+          this.addCardToEntireDeck(cards[i]);
+        } else {
+          const index = this.hand.indexOf(cards[i]);
+          if (index < 0) {
+            throw new Error(`No ${cards[i]} in hand.`);
+          }
+          const handCopy = this.hand.slice();
+          handCopy.splice(index, 1);
+          this.setHand(handCopy);
+          this.removeCardFromEntireDeck(cards[i]);
         }
       }
     }
@@ -870,7 +1008,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   processRevealsLine(cards: string[], numberOfCards: number[]): void {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (this.latestPlay === "Bandit") {
+        if (["Bandit", "Sage"].includes(this.latestPlay)) {
           this.setAsideFromLibrary(cards[i]);
         }
       }
@@ -886,11 +1024,13 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (mostRecentPlay === "Sentry") {
+        if (["Sentry", "Lookout", "Sentinel"].includes(mostRecentPlay)) {
           this.topDeckFromSetAside(cards[i]);
         } else if (mostRecentPlay === "Harbinger") {
           this.topDeckFromGraveyard(cards[i]);
-        } else if (["Artisan", "Bureaucrat"].includes(mostRecentPlay)) {
+        } else if (
+          ["Artisan", "Bureaucrat", "Courtyard"].includes(mostRecentPlay)
+        ) {
           this.topDeckFromHand(cards[i]);
         }
       }
@@ -906,12 +1046,39 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Bandit"].includes(mostRecentPlay)) {
+        if (
+          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
+        ) {
           this.trashFromSetAside(cards[i]);
+        } else if (["Swindler"].includes(mostRecentPlay)) {
+          this.trashFromLibrary(cards[i]);
         } else {
           this.trashFromHand(cards[i]);
         }
       }
+    }
+  }
+
+  /**
+   * An update reconciliation function that saves the extension from breaking when
+   * the DOM Client does not append a sage reveal before appending the Sage draw.
+   */
+  reconcileMissingSageProcess() {
+    const gameArr = getClientGameLog().split("\n");
+    const previousLogEntry = gameArr[gameArr.length - 2];
+    if (
+      this.consecutiveSageReveals(previousLogEntry) &&
+      previousLogEntry !== this.lastEntryProcessed
+    ) {
+      console.log(
+        "Mismatch between the gameLog and logArchive... unequal sage reveals.. reconciling"
+      );
+      const [cards, numbers] = this.handleConsecutiveReveals(
+        previousLogEntry,
+        "reconcile"
+      );
+      this.addLogToLogArchive(previousLogEntry);
+      this.processRevealsLine(cards, numbers);
     }
   }
 
@@ -1120,6 +1287,8 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.shuffleAndCleanUpIfNeeded(line);
         this.drawLookedAtCardIfNeeded(act);
         this.processDeckChanges(line, act, cards, numberOfCards);
+      } else {
+        this.handleIncomingPasses(act, line, cards, numberOfCards);
       }
       this.updateArchives(line);
       this.updateVP();

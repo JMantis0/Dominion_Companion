@@ -384,6 +384,59 @@ export class DOMObserver {
       "Curse",
       "Colony",
       "Platinum",
+      "Courtyard", //Done
+      "Hamlet", // Done
+      "Lookout", // Done
+      "Masquerade", // Done
+      "Menagerie", //Done
+      "Oasis", //Done
+      "Sage",
+      "Sea Chart",
+      "Sentinel", //Done
+      "Shanty Town",
+      "Storeroom",
+      "Swindler", //Done
+      "Warehouse",
+      "Armory",
+      "Conspirator",
+      "Courier",
+      "Cutpurse",
+      "Dismantle",
+      "Farming Village",
+      "Fortune Hunter",
+      "Mountain Village",
+      "Remake",
+      "Salvager",
+      "Scavenger",
+      "Treasure Map",
+      "Wandering Minstrel",
+      "Worker's Village",
+      "Barbarian",
+      "Bazaar",
+      "Cartographer",
+      "Harvest",
+      "Hunter",
+      "Hunting Party",
+      "Jester",
+      "Junk Dealer",
+      "Magnate",
+      "Minion",
+      "Old Witch",
+      "Patrol",
+      "Pilgrim",
+      "Replace",
+      "Scholar",
+      "Seer",
+      "Soothsayer",
+      "Stables",
+      "Trading Post",
+      "Tragic Hero",
+      "Upgrade",
+      "Wheelwright",
+      "Witch's Hut",
+      "Altar",
+      "Marquis",
+      "Expand",
     ];
     for (let i = 0; i < kingdom.length; i++) {
       if (!baseCards.includes(kingdom[i])) {
@@ -1098,7 +1151,27 @@ export class DOMObserver {
    * the Deck objects' update() methods are invoked using the new logs as an argument,
    * and finally, the global variable 'logsProcessed' is updated.
    */
-  static logObserverFunc() {
+  static logObserverFunc(mutationList?: MutationRecord[]) {
+    mutationList;
+    // if (mutationList)
+    //   for (let i = 0; i < mutationList.length; i++) {
+    //     console.group("Mutation ", i);
+    //     if (mutationList[i].addedNodes.length > 0) {
+    //       console.log("addedNodes:");
+    //       mutationList[i].addedNodes.forEach((node, idx) => {
+    //         const el = node as HTMLElement;
+    //         console.log(idx, el.innerText);
+    //       });
+    //     }
+    //     if (mutationList[i].removedNodes.length > 0) {
+    //       console.log("removedNodes:");
+    //       mutationList[i].removedNodes.forEach((node, idx) => {
+    //         const el = node as HTMLElement;
+    //         console.log(idx, el.innerText);
+    //       });
+    //     }
+    //     console.groupEnd();
+    //   }
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
       const storeDecks = DOMObserver.getNewLogsAndUpdateDecks(gameLog);
