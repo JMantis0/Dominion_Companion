@@ -1045,6 +1045,8 @@ export class Deck extends BaseDeck implements StoreDeck {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Sentry", "Bandit", "Lookout"].includes(mostRecentPlay)) {
           this.trashFromSetAside(cards[i]);
+        } else if (["Swindler"].includes(mostRecentPlay)) {
+          this.trashFromLibrary(cards[i]);
         } else {
           this.trashFromHand(cards[i]);
         }
