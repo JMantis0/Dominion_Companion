@@ -155,6 +155,123 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Checks to see if the current line's play activity was
+   * triggered by a Vassal.
+   * Purpose: To determine which field array a card is played from.
+   * @returns - Boolean for whether the current line play activity is triggered by a Vassal.
+   */
+  checkForCourierPlay() {
+    /*
+    Log text alone does not provide sufficient context to
+    resolve ambiguity for whether a play that takes place immediately after a Courier play is
+    being played from the hand, or if it is being played from discard (triggered by the Courier).
+    To resolve this ambiguity we look to the style property of the log-line elements: padding-left.
+    If a play is triggered by a Courier, the value of the padding-left property of the related log-line element
+    is equal to the value of the padding-left property of the previous log-line element.  If the play is not
+    triggered by the Courier, but is coming from the hand, the padding-left property of the previous line will
+    be less than the current line.
+    */
+    let courierPlay: boolean = false;
+    let courierPlayInLogs: boolean = false;
+    const len = this.logArchive.length;
+    if (len > 3) {
+      courierPlayInLogs = this.latestPlay === "Courier";
+    }
+    if (courierPlayInLogs) {
+      // try {
+      const logScrollElement = getLogScrollContainerLogLines();
+      try {
+        let currentLinePaddingNumber: number;
+        const currentLinePaddingPercentage: string =
+          logScrollElement[len].style.paddingLeft;
+        if (
+          currentLinePaddingPercentage[
+            currentLinePaddingPercentage.length - 1
+          ] === "%"
+        ) {
+          currentLinePaddingNumber = parseFloat(
+            currentLinePaddingPercentage.slice(
+              0,
+              currentLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Current line paddingLeft property does not end with %."
+          );
+        let previousLinePaddingNumber: number;
+        const previousLinePaddingPercentage: string =
+          logScrollElement[len - 1].style.paddingLeft;
+        if (previousLinePaddingPercentage.slice(-1) === "%") {
+          previousLinePaddingNumber = parseFloat(
+            previousLinePaddingPercentage.slice(
+              0,
+              previousLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Previous line paddingLeft property does not end with %."
+          );
+        if (currentLinePaddingNumber < previousLinePaddingNumber) {
+          courierPlay = false;
+        } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
+          courierPlay = true;
+        }
+      } catch (e) {
+        if (
+          toErrorWithMessage(e).message ===
+          "Previous line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "checkForCourierPlay error: Previous line paddingLeft property does not end with %."
+          );
+        else if (
+          toErrorWithMessage(e).message ===
+          "Current line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "checkForCourierPlay error: Current line paddingLeft property does not end with %."
+          );
+        const logScrollElementInnerText: string[] = [];
+        Array.from(logScrollElement).forEach((el) => {
+          logScrollElementInnerText.push(el.innerText);
+        });
+        console.log(e);
+        console.log(toErrorWithMessage(e).message);
+
+        console.error(
+          `Error in checkForCourierPlay.  Tried to access the ${len}th and ${
+            len - 1
+          }th element of the log scroll element.`
+        );
+
+        console.log(
+          "The logScrollElement has length " + logScrollElement.length
+        );
+        console.log("the logScrollElement is ", logScrollElement);
+        console.log(
+          "The logs scroll element's innerTexts has length ",
+          logScrollElementInnerText.length
+        );
+        console.log(
+          "The logs scroll element's innerTexts is ",
+          logScrollElementInnerText
+        );
+        console.log("The logArchive is ", this.logArchive);
+        console.log(
+          "Was expecting to compare the paddingLeft of the last line of the logSCroll element with the 2nd last line of the logScroll Element."
+        );
+        console.log(
+          "Compare the logArchive to the innerTexts of the game log.  Identify where the difference lies."
+        );
+        throw new Error("checkForVassalPlay error: " + getErrorMessage(e));
+      }
+    }
+    return courierPlay;
+  }
+
+  /**
    * Checks the logArchive to determine whether the look at activity was triggered
    * by a Library.
    * @param currentLine - The current look at line
@@ -827,7 +944,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           )
         ) {
           this.discardFromSetAside(cards[i]);
-        } else if (["Vassal"].includes(mostRecentPlay)) {
+        } else if (["Vassal", "Courier"].includes(mostRecentPlay)) {
           this.discardFromLibrary(cards[i]);
         } else {
           this.discard(cards[i]);
@@ -987,14 +1104,16 @@ export class Deck extends BaseDeck implements StoreDeck {
     const throneRoomPlay = line.match(" again.");
     const treasurePlay = this.checkForTreasurePlayLine(line);
     let vassalPlay = false;
+    let courierPlay = false;
     if (!treasurePlay) {
       vassalPlay = this.checkForVassalPlay();
     }
+    if (!vassalPlay) courierPlay = this.checkForCourierPlay();
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (throneRoomPlay) {
           //Do Nothing
-        } else if (vassalPlay) {
+        } else if (vassalPlay || courierPlay) {
           this.playFromDiscard(cards[i]);
         } else {
           this.play(cards[i]);

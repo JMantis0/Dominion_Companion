@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, afterEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("processPlaysLine", () => {
@@ -6,9 +6,10 @@ describe("processPlaysLine", () => {
   let deck = new Deck("", false, "", "pNick", "pName", []);
   // mock checkForVassalPlay
   const checkForVassalPlay = jest.spyOn(Deck.prototype, "checkForVassalPlay");
+  const checkForCourierPlay = jest.spyOn(Deck.prototype, "checkForCourierPlay");
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
+    jest.resetAllMocks();
     deck = new Deck("", false, "", "pNick", "pName", []);
   });
 
@@ -52,6 +53,50 @@ describe("processPlaysLine", () => {
     // Assert - Verify the card was played from the graveyard
     expect(deck.graveyard).toStrictEqual(["Estate"]);
     expect(deck.inPlay).toStrictEqual(["Vassal", "Moneylender"]);
+    // Verify hand is unchanged
+    expect(deck.hand).toStrictEqual(["Copper", "Copper"]);
+  });
+
+  it("should play Action cards played by Courier from graveyard.", () => {
+    //Arrange
+    deck.latestPlay = "Courier";
+    deck.hand = ["Copper", "Copper"];
+    deck.inPlay = ["Vassal"];
+    deck.graveyard = ["Moneylender", "Estate"];
+    checkForCourierPlay.mockReturnValue(true);
+    // Arguments for function being tested.
+    const line = "pNick plays a Moneylender.";
+    const cards = ["Moneylender"];
+    const numberOfCards = [1];
+
+    // Act - Simulate playing a card from discard.
+    deck.processPlaysLine(line, cards, numberOfCards);
+
+    // Assert - Verify the card was played from the graveyard
+    expect(deck.graveyard).toStrictEqual(["Estate"]);
+    expect(deck.inPlay).toStrictEqual(["Vassal", "Moneylender"]);
+    // Verify hand is unchanged
+    expect(deck.hand).toStrictEqual(["Copper", "Copper"]);
+  });
+
+  it("should play Treasure cards played by Courier from graveyard.", () => {
+    //Arrange
+    deck.latestPlay = "Courier";
+    deck.hand = ["Copper", "Copper"];
+    deck.inPlay = ["Vassal"];
+    deck.graveyard = ["Silver", "Estate"];
+    checkForCourierPlay.mockReturnValue(true);
+    // Arguments for function being tested.
+    const line = "pNick plays a Silver.";
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+
+    // Act - Simulate playing a card from discard.
+    deck.processPlaysLine(line, cards, numberOfCards);
+
+    // Assert - Verify the card was played from the graveyard
+    expect(deck.graveyard).toStrictEqual(["Estate"]);
+    expect(deck.inPlay).toStrictEqual(["Vassal", "Silver"]);
     // Verify hand is unchanged
     expect(deck.hand).toStrictEqual(["Copper", "Copper"]);
   });

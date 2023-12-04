@@ -53,6 +53,28 @@ describe("processDiscardsLine", () => {
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - discard from library: Courier
+  it("should discard from the library when latestPlay is a Courier", () => {
+    // Arrange
+    deck.latestPlay = "Courier";
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+    deck.library = ["Copper", "Estate", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Vassal.
+    deck.processDiscardsLine(cards, numberOfCards);
+
+    // Assert - Verify the library and graveyard contain the expected cards.
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
+    // Verify that other zones were not discarded from.
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+  });
+
   // Case - Discard from setAside: Bandit
   it("should discard from setAside when latestPlay is a Bandit", () => {
     // Arrange
