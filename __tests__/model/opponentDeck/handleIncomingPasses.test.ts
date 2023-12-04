@@ -13,7 +13,7 @@ describe("handleIncomingPasses", () => {
       []
     );
   });
-  
+
   it("should check if the pass is to the Deck and if so add the given cards to the entireDeck", () => {
     // Arrange a hand and entireDeck
     oDeck.entireDeck = ["Copper", "Estate"];

@@ -188,6 +188,29 @@ const discardZoneViewerStateSelectorFunction = (
 };
 
 /**
+ * Gets and returns the game log element's innerText, removing the
+ * last line if it matches 'Premoves'.
+ * Purpose: Update the global gameLog variable.
+ * @returns The string of innerText of the game-log element.
+ */
+const getClientGameLog = (): string => {
+  const gameLogElement = document.getElementsByClassName(
+    "game-log"
+  )[0] as HTMLElement;
+  if (gameLogElement === undefined) {
+    throw new Error("No game-log element present in the DOM.");
+  }
+  let gameLog = gameLogElement.innerText;
+  if (
+    gameLog.split("\n")[gameLog.split("\n").length - 1].match("Premoves") !==
+    null
+  ) {
+    gameLog = gameLog.split("\n").slice(0, -1).join("\n");
+  }
+  return gameLog;
+};
+
+/**
  * Function takes a given array of strings and creates a Map object that has a key for each unique
  * string in the array.  The values for each key are the number of instances that string occurs
  * in the array.
@@ -1850,6 +1873,7 @@ export {
   cumulativeHyperGeometricProbability,
   customSelectResizableHandles,
   discardZoneViewerStateSelectorFunction,
+  getClientGameLog,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,

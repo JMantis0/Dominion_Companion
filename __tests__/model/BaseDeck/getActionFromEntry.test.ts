@@ -91,6 +91,15 @@ describe("getActionFromEntry", () => {
 
   it("should get action 'passes' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("L passes an Estate to G.")).toBe("passes");
+    expect(deck.getActionFromEntry("pNick passes an Estate to G.")).toBe(
+      "passes"
+    );
+  });
+
+  it("should get action 'into their hand' correctly", () => {
+    // Act and Assert
+    expect(
+      deck.getActionFromEntry("pNick puts an Estate into their hand.")
+    ).toBe("into their hand");
   });
 });

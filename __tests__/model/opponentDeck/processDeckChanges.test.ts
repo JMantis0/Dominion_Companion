@@ -11,7 +11,7 @@ describe("Method processDeckChanges", () => {
     .spyOn(OpponentDeck.prototype, "processTrashesLine")
     .mockImplementation(() => null);
   const processPassesLine = jest
-    .spyOn(OpponentDeck.prototype, "handleIncomingPasses")
+    .spyOn(OpponentDeck.prototype, "processPassesLine")
     .mockImplementation(() => null);
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,7 +70,7 @@ describe("Method processDeckChanges", () => {
 
     // Assert - Verify only the processTrashesLine method is called and it is called with the correct arguments.
     expect(processPassesLine).toBeCalledTimes(1);
-    expect(processPassesLine).toBeCalledWith(act, line, cards, numberOfCards);
+    expect(processPassesLine).toBeCalledWith(cards, numberOfCards);
     expect(processGainsLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
   });

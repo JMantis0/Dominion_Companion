@@ -387,9 +387,9 @@ export class DOMObserver {
       "Courtyard", //Done
       "Hamlet", // Done
       "Lookout", // Done
-      "Masquerade",
-      "Menagerie",
-      "Oasis",
+      "Masquerade", // Done
+      "Menagerie", //Done
+      "Oasis", //Done
       "Sage",
       "Sea Chart",
       "Sentinel",
@@ -1151,7 +1151,27 @@ export class DOMObserver {
    * the Deck objects' update() methods are invoked using the new logs as an argument,
    * and finally, the global variable 'logsProcessed' is updated.
    */
-  static logObserverFunc() {
+  static logObserverFunc(mutationList?: MutationRecord[]) {
+    mutationList;
+    // if (mutationList)
+    //   for (let i = 0; i < mutationList.length; i++) {
+    //     console.group("Mutation ", i);
+    //     if (mutationList[i].addedNodes.length > 0) {
+    //       console.log("addedNodes:");
+    //       mutationList[i].addedNodes.forEach((node, idx) => {
+    //         const el = node as HTMLElement;
+    //         console.log(idx, el.innerText);
+    //       });
+    //     }
+    //     if (mutationList[i].removedNodes.length > 0) {
+    //       console.log("removedNodes:");
+    //       mutationList[i].removedNodes.forEach((node, idx) => {
+    //         const el = node as HTMLElement;
+    //         console.log(idx, el.innerText);
+    //       });
+    //     }
+    //     console.groupEnd();
+    //   }
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
       const storeDecks = DOMObserver.getNewLogsAndUpdateDecks(gameLog);

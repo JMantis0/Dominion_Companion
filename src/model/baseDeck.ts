@@ -337,6 +337,7 @@ export class BaseDeck {
       "topdecks",
       "trashes",
       "passes",
+      "into their hand",
     ];
     const entryWithoutNickName = entry.slice(this.playerNick.length);
     for (let i = 0; i < actionArray.length; i++) {
@@ -523,6 +524,49 @@ export class BaseDeck {
     }
     this.setLogArchive(logArchiveCopy);
   }
+
+  /**
+   * Reconciliation function to handle consecutive reveals lines.
+   * @param line - The current reveals line.
+   * @returns - The correct cards and number of cards to be processed.
+   */
+  handleConsecutiveReveals(
+    line: string,
+    reconciling?: "reconcile"
+  ): [string[], number[]] {
+    // Need to compare the two consecutive lines.  If there is no invervening shuffle and both
+    // Lines contain the same card types, the most recent logArchiveEntry must be popped.
+    const intercedingShuffle =
+      this.logArchive.slice().pop()?.match(" shuffles their deck") !== null;
+    const previousRevealsLine = intercedingShuffle
+      ? this.logArchive[this.logArchive.length - 2]
+      : this.logArchive[this.logArchive.length - 1];
+    const [currCards, currNumberOfCards] =
+      this.getCardsAndCountsFromEntry(line);
+    const prevNumberOfCards: number[] =
+      this.getCardsAndCountsFromEntry(previousRevealsLine)[1];
+    const cards: string[] = [];
+    const numberOfCards: number[] = [];
+    let newCardOnCurrentLine: boolean = false;
+    currCards.forEach((card, idx) => {
+      cards.push(card);
+      if (prevNumberOfCards[idx] !== undefined) {
+        numberOfCards.push(currNumberOfCards[idx] - prevNumberOfCards[idx]);
+      } else {
+        numberOfCards.push(currNumberOfCards[idx]);
+        newCardOnCurrentLine = true;
+      }
+    });
+    if (
+      (!intercedingShuffle && !newCardOnCurrentLine) ||
+      reconciling === "reconcile"
+    ) {
+      this.popLastLogArchiveEntry(this.logArchive);
+    }
+
+    return [cards, numberOfCards];
+  }
+
   /**
    * Increases the gameTurn field by one.
    */

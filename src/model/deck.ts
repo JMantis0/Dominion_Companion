@@ -1,4 +1,5 @@
 import {
+  getClientGameLog,
   getErrorMessage,
   getLogScrollContainerLogLines,
   toErrorWithMessage,
@@ -330,6 +331,20 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Returns a boolean for whether the current line and the most recent
+   * logArchive entry are consecutive Sage reveals.
+   * @param line - The given line.
+   * @returns - Boolean
+   */
+  consecutiveSageReveals(line: string): boolean {
+    return (
+      line.match(" reveals ") !== null &&
+      this.latestPlay === "Sage" &&
+      this.lastEntryProcessed.match(" reveals ") !== null
+    );
+  }
+
+  /**
    * Checks hand field array to see if card is there.  If yes,
    * removes an instance of that card from the hand field array
    * and adds an instance of that card to the graveyard field array.
@@ -440,21 +455,19 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   drawFromSetAside(card: string): void {
-    const index = this.setAside.indexOf(card);
+    let index = this.setAside.indexOf(card);
     if (index < 0) {
-      throw new Error(`No ${card} in setAside.`);
-    } else {
-      if (this.debug)
-        console.info(
-          `Drawing ${card} set aside by Library from setAside into hand.`
-        );
-      const handCopy = this.hand.slice();
-      const setAsideCopy = this.setAside.slice();
-      handCopy.push(card);
-      setAsideCopy.splice(index, 1);
-      this.setHand(handCopy);
-      this.setSetAside(setAsideCopy);
+      this.reconcileMissingSageProcess();
+      index = this.setAside.indexOf(card);
     }
+    if (index < 0) throw new Error(`No ${card} in setAside.`);
+    if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
+    const handCopy = this.hand.slice();
+    const setAsideCopy = this.setAside.slice();
+    handCopy.push(card);
+    setAsideCopy.splice(index, 1);
+    this.setHand(handCopy);
+    this.setSetAside(setAsideCopy);
   }
 
   /**
@@ -503,6 +516,47 @@ export class Deck extends BaseDeck implements StoreDeck {
     libraryCopy.push(card);
     this.setLibrary(libraryCopy);
     this.addCardToEntireDeck(card);
+  }
+
+  /**
+   * Function gets required details from the current line
+   * @param line - Current line being processed through the update method.
+   * @returns - on object containing the act from the line, an array of cards from the line
+   * and a corresponding array of numbers for the amounts of cards from the line.
+   */
+  getActCardsAndCounts(line: string): {
+    act: string;
+    cards: string[];
+    numberOfCards: number[];
+  } {
+    let act: string = "";
+    let cards: Array<string> = [];
+    let number: Array<number> = [];
+    if (this.consecutiveTreasurePlays(line)) {
+      number = this.getConsecutiveTreasurePlayCounts(line);
+      act = "plays";
+      cards = ["Copper", "Silver", "Gold", "Platinum"];
+    } else if (this.consecutiveSageReveals(line)) {
+      [cards, number] = this.handleConsecutiveReveals(line);
+      act = "reveals";
+    } else {
+      act = this.getActionFromEntry(line);
+      [cards, number] = this.getCardsAndCountsFromEntry(line);
+      //Pop off repeated buy log entry if needed
+      if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
+        number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
+      }
+    }
+    const lineInfo: {
+      act: string;
+      cards: string[];
+      numberOfCards: number[];
+    } = {
+      act: act,
+      cards: cards,
+      numberOfCards: number,
+    };
+    return lineInfo;
   }
 
   /**
@@ -743,6 +797,9 @@ export class Deck extends BaseDeck implements StoreDeck {
         break;
       case "passes":
         this.processPassesLine(cards, numberOfCards);
+        break;
+      case "into their hand":
+        this.processIntoTheirHandLine(cards, numberOfCards);
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -762,7 +819,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Sentry", "Library", "Bandit", "Lookout"].includes(mostRecentPlay)
+          ["Sentry", "Library", "Bandit", "Lookout", "Sage"].includes(
+            mostRecentPlay
+          )
         ) {
           this.discardFromSetAside(cards[i]);
         } else if (["Vassal"].includes(mostRecentPlay)) {
@@ -823,6 +882,19 @@ export class Deck extends BaseDeck implements StoreDeck {
           }
           this.gain(cards[i]);
         }
+      }
+    }
+  }
+
+  /**
+   * Update function.  Draws cards from setAside.
+   * @param cards - The given cards.
+   * @param numberOfCards - The amounts of the given cards.
+   */
+  processIntoTheirHandLine(cards: string[], numberOfCards: number[]) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        this.drawFromSetAside(cards[i]);
       }
     }
   }
@@ -933,7 +1005,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   processRevealsLine(cards: string[], numberOfCards: number[]): void {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (this.latestPlay === "Bandit") {
+        if (["Bandit", "Sage"].includes(this.latestPlay)) {
           this.setAsideFromLibrary(cards[i]);
         }
       }
@@ -977,6 +1049,29 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.trashFromHand(cards[i]);
         }
       }
+    }
+  }
+
+  /**
+   * An update reconciliation function that saves the extension from breaking when
+   * the DOM Client does not append a sage reveal before appending the Sage draw.
+   */
+  reconcileMissingSageProcess() {
+    const gameArr = getClientGameLog().split("\n");
+    const previousLogEntry = gameArr[gameArr.length - 2];
+    if (
+      this.consecutiveSageReveals(previousLogEntry) &&
+      previousLogEntry !== this.lastEntryProcessed
+    ) {
+      console.log(
+        "Mismatch between the gameLog and logArchive... unequal sage reveals.. reconciling"
+      );
+      const [cards, numbers] = this.handleConsecutiveReveals(
+        previousLogEntry,
+        "reconcile"
+      );
+      this.addLogToLogArchive(previousLogEntry);
+      this.processRevealsLine(cards, numbers);
     }
   }
 
