@@ -392,10 +392,10 @@ export class DOMObserver {
       "Oasis", //Done
       "Sage",
       "Sea Chart",
-      "Sentinel",
+      "Sentinel", //Done
       "Shanty Town",
       "Storeroom",
-      "Swindler",
+      "Swindler", //Done
       "Warehouse",
       "Armory",
       "Conspirator",

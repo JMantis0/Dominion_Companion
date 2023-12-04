@@ -134,12 +134,41 @@ describe("processTopDecksLine", () => {
     const cards = ["Merchant"];
     const numberOfCards = [1];
 
-    // Act - Simulate top decking a card with an Lookout.
+    // Act - Simulate top decking a card with a Lookout.
     deck.processTopDecksLine(cards, numberOfCards);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.library).toStrictEqual(["Copper", "Merchant"]);
+    // Verify graveyard and hand are unchanged.
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
+  it("should move cards topdecked by a Sentinel from setAside.", () => {
+    // Arrange deck state
+    deck.latestPlay = "Sentinel";
+    deck.library = ["Copper"];
+    deck.hand = ["Market"];
+    deck.graveyard = ["Bureaucrat"];
+    deck.setAside = ["Merchant", "Merchant", "Merchant", "Silver"];
+
+    // Arguments for function being tested.
+    const cards = ["Merchant", "Silver"];
+    const numberOfCards = [3, 1];
+
+    // Act - Simulate top decking a card with a Sentinel.
+    deck.processTopDecksLine(cards, numberOfCards);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.library).toStrictEqual([
+      "Copper",
+      "Merchant",
+      "Merchant",
+      "Merchant",
+      "Silver",
+    ]);
     // Verify graveyard and hand are unchanged.
     expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
     expect(deck.hand).toStrictEqual(["Market"]);

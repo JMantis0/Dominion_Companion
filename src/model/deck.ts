@@ -910,7 +910,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Bandit", "Lookout"].includes(mostRecentPlay)) {
+        if (
+          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
+        ) {
           this.setAsideFromLibrary(cards[i]);
         } else if (mostRecentPlay === "Library") {
           const cardsToDrawNow: string[] = [
@@ -1021,7 +1023,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Lookout"].includes(mostRecentPlay)) {
+        if (["Sentry", "Lookout", "Sentinel"].includes(mostRecentPlay)) {
           this.topDeckFromSetAside(cards[i]);
         } else if (mostRecentPlay === "Harbinger") {
           this.topDeckFromGraveyard(cards[i]);
@@ -1043,7 +1045,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestPlay;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Sentry", "Bandit", "Lookout"].includes(mostRecentPlay)) {
+        if (
+          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
+        ) {
           this.trashFromSetAside(cards[i]);
         } else if (["Swindler"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
