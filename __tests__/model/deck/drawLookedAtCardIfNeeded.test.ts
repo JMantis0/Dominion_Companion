@@ -16,7 +16,7 @@ describe("drawLookedAtCardIfNeeded", () => {
   it("should draw the card that was looked at on the previous line, if needed()", () => {
     // Arrange
     deck.logArchive = ["pNick plays a Library.", "pNick looks at a Chapel."];
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.waitToDrawLibraryLook = true;
     deck.setAside = ["Chapel"];
     deck.hand = ["Copper", "Estate"];
@@ -35,7 +35,7 @@ describe("drawLookedAtCardIfNeeded", () => {
   it("should not draw the card that was looked at on the previous line, if that card was set aside by the player", () => {
     // Arrange
     deck.logArchive = ["pNick plays a Library.", "pNick looks at a Chapel."];
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.waitToDrawLibraryLook = true;
     deck.setAside = ["Chapel"];
     deck.hand = ["Copper", "Estate"];
@@ -53,7 +53,7 @@ describe("drawLookedAtCardIfNeeded", () => {
   it("should not draw the card that was looked at on the previous line, if card was one of the cards that is auto drawn", () => {
     // Arrange
     deck.logArchive = ["pNick plays a Library.", "pNick looks at a Copper."];
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.waitToDrawLibraryLook = false;
     deck.hand = ["Copper", "Estate", "Copper"];
     deck.setAside = [];
@@ -72,7 +72,7 @@ describe("drawLookedAtCardIfNeeded", () => {
   it("should not draw the card that was looked at on the previous line, if previous line is not a Library look", () => {
     // Arrange
     deck.logArchive = ["pNick plays a Harbinger.", "pNick looks at a Copper."];
-    deck.latestPlay = "Harbinger";
+    deck.latestAction = "Harbinger";
     deck.waitToDrawLibraryLook = false;
     deck.hand = ["Copper", "Estate", "Copper"];
     deck.setAside = [];

@@ -93,7 +93,7 @@ describe("getActCardsAndCounts", () => {
     // Arrange
     deck.logArchive = ["Log1", "pNick plays 2 Coppers and a Silver."];
     deck.lastEntryProcessed = "pNick plays 2 Coppers and a Platinum.";
-    const line = "pNick plays 2 Coppers and 2 Platinums.";
+    const line = "pNick plays 2 Coppers and 2 Platina.";
     const expectedAct: string = "plays";
     const expectedCards: string[] = ["Copper", "Silver", "Gold", "Platinum"];
     const expectedNumber: number[] = [0, 0, 0, 1];
@@ -148,7 +148,7 @@ describe("getActCardsAndCounts", () => {
       "pNick shuffles their deck.",
       "pNick reveals 3 Coppers and a Chapel.",
     ];
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
     deck.logArchive = initialLogArchive;
     deck.lastEntryProcessed = "pNick reveals 3 Coppers and a Chapel.";
     const line = "pNick reveals 3 Coppers, a Chapel, and an Estate.";
@@ -186,7 +186,7 @@ describe("getActCardsAndCounts", () => {
       "pNick shuffles their deck.",
       "pNick reveals 3 Coppers and a Chapel.",
     ];
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
     deck.logArchive = initialLogArchive;
     deck.lastEntryProcessed = "pNick reveals 3 Coppers and a Chapel.";
     const line = "pNick reveals 3 Coppers and 2 Chapels.";

@@ -68,7 +68,7 @@ describe("checkForVassalPlay", () => {
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    deck.latestPlay = "Vassal";
+    deck.latestAction = "Vassal";
 
     // Act
     const result = deck.checkForVassalPlay();
@@ -85,7 +85,7 @@ describe("checkForVassalPlay", () => {
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    deck.latestPlay = "Vassal";
+    deck.latestAction = "Vassal";
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine5Element.style.paddingLeft = "0%";
@@ -113,7 +113,7 @@ describe("checkForVassalPlay", () => {
       "pNick trashes a Copper.",
       "pNick topdecks a Silver.",
     ];
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
 
     // Act
     const result = deck.checkForVassalPlay();
@@ -130,7 +130,7 @@ describe("checkForVassalPlay", () => {
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    deck.latestPlay = "Vassal";
+    deck.latestAction = "Vassal";
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine5Element.style.paddingLeft = "0";
@@ -149,7 +149,7 @@ describe("checkForVassalPlay", () => {
       "pNick gets +$2.",
       "pNick discards a Vassal.",
     ];
-    deck.latestPlay = "Vassal";
+    deck.latestAction = "Vassal";
 
     // Make padding of element of the card being played less the padding of the preceding element
     logLine4Element.style.paddingLeft = "0";

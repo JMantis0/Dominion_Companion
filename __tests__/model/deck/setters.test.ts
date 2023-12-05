@@ -39,9 +39,15 @@ describe("Deck setters", () => {
     expect(deck.lastEntryProcessed).toStrictEqual(
       "Sample Last Entry Processed"
     );
+    // Latest Action
+    deck.setLatestAction("Sample Latest Action");
+    expect(deck.latestAction).toBe("Sample Latest Action");
     // Latest Play
     deck.setLatestPlay("Sample Latest Play");
     expect(deck.latestPlay).toBe("Sample Latest Play");
+    // Latest Play Source
+    deck.setLatestPlaySource("Vassal");
+    expect(deck.latestPlaySource).toBe("Vassal");
     // Library
     deck.setLibrary(["Sample", "Library", "Zone"]);
     expect(deck.library).toStrictEqual(["Sample", "Library", "Zone"]);

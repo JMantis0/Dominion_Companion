@@ -12,7 +12,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by an Artisan from hand.", () => {
     // Arrange deck state
-    deck.latestPlay = "Artisan";
+    deck.latestAction = "Artisan";
     deck.library = ["Copper"];
     deck.hand = ["Bandit", "Market"];
     deck.graveyard = ["Bureaucrat"];
@@ -34,7 +34,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by an Bureaucrat from hand.", () => {
     // Arrange deck state
-    deck.latestPlay = "Bureaucrat";
+    deck.latestAction = "Bureaucrat";
     deck.library = ["Copper"];
     deck.hand = ["Estate", "Market"];
     deck.graveyard = ["Merchant"];
@@ -56,7 +56,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by an Courtyard from hand.", () => {
     // Arrange deck state
-    deck.latestPlay = "Courtyard";
+    deck.latestAction = "Courtyard";
     deck.library = ["Copper"];
     deck.hand = ["Estate", "Market"];
     deck.graveyard = ["Merchant"];
@@ -78,7 +78,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by a Harbinger from graveyard.", () => {
     // Arrange deck state
-    deck.latestPlay = "Harbinger";
+    deck.latestAction = "Harbinger";
     deck.library = ["Copper"];
     deck.hand = ["Market"];
     deck.graveyard = ["Bureaucrat", "Bandit"];
@@ -101,7 +101,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by a Sentry from setAside.", () => {
     // Arrange deck state
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
     deck.library = ["Copper"];
     deck.hand = ["Market"];
     deck.graveyard = ["Bureaucrat"];
@@ -124,7 +124,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by a Lookout from setAside.", () => {
     // Arrange deck state
-    deck.latestPlay = "Lookout";
+    deck.latestAction = "Lookout";
     deck.library = ["Copper"];
     deck.hand = ["Market"];
     deck.graveyard = ["Bureaucrat"];
@@ -147,7 +147,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards topdecked by a Sentinel from setAside.", () => {
     // Arrange deck state
-    deck.latestPlay = "Sentinel";
+    deck.latestAction = "Sentinel";
     deck.library = ["Copper"];
     deck.hand = ["Market"];
     deck.graveyard = ["Bureaucrat"];
@@ -176,7 +176,7 @@ describe("processTopDecksLine", () => {
 
   it("should move cards 'placed back onto their deck' by a  Sea chard from setAside to library.", () => {
     // Arrange deck state
-    deck.latestPlay = "Sea Chart";
+    deck.latestAction = "Sea Chart";
     deck.library = ["Copper"];
     deck.hand = ["Market"];
     deck.graveyard = ["Bureaucrat"];

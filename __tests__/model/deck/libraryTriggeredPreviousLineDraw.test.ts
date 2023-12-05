@@ -19,7 +19,7 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick looks at a Chapel.",
       "pNick looks at a Poacher.",
     ];
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.waitToDrawLibraryLook = true;
 
     // Act and Assert - Simulate the card that was looked at by Library play being taken into hand by the player.
@@ -37,7 +37,7 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick trashes a Copper.",
       "pNick topdecks a Gold.",
     ];
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
     deck.waitToDrawLibraryLook = true;
 
     // Act and Assert - Simulate a line where there is no Library play or card being looked at
@@ -52,7 +52,7 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick looks at a Chapel.",
       "pNick looks at a Copper.",
     ];
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.waitToDrawLibraryLook = false;
 
     // Act and Assert - simulate a player looking at a card with a Library, where the card from the previous line was automatically drawn already.
@@ -68,7 +68,7 @@ describe("libraryTriggeredPreviousLineDraw", () => {
       "pNick looks at a Chapel.",
       "pNick looks at a Poacher.",
     ];
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.waitToDrawLibraryLook = true;
 
     // Act and Assert - Simulate a player choosing to skip the card they look at with a Library.

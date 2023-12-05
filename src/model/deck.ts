@@ -15,7 +15,9 @@ export class Deck extends BaseDeck implements StoreDeck {
   graveyard: Array<string> = [];
   hand: Array<string> = [];
   inPlay: Array<string> = [];
+  latestAction: string = "None";
   latestPlay: string = "None";
+  latestPlaySource: string = "None";
   library: Array<string> = [];
   setAside: Array<string> = [];
   waitToDrawLibraryLook: boolean = false;
@@ -63,12 +65,28 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.inPlay = inPlay;
   }
 
+  getLatestAction(): string {
+    return this.latestAction;
+  }
+
+  setLatestAction(card: string): void {
+    this.latestAction = card;
+  }
+
   getLatestPlay(): string {
     return this.latestPlay;
   }
 
   setLatestPlay(card: string): void {
     this.latestPlay = card;
+  }
+
+  getLatestPlaySource(): string {
+    return this.latestPlaySource;
+  }
+
+  setLatestPlaySource(card: string): void {
+    this.latestPlaySource = card;
   }
 
   getLibrary() {
@@ -155,6 +173,123 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Checks to see if the current line's play activity was
+   * triggered by a Vassal.
+   * Purpose: To determine which field array a card is played from.
+   * @returns - Boolean for whether the current line play activity is triggered by a Vassal.
+   */
+  checkForCourierPlay() {
+    /*
+    Log text alone does not provide sufficient context to
+    resolve ambiguity for whether a play that takes place immediately after a Courier play is
+    being played from the hand, or if it is being played from discard (triggered by the Courier).
+    To resolve this ambiguity we look to the style property of the log-line elements: padding-left.
+    If a play is triggered by a Courier, the value of the padding-left property of the related log-line element
+    is equal to the value of the padding-left property of the previous log-line element.  If the play is not
+    triggered by the Courier, but is coming from the hand, the padding-left property of the previous line will
+    be less than the current line.
+    */
+    let courierPlay: boolean = false;
+    let courierPlayInLogs: boolean = false;
+    const len = this.logArchive.length;
+    if (len > 3) {
+      courierPlayInLogs = this.latestAction === "Courier";
+    }
+    if (courierPlayInLogs && this.latestPlay === "Courier") {
+      // try {
+      const logScrollElement = getLogScrollContainerLogLines();
+      try {
+        let currentLinePaddingNumber: number;
+        const currentLinePaddingPercentage: string =
+          logScrollElement[len].style.paddingLeft;
+        if (
+          currentLinePaddingPercentage[
+            currentLinePaddingPercentage.length - 1
+          ] === "%"
+        ) {
+          currentLinePaddingNumber = parseFloat(
+            currentLinePaddingPercentage.slice(
+              0,
+              currentLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Current line paddingLeft property does not end with %."
+          );
+        let previousLinePaddingNumber: number;
+        const previousLinePaddingPercentage: string =
+          logScrollElement[len - 1].style.paddingLeft;
+        if (previousLinePaddingPercentage.slice(-1) === "%") {
+          previousLinePaddingNumber = parseFloat(
+            previousLinePaddingPercentage.slice(
+              0,
+              previousLinePaddingPercentage.length - 1
+            )
+          );
+        } else
+          throw new Error(
+            "Previous line paddingLeft property does not end with %."
+          );
+        if (currentLinePaddingNumber < previousLinePaddingNumber) {
+          courierPlay = false;
+        } else if (currentLinePaddingNumber >= previousLinePaddingNumber) {
+          courierPlay = true;
+        }
+      } catch (e) {
+        if (
+          toErrorWithMessage(e).message ===
+          "Previous line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "checkForCourierPlay error: Previous line paddingLeft property does not end with %."
+          );
+        else if (
+          toErrorWithMessage(e).message ===
+          "Current line paddingLeft property does not end with %."
+        )
+          throw new Error(
+            "checkForCourierPlay error: Current line paddingLeft property does not end with %."
+          );
+        const logScrollElementInnerText: string[] = [];
+        Array.from(logScrollElement).forEach((el) => {
+          logScrollElementInnerText.push(el.innerText);
+        });
+        console.log(e);
+        console.log(toErrorWithMessage(e).message);
+
+        console.error(
+          `Error in checkForCourierPlay.  Tried to access the ${len}th and ${
+            len - 1
+          }th element of the log scroll element.`
+        );
+
+        console.log(
+          "The logScrollElement has length " + logScrollElement.length
+        );
+        console.log("the logScrollElement is ", logScrollElement);
+        console.log(
+          "The logs scroll element's innerTexts has length ",
+          logScrollElementInnerText.length
+        );
+        console.log(
+          "The logs scroll element's innerTexts is ",
+          logScrollElementInnerText
+        );
+        console.log("The logArchive is ", this.logArchive);
+        console.log(
+          "Was expecting to compare the paddingLeft of the last line of the logSCroll element with the 2nd last line of the logScroll Element."
+        );
+        console.log(
+          "Compare the logArchive to the innerTexts of the game log.  Identify where the difference lies."
+        );
+        throw new Error("checkForCourierPlay error: " + getErrorMessage(e));
+      }
+    }
+    return courierPlay;
+  }
+
+  /**
    * Checks the logArchive to determine whether the look at activity was triggered
    * by a Library.
    * @param currentLine - The current look at line
@@ -163,7 +298,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   checkForLibraryLook(currentLine: string): boolean {
     let libraryLook: boolean = false;
     if (currentLine.match(" looks at ") !== null) {
-      if (this.latestPlay === "Library") {
+      if (this.latestAction === "Library") {
         libraryLook = true;
       }
     } else {
@@ -202,7 +337,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     let vassalPlayInLogs: boolean = false;
     const len = this.logArchive.length;
     if (len > 3) {
-      vassalPlayInLogs = this.latestPlay === "Vassal";
+      vassalPlayInLogs = this.latestAction === "Vassal";
     }
     if (vassalPlayInLogs) {
       // try {
@@ -336,10 +471,10 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param line - The given line.
    * @returns - Boolean
    */
-  consecutiveSageReveals(line: string): boolean {
+  consecutiveReveals(line: string): boolean {
     return (
       line.match(" reveals ") !== null &&
-      this.latestPlay === "Sage" &&
+      ["Sage", "Farming Village"].includes(this.latestAction) &&
       this.lastEntryProcessed.match(" reveals ") !== null
     );
   }
@@ -457,7 +592,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   drawFromSetAside(card: string): void {
     let index = this.setAside.indexOf(card);
     if (index < 0) {
-      this.reconcileMissingSageProcess();
+      this.reconcileMissingRevealsProcess();
       index = this.setAside.indexOf(card);
     }
     if (index < 0) throw new Error(`No ${card} in setAside.`);
@@ -532,11 +667,16 @@ export class Deck extends BaseDeck implements StoreDeck {
     let act: string = "";
     let cards: Array<string> = [];
     let number: Array<number> = [];
-    if (this.consecutiveTreasurePlays(line)) {
+    if (
+      this.consecutiveTreasurePlays(line) &&
+      // If treasures are played from discard by Courier, they
+      // should not cause consecutive treasure plays.
+      this.latestPlaySource !== "Courier"
+    ) {
       number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
       cards = ["Copper", "Silver", "Gold", "Platinum"];
-    } else if (this.consecutiveSageReveals(line)) {
+    } else if (this.consecutiveReveals(line)) {
       [cards, number] = this.handleConsecutiveReveals(line);
       act = "reveals";
     } else {
@@ -561,13 +701,13 @@ export class Deck extends BaseDeck implements StoreDeck {
 
   /**
    * Function looks at the logArchive, starting with the last entry, and looks at each entry
-   * until it finds a play, and returns the card in that entry that was played.
+   * until it finds an action play, and returns the card in that entry that was played.
    * entry
    * @param logArchive
    * @returns
    */
-  getMostRecentPlay(logArchive: string[]): string {
-    let mostRecentCardPlayed: string = "None";
+  getMostRecentAction(logArchive: string[]): string {
+    let mostRecentActionPlayed: string = "None";
     const len = logArchive.length;
     if (len === 0) throw new Error("Empty logArchive.");
     let playFound: boolean = false;
@@ -589,9 +729,61 @@ export class Deck extends BaseDeck implements StoreDeck {
         // the line might end with the card, or it might end with " again."
 
         if (logArchive[i].match(" again.")) {
+          mostRecentActionPlayed = logArchive[i].slice(
+            lowerIndex,
+            logArchive[i].lastIndexOf(" ")
+          );
+        } else {
+          mostRecentActionPlayed = logArchive[i].slice(
+            lowerIndex,
+            logArchive[i].length - 1
+          );
+        }
+      }
+      if (playFound || logArchive[i].match("Turn ")) break;
+    }
+    if (!playFound) {
+      playFound = false;
+    }
+
+    return mostRecentActionPlayed;
+  }
+
+  /**
+   * Function looks at the logArchive, starting with the last entry, and looks at each entry
+   * until it finds an action play, and returns the card in that entry that was played.
+   * entry
+   * @param logArchive
+   * @returns
+   */
+  getMostRecentPlay(logArchive: string[]): string {
+    let mostRecentCardPlayed: string = "None";
+    const len = logArchive.length;
+    if (len === 0) throw new Error("Empty logArchive.");
+    let playFound: boolean = false;
+
+    for (let i = len - 1; i >= 0; i--) {
+      if (logArchive[i].match(/ plays an? /) !== null) {
+        playFound = true;
+        let lowerIndex: number;
+        if (logArchive[i].match(" plays a ")) {
+          lowerIndex = logArchive[i].indexOf(" plays a ") + " plays a ".length;
+        } else {
+          lowerIndex =
+            logArchive[i].indexOf(" plays an ") + " plays an ".length;
+        }
+
+        // the line might end with the card, or it might end with " again."
+        if (logArchive[i].match(" again.")) {
           mostRecentCardPlayed = logArchive[i].slice(
             lowerIndex,
             logArchive[i].lastIndexOf(" ")
+          );
+          // The line might end with a +$(<number>) if its a treasure play
+        } else if (logArchive[i].match(/\(\+\$\d*\)/)) {
+          mostRecentCardPlayed = logArchive[i].slice(
+            lowerIndex,
+            logArchive[i].lastIndexOf(" ") - 1
           );
         } else {
           mostRecentCardPlayed = logArchive[i].slice(
@@ -817,17 +1009,22 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to discard.
    */
   processDiscardsLine(cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay: string = this.latestPlay;
+    const mostRecentPlay: string = this.latestAction;
     // const libraryDiscard = this.checkForLibraryDiscard(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Sentry", "Library", "Bandit", "Lookout", "Sage"].includes(
-            mostRecentPlay
-          )
+          [
+            "Sentry",
+            "Library",
+            "Bandit",
+            "Lookout",
+            "Sage",
+            "Farming Village",
+          ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
-        } else if (["Vassal"].includes(mostRecentPlay)) {
+        } else if (["Vassal", "Courier"].includes(mostRecentPlay)) {
           this.discardFromLibrary(cards[i]);
         } else {
           this.discard(cards[i]);
@@ -867,7 +1064,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to gain.
    */
   processGainsLine(line: string, cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestPlay;
+    const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Bureaucrat", "Armory"].includes(mostRecentPlay)) {
@@ -911,7 +1108,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards - The card being looked at.
    */
   processLooksAtLine(cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestPlay;
+    const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -987,16 +1184,21 @@ export class Deck extends BaseDeck implements StoreDeck {
     const throneRoomPlay = line.match(" again.");
     const treasurePlay = this.checkForTreasurePlayLine(line);
     let vassalPlay = false;
+    let courierPlay = false;
     if (!treasurePlay) {
       vassalPlay = this.checkForVassalPlay();
     }
+    if (!vassalPlay) courierPlay = this.checkForCourierPlay();
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (throneRoomPlay) {
-          //Do Nothing
-        } else if (vassalPlay) {
+          this.setLatestPlaySource("Throne Room");
+        } else if (vassalPlay || courierPlay) {
+          if (vassalPlay) this.setLatestPlaySource("Vassal");
+          else this.setLatestPlaySource("Courier");
           this.playFromDiscard(cards[i]);
         } else {
+          this.setLatestPlaySource("Hand");
           this.play(cards[i]);
         }
       }
@@ -1011,7 +1213,11 @@ export class Deck extends BaseDeck implements StoreDeck {
   processRevealsLine(cards: string[], numberOfCards: number[]): void {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Bandit", "Sage", "Sea Chart"].includes(this.latestPlay)) {
+        if (
+          ["Bandit", "Sage", "Sea Chart", "Farming Village"].includes(
+            this.latestAction
+          )
+        ) {
           this.setAsideFromLibrary(cards[i]);
         }
       }
@@ -1024,7 +1230,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to topdeck.
    */
   processTopDecksLine(cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestPlay;
+    const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1050,7 +1256,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amount of each card to trash.
    */
   processTrashesLine(cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestPlay;
+    const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1070,11 +1276,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * An update reconciliation function that saves the extension from breaking when
    * the DOM Client does not append a sage reveal before appending the Sage draw.
    */
-  reconcileMissingSageProcess() {
+  reconcileMissingRevealsProcess() {
     const gameArr = getClientGameLog().split("\n");
     const previousLogEntry = gameArr[gameArr.length - 2];
     if (
-      this.consecutiveSageReveals(previousLogEntry) &&
+      this.consecutiveReveals(previousLogEntry) &&
       previousLogEntry !== this.lastEntryProcessed
     ) {
       console.log(
@@ -1098,7 +1304,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       throw new Error(`No ${card} in library.`);
     } else {
       if (this.debug)
-        console.info(`Setting aside a ${card} with ${this.latestPlay}.`);
+        console.info(`Setting aside a ${card} with ${this.latestAction}.`);
       const setAsideCopy = this.setAside.slice();
       const libraryCopy = this.library.slice();
       setAsideCopy.push(card);
@@ -1299,6 +1505,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       }
       this.updateArchives(line);
       this.updateVP();
+      this.setLatestAction(this.getMostRecentAction(this.logArchive));
       this.setLatestPlay(this.getMostRecentPlay(this.logArchive));
       if (this.debug) console.groupEnd();
     });

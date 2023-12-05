@@ -207,7 +207,7 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(/Coppers?|Silvers?|Golds?|Platinums?/) !== null;
+      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina/) !== null;
     return treasureLine;
   }
 
@@ -366,7 +366,11 @@ export class BaseDeck {
     };
     const lineData: Array<LineDatum> = [];
     this.kingdom.forEach((card) => {
-      const cardMatcher = card.substring(0, card.length - 1);
+      // Add case for matching Platinums, which have plural form 'Platina'
+      let cardMatcher: string;
+      if (card === "Platinum") {
+        cardMatcher = "Platin";
+      } else cardMatcher = card.substring(0, card.length - 1);
       if (entry.match(" " + cardMatcher) !== null) {
         const upperSlice = entry.indexOf(cardMatcher) - 1;
         const lowerSlice = entry.substring(0, upperSlice).lastIndexOf(" ") + 1;
@@ -414,10 +418,14 @@ export class BaseDeck {
     // processed
     const prevLine = this.lastEntryProcessed;
     const treasures = ["Copper", "Silver", "Gold", "Platinum"];
-
     // get the total number of each treasure that was played on the last line
     const numberOfPrevCards: Array<number> = [];
-    treasures.forEach((treasure) => {
+    const treasureMatcher = (treasure: string): string => {
+      if (treasure === "Platinum") return "Platin";
+      else return treasure;
+    };
+    treasures.forEach((treasureRaw) => {
+      const treasure = treasureMatcher(treasureRaw);
       if (prevLine.match(treasure)) {
         const upperSlice = prevLine.indexOf(treasure) - 1;
         const lowerSlice = prevLine.slice(0, upperSlice).lastIndexOf(" ") + 1;
@@ -435,7 +443,8 @@ export class BaseDeck {
     });
 
     const numberOfCards: Array<number> = [];
-    treasures.forEach((treasure) => {
+    treasures.forEach((treasureRaw) => {
+      const treasure = treasureMatcher(treasureRaw);
       if (line.match(treasure)) {
         const upperSlice = line.indexOf(treasure) - 1;
         const lowerSlice = line.slice(0, upperSlice).lastIndexOf(" ") + 1;
@@ -459,11 +468,8 @@ export class BaseDeck {
       numberOfCards[3] - numberOfPrevCards[3],
     ];
 
-    const archiveCopy = this.logArchive.slice();
-    const removed = archiveCopy.pop(); // keep duplicate entries out.
-    this.setLogArchive(archiveCopy);
+    this.popLastLogArchiveEntry(this.logArchive);
     this.setTreasurePopped(true);
-    if (this.debug) console.info("popping log off", removed);
     return amountsToPlay;
   }
 
@@ -500,9 +506,7 @@ export class BaseDeck {
     const currCount: number = parseInt(
       currentLine.substring(secondLastIndex + 1, lastIndex)
     );
-    const removed = logArchiveCopy.pop();
-    this.setLogArchive(logArchiveCopy);
-    if (this.debug) console.info(`Popping off ${removed}`);
+    this.popLastLogArchiveEntry(logArchiveCopy);
     const amendedAmount: number = currCount - prevCount;
     return amendedAmount;
   }
@@ -511,19 +515,16 @@ export class BaseDeck {
    * Removes duplicate merchant bonus lines from the logArchive.
    */
   handleConsecutiveMerchantBonus() {
-    const logArchiveCopy = this.logArchive.slice();
     // Set up loop to check 2 elements maximum
     for (let i = 0; i < 2; i++) {
-      const lastLogArchiveEntry = logArchiveCopy[logArchiveCopy.length - 1];
+      const lastLogArchiveEntry = this.logArchive[this.logArchive.length - 1];
       // If the element is a Merchant bonus remove it, otherwise break the loop.
       if (lastLogArchiveEntry.match(/gets \+\$\d*\. \(Merchant\)/) !== null) {
-        const removed = logArchiveCopy.pop();
-        console.log("Popping off: ", removed);
+        this.popLastLogArchiveEntry(this.logArchive);
       } else {
         break;
       }
     }
-    this.setLogArchive(logArchiveCopy);
   }
 
   /**
@@ -544,19 +545,23 @@ export class BaseDeck {
       : this.logArchive[this.logArchive.length - 1];
     const [currCards, currNumberOfCards] =
       this.getCardsAndCountsFromEntry(line);
-    const prevNumberOfCards: number[] =
-      this.getCardsAndCountsFromEntry(previousRevealsLine)[1];
+    const [prevCards, prevNumberOfCards] =
+      this.getCardsAndCountsFromEntry(previousRevealsLine);
+    const newCardOnCurrentLine: boolean = currCards.length > prevCards.length;
+    const map = new Map<string, number>();
+    currCards.forEach((card, idx) => {
+      map.set(card, currNumberOfCards[idx]);
+    });
+    prevCards.forEach((card, idx) => {
+      map.set(card, map.get(card)! - prevNumberOfCards[idx]);
+    });
     const cards: string[] = [];
     const numberOfCards: number[] = [];
-    let newCardOnCurrentLine: boolean = false;
-    currCards.forEach((card, idx) => {
+    Array.from(map.entries()).forEach((entry) => {
+      const card = entry[0];
+      const number = entry[1];
       cards.push(card);
-      if (prevNumberOfCards[idx] !== undefined) {
-        numberOfCards.push(currNumberOfCards[idx] - prevNumberOfCards[idx]);
-      } else {
-        numberOfCards.push(currNumberOfCards[idx]);
-        newCardOnCurrentLine = true;
-      }
+      numberOfCards.push(number);
     });
     if (
       (!intercedingShuffle && !newCardOnCurrentLine) ||
@@ -616,7 +621,8 @@ export class BaseDeck {
    */
   popLastLogArchiveEntry(logArchive: string[]) {
     const archiveCopy = logArchive.slice();
-    archiveCopy.pop();
+    const removed = archiveCopy.pop();
+    if (this.debug) console.log("Removing duplicate entry:", removed);
     this.setLogArchive(archiveCopy);
   }
 

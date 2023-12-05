@@ -10,7 +10,7 @@ describe("processIntoTheirHandLine", () => {
 
   it("should draw cards into hand from setAside when caused by a Sage", () => {
     // Arrange
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
     deck.setAside = ["Copper", "Copper", "Vassal"];
     deck.hand = ["Bureaucrat"];
     // Act
@@ -19,9 +19,22 @@ describe("processIntoTheirHandLine", () => {
     expect(deck.setAside).toStrictEqual(["Copper", "Copper"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
   });
+
   it("should draw cards into hand from setAside when caused by a Sea Chart", () => {
     // Arrange
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
+    deck.setAside = ["Copper", "Copper", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Vassal"], [1]);
+
+    expect(deck.setAside).toStrictEqual(["Copper", "Copper"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
+  });
+
+  it("should draw cards into hand from setAside when caused by a Farming Village", () => {
+    // Arrange
+    deck.latestAction = "Farming Village";
     deck.setAside = ["Copper", "Copper", "Vassal"];
     deck.hand = ["Bureaucrat"];
     // Act

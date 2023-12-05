@@ -8,6 +8,7 @@ describe("handleConsecutiveReveals", () => {
       "Copper",
       "Remodel",
       "Chapel",
+      "Estate",
     ]);
   });
 
@@ -86,6 +87,25 @@ describe("handleConsecutiveReveals", () => {
       // Assert
       expect(cards).toStrictEqual(["Copper", "Chapel"]);
       expect(number).toStrictEqual([0, 1]);
+    }
+  );
+
+  it(
+    "should handle consecutive reveals line where a new card is revealed on the current line" +
+      "when the new card is positioned in front of the previous card in the string.",
+    () => {
+      // Arrange
+      deck.logArchive = [
+        "pNick plays a Sage.",
+        "pNick gets +1 Action.",
+        "pNick reveals 2 Estates.",
+      ];
+      const line = "pNick reveals a Copper and 2 Estates";
+      // Act
+      const [cards, number] = deck.handleConsecutiveReveals(line);
+      // Assert
+      expect(cards).toStrictEqual(["Copper", "Estate"]);
+      expect(number).toStrictEqual([1, 0]);
     }
   );
 });

@@ -12,7 +12,7 @@ describe("processDiscardsLine", () => {
   // Case - discard from hand
   it("should handle discarding cards from hand correctly", () => {
     // Arrange
-    deck.latestPlay = "Militia";
+    deck.latestAction = "Militia";
     const cards = ["Copper", "Estate"];
     const numberOfCards = [1, 1];
     deck.hand = ["Copper", "Estate", "Estate"];
@@ -34,7 +34,29 @@ describe("processDiscardsLine", () => {
   // Case - discard from library: Vassal
   it("should discard from the library when latestPlay is a Vassal", () => {
     // Arrange
-    deck.latestPlay = "Vassal";
+    deck.latestAction = "Vassal";
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+    deck.library = ["Copper", "Estate", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Vassal.
+    deck.processDiscardsLine(cards, numberOfCards);
+
+    // Assert - Verify the library and graveyard contain the expected cards.
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
+    // Verify that other zones were not discarded from.
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+  });
+
+  // Case - discard from library: Courier
+  it("should discard from the library when latestPlay is a Courier", () => {
+    // Arrange
+    deck.latestAction = "Courier";
     const cards = ["Silver"];
     const numberOfCards = [1];
     deck.library = ["Copper", "Estate", "Silver"];
@@ -56,7 +78,7 @@ describe("processDiscardsLine", () => {
   // Case - Discard from setAside: Bandit
   it("should discard from setAside when latestPlay is a Bandit", () => {
     // Arrange
-    deck.latestPlay = "Bandit";
+    deck.latestAction = "Bandit";
     const cards = ["Smithy"];
     const numberOfCards = [1];
     deck.setAside = ["Smithy"];
@@ -78,7 +100,7 @@ describe("processDiscardsLine", () => {
   // Case - Discard from setAside: Library
   it("should discard from setAside when latestPlay is a Library", () => {
     // Arrange
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     const cards = ["Chapel", "Poacher"];
     const numberOfCards = [1, 2];
     deck.setAside = ["Chapel", "Poacher", "Poacher"];
@@ -105,7 +127,7 @@ describe("processDiscardsLine", () => {
   // Case - Discard from setAside: Sentry
   it("should discard from setAside when the latestPlay is a Sentry", () => {
     // Arrange
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
     const cards = ["Province", "Gardens"];
     const numberOfCards = [1, 1];
     deck.setAside = ["Province", "Gardens"];
@@ -127,7 +149,7 @@ describe("processDiscardsLine", () => {
   // Case - Discard from setAside: Lookout
   it("should discard from setAside when the latestPlay is a Lookout", () => {
     // Arrange
-    deck.latestPlay = "Lookout";
+    deck.latestAction = "Lookout";
     deck.setAside = ["Province", "Silver"];
     deck.graveyard = ["Silver"];
     deck.library = ["Shouldn't Move"];
@@ -150,7 +172,7 @@ describe("processDiscardsLine", () => {
   // Case - Discard from setAside: Sage
   it("should discard from setAside when the latestPlay is a Sage", () => {
     // Arrange
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
     deck.setAside = ["Province", "Silver"];
     deck.graveyard = ["Silver"];
     deck.library = ["Shouldn't Move"];
@@ -159,7 +181,30 @@ describe("processDiscardsLine", () => {
     const cards = ["Province", "Silver"];
     const numberOfCards = [1, 1];
 
-    // Act - Simulate discarding a Province cards with Lookout.
+    // Act - Simulate discarding a Province cards with Sage.
+    deck.processDiscardsLine(cards, numberOfCards);
+
+    //Assert - Verify the setAside and graveyard zones contain the expected cards.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Province", "Silver"]);
+    // Verify other zones were not discarded from.
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
+  });
+
+  // Case - Discard from setAside: Farming Village
+  it("should discard from setAside when the latestPlay is a Farming Village", () => {
+    // Arrange
+    deck.latestAction = "Farming Village";
+    deck.setAside = ["Province", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    const cards = ["Province", "Silver"];
+    const numberOfCards = [1, 1];
+
+    // Act - Simulate discarding a Province cards with Farming Village.
     deck.processDiscardsLine(cards, numberOfCards);
 
     //Assert - Verify the setAside and graveyard zones contain the expected cards.

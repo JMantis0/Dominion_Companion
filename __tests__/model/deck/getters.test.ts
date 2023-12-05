@@ -44,9 +44,15 @@ describe("Deck getters", () => {
     expect(deck.getLastEntryProcessed()).toStrictEqual(
       "Sample Last Entry Processed"
     );
+    // Latest Action
+    deck.latestAction = "SampleLatestPlay";
+    expect(deck.getLatestAction()).toBe("SampleLatestPlay");
     // Latest Play
     deck.latestPlay = "SampleLatestPlay";
     expect(deck.getLatestPlay()).toBe("SampleLatestPlay");
+    // Latest Play Source
+    deck.latestPlaySource = "Hand";
+    expect(deck.getLatestPlaySource()).toBe("Hand");
     // Library
     deck.library = ["Sample", "Library", "Zone"];
     expect(deck.getLibrary()).toStrictEqual(["Sample", "Library", "Zone"]);
