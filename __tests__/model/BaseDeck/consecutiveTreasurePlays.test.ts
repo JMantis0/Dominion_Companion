@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
@@ -42,5 +46,17 @@ describe("consecutiveTreasurePlays", () => {
 
     // Assert
     expect(result).toBe(false);
+  });
+
+  it("should return true for lines with the plural Platina", () => {
+    // Arrange
+    deck.lastEntryProcessed = "pNick plays 2 Platina. (+$10)";
+    const line = "pNick plays 2 Platina and a Silver. (+$12)";
+
+    // Act - simulate playing a treasure on the previous line, but not on the current line.
+    const result = deck.consecutiveTreasurePlays(line);
+
+    // Assert
+    expect(result).toBe(true);
   });
 });

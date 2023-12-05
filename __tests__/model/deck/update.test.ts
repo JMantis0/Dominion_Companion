@@ -14,8 +14,8 @@ describe("update", () => {
     Deck.prototype,
     "consecutiveTreasurePlays"
   );
-  const getMostRecentPlay = jest
-    .spyOn(Deck.prototype, "getMostRecentPlay")
+  const getMostRecentAction = jest
+    .spyOn(Deck.prototype, "getMostRecentAction")
     .mockImplementation(() => "");
   const setLatestPlay = jest.spyOn(Deck.prototype, "setLatestPlay");
   const getConsecutiveTreasurePlayCounts = jest.spyOn(
@@ -108,7 +108,7 @@ describe("update", () => {
 
     // Add spy assertions for setLastEntryProcessed, addLogToLogArchive, etc
 
-    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentAction).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
     expect(handleIncomingPasses).toBeCalledTimes(1);
   });
@@ -138,7 +138,7 @@ describe("update", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
-    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentAction).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
     expect(handleIncomingPasses).toBeCalledTimes(1);
   });
@@ -172,7 +172,7 @@ describe("update", () => {
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith(log[0]);
     expect(updateVP).toBeCalledTimes(1);
-    expect(getMostRecentPlay).toBeCalledTimes(1);
+    expect(getMostRecentAction).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
     expect(handleIncomingPasses).not.toBeCalled();
   });
@@ -219,7 +219,7 @@ describe("update", () => {
     expect(updateArchives).nthCalledWith(2, log[1]);
     expect(updateArchives).nthCalledWith(3, log[2]);
     expect(updateVP).toBeCalledTimes(3);
-    expect(getMostRecentPlay).toBeCalledTimes(3);
+    expect(getMostRecentAction).toBeCalledTimes(3);
     expect(setLatestPlay).toBeCalledTimes(3);
     expect(handleIncomingPasses).toBeCalledTimes(1);
   });

@@ -12,7 +12,7 @@ describe("processTrashesLine", () => {
 
   it("should trash cards not trashed by Sentry, Bandit, or Lookout from hand.", () => {
     //Arrange
-    deck.latestPlay = "Moneylender";
+    deck.latestAction = "Moneylender";
     deck.hand = ["Copper", "Estate"];
     deck.setAside = ["Bureaucrat"];
     deck.entireDeck = ["Moneylender", "Bureaucrat", "Copper", "Estate"];
@@ -36,7 +36,7 @@ describe("processTrashesLine", () => {
 
   it("should trash cards trashed by Sentry from setAside.", () => {
     // Arrange
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
     deck.hand = ["Bureaucrat"];
     deck.setAside = ["Estate", "Copper"];
     deck.entireDeck = ["Bureaucrat", "Sentry", "Copper", "Estate"];
@@ -57,7 +57,7 @@ describe("processTrashesLine", () => {
 
   it("should trash cards trashed by Bandit from setAside.", () => {
     // Arrange
-    deck.latestPlay = "Bandit";
+    deck.latestAction = "Bandit";
     deck.setAside = ["Silver", "Estate"];
     deck.hand = ["Silver"];
     deck.entireDeck = ["Silver", "Silver", "Estate"];
@@ -77,7 +77,7 @@ describe("processTrashesLine", () => {
 
   it("should trash cards trashed by Lookout from setAside.", () => {
     // Arrange
-    deck.latestPlay = "Lookout";
+    deck.latestAction = "Lookout";
     deck.setAside = ["Silver", "Estate", "Estate"];
     deck.hand = ["Silver"];
     deck.entireDeck = ["Silver", "Silver", "Estate", "Estate"];
@@ -97,7 +97,7 @@ describe("processTrashesLine", () => {
 
   it("should trash cards trashed by Sentinel from setAside.", () => {
     // Arrange
-    deck.latestPlay = "Sentinel";
+    deck.latestAction = "Sentinel";
     deck.setAside = ["Silver", "Estate", "Copper", "Copper", "Copper"];
     deck.hand = ["Silver", "Estate"];
     deck.entireDeck = [
@@ -131,7 +131,7 @@ describe("processTrashesLine", () => {
 
   it("should trash cards trashed by Swindler from library.", () => {
     // Arrange
-    deck.latestPlay = "Swindler";
+    deck.latestAction = "Swindler";
     deck.library = ["Silver", "Estate"];
     deck.hand = ["Silver", "Estate"];
     deck.entireDeck = ["Silver", "Silver", "Estate", "Estate"];

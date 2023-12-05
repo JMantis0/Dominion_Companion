@@ -81,7 +81,7 @@ describe("processGainsLine", () => {
   // Case - Mine gain: should be added to hand.
   it("should add cards gained by a Mine to hand", () => {
     // Arrange
-    deck.latestPlay = "Mine";
+    deck.latestAction = "Mine";
     deck.lastEntryProcessed = "pNick trashes a Copper.";
     deck.logArchive = ["pNick plays a Mine.", "pNick trashes a Copper."];
     const cards = ["Silver"];
@@ -118,7 +118,7 @@ describe("processGainsLine", () => {
   // Case - Artisan gain: should be added to hand.
   it("should add cards gained by an Artisan to hand", () => {
     // Arrange
-    deck.latestPlay = "Artisan";
+    deck.latestAction = "Artisan";
     deck.lastEntryProcessed = "pNick plays an Artisan.";
     deck.logArchive = ["pNick plays an Artisan."];
 
@@ -156,7 +156,7 @@ describe("processGainsLine", () => {
     const cards = ["Silver"];
     const numberOfCards = [1];
     const line = "pNick gains a Silver.";
-    deck.latestPlay = "Bureaucrat";
+    deck.latestAction = "Bureaucrat";
     deck.lastEntryProcessed = "pNick plays a Bureaucrat.";
     deck.logArchive = ["pNick plays an Bureaucrat."];
     // Mock a mid turn game board.
@@ -188,7 +188,7 @@ describe("processGainsLine", () => {
     const cards = ["Courier"];
     const numberOfCards = [1];
     const line = "pNick gains a Courier.";
-    deck.latestPlay = "Armory";
+    deck.latestAction = "Armory";
     deck.graveyard = [];
     deck.hand = ["Artisan"];
     deck.library = ["Copper"];

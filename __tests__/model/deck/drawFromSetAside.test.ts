@@ -50,7 +50,7 @@ describe("drawFromSetAside", () => {
     ];
     deck.setAside = ["Copper"];
     deck.library = ["Copper", "Moneylender"];
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
     deck.lastEntryProcessed = "P reveals a Copper.";
 
     // Act

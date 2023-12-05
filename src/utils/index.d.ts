@@ -206,7 +206,7 @@ interface StoreDeck {
   inPlay: Array<string>;
   kingdom: Array<string>;
   lastEntryProcessed: string;
-  latestPlay: string;
+  latestAction: string;
   library: Array<string>;
   logArchive: Array<string>;
   playerName: string;

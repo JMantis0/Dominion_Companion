@@ -12,7 +12,7 @@ describe("processRevealsLine", () => {
 
   it("should move cards revealed by a Bandit play to from library to setAside", () => {
     // Arrange
-    deck.latestPlay = "Bandit";
+    deck.latestAction = "Bandit";
     deck.library = ["Bureaucrat", "Gold", "Silver"];
     deck.setAside = [];
 
@@ -26,7 +26,7 @@ describe("processRevealsLine", () => {
 
   it("should move cards revealed by a Sage play to from library to setAside", () => {
     // Arrange
-    deck.latestPlay = "Sage";
+    deck.latestAction = "Sage";
     deck.library = ["Bureaucrat", "Gold", "Silver"];
     deck.setAside = [];
 
@@ -40,11 +40,25 @@ describe("processRevealsLine", () => {
 
   it("should move cards revealed by a Sea Chart play to from library to setAside", () => {
     // Arrange
-    deck.latestPlay = "Sea Chart";
+    deck.latestAction = "Sea Chart";
     deck.library = ["Bureaucrat", "Gold", "Silver"];
     deck.setAside = [];
 
     // Act - Simulate revealing a card from library with a Sage.
+    deck.processRevealsLine(["Silver"], [1]);
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual(["Bureaucrat", "Gold"]);
+    expect(deck.setAside).toStrictEqual(["Silver"]);
+  });
+
+  it("should move cards revealed by a Farming Village play to from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Farming Village";
+    deck.library = ["Bureaucrat", "Gold", "Silver"];
+    deck.setAside = [];
+
+    // Act - Simulate revealing a card from library with a Farming Village.
     deck.processRevealsLine(["Silver"], [1]);
 
     // Assert - Verify the card is moved from library to setAside

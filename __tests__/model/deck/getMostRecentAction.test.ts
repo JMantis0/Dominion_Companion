@@ -1,7 +1,7 @@
 import { it, describe, expect, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("getMostRecentPlay", () => {
+describe("getMostRecentAction", () => {
   // Declare Deck reference.
   let deck: Deck;
 
@@ -28,7 +28,7 @@ describe("getMostRecentPlay", () => {
     ];
 
     // Act and Assert - Verify method returns Cellar
-    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Cellar");
+    expect(deck.getMostRecentAction(deck.logArchive)).toBe("Cellar");
   });
 
   it("should not return treasure plays", () => {
@@ -44,14 +44,14 @@ describe("getMostRecentPlay", () => {
       "pNick draws a Silver, a Cellar, and a Sentry.",
       "pNick plays a Sentry.",
       "pNick gets +1 Action.",
-      "pNick plays a Cellar.",
+      "pNick plays a Cellar.", //  Most recent play is a Cellar.
       "pNick gets +1 Action.",
       "pNick discards 2 Estates.",
-      "pNick plays a Silver. (+$2)", //  Latest play is a Silver
+      "pNick plays a Silver. (+$2)", //  Should not return "Silver"
     ];
 
     // Act and  Assert - Verify method returns Cellar even though there is a more recent treasure play.
-    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Silver");
+    expect(deck.getMostRecentAction(deck.logArchive)).toBe("Cellar");
   });
 
   it("should return the card correctly for cards played by Throne Room", () => {
@@ -65,7 +65,7 @@ describe("getMostRecentPlay", () => {
     ];
 
     // Act and Assert - Verify method returns Sentry even when it was played by a Throne Room.
-    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Sentry");
+    expect(deck.getMostRecentAction(deck.logArchive)).toBe("Sentry");
   });
 
   it("should work correctly for cards that start with a vowel preceded by the article 'an'", () => {
@@ -77,7 +77,7 @@ describe("getMostRecentPlay", () => {
     ];
 
     // Act and Assert
-    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Artisan");
+    expect(deck.getMostRecentAction(deck.logArchive)).toBe("Artisan");
   });
 
   it("should return 'None' if no play is found in the logArchive", () => {
@@ -97,11 +97,11 @@ describe("getMostRecentPlay", () => {
     ];
 
     // Act and Assert - Verify returns correctly when no play is in the logArchive
-    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("None");
+    expect(deck.getMostRecentAction(deck.logArchive)).toBe("None");
   });
 
   it("should throw an error if the logArchive is empty", () => {
     // Act and Assert
-    expect(() => deck.getMostRecentPlay([])).toThrowError("Empty logArchive.");
+    expect(() => deck.getMostRecentAction([])).toThrowError("Empty logArchive.");
   });
 });

@@ -12,7 +12,7 @@ describe("processLooksAtLine", () => {
 
   it("should take no action if the look was not cause by a Library, Sentry, or Bandit", () => {
     // Arrange
-    deck.latestPlay = "Harbinger";
+    deck.latestAction = "Harbinger";
     deck.hand = ["Copper", "Estate"];
     deck.library = ["Bureaucrat"];
     deck.setAside = [];
@@ -35,7 +35,7 @@ describe("processLooksAtLine", () => {
 
   it("should move the cards to setAside if look is caused by a Sentry", () => {
     // Arrange
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
     deck.hand = ["Bureaucrat"];
     deck.library = ["Copper", "Estate", "Province"];
     deck.setAside = [];
@@ -58,7 +58,7 @@ describe("processLooksAtLine", () => {
 
   it("should move the cards to setAside if look is caused by a Bandit", () => {
     // Arrange
-    deck.latestPlay = "Bandit";
+    deck.latestAction = "Bandit";
     deck.hand = ["Bureaucrat"];
     deck.library = ["Smithy", "Gold", "Province"];
     deck.setAside = [];
@@ -81,7 +81,7 @@ describe("processLooksAtLine", () => {
 
   it("should move the cards to setAside if look is caused by a Lookout", () => {
     // Arrange
-    deck.latestPlay = "Lookout";
+    deck.latestAction = "Lookout";
     deck.hand = ["Bureaucrat"];
     deck.library = ["Province", "Copper", "Copper", "Estate"];
     deck.setAside = [];
@@ -104,7 +104,7 @@ describe("processLooksAtLine", () => {
 
   it("should move the cards to setAside if look is caused by a Sentinel", () => {
     // Arrange
-    deck.latestPlay = "Lookout";
+    deck.latestAction = "Lookout";
     deck.hand = ["Bureaucrat"];
     deck.library = [
       "Province",
@@ -140,7 +140,7 @@ describe("processLooksAtLine", () => {
 
   it("should draw certain cards immediately if they are looked at by a Library", () => {
     // Arrange
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.hand = ["Bureaucrat"];
     deck.library = [
       "Smithy",
@@ -188,7 +188,7 @@ describe("processLooksAtLine", () => {
 
   it("should move cards that looked at by a Library, but not drawn immediately to setAside, and waitToDrawLibraryLook should be set to true", () => {
     // Arrange
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
     deck.hand = ["Market"];
     deck.library = ["Smithy", "Bureaucrat"];
     deck.setAside = [];

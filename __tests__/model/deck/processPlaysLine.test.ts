@@ -15,7 +15,7 @@ describe("processPlaysLine", () => {
 
   it("should play cards that are played normally from hand.", () => {
     //Arrange
-    deck.latestPlay = "Market";
+    deck.latestAction = "Market";
     deck.hand = ["Chapel", "Market"];
     deck.inPlay = ["Cellar"];
     deck.graveyard = ["Estate"];
@@ -37,7 +37,7 @@ describe("processPlaysLine", () => {
 
   it("should play cards played by Vassal from graveyard.", () => {
     //Arrange
-    deck.latestPlay = "Vassal";
+    deck.latestAction = "Vassal";
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Moneylender", "Estate"];
@@ -59,7 +59,7 @@ describe("processPlaysLine", () => {
 
   it("should play Action cards played by Courier from graveyard.", () => {
     //Arrange
-    deck.latestPlay = "Courier";
+    deck.latestAction = "Courier";
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Moneylender", "Estate"];
@@ -81,7 +81,7 @@ describe("processPlaysLine", () => {
 
   it("should play Treasure cards played by Courier from graveyard.", () => {
     //Arrange
-    deck.latestPlay = "Courier";
+    deck.latestAction = "Courier";
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Silver", "Estate"];
@@ -103,7 +103,7 @@ describe("processPlaysLine", () => {
 
   it("should take no action for a card played again by a Throne Room.", () => {
     //Arrange
-    deck.latestPlay = "Remodel";
+    deck.latestAction = "Remodel";
     deck.hand = ["Copper", "Estate"];
     deck.inPlay = ["Remodel"];
     deck.graveyard = ["Estate"];
@@ -127,11 +127,67 @@ describe("processPlaysLine", () => {
     const line = "pNick plays a Copper.";
     const cards = ["Copper"];
     const numberOfCards = [1];
-    console.log("Last test", deck.hand);
     // Act - Simulate playing a Copper from hand
     deck.processPlaysLine(line, cards, numberOfCards);
 
     // Assert
     expect(checkForVassalPlay).not.toBeCalled();
+  });
+
+  it("should setLatestPlaySource to 'Vassal' when the play being processed is caused by a Vassal", () => {
+    // Arrange
+    // Mock true response from checkForVassalPlay()
+    checkForVassalPlay.mockReturnValue(true);
+    deck.graveyard = ["Sentry"];
+    const line = "pNick plays a Sentry.";
+    const cards = ["Sentry"];
+    const numberOfCards = [1];
+
+    // Act simulate playing a Sentry from discard with a Vassal.
+    deck.processPlaysLine(line, cards, numberOfCards);
+    expect(deck.latestPlaySource).toBe("Vassal");
+  });
+
+  it("should setLatestPlaySource to 'Courier' when the play being processed is caused by a Courier", () => {
+    // Arrange
+    // Mock true response from checkForVassalPlay()
+    checkForCourierPlay.mockReturnValue(true);
+    deck.graveyard = ["Copper"];
+    const line = "pNick plays a Copper.";
+    const cards = ["Copper"];
+    const numberOfCards = [1];
+
+    // Act simulate playing a Sentry from discard with a Vassal.
+    deck.processPlaysLine(line, cards, numberOfCards);
+    expect(deck.latestPlaySource).toBe("Courier");
+  });
+
+  it("should setLatestPlaySource to 'Hand' when the play being processed is played from Hand", () => {
+    // Arrange
+    // Mock true response from checkForVassalPlay()
+    checkForCourierPlay.mockReturnValue(false);
+    checkForVassalPlay.mockReturnValue(false);
+    deck.hand = ["Copper"];
+    const line = "pNick plays a Copper.";
+    const cards = ["Copper"];
+    const numberOfCards = [1];
+
+    // Act simulate playing a Sentry from discard with a Vassal.
+    deck.processPlaysLine(line, cards, numberOfCards);
+    expect(deck.latestPlaySource).toBe("Hand");
+  });
+
+  it("should setLatestPlaySource to 'Throne Room' when the play being processed is played by a Throne Room", () => {
+    // Arrange
+    // Mock true response from checkForVassalPlay()
+    checkForCourierPlay.mockReturnValue(false);
+    checkForVassalPlay.mockReturnValue(false);
+    const line = "pNick plays a Sentry again.";
+    const cards = ["Sentry"];
+    const numberOfCards = [1];
+
+    // Act simulate playing a Sentry from discard with a Vassal.
+    deck.processPlaysLine(line, cards, numberOfCards);
+    expect(deck.latestPlaySource).toBe("Throne Room");
   });
 });

@@ -40,22 +40,54 @@ describe("getConsecutiveTreasurePlayCounts", () => {
     // Act and Assert - Simulate playing a Gold after playing 2 Coppers.
     expect(
       deck.getConsecutiveTreasurePlayCounts(
-        "pNick plays 2 Coppers and a Gold. (+$4)"
+        "pNick plays 2 Coppers and a Gold. (+$5)"
       )
     ).toStrictEqual([0, 0, 1, 0]);
   });
 
-  it("should return an array with the correct number of Platinums to play", () => {
+  it("should return an array with the correct number of Platina to play", () => {
     // Arrange
     deck.lastEntryProcessed = "pNick plays 2 Coppers. (+$2)";
 
     // Act and Assert - Simulate playing a Gold after playing 2 Coppers.
     expect(
       deck.getConsecutiveTreasurePlayCounts(
-        "pNick plays 2 Coppers and a Platinum. (+$4)"
+        "pNick plays 2 Coppers and a Platinum. (+$7)"
       )
     ).toStrictEqual([0, 0, 0, 1]);
   });
+
+  it(
+    "should return an array with the correct treasure counts when the plural " +
+      "Platina is present in the previous line",
+    () => {
+      // Arrange
+      deck.lastEntryProcessed = "pNick plays 2 Coppers and 2 Platina. (+$12)";
+
+      // Act and Assert - Simulate playing a Gold after playing 2 Coppers.
+      expect(
+        deck.getConsecutiveTreasurePlayCounts(
+          "pNick plays 2 Coppers, 2 Platina, and a Silver. (+$14)"
+        )
+      ).toStrictEqual([0, 1, 0, 0]);
+    }
+  );
+
+  it(
+    "should return an array with the correct treasure counts when the plural " +
+      "Platina is present in the current line but not the previous line",
+    () => {
+      // Arrange
+      deck.lastEntryProcessed = "pNick plays 2 Coppers and a Platinum. (+$7)";
+
+      // Act and Assert - Simulate playing a Gold after playing 2 Coppers.
+      expect(
+        deck.getConsecutiveTreasurePlayCounts(
+          "pNick plays 2 Coppers and 2 Platina. (+$12)"
+        )
+      ).toStrictEqual([0, 0, 0, 1]);
+    }
+  );
 
   it("should return an array with the correct number of each treasure to play even if there are multiple treasures that have differences greater than 1", () => {
     // Arrange

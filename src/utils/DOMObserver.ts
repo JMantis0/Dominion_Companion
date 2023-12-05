@@ -393,16 +393,16 @@ export class DOMObserver {
       "Sage", //Done
       "Sea Chart", //Done
       "Sentinel", //Done
-      "Shanty Town",
-      "Storeroom",
+      "Shanty Town", //Done
+      "Storeroom", //Done
       "Swindler", //Done
-      "Warehouse",
-      "Armory",
-      "Conspirator",
-      "Courier",
-      "Cutpurse",
-      "Dismantle",
-      "Farming Village",
+      "Warehouse", //Done
+      "Armory", //Done
+      "Conspirator", //Done
+      "Courier", //Done
+      "Cutpurse", //Done
+      "Dismantle", //Done
+      "Farming Village", //Done
       "Fortune Hunter",
       "Mountain Village",
       "Remake",
@@ -437,6 +437,9 @@ export class DOMObserver {
       "Altar",
       "Marquis",
       "Expand",
+      "Necropolis",
+      "Hovel",
+      "Overgrown Estate",
     ];
     for (let i = 0; i < kingdom.length; i++) {
       if (!baseCards.includes(kingdom[i])) {

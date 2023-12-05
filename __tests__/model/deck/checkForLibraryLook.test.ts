@@ -11,7 +11,7 @@ describe("checkForLibraryLook", () => {
 
   it("should return true when the current line is looking at a card due to a Library play", () => {
     // Arrange
-    deck.latestPlay = "Library";
+    deck.latestAction = "Library";
 
     // Act and Assert
     expect(deck.checkForLibraryLook("pNick looks at a Silver.")).toBeTruthy();
@@ -19,7 +19,7 @@ describe("checkForLibraryLook", () => {
 
   it("should return false when the curring line is looking at a card but it was not due to a Library play", () => {
     // Arrange
-    deck.latestPlay = "Sentry";
+    deck.latestAction = "Sentry";
 
     // Act and Assert
     expect(deck.checkForLibraryLook("pNick looks at 2 Coppers.")).toBeFalsy();
