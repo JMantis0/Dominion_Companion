@@ -148,4 +148,56 @@ describe("processTrashesLine", () => {
     // Verify hand is not changed
     expect(deck.hand).toStrictEqual(["Silver", "Estate"]);
   });
+
+  it(
+    "should trash from inPlay if the latestAction is 'Treasure Map' and the lastEntryProcessed " +
+      "matches ' plays a Treasure Map.",
+    () => {
+      // Arrange
+      deck.lastEntryProcessed = "P plays a Treasure Map.";
+      deck.latestAction = "Treasure Map";
+      deck.entireDeck = ["Treasure Map", "Copper", "Estate"];
+      deck.inPlay = ["Treasure Map"];
+      deck.library = ["Copper"];
+      deck.hand = ["Estate"];
+      deck.trash = ["Copper"];
+
+      // Act
+      deck.processTrashesLine(["Treasure Map"], [1]);
+
+      // Assert - Verify the card was trashed from inPlay
+      expect(deck.inPlay).toStrictEqual([]);
+      expect(deck.trash).toStrictEqual(["Copper", "Treasure Map"]);
+      // Verify the card was removed from the entire deck.
+      expect(deck.entireDeck).toStrictEqual(["Copper", "Estate"]);
+    }
+  );
+
+  it(
+    "should trash from hand if the latestAction is 'Treasure Map' and the lastEntryProcessed " +
+      "matches ' trashes a Treasure Map.",
+    () => {
+      // Arrange
+      deck.lastEntryProcessed = "P trashes Treasure Map.";
+      deck.latestAction = "Treasure Map";
+      deck.entireDeck = ["Treasure Map", "Copper", "Estate"];
+      deck.inPlay = [];
+      deck.library = ["Copper"];
+      deck.hand = ["Estate", "Treasure Map"];
+      deck.trash = ["Copper", "Treasure Map"];
+
+      // Act
+      deck.processTrashesLine(["Treasure Map"], [1]);
+
+      // Assert - Verify the card was trashed from inPlay
+      expect(deck.hand).toStrictEqual(["Estate"]);
+      expect(deck.trash).toStrictEqual([
+        "Copper",
+        "Treasure Map",
+        "Treasure Map",
+      ]);
+      // Verify the card was removed from the entire deck.
+      expect(deck.entireDeck).toStrictEqual(["Copper", "Estate"]);
+    }
+  );
 });

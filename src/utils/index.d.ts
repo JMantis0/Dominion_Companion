@@ -102,7 +102,6 @@ interface OpponentStoreDeck {
   trash: Array<string>;
   lastEntryProcessed: string;
   logArchive: Array<string>;
-  treasurePopped: boolean;
   debug: boolean;
 }
 
@@ -215,7 +214,6 @@ interface StoreDeck {
   rating: string;
   setAside: Array<string>;
   trash: Array<string>;
-  treasurePopped: boolean;
   waitToDrawLibraryLook: boolean;
   waitToShuffle: boolean;
   debug: boolean;

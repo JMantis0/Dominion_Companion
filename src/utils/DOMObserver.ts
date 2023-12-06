@@ -308,10 +308,7 @@ export class DOMObserver {
     const procArr = logsProcessed.split("\n").slice();
     const gLogArr = gameLog.split("\n").slice();
     const lastGameLogEntry = gLogArr.slice().pop();
-    if (
-      DOMObserver.isLogEntryBuyWithoutGain(lastGameLogEntry!)
-      // || DOMObserver.isMerchantBonusLine(lastGameLogEntry!)
-    ) {
+    if (DOMObserver.isLogEntryBuyWithoutGain(lastGameLogEntry!)) {
       areNewLogs = false;
     } else if (
       procArr.length === gLogArr.length + 1 &&
@@ -321,6 +318,17 @@ export class DOMObserver {
     } else if (procArr.length > gLogArr.length) {
       throw new Error("Processed logs Larger than game log");
     } else if (gLogArr.length > procArr.length) {
+      const lastLineProcessed = procArr.slice().pop();
+      if (lastLineProcessed !== gLogArr[procArr.length - 1]) {
+        console.log(
+          "Unequal lines, but last line of processed logs is not equal to its mate in gamelog"
+        );
+        console.log("LastLine Processed ", lastLineProcessed);
+        console.log("mated Gamelog line", gLogArr[procArr.length - 1]);
+        console.log("Popping off last line from logsProcessed");
+        procArr.pop();
+        DOMObserver.setLogsProcessed(procArr.join("\n"));
+      }
       areNewLogs = true;
     } else if (procArr.slice().pop() !== gLogArr.slice().pop()) {
       areNewLogs = true;
@@ -382,8 +390,8 @@ export class DOMObserver {
       "Duchy",
       "Estate",
       "Curse",
-      "Colony",
-      "Platinum",
+      "Colony", //Done
+      "Platinum", //Done
       "Courtyard", //Done
       "Hamlet", // Done
       "Lookout", // Done
@@ -403,11 +411,11 @@ export class DOMObserver {
       "Cutpurse", //Done
       "Dismantle", //Done
       "Farming Village", //Done
-      "Fortune Hunter",
-      "Mountain Village",
-      "Remake",
-      "Salvager",
-      "Scavenger",
+      "Fortune Hunter", //Done
+      "Mountain Village", //Done
+      "Remake", //Done
+      "Salvager", //Done
+      "Scavenger", //Done
       "Treasure Map",
       "Wandering Minstrel",
       "Worker's Village",

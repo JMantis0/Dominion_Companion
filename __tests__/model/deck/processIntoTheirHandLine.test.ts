@@ -43,4 +43,16 @@ describe("processIntoTheirHandLine", () => {
     expect(deck.setAside).toStrictEqual(["Copper", "Copper"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
   });
+
+  it("should draw cards into hand from graveyard when caused by a Mountain Village", () => {
+    // Arrange
+    deck.latestAction = "Mountain Village";
+    deck.graveyard = ["Copper", "Copper", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Vassal"], [1]);
+
+    expect(deck.graveyard).toStrictEqual(["Copper", "Copper"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
+  });
 });

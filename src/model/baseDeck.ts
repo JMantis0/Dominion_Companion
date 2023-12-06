@@ -9,13 +9,15 @@ export class BaseDeck {
   gameTurn: number;
   kingdom: Array<string> = [];
   lastEntryProcessed: string = "";
+  latestAction: string = "None";
+  latestPlay: string = "None";
+  latestPlaySource: string = "None";
   logArchive: Array<string> = [];
   playerName: string = "";
   playerNick: string = "";
   ratedGame: boolean;
   rating: string;
   trash: Array<string> = [];
-  treasurePopped: boolean = false;
 
   constructor(
     gameTitle: string,
@@ -105,6 +107,30 @@ export class BaseDeck {
     this.lastEntryProcessed = line;
   }
 
+  getLatestAction(): string {
+    return this.latestAction;
+  }
+
+  setLatestAction(card: string): void {
+    this.latestAction = card;
+  }
+
+  getLatestPlay(): string {
+    return this.latestPlay;
+  }
+
+  setLatestPlay(card: string): void {
+    this.latestPlay = card;
+  }
+
+  getLatestPlaySource(): string {
+    return this.latestPlaySource;
+  }
+
+  setLatestPlaySource(card: string): void {
+    this.latestPlaySource = card;
+  }
+
   getLogArchive(): string[] {
     return this.logArchive;
   }
@@ -153,20 +179,12 @@ export class BaseDeck {
     this.trash = trash;
   }
 
-  getTreasurePopped(): boolean {
-    return this.treasurePopped;
-  }
-
-  setTreasurePopped(popped: boolean) {
-    this.treasurePopped = popped;
-  }
-
   /**
    * Adds one instance of the card to the entireDeck field array.
    * @param card - The The given card.
    */
   addCardToEntireDeck(card: string) {
-    if (this.debug) console.info(`Gaining ${card} into deck.`);
+    if (this.debug) console.info(`Gaining ${card} into entireDeck.`);
     const entireDeckCopy = this.entireDeck.slice();
     entireDeckCopy.push(card);
     this.setEntireDeck(entireDeckCopy);
@@ -268,6 +286,44 @@ export class BaseDeck {
     return consecutiveBuysOfTheSameCard;
   }
 
+
+  /**
+   * Returns boolean for whether the current line and most recent line are consecutive gains
+   * without buying.
+   * @param line - The given line.
+   * @returns - Boolean for whether the current line and most recent line are consecutive gains without buying.
+   */
+  consecutiveGainWithoutBuy(line: string): boolean {
+    const consecutive: boolean =
+      this.lastEntryProcessed.match(" gains ") !== null &&
+      this.lastEntryProcessed.match(" buys ") === null &&
+      line.match(" gains ") !== null &&
+      line.match(" buys ") === null;
+    return consecutive;
+  }
+
+  /**
+   * Returns a boolean for whether the current line and the most recent
+   * logArchive entry are consecutive Sage reveals.
+   * @param line - The given line.
+   * @returns - Boolean
+   */
+  consecutiveReveals(line: string): boolean {
+    return (
+      line.match(" reveals ") !== null &&
+      ["Sage", "Farming Village"].includes(this.latestAction) &&
+      this.lastEntryProcessed.match(" reveals ") !== null
+    );
+  }
+
+  consecutiveTrash(line: string): boolean {
+    const consecutiveTrashes =
+      line.match(" trashes ") !== null &&
+      this.lastEntryProcessed.match(" trashes ") !== null &&
+      this.latestAction !== "Treasure Map";
+    return consecutiveTrashes;
+  }
+
   /**
    * Checks to see if the current line is a consecutive treasure play.
    * @param entry - The log entry to be checked.
@@ -294,10 +350,24 @@ export class BaseDeck {
     let act: string = "";
     let cards: Array<string> = [];
     let number: Array<number> = [];
-    if (this.consecutiveTreasurePlays(line)) {
+    if (
+      this.consecutiveTreasurePlays(line) &&
+      // If treasures that are not played from hand should not trigger
+      // consecutive treasure plays.
+      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource)
+    ) {
       number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
       cards = ["Copper", "Silver", "Gold", "Platinum"];
+    } else if (this.consecutiveReveals(line)) {
+      [cards, number] = this.handleConsecutiveReveals(line);
+      act = "reveals";
+    } else if (this.consecutiveTrash(line)) {
+      act = "trashes";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveGainWithoutBuy(line)) {
+      act = "gains";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromEntry(line);
       [cards, number] = this.getCardsAndCountsFromEntry(line);
@@ -339,6 +409,7 @@ export class BaseDeck {
       "passes",
       "into their hand",
       "back onto their deck",
+      "moves their deck to the discard",
     ];
     const entryWithoutNickName = entry.slice(this.playerNick.length);
     for (let i = 0; i < actionArray.length; i++) {
@@ -469,7 +540,6 @@ export class BaseDeck {
     ];
 
     this.popLastLogArchiveEntry(this.logArchive);
-    this.setTreasurePopped(true);
     return amountsToPlay;
   }
 
@@ -511,6 +581,33 @@ export class BaseDeck {
     return amendedAmount;
   }
 
+  handleConsecutiveDuplicates(line: string): [string[], number[]] {
+    const [currCards, currNumberOfCards] =
+      this.getCardsAndCountsFromEntry(line);
+    const [prevCards, prevNumberOfCards] = this.getCardsAndCountsFromEntry(
+      this.lastEntryProcessed
+    );
+    const map = new Map<string, number>();
+    currCards.forEach((card, idx) => {
+      map.set(card, currNumberOfCards[idx]);
+    });
+    prevCards.forEach((card, idx) => {
+      map.set(card, map.get(card)! - prevNumberOfCards[idx]);
+    });
+    const cards: string[] = [];
+    const numberOfCards: number[] = [];
+    Array.from(map.entries()).forEach((entry) => {
+      const card = entry[0];
+      const number = entry[1];
+      cards.push(card);
+      numberOfCards.push(number);
+    });
+
+    this.popLastLogArchiveEntry(this.logArchive);
+
+    return [cards, numberOfCards];
+  }
+
   /**
    * Removes duplicate merchant bonus lines from the logArchive.
    */
@@ -536,7 +633,7 @@ export class BaseDeck {
     line: string,
     reconciling?: "reconcile"
   ): [string[], number[]] {
-    // Need to compare the two consecutive lines.  If there is no invervening shuffle and both
+    // Need to compare the two consecutive lines.  If there is no intervening shuffle and both
     // Lines contain the same card types, the most recent logArchiveEntry must be popped.
     const intercedingShuffle =
       this.logArchive.slice().pop()?.match(" shuffles their deck") !== null;

@@ -6,10 +6,6 @@ describe("Method update", () => {
   let deck: OpponentDeck;
   // Spy on method dependencies
 
-  const setTreasurePopped = jest.spyOn(
-    OpponentDeck.prototype,
-    "setTreasurePopped"
-  );
   const logEntryAppliesToThisDeck = jest.spyOn(
     OpponentDeck.prototype,
     "logEntryAppliesToThisDeck"
@@ -52,8 +48,6 @@ describe("Method update", () => {
     // Act - simulate updating the opponent deck with a log that plays a Chapel
     deck.update(log);
 
-    // Assert - Verify that the treasurePopped field is set to false
-    expect(setTreasurePopped).toBeCalledWith(false);
     // Verify the logEntryAppliesToThisDeck method was called and returned true
     expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
     expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
@@ -89,8 +83,6 @@ describe("Method update", () => {
     // Act - simulate an update with a log that is not a consecutive treasure play
     deck.update(log);
 
-    // Assert - Verify that the treasurePopped field is set to false
-    expect(setTreasurePopped).toBeCalledWith(false);
     // Verify getActsCardsAndCounts is called with the correct arguments and returns correctly
     expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(getActCardsAndCounts).toBeCalledWith(log[0]);
@@ -131,8 +123,6 @@ describe("Method update", () => {
     // Act - Simulate updating with 3 logs in one call
     deck.update(log);
 
-    // Assert - Verify setTreasurePopped was called 3 times (number of lines in log)
-    expect(setTreasurePopped).toBeCalledTimes(3);
     // Verify getActCardsAndCounts was called 3 times, with the correct arguments.
     expect(getActCardsAndCounts).toBeCalledTimes(3);
     expect(getActCardsAndCounts).nthCalledWith(1, log[0]);
@@ -195,10 +185,6 @@ describe("Method update", () => {
     // Act - simulate an opponent making a consecutive treasure play.
     deck.update(["pNick plays 2 Coppers."]);
 
-    // Assert - Verify treasurePopped was set to false, and then set to true
-    expect(setTreasurePopped).toBeCalledTimes(2);
-    expect(setTreasurePopped).nthCalledWith(1, false);
-    expect(setTreasurePopped).nthCalledWith(2, true);
     expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
     // Verify consecutiveTreasurePlays was called and returned the mock value true
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);

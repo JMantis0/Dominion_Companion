@@ -5,7 +5,7 @@ describe("areNewLogsToSend", () => {
   it("should throw an error when processed logs are larger than game log.", () => {
     // Arrange
     const logsProcessed = "Log1\nLog2\nLog3\nLog4\n";
-    const gameLog = "Log1\nLog2\nLog3\n";
+    const gameLog = "Log1\nLog2\nLog3";
 
     // Act and Assert - Simulate checking for new logs when there are more logsProcessed lines than gameLog lines.  This indicates there is some buggy behavior in the deck logic.
     expect(() =>
@@ -15,8 +15,8 @@ describe("areNewLogsToSend", () => {
 
   it("should return true when there are more gameLogLines than logsProcessed lines.", () => {
     // Arrange
-    const logsProcessed = "Log1\nLog2\nLog3\n";
-    const gameLog = "Log1\nLog2\nLog3\nLog4\n";
+    const logsProcessed = "Log1\nLog2\nLog3";
+    const gameLog = "Log1\nLog2\nLog3\nLog4";
 
     // Act and Assert - Simulate checking for new logs when there are more gameLog lines than logsProcessed lines.
     expect(DOMObserver.areNewLogsToSend(logsProcessed, gameLog)).toBe(true);
@@ -67,4 +67,15 @@ describe("areNewLogsToSend", () => {
     // Act and Assert - Simulate checking for new logs when the last gameLog line is a 'Merchant Bonus Line' and logsProcessed has exactly one more line than gameLog.
     expect(DOMObserver.areNewLogsToSend(logsProcessed, gameLog)).toBe(true);
   });
+
+  it(
+    "should check whether the last logsProcessed line is equal to the corresponding line in the gameLog" +
+      "and if so, remove the last entry of the logsProcessed",
+    () => {
+      const logsProcessed = "Log1\nLog2\nLog3Different";
+      const gameLog = "Log1\nLog2\nLog3\nLog4\nLog5";
+      DOMObserver.areNewLogsToSend(logsProcessed, gameLog);
+      expect(DOMObserver.logsProcessed).toBe("Log1\nLog2");
+    }
+  );
 });

@@ -15,9 +15,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   graveyard: Array<string> = [];
   hand: Array<string> = [];
   inPlay: Array<string> = [];
-  latestAction: string = "None";
-  latestPlay: string = "None";
-  latestPlaySource: string = "None";
   library: Array<string> = [];
   setAside: Array<string> = [];
   waitToDrawLibraryLook: boolean = false;
@@ -63,30 +60,6 @@ export class Deck extends BaseDeck implements StoreDeck {
 
   setInPlay(inPlay: Array<string>) {
     this.inPlay = inPlay;
-  }
-
-  getLatestAction(): string {
-    return this.latestAction;
-  }
-
-  setLatestAction(card: string): void {
-    this.latestAction = card;
-  }
-
-  getLatestPlay(): string {
-    return this.latestPlay;
-  }
-
-  setLatestPlay(card: string): void {
-    this.latestPlay = card;
-  }
-
-  getLatestPlaySource(): string {
-    return this.latestPlaySource;
-  }
-
-  setLatestPlaySource(card: string): void {
-    this.latestPlaySource = card;
   }
 
   getLibrary() {
@@ -349,20 +322,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
-   * Returns a boolean for whether the current line and the most recent
-   * logArchive entry are consecutive Sage reveals.
-   * @param line - The given line.
-   * @returns - Boolean
-   */
-  consecutiveReveals(line: string): boolean {
-    return (
-      line.match(" reveals ") !== null &&
-      ["Sage", "Farming Village"].includes(this.latestAction) &&
-      this.lastEntryProcessed.match(" reveals ") !== null
-    );
-  }
-
-  /**
    * Checks hand field array to see if card is there.  If yes,
    * removes an instance of that card from the hand field array
    * and adds an instance of that card to the graveyard field array.
@@ -468,6 +427,21 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.drawFromSetAside(prevLineCard);
   }
 
+  drawFromGraveyard(card: string) {
+    const index = this.graveyard.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in discard.`);
+    } else {
+      if (this.debug) console.info(`Drawing ${card} from discard into hand.`);
+      const handCopy = this.hand.slice();
+      const graveyardCopy = this.graveyard.slice();
+      handCopy.push(card);
+      graveyardCopy.splice(index, 1);
+      this.setHand(handCopy);
+      this.setGraveyard(graveyardCopy);
+    }
+  }
+
   /**
    * Draws the given card from the setAside zone into hand.
    * @param card - The given card.
@@ -534,52 +508,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     libraryCopy.push(card);
     this.setLibrary(libraryCopy);
     this.addCardToEntireDeck(card);
-  }
-
-  /**
-   * Function gets required details from the current line
-   * @param line - Current line being processed through the update method.
-   * @returns - on object containing the act from the line, an array of cards from the line
-   * and a corresponding array of numbers for the amounts of cards from the line.
-   */
-  getActCardsAndCounts(line: string): {
-    act: string;
-    cards: string[];
-    numberOfCards: number[];
-  } {
-    let act: string = "";
-    let cards: Array<string> = [];
-    let number: Array<number> = [];
-    if (
-      this.consecutiveTreasurePlays(line) &&
-      // If treasures that are not played from hand should not trigger
-      // consecutive treasure plays.
-      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource)
-    ) {
-      number = this.getConsecutiveTreasurePlayCounts(line);
-      act = "plays";
-      cards = ["Copper", "Silver", "Gold", "Platinum"];
-    } else if (this.consecutiveReveals(line)) {
-      [cards, number] = this.handleConsecutiveReveals(line);
-      act = "reveals";
-    } else {
-      act = this.getActionFromEntry(line);
-      [cards, number] = this.getCardsAndCountsFromEntry(line);
-      //Pop off repeated buy log entry if needed
-      if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
-        number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
-      }
-    }
-    const lineInfo: {
-      act: string;
-      cards: string[];
-      numberOfCards: number[];
-    } = {
-      act: act,
-      cards: cards,
-      numberOfCards: number,
-    };
-    return lineInfo;
   }
 
   /**
@@ -900,6 +828,10 @@ export class Deck extends BaseDeck implements StoreDeck {
         break;
       case "back onto their deck":
         this.processTopDecksLine(cards, numberOfCards);
+        break;
+      case "moves their deck to the discard":
+        this.processMovesTheirDeckToTheDiscardLine();
+        break;
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -972,7 +904,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Bureaucrat", "Armory"].includes(mostRecentPlay)) {
+        if (["Bureaucrat", "Armory", "Treasure Map"].includes(mostRecentPlay)) {
           this.gainIntoLibrary(cards[i]);
         } else if (this.isArtisanGain() || this.isMineGain()) {
           this.gainIntoHand(cards[i]);
@@ -1000,7 +932,9 @@ export class Deck extends BaseDeck implements StoreDeck {
   processIntoTheirHandLine(cards: string[], numberOfCards: number[]) {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        this.drawFromSetAside(cards[i]);
+        if (["Mountain Village"].includes(this.latestAction)) {
+          this.drawFromGraveyard(cards[i]);
+        } else this.drawFromSetAside(cards[i]);
       }
     }
   }
@@ -1052,6 +986,16 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  /**
+   * Update method, discards all cards in the library from
+   * the library to the graveyard.
+   */
+  processMovesTheirDeckToTheDiscardLine() {
+    const libraryCopy = this.library.slice().reverse();
+    while (libraryCopy.length > 0) {
+      this.discardFromLibrary(libraryCopy.pop()!);
+    }
+  }
   /**
    * Update method handles passes of cards from one player to another.
    * @param cards - The cards being passed.
@@ -1154,7 +1098,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
-        } else if (mostRecentAction === "Harbinger") {
+        } else if (["Harbinger", "Scavenger"].includes(mostRecentAction)) {
           this.topDeckFromGraveyard(cards[i]);
         } else if (
           ["Artisan", "Bureaucrat", "Courtyard"].includes(mostRecentAction)
@@ -1172,6 +1116,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   processTrashesLine(cards: string[], numberOfCards: number[]) {
     const mostRecentPlay = this.latestAction;
+    console.log(
+      "latestAction ",
+      mostRecentPlay,
+      mostRecentPlay === "Treasure Map"
+    );
+    console.log("this.lastEntryProcessed is", this.lastEntryProcessed);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1180,6 +1130,11 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.trashFromSetAside(cards[i]);
         } else if (["Swindler"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
+        } else if (
+          mostRecentPlay === "Treasure Map" &&
+          this.lastEntryProcessed.match(" plays a Treasure Map.") !== null
+        ) {
+          this.trashFromInPlay(cards[i]);
         } else {
           this.trashFromHand(cards[i]);
         }
@@ -1354,6 +1309,22 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  trashFromInPlay(card: string) {
+    const index = this.inPlay.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in play.`);
+    } else {
+      if (this.debug) console.info(`Trashing ${card} from inPlay.`);
+      const trashCopy = this.trash.slice();
+      const inPlayCopy = this.inPlay.slice();
+      trashCopy.push(card);
+      inPlayCopy.splice(index, 1);
+      this.setTrash(trashCopy);
+      this.setInPlay(inPlayCopy);
+      this.removeCardFromEntireDeck(card);
+    }
+  }
+
   /**
    * Checks if the given card is in the library field array. If yes,
    * then removes one instance of the card from the library field array
@@ -1406,7 +1377,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   update(log: Array<string>) {
     log.forEach((line) => {
       if (this.debug) console.group(line);
-      this.setTreasurePopped(false);
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
       if (this.isConsecutiveMerchantBonus(line)) {
         this.handleConsecutiveMerchantBonus();
