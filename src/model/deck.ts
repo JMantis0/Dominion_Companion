@@ -15,9 +15,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   graveyard: Array<string> = [];
   hand: Array<string> = [];
   inPlay: Array<string> = [];
-  latestAction: string = "None";
-  latestPlay: string = "None";
-  latestPlaySource: string = "None";
   library: Array<string> = [];
   setAside: Array<string> = [];
   waitToDrawLibraryLook: boolean = false;
@@ -63,30 +60,6 @@ export class Deck extends BaseDeck implements StoreDeck {
 
   setInPlay(inPlay: Array<string>) {
     this.inPlay = inPlay;
-  }
-
-  getLatestAction(): string {
-    return this.latestAction;
-  }
-
-  setLatestAction(card: string): void {
-    this.latestAction = card;
-  }
-
-  getLatestPlay(): string {
-    return this.latestPlay;
-  }
-
-  setLatestPlay(card: string): void {
-    this.latestPlay = card;
-  }
-
-  getLatestPlaySource(): string {
-    return this.latestPlaySource;
-  }
-
-  setLatestPlaySource(card: string): void {
-    this.latestPlaySource = card;
   }
 
   getLibrary() {
@@ -349,20 +322,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
-   * Returns a boolean for whether the current line and the most recent
-   * logArchive entry are consecutive Sage reveals.
-   * @param line - The given line.
-   * @returns - Boolean
-   */
-  consecutiveReveals(line: string): boolean {
-    return (
-      line.match(" reveals ") !== null &&
-      ["Sage", "Farming Village"].includes(this.latestAction) &&
-      this.lastEntryProcessed.match(" reveals ") !== null
-    );
-  }
-
-  /**
    * Checks hand field array to see if card is there.  If yes,
    * removes an instance of that card from the hand field array
    * and adds an instance of that card to the graveyard field array.
@@ -549,52 +508,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     libraryCopy.push(card);
     this.setLibrary(libraryCopy);
     this.addCardToEntireDeck(card);
-  }
-
-  /**
-   * Function gets required details from the current line
-   * @param line - Current line being processed through the update method.
-   * @returns - on object containing the act from the line, an array of cards from the line
-   * and a corresponding array of numbers for the amounts of cards from the line.
-   */
-  getActCardsAndCounts(line: string): {
-    act: string;
-    cards: string[];
-    numberOfCards: number[];
-  } {
-    let act: string = "";
-    let cards: Array<string> = [];
-    let number: Array<number> = [];
-    if (
-      this.consecutiveTreasurePlays(line) &&
-      // If treasures that are not played from hand should not trigger
-      // consecutive treasure plays.
-      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource)
-    ) {
-      number = this.getConsecutiveTreasurePlayCounts(line);
-      act = "plays";
-      cards = ["Copper", "Silver", "Gold", "Platinum"];
-    } else if (this.consecutiveReveals(line)) {
-      [cards, number] = this.handleConsecutiveReveals(line);
-      act = "reveals";
-    } else {
-      act = this.getActionFromEntry(line);
-      [cards, number] = this.getCardsAndCountsFromEntry(line);
-      //Pop off repeated buy log entry if needed
-      if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
-        number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
-      }
-    }
-    const lineInfo: {
-      act: string;
-      cards: string[];
-      numberOfCards: number[];
-    } = {
-      act: act,
-      cards: cards,
-      numberOfCards: number,
-    };
-    return lineInfo;
   }
 
   /**
@@ -1423,7 +1336,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   update(log: Array<string>) {
     log.forEach((line) => {
       if (this.debug) console.group(line);
-      this.setTreasurePopped(false);
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
       if (this.isConsecutiveMerchantBonus(line)) {
         this.handleConsecutiveMerchantBonus();

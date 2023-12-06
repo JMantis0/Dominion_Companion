@@ -2,7 +2,7 @@ import { describe, it, expect } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("The BaseDeck setter methods", () => {
-  const oDeck = new BaseDeck(
+  const bDeck = new BaseDeck(
     "Title",
     false,
     "Ranking",
@@ -11,55 +11,48 @@ describe("The BaseDeck setter methods", () => {
     ["Sample", "Kingdom", "Estate"]
   );
   it("should correctly set the value of of the deck fields", () => {
-    oDeck.setCurrentVP(20);
-    expect(oDeck.currentVP).toBe(20);
-
-    oDeck.setDebug(true);
-    expect(oDeck.debug).toBe(true);
-
-    oDeck.setEntireDeck(["Sample", "Entire", "Deck", "Bandit"]);
-    expect(oDeck.entireDeck).toStrictEqual([
+    bDeck.setCurrentVP(20);
+    expect(bDeck.currentVP).toBe(20);
+    bDeck.setDebug(true);
+    expect(bDeck.debug).toBe(true);
+    bDeck.setEntireDeck(["Sample", "Entire", "Deck", "Bandit"]);
+    expect(bDeck.entireDeck).toStrictEqual([
       "Sample",
       "Entire",
       "Deck",
       "Bandit",
     ]);
+    bDeck.setGameResult("Victory");
+    expect(bDeck.gameResult).toBe("Victory");
+    bDeck.setGameTitle("New Title");
+    expect(bDeck.gameTitle).toBe("New Title");
+    bDeck.setGameTurn(14);
+    expect(bDeck.gameTurn).toBe(14);
+    bDeck.setKingdom(["New", "Sample", "Kingdom", "Estate"]);
+    expect(bDeck.kingdom).toStrictEqual(["New", "Sample", "Kingdom", "Estate"]);
 
-    oDeck.setGameResult("Victory");
-    expect(oDeck.gameResult).toBe("Victory");
-
-    oDeck.setGameTitle("New Title");
-    expect(oDeck.gameTitle).toBe("New Title");
-
-    oDeck.setGameTurn(14);
-    expect(oDeck.gameTurn).toBe(14);
-
-    oDeck.setKingdom(["New", "Sample", "Kingdom", "Estate"]);
-    expect(oDeck.kingdom).toStrictEqual(["New", "Sample", "Kingdom", "Estate"]);
-
-    oDeck.setLastEntryProcessed("Sample lastEntryProcessed.");
-    expect(oDeck.lastEntryProcessed).toStrictEqual(
+    bDeck.setLastEntryProcessed("Sample lastEntryProcessed.");
+    expect(bDeck.lastEntryProcessed).toStrictEqual(
       "Sample lastEntryProcessed."
     );
+    bDeck.setLatestAction("Sample Latest Action");
+    expect(bDeck.latestAction).toBe("Sample Latest Action");
+    bDeck.setLatestPlay("Sample Latest Play");
+    expect(bDeck.latestPlay).toBe("Sample Latest Play");
+    bDeck.setLatestPlaySource("Vassal");
+    expect(bDeck.latestPlaySource).toBe("Vassal");
+    bDeck.setLogArchive(["Log1", "Log2", "Log3"]);
+    expect(bDeck.logArchive).toStrictEqual(["Log1", "Log2", "Log3"]);
+    bDeck.setPlayerName("New Opponent Name");
+    expect(bDeck.playerName).toBe("New Opponent Name");
+    bDeck.setPlayerNick("New Nickname");
+    expect(bDeck.playerNick).toBe("New Nickname");
+    bDeck.setRatedGame(true);
+    expect(bDeck.ratedGame).toBe(true);
+    bDeck.setRating("New Rating");
+    expect(bDeck.rating).toBe("New Rating");
+    bDeck.setTrash(["New", "Sample", "Trash", "Zone"]);
+    expect(bDeck.trash).toStrictEqual(["New", "Sample", "Trash", "Zone"]);
 
-    oDeck.setLogArchive(["Log1", "Log2", "Log3"]);
-    expect(oDeck.logArchive).toStrictEqual(["Log1", "Log2", "Log3"]);
-
-    oDeck.setPlayerName("New Opponent Name");
-    expect(oDeck.playerName).toBe("New Opponent Name");
-
-    oDeck.setPlayerNick("New Nickname");
-    expect(oDeck.playerNick).toBe("New Nickname");
-
-    oDeck.setRatedGame(true);
-    expect(oDeck.ratedGame).toBe(true);
-    oDeck.setRating("New Rating");
-    expect(oDeck.rating).toBe("New Rating");
-
-    oDeck.setTrash(["New", "Sample", "Trash", "Zone"]);
-    expect(oDeck.trash).toStrictEqual(["New", "Sample", "Trash", "Zone"]);
-
-    oDeck.setTreasurePopped(true);
-    expect(oDeck.treasurePopped).toBe(true);
   });
 });

@@ -14,7 +14,6 @@ export class EmptyOpponentDeck {
   trash: Array<string> = [];
   lastEntryProcessed: string = "";
   logArchive: Array<string> = [];
-  treasurePopped: boolean = false;
   debug: boolean = false;
   constructor() {}
 }

@@ -21,6 +21,5 @@ export class EmptyDeck {
   setAside: Array<string> = [];
   waitToShuffle: boolean = false;
   waitToDrawLibraryLook: boolean = false;
-  treasurePopped: boolean = false;
   constructor() {}
 }

@@ -9,13 +9,15 @@ export class BaseDeck {
   gameTurn: number;
   kingdom: Array<string> = [];
   lastEntryProcessed: string = "";
+  latestAction: string = "None";
+  latestPlay: string = "None";
+  latestPlaySource: string = "None";
   logArchive: Array<string> = [];
   playerName: string = "";
   playerNick: string = "";
   ratedGame: boolean;
   rating: string;
   trash: Array<string> = [];
-  treasurePopped: boolean = false;
 
   constructor(
     gameTitle: string,
@@ -105,6 +107,30 @@ export class BaseDeck {
     this.lastEntryProcessed = line;
   }
 
+  getLatestAction(): string {
+    return this.latestAction;
+  }
+
+  setLatestAction(card: string): void {
+    this.latestAction = card;
+  }
+
+  getLatestPlay(): string {
+    return this.latestPlay;
+  }
+
+  setLatestPlay(card: string): void {
+    this.latestPlay = card;
+  }
+
+  getLatestPlaySource(): string {
+    return this.latestPlaySource;
+  }
+
+  setLatestPlaySource(card: string): void {
+    this.latestPlaySource = card;
+  }
+
   getLogArchive(): string[] {
     return this.logArchive;
   }
@@ -151,14 +177,6 @@ export class BaseDeck {
 
   setTrash(trash: Array<string>): void {
     this.trash = trash;
-  }
-
-  getTreasurePopped(): boolean {
-    return this.treasurePopped;
-  }
-
-  setTreasurePopped(popped: boolean) {
-    this.treasurePopped = popped;
   }
 
   /**
@@ -269,6 +287,27 @@ export class BaseDeck {
   }
 
   /**
+   * Returns a boolean for whether the current line and the most recent
+   * logArchive entry are consecutive Sage reveals.
+   * @param line - The given line.
+   * @returns - Boolean
+   */
+  consecutiveReveals(line: string): boolean {
+    return (
+      line.match(" reveals ") !== null &&
+      ["Sage", "Farming Village"].includes(this.latestAction) &&
+      this.lastEntryProcessed.match(" reveals ") !== null
+    );
+  }
+
+  consecutiveTrash(line: string): boolean {
+    const consecutiveTrashes =
+      line.match(" trashes ") !== null &&
+      this.lastEntryProcessed.match(" trashes ") !== null;
+    return consecutiveTrashes;
+  }
+
+  /**
    * Checks to see if the current line is a consecutive treasure play.
    * @param entry - The log entry to be checked.
    * @returns - Boolean for whether the log entry and the last entry are both treasure plays.
@@ -294,10 +333,21 @@ export class BaseDeck {
     let act: string = "";
     let cards: Array<string> = [];
     let number: Array<number> = [];
-    if (this.consecutiveTreasurePlays(line)) {
+    if (
+      this.consecutiveTreasurePlays(line) &&
+      // If treasures that are not played from hand should not trigger
+      // consecutive treasure plays.
+      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource)
+    ) {
       number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
       cards = ["Copper", "Silver", "Gold", "Platinum"];
+    } else if (this.consecutiveReveals(line)) {
+      [cards, number] = this.handleConsecutiveReveals(line);
+      act = "reveals";
+    } else if (this.consecutiveTrash(line)) {
+      act = "trashes";
+      [cards, number] = this.handleConsecutiveTrashes(line);
     } else {
       act = this.getActionFromEntry(line);
       [cards, number] = this.getCardsAndCountsFromEntry(line);
@@ -469,7 +519,6 @@ export class BaseDeck {
     ];
 
     this.popLastLogArchiveEntry(this.logArchive);
-    this.setTreasurePopped(true);
     return amountsToPlay;
   }
 
@@ -509,6 +558,33 @@ export class BaseDeck {
     this.popLastLogArchiveEntry(logArchiveCopy);
     const amendedAmount: number = currCount - prevCount;
     return amendedAmount;
+  }
+
+  handleConsecutiveTrashes(line: string): [string[], number[]] {
+    const [currCards, currNumberOfCards] =
+      this.getCardsAndCountsFromEntry(line);
+    const [prevCards, prevNumberOfCards] = this.getCardsAndCountsFromEntry(
+      this.lastEntryProcessed
+    );
+    const map = new Map<string, number>();
+    currCards.forEach((card, idx) => {
+      map.set(card, currNumberOfCards[idx]);
+    });
+    prevCards.forEach((card, idx) => {
+      map.set(card, map.get(card)! - prevNumberOfCards[idx]);
+    });
+    const cards: string[] = [];
+    const numberOfCards: number[] = [];
+    Array.from(map.entries()).forEach((entry) => {
+      const card = entry[0];
+      const number = entry[1];
+      cards.push(card);
+      numberOfCards.push(number);
+    });
+
+    this.popLastLogArchiveEntry(this.logArchive);
+
+    return [cards, numberOfCards];
   }
 
   /**

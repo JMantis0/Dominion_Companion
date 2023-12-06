@@ -318,6 +318,17 @@ export class DOMObserver {
     } else if (procArr.length > gLogArr.length) {
       throw new Error("Processed logs Larger than game log");
     } else if (gLogArr.length > procArr.length) {
+      const lastLineProcessed = procArr.slice().pop();
+      if (lastLineProcessed !== gLogArr[procArr.length - 1]) {
+        console.log(
+          "Unequal lines, but last line of processed logs is not equal to its mate in gamelog"
+        );
+        console.log("LastLine Processed ", lastLineProcessed);
+        console.log("mated Gamelog line", gLogArr[procArr.length - 1]);
+        console.log("Popping off last line from logsProcessed");
+        procArr.pop();
+        DOMObserver.setLogsProcessed(procArr.join("\n"));
+      }
       areNewLogs = true;
     } else if (procArr.slice().pop() !== gLogArr.slice().pop()) {
       areNewLogs = true;
@@ -1153,27 +1164,25 @@ export class DOMObserver {
    */
   static logObserverFunc(mutationList?: MutationRecord[]) {
     mutationList;
-    if (mutationList)
-      for (let i = 0; i < mutationList.length; i++) {
-        console.group("Mutation ", i);
-        if (mutationList[i].addedNodes.length > 0) {
-          console.log("addedNodes:");
-          mutationList[i].addedNodes.forEach((node, idx) => {
-            const el = node as HTMLElement;
-            console.log(idx, el.innerText);
-            console.log(el.classList);
-          });
-        }
-        if (mutationList[i].removedNodes.length > 0) {
-          console.log("removedNodes:");
-          mutationList[i].removedNodes.forEach((node, idx) => {
-            const el = node as HTMLElement;
-            console.log(idx, el.innerText);
-            console.log(el.classList);
-          });
-        }
-        console.groupEnd();
-      }
+    // if (mutationList)
+    //   for (let i = 0; i < mutationList.length; i++) {
+    //     console.group("Mutation ", i);
+    //     if (mutationList[i].addedNodes.length > 0) {
+    //       console.log("addedNodes:");
+    //       mutationList[i].addedNodes.forEach((node, idx) => {
+    //         const el = node as HTMLElement;
+    //         console.log(idx, el.innerText);
+    //       });
+    //     }
+    //     if (mutationList[i].removedNodes.length > 0) {
+    //       console.log("removedNodes:");
+    //       mutationList[i].removedNodes.forEach((node, idx) => {
+    //         const el = node as HTMLElement;
+    //         console.log(idx, el.innerText);
+    //       });
+    //     }
+    //     console.groupEnd();
+    //   }
     const gameLog = DOMObserver.getClientGameLog();
     if (DOMObserver.areNewLogsToSend(DOMObserver.logsProcessed, gameLog)) {
       const storeDecks = DOMObserver.getNewLogsAndUpdateDecks(gameLog);

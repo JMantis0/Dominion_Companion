@@ -138,7 +138,6 @@ export class OpponentDeck extends BaseDeck {
   update(log: Array<string>) {
     log.forEach((line) => {
       if (this.debug) console.group(line);
-      this.setTreasurePopped(false);
       const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
       if (this.logEntryAppliesToThisDeck(line)) {
         this.processDeckChanges(line, act, cards, numberOfCards);
