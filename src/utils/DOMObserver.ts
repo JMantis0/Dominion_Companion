@@ -390,8 +390,8 @@ export class DOMObserver {
       "Duchy",
       "Estate",
       "Curse",
-      "Colony",
-      "Platinum",
+      "Colony", //Done
+      "Platinum", //Done
       "Courtyard", //Done
       "Hamlet", // Done
       "Lookout", // Done
@@ -412,10 +412,10 @@ export class DOMObserver {
       "Dismantle", //Done
       "Farming Village", //Done
       "Fortune Hunter", //Done
-      "Mountain Village",
-      "Remake",
-      "Salvager",
-      "Scavenger",
+      "Mountain Village", //Done
+      "Remake", //Done
+      "Salvager", //Done
+      "Scavenger", //Done
       "Treasure Map",
       "Wandering Minstrel",
       "Worker's Village",

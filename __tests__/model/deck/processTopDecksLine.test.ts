@@ -219,4 +219,18 @@ describe("processTopDecksLine", () => {
     expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
     expect(deck.hand).toStrictEqual(["Market"]);
   });
+
+  it("should move cards topdecked by a Scavenger from graveyard to the library", () => {
+    // Arrange
+    deck.latestAction = "Scavenger";
+    deck.graveyard = ["Copper", "Festival"];
+    deck.library = ["Estate", "Copper"];
+
+    // Act - Simulate topdecking a Festival with a Scavenger.
+    deck.processTopDecksLine(["Festival"], [1]);
+
+    // Assert - Verify the card was moved from graveyard to library
+    expect(deck.graveyard).toStrictEqual(["Copper"]);
+    expect(deck.library).toStrictEqual(["Estate", "Copper", "Festival"]);
+  });
 });

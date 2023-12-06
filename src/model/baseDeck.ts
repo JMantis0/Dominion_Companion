@@ -389,6 +389,7 @@ export class BaseDeck {
       "passes",
       "into their hand",
       "back onto their deck",
+      "moves their deck to the discard",
     ];
     const entryWithoutNickName = entry.slice(this.playerNick.length);
     for (let i = 0; i < actionArray.length; i++) {

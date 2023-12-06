@@ -828,6 +828,10 @@ export class Deck extends BaseDeck implements StoreDeck {
         break;
       case "back onto their deck":
         this.processTopDecksLine(cards, numberOfCards);
+        break;
+      case "moves their deck to the discard":
+        this.processMovesTheirDeckToTheDiscardLine();
+        break;
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -983,6 +987,16 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Update method, discards all cards in the library from
+   * the library to the graveyard.
+   */
+  processMovesTheirDeckToTheDiscardLine() {
+    const libraryCopy = this.library.slice().reverse();
+    while (libraryCopy.length > 0) {
+      this.discardFromLibrary(libraryCopy.pop()!);
+    }
+  }
+  /**
    * Update method handles passes of cards from one player to another.
    * @param cards - The cards being passed.
    * @param numberOfCards - The amounts of each card being passed
@@ -1084,7 +1098,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
-        } else if (mostRecentAction === "Harbinger") {
+        } else if (["Harbinger", "Scavenger"].includes(mostRecentAction)) {
           this.topDeckFromGraveyard(cards[i]);
         } else if (
           ["Artisan", "Bureaucrat", "Courtyard"].includes(mostRecentAction)
