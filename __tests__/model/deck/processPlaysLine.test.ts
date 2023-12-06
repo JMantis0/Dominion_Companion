@@ -5,9 +5,7 @@ describe("processPlaysLine", () => {
   // Declare Deck reference.
   let deck = new Deck("", false, "", "pNick", "pName", []);
   // mock checkForVassalPlay
-  const checkForVassalPlay = jest.spyOn(Deck.prototype, "checkForVassalPlay");
-  const checkForCourierPlay = jest.spyOn(Deck.prototype, "checkForCourierPlay");
-
+  const checkForNonHandPlay = jest.spyOn(Deck.prototype, "checkForNonHandPlay");
   beforeEach(() => {
     jest.resetAllMocks();
     deck = new Deck("", false, "", "pNick", "pName", []);
@@ -19,7 +17,7 @@ describe("processPlaysLine", () => {
     deck.hand = ["Chapel", "Market"];
     deck.inPlay = ["Cellar"];
     deck.graveyard = ["Estate"];
-    checkForVassalPlay.mockReturnValue(false);
+    checkForNonHandPlay.mockReturnValue("None");
     // Arguments for function being tested.
     const line = "pNick plays a Market.";
     const cards = ["Market"];
@@ -33,6 +31,8 @@ describe("processPlaysLine", () => {
     expect(deck.inPlay).toStrictEqual(["Cellar", "Market"]);
     // Verify graveyard was not changed
     expect(deck.graveyard).toStrictEqual(["Estate"]);
+    // Verify latestPlaySource was set correctly.
+    expect(deck.latestPlaySource).toBe("Hand");
   });
 
   it("should play cards played by Vassal from graveyard.", () => {
@@ -41,13 +41,13 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Moneylender", "Estate"];
-    checkForVassalPlay.mockReturnValue(true);
+    checkForNonHandPlay.mockReturnValue("Vassal");
     // Arguments for function being tested.
     const line = "pNick plays a Moneylender.";
     const cards = ["Moneylender"];
     const numberOfCards = [1];
 
-    // Act - Simulate playing a card from discard.
+    // Act - Simulate playing a card from discard with Vassal.
     deck.processPlaysLine(line, cards, numberOfCards);
 
     // Assert - Verify the card was played from the graveyard
@@ -55,6 +55,8 @@ describe("processPlaysLine", () => {
     expect(deck.inPlay).toStrictEqual(["Vassal", "Moneylender"]);
     // Verify hand is unchanged
     expect(deck.hand).toStrictEqual(["Copper", "Copper"]);
+    // Verify latestPlaySource was set correctly.
+    expect(deck.latestPlaySource).toBe("Vassal");
   });
 
   it("should play Action cards played by Courier from graveyard.", () => {
@@ -63,13 +65,13 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Moneylender", "Estate"];
-    checkForCourierPlay.mockReturnValue(true);
+    checkForNonHandPlay.mockReturnValue("Courier");
     // Arguments for function being tested.
     const line = "pNick plays a Moneylender.";
     const cards = ["Moneylender"];
     const numberOfCards = [1];
 
-    // Act - Simulate playing a card from discard.
+    // Act - Simulate playing an Action card from discard with Courier.
     deck.processPlaysLine(line, cards, numberOfCards);
 
     // Assert - Verify the card was played from the graveyard
@@ -77,6 +79,8 @@ describe("processPlaysLine", () => {
     expect(deck.inPlay).toStrictEqual(["Vassal", "Moneylender"]);
     // Verify hand is unchanged
     expect(deck.hand).toStrictEqual(["Copper", "Copper"]);
+    // Verify latestPlaySource was set correctly.
+    expect(deck.latestPlaySource).toBe("Courier");
   });
 
   it("should play Treasure cards played by Courier from graveyard.", () => {
@@ -85,13 +89,13 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Silver", "Estate"];
-    checkForCourierPlay.mockReturnValue(true);
+    checkForNonHandPlay.mockReturnValue("Courier");
     // Arguments for function being tested.
     const line = "pNick plays a Silver.";
     const cards = ["Silver"];
     const numberOfCards = [1];
 
-    // Act - Simulate playing a card from discard.
+    // Act - Simulate playing a treasure card from graveyard with Courier.
     deck.processPlaysLine(line, cards, numberOfCards);
 
     // Assert - Verify the card was played from the graveyard
@@ -99,6 +103,8 @@ describe("processPlaysLine", () => {
     expect(deck.inPlay).toStrictEqual(["Vassal", "Silver"]);
     // Verify hand is unchanged
     expect(deck.hand).toStrictEqual(["Copper", "Copper"]);
+    // Verify latestPlaySource was set correctly.
+    expect(deck.latestPlaySource).toBe("Courier");
   });
 
   it("should take no action for a card played again by a Throne Room.", () => {
@@ -107,37 +113,40 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Estate"];
     deck.inPlay = ["Remodel"];
     deck.graveyard = ["Estate"];
-    checkForVassalPlay.mockReturnValue(false);
+    checkForNonHandPlay.mockReturnValue("None");
+    // Test arguments
     const line = "pNick plays a Remodel again.";
     const cards = ["Remodel"];
     const numberOfCards = [1];
 
-    // Act - Simulate playing a card Again with a Throne Room.
+    // Act - Simulate playing a card again with a Throne Room.
     deck.processPlaysLine(line, cards, numberOfCards);
 
     // Assert - Verify the graveyard, hand, inPlay, are unchanged
     expect(deck.hand).toStrictEqual(["Copper", "Estate"]);
     expect(deck.inPlay).toStrictEqual(["Remodel"]);
     expect(deck.graveyard).toStrictEqual(["Estate"]);
+    // Verify latestPlaySource was set correctly.
+    expect(deck.latestPlaySource).toBe("Throne Room");
   });
 
-  it("should not check for vassal plays if the line is playing a treasure", () => {
+  it("should not play Treasures from discard if nonHandPlay is found to be a Vassal", () => {
     //  Arrange a scenario where the card being played is a treasure.
     deck.hand = ["Copper"];
     const line = "pNick plays a Copper.";
     const cards = ["Copper"];
     const numberOfCards = [1];
+    checkForNonHandPlay.mockReturnValue("Vassal");
     // Act - Simulate playing a Copper from hand
     deck.processPlaysLine(line, cards, numberOfCards);
 
     // Assert
-    expect(checkForVassalPlay).not.toBeCalled();
+    expect(deck.latestPlaySource).toBe("Hand");
   });
 
   it("should setLatestPlaySource to 'Vassal' when the play being processed is caused by a Vassal", () => {
     // Arrange
-    // Mock true response from checkForVassalPlay()
-    checkForVassalPlay.mockReturnValue(true);
+    checkForNonHandPlay.mockReturnValue("Vassal");
     deck.graveyard = ["Sentry"];
     const line = "pNick plays a Sentry.";
     const cards = ["Sentry"];
@@ -150,44 +159,60 @@ describe("processPlaysLine", () => {
 
   it("should setLatestPlaySource to 'Courier' when the play being processed is caused by a Courier", () => {
     // Arrange
-    // Mock true response from checkForVassalPlay()
-    checkForCourierPlay.mockReturnValue(true);
+    checkForNonHandPlay.mockReturnValue("Courier");
     deck.graveyard = ["Copper"];
     const line = "pNick plays a Copper.";
     const cards = ["Copper"];
     const numberOfCards = [1];
 
-    // Act simulate playing a Sentry from discard with a Vassal.
+    // Act simulate playing a Copper from discard with a Courier.
     deck.processPlaysLine(line, cards, numberOfCards);
     expect(deck.latestPlaySource).toBe("Courier");
   });
 
   it("should setLatestPlaySource to 'Hand' when the play being processed is played from Hand", () => {
     // Arrange
-    // Mock true response from checkForVassalPlay()
-    checkForCourierPlay.mockReturnValue(false);
-    checkForVassalPlay.mockReturnValue(false);
+    checkForNonHandPlay.mockReturnValue("None");
     deck.hand = ["Copper"];
     const line = "pNick plays a Copper.";
     const cards = ["Copper"];
     const numberOfCards = [1];
 
-    // Act simulate playing a Sentry from discard with a Vassal.
+    // Act simulate playing a Copper from hand.
     deck.processPlaysLine(line, cards, numberOfCards);
     expect(deck.latestPlaySource).toBe("Hand");
   });
 
   it("should setLatestPlaySource to 'Throne Room' when the play being processed is played by a Throne Room", () => {
     // Arrange
-    // Mock true response from checkForVassalPlay()
-    checkForCourierPlay.mockReturnValue(false);
-    checkForVassalPlay.mockReturnValue(false);
+    checkForNonHandPlay.mockReturnValue("None");
     const line = "pNick plays a Sentry again.";
     const cards = ["Sentry"];
     const numberOfCards = [1];
 
-    // Act simulate playing a Sentry from discard with a Vassal.
+    // Act simulate playing a Sentry again with a Throne Room.
     deck.processPlaysLine(line, cards, numberOfCards);
     expect(deck.latestPlaySource).toBe("Throne Room");
   });
+
+  it(
+    "should play cards from setAside and set latestPlaySource to 'Fortune Hunter' when the play being processed " +
+      "is played by a Fortune Hunter",
+    () => {
+      // Arrange
+      checkForNonHandPlay.mockReturnValue("Fortune Hunter");
+      deck.latestAction = "Fortune Hunter";
+      deck.setAside = ["Copper", "Estate", "Chapel"];
+      deck.inPlay = ["Fortune Hunter"];
+      const line = "pNick plays a Copper.";
+      const cards = ["Copper"];
+      const numberOfCards = [1];
+
+      // Act simulate playing a Copper from setAside with a Fortune Hunter.
+      deck.processPlaysLine(line, cards, numberOfCards);
+      expect(deck.setAside).toStrictEqual(["Estate", "Chapel"]);
+      expect(deck.latestPlaySource).toBe("Fortune Hunter");
+      expect(deck.inPlay).toStrictEqual(["Fortune Hunter", "Copper"]);
+    }
+  );
 });
