@@ -166,7 +166,7 @@ export class BaseDeck {
    * @param card - The The given card.
    */
   addCardToEntireDeck(card: string) {
-    if (this.debug) console.info(`Gaining ${card} into deck.`);
+    if (this.debug) console.info(`Gaining ${card} into entireDeck.`);
     const entireDeckCopy = this.entireDeck.slice();
     entireDeckCopy.push(card);
     this.setEntireDeck(entireDeckCopy);
@@ -536,7 +536,7 @@ export class BaseDeck {
     line: string,
     reconciling?: "reconcile"
   ): [string[], number[]] {
-    // Need to compare the two consecutive lines.  If there is no invervening shuffle and both
+    // Need to compare the two consecutive lines.  If there is no intervening shuffle and both
     // Lines contain the same card types, the most recent logArchiveEntry must be popped.
     const intercedingShuffle =
       this.logArchive.slice().pop()?.match(" shuffles their deck") !== null;

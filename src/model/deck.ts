@@ -468,6 +468,21 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.drawFromSetAside(prevLineCard);
   }
 
+  drawFromGraveyard(card: string) {
+    const index = this.graveyard.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in discard.`);
+    } else {
+      if (this.debug) console.info(`Drawing ${card} from discard into hand.`);
+      const handCopy = this.hand.slice();
+      const graveyardCopy = this.graveyard.slice();
+      handCopy.push(card);
+      graveyardCopy.splice(index, 1);
+      this.setHand(handCopy);
+      this.setGraveyard(graveyardCopy);
+    }
+  }
+
   /**
    * Draws the given card from the setAside zone into hand.
    * @param card - The given card.
@@ -1000,7 +1015,9 @@ export class Deck extends BaseDeck implements StoreDeck {
   processIntoTheirHandLine(cards: string[], numberOfCards: number[]) {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        this.drawFromSetAside(cards[i]);
+        if (["Mountain Village"].includes(this.latestAction)) {
+          this.drawFromGraveyard(cards[i]);
+        } else this.drawFromSetAside(cards[i]);
       }
     }
   }
