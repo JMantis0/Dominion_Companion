@@ -904,7 +904,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Bureaucrat", "Armory"].includes(mostRecentPlay)) {
+        if (["Bureaucrat", "Armory", "Treasure Map"].includes(mostRecentPlay)) {
           this.gainIntoLibrary(cards[i]);
         } else if (this.isArtisanGain() || this.isMineGain()) {
           this.gainIntoHand(cards[i]);
@@ -1116,6 +1116,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   processTrashesLine(cards: string[], numberOfCards: number[]) {
     const mostRecentPlay = this.latestAction;
+    console.log(
+      "latestAction ",
+      mostRecentPlay,
+      mostRecentPlay === "Treasure Map"
+    );
+    console.log("this.lastEntryProcessed is", this.lastEntryProcessed);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1124,6 +1130,11 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.trashFromSetAside(cards[i]);
         } else if (["Swindler"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
+        } else if (
+          mostRecentPlay === "Treasure Map" &&
+          this.lastEntryProcessed.match(" plays a Treasure Map.") !== null
+        ) {
+          this.trashFromInPlay(cards[i]);
         } else {
           this.trashFromHand(cards[i]);
         }
@@ -1294,6 +1305,22 @@ export class Deck extends BaseDeck implements StoreDeck {
       handCopy.splice(index, 1);
       this.setTrash(trashCopy);
       this.setHand(handCopy);
+      this.removeCardFromEntireDeck(card);
+    }
+  }
+
+  trashFromInPlay(card: string) {
+    const index = this.inPlay.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in play.`);
+    } else {
+      if (this.debug) console.info(`Trashing ${card} from inPlay.`);
+      const trashCopy = this.trash.slice();
+      const inPlayCopy = this.inPlay.slice();
+      trashCopy.push(card);
+      inPlayCopy.splice(index, 1);
+      this.setTrash(trashCopy);
+      this.setInPlay(inPlayCopy);
       this.removeCardFromEntireDeck(card);
     }
   }

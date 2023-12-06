@@ -15,6 +15,7 @@ describe("processGainsLine", () => {
       "Bureaucrat",
       "Cellar",
       "Laboratory",
+      "Treasure Map",
     ]);
     jest.clearAllMocks();
   });
@@ -194,10 +195,10 @@ describe("processGainsLine", () => {
     deck.library = ["Copper"];
     deck.entireDeck = ["Copper", "Artisan", "Armory"];
 
-    // Act - Simulate gaining a Silver by playing a Bureaucrat.
+    // Act - Simulate gaining a Courier by playing an Armory.
     deck.processGainsLine(line, cards, numberOfCards);
 
-    // Assert - Verify a Silver was added to library and entireDeck.
+    // Assert - Verify a Courier was added to library and entireDeck.
     expect(deck.library).toStrictEqual(["Copper", "Courier"]);
     expect(deck.entireDeck).toStrictEqual([
       "Copper",
@@ -208,6 +209,40 @@ describe("processGainsLine", () => {
     // Verify nothing was gained into hand or graveyard.
     expect(deck.hand).toStrictEqual(["Artisan"]);
     expect(deck.graveyard).toStrictEqual([]);
-    // Verify the logArchive was not changed.
+  });
+
+  it("should add cards gained by Treasure Map to library.", () => {
+    // Arrange
+    const cards = ["Gold"];
+    const numberOfCards = [4];
+    const line = "pNick gains 4 Golds onto their drawpile.";
+    deck.latestAction = "Treasure Map";
+    deck.graveyard = [];
+    deck.hand = ["Artisan"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan"];
+
+    // Act - Simulate gaining 4 Golds from a Treasure Map.
+    deck.processGainsLine(line, cards, numberOfCards);
+
+    // Assert - Verify 4 Golds were added to library and entireDeck.
+    expect(deck.library).toStrictEqual([
+      "Copper",
+      "Gold",
+      "Gold",
+      "Gold",
+      "Gold",
+    ]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Artisan",
+      "Gold",
+      "Gold",
+      "Gold",
+      "Gold",
+    ]);
+    // Verify nothing was gained into hand or graveyard.
+    expect(deck.hand).toStrictEqual(["Artisan"]);
+    expect(deck.graveyard).toStrictEqual([]);
   });
 });

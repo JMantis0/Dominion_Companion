@@ -286,6 +286,22 @@ export class BaseDeck {
     return consecutiveBuysOfTheSameCard;
   }
 
+
+  /**
+   * Returns boolean for whether the current line and most recent line are consecutive gains
+   * without buying.
+   * @param line - The given line.
+   * @returns - Boolean for whether the current line and most recent line are consecutive gains without buying.
+   */
+  consecutiveGainWithoutBuy(line: string): boolean {
+    const consecutive: boolean =
+      this.lastEntryProcessed.match(" gains ") !== null &&
+      this.lastEntryProcessed.match(" buys ") === null &&
+      line.match(" gains ") !== null &&
+      line.match(" buys ") === null;
+    return consecutive;
+  }
+
   /**
    * Returns a boolean for whether the current line and the most recent
    * logArchive entry are consecutive Sage reveals.
@@ -303,7 +319,8 @@ export class BaseDeck {
   consecutiveTrash(line: string): boolean {
     const consecutiveTrashes =
       line.match(" trashes ") !== null &&
-      this.lastEntryProcessed.match(" trashes ") !== null;
+      this.lastEntryProcessed.match(" trashes ") !== null &&
+      this.latestAction !== "Treasure Map";
     return consecutiveTrashes;
   }
 
@@ -347,7 +364,10 @@ export class BaseDeck {
       act = "reveals";
     } else if (this.consecutiveTrash(line)) {
       act = "trashes";
-      [cards, number] = this.handleConsecutiveTrashes(line);
+      [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveGainWithoutBuy(line)) {
+      act = "gains";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromEntry(line);
       [cards, number] = this.getCardsAndCountsFromEntry(line);
@@ -561,7 +581,7 @@ export class BaseDeck {
     return amendedAmount;
   }
 
-  handleConsecutiveTrashes(line: string): [string[], number[]] {
+  handleConsecutiveDuplicates(line: string): [string[], number[]] {
     const [currCards, currNumberOfCards] =
       this.getCardsAndCountsFromEntry(line);
     const [prevCards, prevNumberOfCards] = this.getCardsAndCountsFromEntry(

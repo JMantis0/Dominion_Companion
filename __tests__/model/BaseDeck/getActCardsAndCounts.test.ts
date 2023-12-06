@@ -321,4 +321,32 @@ describe("getActCardsAndCounts", () => {
       expect(resultLogArchive).toStrictEqual(expectedLogArchive);
     }
   );
+
+  it("should handle consecutive gains without buys correctly", () => {
+    // Arrange
+    const initialLogArchive = [
+      "pNick trashes a Treasure Map.",
+      "pNick gains a Gold.",
+    ];
+    deck.logArchive = initialLogArchive.slice();
+    deck.lastEntryProcessed = "pNick gains a Gold.";
+    const line = "pNick gains 4 Golds.";
+    const expectedAct: string = "gains";
+    const expectedCards: string[] = ["Gold"];
+    const expectedNumber: number[] = [3];
+    const expectedLogArchive = ["pNick trashes a Treasure Map."];
+
+    // Act
+    const {
+      act: resultAct,
+      cards: resultCards,
+      numberOfCards: resultNumbers,
+    } = deck.getActCardsAndCounts(line);
+    const resultLogArchive = deck.getLogArchive();
+    // Assert
+    expect(resultAct).toStrictEqual(expectedAct);
+    expect(expectedCards).toStrictEqual(resultCards);
+    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultLogArchive).toStrictEqual(expectedLogArchive);
+  });
 });

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("handleConsecutiveTrashes", () => {
+describe("handleConsecutiveDuplicates", () => {
   let deck: BaseDeck;
   beforeEach(() => {
     deck = new BaseDeck("", false, "", "Player", "P", [
@@ -9,6 +9,7 @@ describe("handleConsecutiveTrashes", () => {
       "Remodel",
       "Chapel",
       "Estate",
+      "Gold",
     ]);
   });
 
@@ -23,7 +24,7 @@ describe("handleConsecutiveTrashes", () => {
       const line = "P trashes 2 Coppers.";
 
       // Act
-      const [cards, number] = deck.handleConsecutiveTrashes(line);
+      const [cards, number] = deck.handleConsecutiveDuplicates(line);
 
       expect(deck.logArchive).toStrictEqual(["P plays a Remake."]);
       // Assert
@@ -41,7 +42,7 @@ describe("handleConsecutiveTrashes", () => {
       deck.lastEntryProcessed = "P trashes 3 Coppers.";
       const line = "P trashes 3 Coppers and a Remodel.";
 
-      const [cards, number] = deck.handleConsecutiveTrashes(line);
+      const [cards, number] = deck.handleConsecutiveDuplicates(line);
 
       // Act
       expect(deck.logArchive).toStrictEqual(["P plays a Wubstar."]);
@@ -92,10 +93,33 @@ describe("handleConsecutiveTrashes", () => {
       deck.lastEntryProcessed = "pNick trashes 2 Estates.";
       const line = "pNick trashes a Copper and 2 Estates";
       // Act
-      const [cards, number] = deck.handleConsecutiveTrashes(line);
+      const [cards, number] = deck.handleConsecutiveDuplicates(line);
       // Assert
+      expect(deck.logArchive).toStrictEqual([
+        "pNick plays a Wubstar.",
+        "pNick gets +1 Action.",
+      ]);
       expect(cards).toStrictEqual(["Copper", "Estate"]);
       expect(number).toStrictEqual([1, 0]);
+    }
+  );
+  it(
+    "should handle consecutive gains by removing the most recent logEntry from the logArchive " +
+      "and returning the correct card types and card amounts",
+    () => {
+      // Arrange
+      deck.logArchive = [
+        "pNick trashes a Treasure Map.",
+        "pNick gains a Gold.",
+      ];
+      deck.lastEntryProcessed = "pNick gains a Gold.";
+      const line = "pNick gains 4 Golds";
+      // Act
+      const [cards, number] = deck.handleConsecutiveDuplicates(line);
+      // Assert
+      expect(cards).toStrictEqual(["Gold"]);
+      expect(number).toStrictEqual([3]);
+      expect(deck.logArchive).toStrictEqual(["pNick trashes a Treasure Map."]);
     }
   );
 });
