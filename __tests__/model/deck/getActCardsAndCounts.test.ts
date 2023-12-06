@@ -212,4 +212,58 @@ describe("getActCardsAndCounts", () => {
     expect(expectedNumber).toStrictEqual(resultNumbers);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
+
+  it(
+    "should handle non-hand source consecutive treasure plays correctly when" +
+      "a consecutive treasure is played by a Fortune Hunter ",
+    () => {
+      // Arrange
+      deck.latestPlaySource = "Fortune Hunter";
+      deck.logArchive = [
+        "pNick plays a Fortune Hunter.",
+        "pNick gets +$2.",
+        "pNick looks at a Copper.",
+        "pNick plays a Copper. (+$1)",
+      ];
+      deck.lastEntryProcessed = "pNick plays a Copper. (+$1)";
+      const line = "pNick plays a Copper. (+$1)";
+      // Act
+      deck.getActCardsAndCounts(line);
+      const resultLogArchive = deck.getLogArchive();
+      // Assert
+      expect(resultLogArchive).toStrictEqual([
+        "pNick plays a Fortune Hunter.",
+        "pNick gets +$2.",
+        "pNick looks at a Copper.",
+        "pNick plays a Copper. (+$1)",
+      ]);
+    }
+  );
+  
+  it(
+    "should handle non-hand source consecutive treasure plays correctly when" +
+      "a consecutive treasure is played by a Courier",
+    () => {
+      // Arrange
+      deck.latestPlaySource = "Courier";
+      deck.logArchive = [
+        "pNick plays a Courier.",
+        "pNick gets +$1.",
+        "pNick looks at a Copper.",
+        "pNick plays a Copper. (+$1)",
+      ];
+      deck.lastEntryProcessed = "pNick plays a Copper. (+$1)";
+      const line = "pNick plays a Copper. (+$1)";
+      // Act
+      deck.getActCardsAndCounts(line);
+      const resultLogArchive = deck.getLogArchive();
+      // Assert
+      expect(resultLogArchive).toStrictEqual([
+        "pNick plays a Courier.",
+        "pNick gets +$1.",
+        "pNick looks at a Copper.",
+        "pNick plays a Copper. (+$1)",
+      ]);
+    }
+  );
 });

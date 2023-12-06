@@ -56,6 +56,29 @@ describe("processLooksAtLine", () => {
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
+  it("should move the cards to setAside if look is caused by a Fortune Hunter", () => {
+    // Arrange
+    deck.latestAction = "Fortune Hunter";
+    deck.hand = ["Bureaucrat"];
+    deck.library = ["Copper", "Estate", "Province"];
+    deck.setAside = [];
+    deck.waitToDrawLibraryLook = false;
+
+    // Arguments for function being tested.
+    const cards = ["Copper", "Province", "Estate"];
+    const numberOfCards = [1, 1, 1];
+
+    // Act - Simulate looking at a Copper and Province with a Sentry.
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    // Assert - Verify the cards were moved from library to setAside.
+    expect(deck.setAside).toStrictEqual(["Copper", "Province", "Estate"]);
+    expect(deck.library).toStrictEqual([]);
+    // Verify hand and waitToDrawLibraryLook are not changed.
+    expect(deck.hand).toStrictEqual(["Bureaucrat"]);
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
   it("should move the cards to setAside if look is caused by a Bandit", () => {
     // Arrange
     deck.latestAction = "Bandit";

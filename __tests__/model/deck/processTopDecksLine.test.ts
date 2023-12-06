@@ -174,6 +174,29 @@ describe("processTopDecksLine", () => {
     expect(deck.hand).toStrictEqual(["Market"]);
   });
 
+  it("should move cards topdecked by a Fortune Hunter from setAside.", () => {
+    // Arrange deck state
+    deck.latestAction = "Fortune Hunter";
+    deck.library = ["Copper"];
+    deck.hand = ["Market"];
+    deck.graveyard = ["Bureaucrat"];
+    deck.setAside = ["Merchant", "Sentry"];
+
+    // Arguments for function being tested.
+    const cards = ["Merchant", "Sentry"];
+    const numberOfCards = [1, 1];
+
+    // Act - Simulate top decking a card with a Fortune Hunter.
+    deck.processTopDecksLine(cards, numberOfCards);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.library).toStrictEqual(["Copper", "Merchant", "Sentry"]);
+    // Verify graveyard and hand are unchanged.
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
   it("should move cards 'placed back onto their deck' by a  Sea chard from setAside to library.", () => {
     // Arrange deck state
     deck.latestAction = "Sea Chart";
