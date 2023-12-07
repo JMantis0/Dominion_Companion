@@ -378,8 +378,8 @@ export class BaseDeck {
       act = "into their hand";
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
-      act = this.getActionFromEntry(line);
-      [cards, number] = this.getCardsAndCountsFromEntry(line);
+      act = this.getActionFromLine(line);
+      [cards, number] = this.getCardsAndCountsFromLine(line);
       //Pop off repeated buy log entry if needed
       if (this.consecutiveBuysOfSameCard(act, line, cards[0])) {
         number[0] = this.getRepeatBuyGainCounts(line, this.logArchive);
@@ -399,10 +399,10 @@ export class BaseDeck {
 
   /**
    * Parses a log entry to get the action from it.
-   * @param entry -The log entry.
-   * @returns - The action from the entry.
+   * @param line -The log line.
+   * @returns - The action from the line.
    */
-  getActionFromEntry(entry: string): string {
+  getActionFromLine(line: string): string {
     let act: string = "None";
     const actionArray = [
       "aside with Library",
@@ -420,25 +420,26 @@ export class BaseDeck {
       "back onto their deck",
       "moves their deck to the discard",
     ];
-    const entryWithoutNickName = entry.slice(this.playerNick.length);
-    for (let i = 0; i < actionArray.length; i++) {
-      const action = actionArray[i];
-      if (entryWithoutNickName.match(action) !== null) {
-        act = action;
-        break;
+    const lineWithoutNickName = line.slice(this.playerNick.length);
+    if (line.match(" reveals their hand:") === null)
+      for (let i = 0; i < actionArray.length; i++) {
+        const action = actionArray[i];
+        if (lineWithoutNickName.match(action) !== null) {
+          act = action;
+          break;
+        }
       }
-    }
     return act;
   }
 
   /**
-   * Parses the given log entry and creates a card array and a cardAmount array.
-   * For each card in the log entry, that card is pushed to the card array and the amount of
+   * Parses the given log line and creates a card array and a cardAmount array.
+   * For each card in the log line, that card is pushed to the card array and the amount of
    * that card is pushed to the cardAmount array.
-   * @param entry - The log entry to get cards and amounts from
+   * @param line - The log line to get cards and amounts from
    * @returns -The cards array and cardAmounts array.
    */
-  getCardsAndCountsFromEntry(entry: string): [string[], number[]] {
+  getCardsAndCountsFromLine(line: string): [string[], number[]] {
     type LineDatum = {
       card: string;
       amount: number;
@@ -451,10 +452,10 @@ export class BaseDeck {
       if (card === "Platinum") {
         cardMatcher = "Platin";
       } else cardMatcher = card.substring(0, card.length - 1);
-      if (entry.match(" " + cardMatcher) !== null) {
-        const upperSlice = entry.indexOf(cardMatcher) - 1;
-        const lowerSlice = entry.substring(0, upperSlice).lastIndexOf(" ") + 1;
-        const amountChar = entry.substring(lowerSlice, upperSlice);
+      if (line.match(" " + cardMatcher) !== null) {
+        const upperSlice = line.indexOf(cardMatcher) - 1;
+        const lowerSlice = line.substring(0, upperSlice).lastIndexOf(" ") + 1;
+        const amountChar = line.substring(lowerSlice, upperSlice);
         let amount = 0;
         if (amountChar == "an" || amountChar == "a") {
           amount = 1;
@@ -591,9 +592,8 @@ export class BaseDeck {
   }
 
   handleConsecutiveDuplicates(line: string): [string[], number[]] {
-    const [currCards, currNumberOfCards] =
-      this.getCardsAndCountsFromEntry(line);
-    const [prevCards, prevNumberOfCards] = this.getCardsAndCountsFromEntry(
+    const [currCards, currNumberOfCards] = this.getCardsAndCountsFromLine(line);
+    const [prevCards, prevNumberOfCards] = this.getCardsAndCountsFromLine(
       this.lastEntryProcessed
     );
     const map = new Map<string, number>();
@@ -649,10 +649,9 @@ export class BaseDeck {
     const previousRevealsLine = intercedingShuffle
       ? this.logArchive[this.logArchive.length - 2]
       : this.logArchive[this.logArchive.length - 1];
-    const [currCards, currNumberOfCards] =
-      this.getCardsAndCountsFromEntry(line);
+    const [currCards, currNumberOfCards] = this.getCardsAndCountsFromLine(line);
     const [prevCards, prevNumberOfCards] =
-      this.getCardsAndCountsFromEntry(previousRevealsLine);
+      this.getCardsAndCountsFromLine(previousRevealsLine);
     const newCardOnCurrentLine: boolean = currCards.length > prevCards.length;
     const map = new Map<string, number>();
     currCards.forEach((card, idx) => {

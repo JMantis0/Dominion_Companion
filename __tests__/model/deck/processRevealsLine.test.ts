@@ -93,4 +93,31 @@ describe("processRevealsLine", () => {
     expect(deck.library).toStrictEqual(["Estate", "Bureaucrat"]);
     expect(deck.setAside).toStrictEqual(["Copper", "Gold", "Silver"]);
   });
+
+  it("should move cards revealed by a Hunting Party from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Hunting Party";
+    deck.library = [
+      "Copper",
+      "Estate",
+      "Bureaucrat",
+      "Gold",
+      "Silver",
+      "Silver",
+      "Cellar",
+    ];
+    deck.setAside = [];
+
+    // Act - Simulate revealing a 2 Silvers and a Cellar from library with a Hunting Party.
+    deck.processRevealsLine(["Silver", "Cellar"], [2, 1]);
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual([
+      "Copper",
+      "Estate",
+      "Bureaucrat",
+      "Gold",
+    ]);
+    expect(deck.setAside).toStrictEqual(["Silver", "Silver", "Cellar"]);
+  });
 });

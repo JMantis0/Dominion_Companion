@@ -61,6 +61,18 @@ describe("processIntoTheirHandLine", () => {
     ]);
   });
 
+  it("should draw cards into hand from setAside when caused by a Hunting Party", () => {
+    // Arrange
+    deck.latestAction = "Hunter";
+    deck.setAside = ["Silver", "Silver", "Cellar"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Cellar"], [1]);
+
+    expect(deck.setAside).toStrictEqual(["Silver", "Silver"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Cellar"]);
+  });
+
   it("should draw cards into hand from graveyard when caused by a Mountain Village", () => {
     // Arrange
     deck.latestAction = "Mountain Village";

@@ -264,4 +264,19 @@ describe("processDiscardsLine", () => {
     expect(deck.setAside).toStrictEqual(["Silver", "Silver"]);
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Copper"]);
   });
+
+  it("should discard from setAside when discards are caused by a Hunting Party", () => {
+    // Arrange
+    deck.latestAction = "Hunting Party";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Silver"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
+  });
 });

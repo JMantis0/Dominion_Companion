@@ -861,6 +861,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Wandering Minstrel",
             "Hunter",
             "Cartographer",
+            "Hunting Party",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -937,7 +938,18 @@ export class Deck extends BaseDeck implements StoreDeck {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Mountain Village"].includes(this.latestAction)) {
           this.drawFromGraveyard(cards[i]);
-        } else this.drawFromSetAside(cards[i]);
+        }
+        if (
+          [
+            "Hunting Party",
+            "Hunter",
+            "Farming Village",
+            "Sea Chart",
+            "Sage",
+          ].includes(this.latestAction)
+        ) {
+          this.drawFromSetAside(cards[i]);
+        }
       }
     }
   }
@@ -1080,6 +1092,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Farming Village",
             "Wandering Minstrel",
             "Hunter",
+            "Hunting Party",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);

@@ -9,13 +9,13 @@ describe("getActionFromEntry", () => {
 
   it("should return 'None' if no action is found in the provided line", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick gets +$3.")).toBe("None");
+    expect(deck.getActionFromLine("pNick gets +$3.")).toBe("None");
   });
 
   it("should get action 'discards' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry(
+      deck.getActionFromLine(
         "pNick discards a Bandit, 2 Sentries, and a Vassal."
       )
     ).toBe("discards");
@@ -24,13 +24,13 @@ describe("getActionFromEntry", () => {
   it("should get action 'draws' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry("pNick draws a Bandit, 2 Sentries, and a Vassal.")
+      deck.getActionFromLine("pNick draws a Bandit, 2 Sentries, and a Vassal.")
     ).toBe("draws");
   });
 
   it("should get action 'gains' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick buys and gains a Copper.")).toBe(
+    expect(deck.getActionFromLine("pNick buys and gains a Copper.")).toBe(
       "gains"
     );
   });
@@ -38,37 +38,37 @@ describe("getActionFromEntry", () => {
   it("should get action 'looks at' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry("pNick looks at a Copper and a Vassal.")
+      deck.getActionFromLine("pNick looks at a Copper and a Vassal.")
     ).toBe("looks at");
   });
 
   it("should get action 'plays' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick plays a Cellar.")).toBe("plays");
+    expect(deck.getActionFromLine("pNick plays a Cellar.")).toBe("plays");
   });
 
   it("should get action 'reveals' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick reveals 2 Golds.")).toBe("reveals");
+    expect(deck.getActionFromLine("pNick reveals 2 Golds.")).toBe("reveals");
   });
 
   it("should get action 'shuffles their deck' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick shuffles their deck.")).toBe(
+    expect(deck.getActionFromLine("pNick shuffles their deck.")).toBe(
       "shuffles their deck"
     );
   });
 
   it("should get action 'topDecks' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick topdecks a Laboratory.")).toBe(
+    expect(deck.getActionFromLine("pNick topdecks a Laboratory.")).toBe(
       "topdecks"
     );
   });
 
   it("should get action 'trashes' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick trashes a Copper.")).toStrictEqual(
+    expect(deck.getActionFromLine("pNick trashes a Copper.")).toStrictEqual(
       "trashes"
     );
   });
@@ -77,7 +77,7 @@ describe("getActionFromEntry", () => {
     // Arrange
     deck.setPlayerNick("Massivegains");
     // Act and Assert
-    expect(deck.getActionFromEntry("Massivegains reveals 2 Vassals.")).toBe(
+    expect(deck.getActionFromLine("Massivegains reveals 2 Vassals.")).toBe(
       "reveals"
     );
   });
@@ -85,13 +85,13 @@ describe("getActionFromEntry", () => {
   it("should get action 'aside with Library' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry("pNick sets a Cellar aside with Library.")
+      deck.getActionFromLine("pNick sets a Cellar aside with Library.")
     ).toBe("aside with Library");
   });
 
   it("should get action 'passes' correctly", () => {
     // Act and Assert
-    expect(deck.getActionFromEntry("pNick passes an Estate to G.")).toBe(
+    expect(deck.getActionFromLine("pNick passes an Estate to G.")).toBe(
       "passes"
     );
   });
@@ -99,21 +99,30 @@ describe("getActionFromEntry", () => {
   it("should get action 'into their hand' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry("pNick puts an Estate into their hand.")
+      deck.getActionFromLine("pNick puts an Estate into their hand.")
     ).toBe("into their hand");
   });
 
   it("should get action 'back onto their deck' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry("pNick puts an Estate back onto their deck.")
+      deck.getActionFromLine("pNick puts an Estate back onto their deck.")
     ).toBe("back onto their deck");
   });
 
   it("should get action 'moves their deck to the discard' correctly", () => {
     // Act and Assert
     expect(
-      deck.getActionFromEntry("pNick moves their deck to the discard.")
+      deck.getActionFromLine("pNick moves their deck to the discard.")
     ).toBe("moves their deck to the discard");
+  });
+
+  it("should return 'None' when the line matches 'reveals their hand'", () => {
+    // Act and Assert
+    expect(
+      deck.getActionFromLine(
+        "pNick reveals their hand: a Chapel, 3 Silvers, and a Province"
+      )
+    ).toBe("None");
   });
 });
