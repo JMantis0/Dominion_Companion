@@ -41,7 +41,7 @@ describe("Static method baseKingdomCardCheck", () => {
     ];
 
     // Act and Assert - Simulate checking for a base-card kingdom when the kingdom only has base set cards.
-    expect(DOMObserver.baseKingdomCardCheck(kingdom)).toBe(true);
+    expect(DOMObserver.supportedKingdomCardCheck(kingdom)).toBe(true);
   });
 
   it("should return false for a kingdom containing non-base cards", () => {
@@ -83,7 +83,7 @@ describe("Static method baseKingdomCardCheck", () => {
     ];
 
     // Act and Assert - Simulate checking for a base-card kingdom when the kingdom contains a card that is not in the base set.
-    expect(DOMObserver.baseKingdomCardCheck(kingdom)).toBe(false);
+    expect(DOMObserver.supportedKingdomCardCheck(kingdom)).toBe(false);
   });
 
   it("should return true for an empty kingdom", () => {
@@ -91,6 +91,6 @@ describe("Static method baseKingdomCardCheck", () => {
     const kingdom: string[] = [];
 
     // Simulate checking for base kingdom when the kingdom is empty.
-    expect(DOMObserver.baseKingdomCardCheck(kingdom)).toBe(true);
+    expect(DOMObserver.supportedKingdomCardCheck(kingdom)).toBe(true);
   });
 });

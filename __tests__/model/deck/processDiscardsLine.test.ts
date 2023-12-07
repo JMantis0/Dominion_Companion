@@ -249,4 +249,19 @@ describe("processDiscardsLine", () => {
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper"]);
   });
+
+  it("should discard from setAside when discards are caused by a Cartographer", () => {
+    // Arrange
+    deck.latestAction = "Cartographer";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Copper", "Copper", "Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Copper"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual(["Silver", "Silver"]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Copper"]);
+  });
 });

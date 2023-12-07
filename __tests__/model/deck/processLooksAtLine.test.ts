@@ -203,6 +203,42 @@ describe("processLooksAtLine", () => {
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
+  it("should move the cards looked at by a Cartographer from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Cartographer";
+    deck.hand = ["Bureaucrat"];
+    deck.library = [
+      "Copper",
+      "Copper",
+      "Estate",
+      "Province",
+      "Gold",
+      "Silver",
+      "Silver",
+    ];
+    deck.setAside = [];
+    deck.waitToDrawLibraryLook = false;
+
+    // Arguments for function being tested.
+    const cards = ["Copper", "Silver"];
+    const numberOfCards = [2, 2];
+
+    // Act - Simulate looking at 2 Coppers and 2 Silvers with a Cartographer.
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    // Assert - Verify cards were moved from library to setAside
+    expect(deck.setAside).toStrictEqual([
+      "Copper",
+      "Copper",
+      "Silver",
+      "Silver",
+    ]);
+    expect(deck.library).toStrictEqual(["Estate", "Province", "Gold"]);
+    // Verify hand and waitToDrawLibraryLook are unchanged.
+    expect(deck.hand).toStrictEqual(["Bureaucrat"]);
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
   it("should draw certain cards immediately if they are looked at by a Library", () => {
     // Arrange
     deck.latestAction = "Library";

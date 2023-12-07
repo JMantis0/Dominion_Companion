@@ -242,6 +242,24 @@ describe("processTopDecksLine", () => {
     expect(deck.hand).toStrictEqual(["Market"]);
   });
 
+  it("should move cards topdecked by a Cartographer from setAside to library.", () => {
+    // Arrange deck state
+    deck.latestAction = "Cartographer";
+    deck.library = ["Copper"];
+    deck.hand = ["Market"];
+    deck.graveyard = ["Bureaucrat"];
+    deck.setAside = ["Silver", "Copper"];
+    // Act - Simulate top decking a card with a Cartographer.
+    deck.processTopDecksLine(["Silver", "Copper"], [1, 1]);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.library).toStrictEqual(["Copper", "Silver", "Copper"]);
+    // Verify graveyard and hand are unchanged.
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
   it("should move cards topdecked by a Scavenger from graveyard to the library", () => {
     // Arrange
     deck.latestAction = "Scavenger";

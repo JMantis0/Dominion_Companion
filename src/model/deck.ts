@@ -860,6 +860,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Farming Village",
             "Wandering Minstrel",
             "Hunter",
+            "Cartographer",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -960,6 +961,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sentinel",
             "Fortune Hunter",
             "Wandering Minstrel",
+            "Cartographer",
           ].includes(mostRecentPlay)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -982,8 +984,6 @@ export class Deck extends BaseDeck implements StoreDeck {
             this.setAsideFromLibrary(cards[i]);
             this.setWaitToDrawLibraryLook(true);
           }
-        } else {
-          // Looks at line was not caused by a Sentry, Bandit, or Library.  Nothing to process.
         }
       }
     }
@@ -1106,6 +1106,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Fortune Hunter",
             "Wandering Minstrel",
             "Hunter",
+            "Cartographer",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
