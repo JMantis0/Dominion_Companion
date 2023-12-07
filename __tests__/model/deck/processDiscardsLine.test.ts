@@ -64,12 +64,45 @@ describe("processDiscardsLine", () => {
     deck.setAside = ["Shouldn't Move"];
     deck.hand = ["Shouldn't Move"];
 
-    // Act - Simulate discarding from library with Vassal.
+    // Act - Simulate discarding from library with Courier.
     deck.processDiscardsLine(cards, numberOfCards);
 
     // Assert - Verify the library and graveyard contain the expected cards.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
     expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
+    // Verify that other zones were not discarded from.
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+  });
+
+  // Case - discard from library: Harvest
+  it("should discard from the library when latestPlay is a Harvest", () => {
+    // Arrange
+    deck.latestAction = "Harvest";
+    deck.library = [
+      "Copper",
+      "Estate",
+      "Silver",
+      "Silver",
+      "Silver",
+      "Hunting Party",
+    ];
+    deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Harvest.
+    deck.processDiscardsLine(["Silver", "Hunting Party"], [3, 1]);
+
+    // Assert - Verify the library and graveyard contain the expected cards.
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.graveyard).toStrictEqual([
+      "Silver",
+      "Silver",
+      "Silver",
+      "Silver",
+      "Hunting Party",
+    ]);
     // Verify that other zones were not discarded from.
     expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
