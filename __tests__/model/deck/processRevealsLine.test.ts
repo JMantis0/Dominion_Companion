@@ -65,4 +65,18 @@ describe("processRevealsLine", () => {
     expect(deck.library).toStrictEqual(["Bureaucrat", "Gold"]);
     expect(deck.setAside).toStrictEqual(["Silver"]);
   });
+
+  it("should move cards revealed by a Wandering Minstrel from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Wandering Minstrel";
+    deck.library = ["Copper", "Estate", "Bureaucrat", "Gold", "Silver"];
+    deck.setAside = [];
+
+    // Act - Simulate revealing a card from library with a Wandering Minstrel.
+    deck.processRevealsLine(["Bureaucrat", "Gold", "Silver"], [1, 1, 1]);
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.setAside).toStrictEqual(["Bureaucrat", "Gold", "Silver"]);
+  });
 });

@@ -858,6 +858,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Lookout",
             "Sage",
             "Farming Village",
+            "Wandering Minstrel",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -957,6 +958,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Lookout",
             "Sentinel",
             "Fortune Hunter",
+            "Wandering Minstrel",
           ].includes(mostRecentPlay)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -996,6 +998,7 @@ export class Deck extends BaseDeck implements StoreDeck {
       this.discardFromLibrary(libraryCopy.pop()!);
     }
   }
+
   /**
    * Update method handles passes of cards from one player to another.
    * @param cards - The cards being passed.
@@ -1069,9 +1072,13 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Bandit", "Sage", "Sea Chart", "Farming Village"].includes(
-            this.latestAction
-          )
+          [
+            "Bandit",
+            "Sage",
+            "Sea Chart",
+            "Farming Village",
+            "Wandering Minstrel",
+          ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
         }
@@ -1095,6 +1102,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sentinel",
             "Sea Chart",
             "Fortune Hunter",
+            "Wandering Minstrel",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
@@ -1116,12 +1124,6 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   processTrashesLine(cards: string[], numberOfCards: number[]) {
     const mostRecentPlay = this.latestAction;
-    console.log(
-      "latestAction ",
-      mostRecentPlay,
-      mostRecentPlay === "Treasure Map"
-    );
-    console.log("this.lastEntryProcessed is", this.lastEntryProcessed);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1309,6 +1311,12 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  /**
+   * Checks inPlay field to see if the given card is there.  If so,
+   * removes an instance of that card from the inPlay field and adds
+   * an instance to the trash field.
+   * @param card - The given card.
+   */
   trashFromInPlay(card: string) {
     const index = this.inPlay.indexOf(card);
     if (index < 0) {

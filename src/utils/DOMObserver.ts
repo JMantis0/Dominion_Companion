@@ -416,9 +416,9 @@ export class DOMObserver {
       "Remake", //Done
       "Salvager", //Done
       "Scavenger", //Done
-      "Treasure Map",
-      "Wandering Minstrel",
-      "Worker's Village",
+      "Treasure Map", //Done
+      "Wandering Minstrel", //Done
+      "Worker's Village", //Done
       "Barbarian",
       "Bazaar",
       "Cartographer",
