@@ -53,6 +53,26 @@ describe("processDiscardsLine", () => {
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - discard from library: Jester
+  it("should discard from the library when latestPlay is a Jester", () => {
+    // Arrange
+    deck.latestAction = "Jester";
+    deck.library = ["Copper", "Estate", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Jester.
+    deck.processDiscardsLine(["Silver"], [1]);
+
+    // Assert - Verify the library and graveyard contain the expected cards.
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
+    // Verify that other zones were not discarded from.
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+  });
+
   // Case - discard from library: Courier
   it("should discard from the library when latestPlay is a Courier", () => {
     // Arrange

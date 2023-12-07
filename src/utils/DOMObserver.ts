@@ -419,14 +419,14 @@ export class DOMObserver {
       "Treasure Map", //Done
       "Wandering Minstrel", //Done
       "Worker's Village", //Done
-      "Barbarian",//Done
+      "Barbarian", //Done
       "Bazaar", //Done
       "Cartographer", //Done
-      "Harvest",
+      "Harvest", //Done
       "Hunter", //Done
-      "Hunting Party",
-      "Jester",
-      "Junk Dealer",
+      "Hunting Party", //Done
+      "Jester", //Done
+      "Junk Dealer", //Done
       "Magnate",
       "Minion",
       "Old Witch",
