@@ -197,7 +197,7 @@ describe("processTopDecksLine", () => {
     expect(deck.hand).toStrictEqual(["Market"]);
   });
 
-  it("should move cards 'placed back onto their deck' by a  Sea chard from setAside to library.", () => {
+  it("should move cards 'placed back onto their deck' by a Sea Chart from setAside to library.", () => {
     // Arrange deck state
     deck.latestAction = "Sea Chart";
     deck.library = ["Copper"];
@@ -215,6 +215,28 @@ describe("processTopDecksLine", () => {
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.library).toStrictEqual(["Copper", "Merchant"]);
+    // Verify graveyard and hand are unchanged.
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
+  it("should move cards topdecked by a Wandering Minstrel from setAside to library.", () => {
+    // Arrange deck state
+    deck.latestAction = "Wandering Minstrel";
+    deck.library = ["Copper"];
+    deck.hand = ["Market"];
+    deck.graveyard = ["Bureaucrat"];
+    deck.setAside = ["Copper", "Worker's Village", "Mountain Village"];
+    // Act - Simulate top decking a card with a Wandering Minstrel.
+    deck.processTopDecksLine(["Worker's Village", "Mountain Village"], [1, 1]);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.setAside).toStrictEqual(["Copper"]);
+    expect(deck.library).toStrictEqual([
+      "Copper",
+      "Worker's Village",
+      "Mountain Village",
+    ]);
     // Verify graveyard and hand are unchanged.
     expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
     expect(deck.hand).toStrictEqual(["Market"]);

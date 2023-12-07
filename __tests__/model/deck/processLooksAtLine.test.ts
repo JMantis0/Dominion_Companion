@@ -127,7 +127,7 @@ describe("processLooksAtLine", () => {
 
   it("should move the cards to setAside if look is caused by a Sentinel", () => {
     // Arrange
-    deck.latestAction = "Lookout";
+    deck.latestAction = "Sentinel";
     deck.hand = ["Bureaucrat"];
     deck.library = [
       "Province",
@@ -156,6 +156,48 @@ describe("processLooksAtLine", () => {
       "Estate",
     ]);
     expect(deck.library).toStrictEqual(["Gold"]);
+    // Verify hand and waitToDrawLibraryLook are unchanged.
+    expect(deck.hand).toStrictEqual(["Bureaucrat"]);
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
+  it("should move the cards from library to setAside if looked at is caused by a Wandering Minstrel", () => {
+    // Arrange
+    deck.latestAction = "Wandering Minstrel";
+    deck.hand = ["Bureaucrat"];
+    deck.library = [
+      "Mountain Village",
+      "Worker's Village",
+      "Province",
+      "Copper",
+      "Copper",
+      "Estate",
+      "Province",
+      "Gold",
+    ];
+    deck.setAside = [];
+    deck.waitToDrawLibraryLook = false;
+
+    // Arguments for function being tested.
+    const cards = ["Copper", "Mountain Village", "Worker's Village"];
+    const numberOfCards = [1, 1, 1];
+
+    // Act - Simulate looking at a Copper, a Mountain Village, and a Worker's Village with a Wandering Minstrel.
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    // Assert - Verify cards were moved from library to setAside
+    expect(deck.setAside).toStrictEqual([
+      "Copper",
+      "Mountain Village",
+      "Worker's Village",
+    ]);
+    expect(deck.library).toStrictEqual([
+      "Province",
+      "Copper",
+      "Estate",
+      "Province",
+      "Gold",
+    ]);
     // Verify hand and waitToDrawLibraryLook are unchanged.
     expect(deck.hand).toStrictEqual(["Bureaucrat"]);
     expect(deck.waitToDrawLibraryLook).toBe(false);

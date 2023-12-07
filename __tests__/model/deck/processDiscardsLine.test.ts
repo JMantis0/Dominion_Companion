@@ -214,4 +214,24 @@ describe("processDiscardsLine", () => {
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
     expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
+
+  it("should discard from setAside when discards are caused by a Wandering Minstrel", () => {
+    // Arrange
+    deck.latestAction = "Wandering Minstrel";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Estate", "Copper", "Copper"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Estate", "Copper"], [1, 2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual([
+      "Bureaucrat",
+      "Estate",
+      "Copper",
+      "Copper",
+    ]);
+  });
 });
