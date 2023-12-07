@@ -44,6 +44,23 @@ describe("processIntoTheirHandLine", () => {
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
   });
 
+  it("should draw cards into hand from setAside when caused by a Hunter", () => {
+    // Arrange
+    deck.latestAction = "Hunter";
+    deck.setAside = ["Estate", "Copper", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Estate", "Copper", "Vassal"], [1, 1, 1]);
+
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.hand).toStrictEqual([
+      "Bureaucrat",
+      "Estate",
+      "Copper",
+      "Vassal",
+    ]);
+  });
+
   it("should draw cards into hand from graveyard when caused by a Mountain Village", () => {
     // Arrange
     deck.latestAction = "Mountain Village";

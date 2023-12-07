@@ -859,6 +859,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sage",
             "Farming Village",
             "Wandering Minstrel",
+            "Hunter",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1078,6 +1079,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sea Chart",
             "Farming Village",
             "Wandering Minstrel",
+            "Hunter",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1103,6 +1105,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sea Chart",
             "Fortune Hunter",
             "Wandering Minstrel",
+            "Hunter",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
@@ -1130,7 +1133,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
         ) {
           this.trashFromSetAside(cards[i]);
-        } else if (["Swindler"].includes(mostRecentPlay)) {
+        } else if (["Swindler", "Barbarian"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
         } else if (
           mostRecentPlay === "Treasure Map" &&

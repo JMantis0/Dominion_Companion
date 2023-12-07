@@ -286,7 +286,6 @@ export class BaseDeck {
     return consecutiveBuysOfTheSameCard;
   }
 
-
   /**
    * Returns boolean for whether the current line and most recent line are consecutive gains
    * without buying.
@@ -299,6 +298,13 @@ export class BaseDeck {
       this.lastEntryProcessed.match(" buys ") === null &&
       line.match(" gains ") !== null &&
       line.match(" buys ") === null;
+    return consecutive;
+  }
+
+  consecutiveIntoTheirHandLines(line: string): boolean {
+    const consecutive =
+      this.lastEntryProcessed.match(" into their hand") !== null &&
+      line.match(" into their hand") !== null;
     return consecutive;
   }
 
@@ -367,6 +373,9 @@ export class BaseDeck {
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else if (this.consecutiveGainWithoutBuy(line)) {
       act = "gains";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveIntoTheirHandLines(line)) {
+      act = "into their hand";
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromEntry(line);

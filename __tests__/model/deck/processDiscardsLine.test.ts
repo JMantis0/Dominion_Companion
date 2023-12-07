@@ -234,4 +234,19 @@ describe("processDiscardsLine", () => {
       "Copper",
     ]);
   });
+
+  it("should discard from setAside when discards are caused by a Hunter", () => {
+    // Arrange
+    deck.latestAction = "Hunter";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Copper"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Copper"], [1]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper"]);
+  });
 });

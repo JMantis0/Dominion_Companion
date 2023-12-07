@@ -59,19 +59,19 @@ describe("handleConsecutiveDuplicates", () => {
     () => {
       // Arrange
       deck.logArchive = [
-        "pNick plays a WubStar.",
-        "pNick gets +1 Action.",
-        "pNick trashes 3 Coppers and a Chapel.",
+        "P plays a WubStar.",
+        "P gets +1 Action.",
+        "P trashes 3 Coppers and a Chapel.",
       ];
-      deck.lastEntryProcessed = "pNick trashes 3 Coppers and a Chapel.";
-      const line = "pNick trashes 3 Coppers and 2 Chapels.";
+      deck.lastEntryProcessed = "P trashes 3 Coppers and a Chapel.";
+      const line = "P trashes 3 Coppers and 2 Chapels.";
 
       const [cards, number] = deck.handleConsecutiveReveals(line);
 
       // Act
       expect(deck.logArchive).toStrictEqual([
-        "pNick plays a WubStar.",
-        "pNick gets +1 Action.",
+        "P plays a WubStar.",
+        "P gets +1 Action.",
       ]);
 
       // Assert
@@ -86,18 +86,18 @@ describe("handleConsecutiveDuplicates", () => {
     () => {
       // Arrange
       deck.logArchive = [
-        "pNick plays a Wubstar.",
-        "pNick gets +1 Action.",
-        "pNick trashes 2 Estates.",
+        "P plays a Wubstar.",
+        "P gets +1 Action.",
+        "P trashes 2 Estates.",
       ];
-      deck.lastEntryProcessed = "pNick trashes 2 Estates.";
-      const line = "pNick trashes a Copper and 2 Estates";
+      deck.lastEntryProcessed = "P trashes 2 Estates.";
+      const line = "P trashes a Copper and 2 Estates";
       // Act
       const [cards, number] = deck.handleConsecutiveDuplicates(line);
       // Assert
       expect(deck.logArchive).toStrictEqual([
-        "pNick plays a Wubstar.",
-        "pNick gets +1 Action.",
+        "P plays a Wubstar.",
+        "P gets +1 Action.",
       ]);
       expect(cards).toStrictEqual(["Copper", "Estate"]);
       expect(number).toStrictEqual([1, 0]);
@@ -108,18 +108,40 @@ describe("handleConsecutiveDuplicates", () => {
       "and returning the correct card types and card amounts",
     () => {
       // Arrange
-      deck.logArchive = [
-        "pNick trashes a Treasure Map.",
-        "pNick gains a Gold.",
-      ];
-      deck.lastEntryProcessed = "pNick gains a Gold.";
-      const line = "pNick gains 4 Golds";
+      deck.logArchive = ["P trashes a Treasure Map.", "P gains a Gold."];
+      deck.lastEntryProcessed = "P gains a Gold.";
+      const line = "P gains 4 Golds";
       // Act
       const [cards, number] = deck.handleConsecutiveDuplicates(line);
       // Assert
       expect(cards).toStrictEqual(["Gold"]);
       expect(number).toStrictEqual([3]);
-      expect(deck.logArchive).toStrictEqual(["pNick trashes a Treasure Map."]);
+      expect(deck.logArchive).toStrictEqual(["P trashes a Treasure Map."]);
+    }
+  );
+  it(
+    "should handle consecutive 'into their hand' lines by removing the most recent logEntry from the logArchive " +
+      "and returning the correct card types and card amounts",
+    () => {
+      // Arrange
+      deck.logArchive = [
+        "P plays a Hunter.",
+        "P gest +1 Action.",
+        "P reveals a Copper and 2 Estates.",
+        "P puts a Copper into their hand.",
+      ];
+      deck.lastEntryProcessed = "P puts a Copper into their hand.";
+      const line = "P puts a Copper and an Estate into their hand.";
+      // Act
+      const [cards, number] = deck.handleConsecutiveDuplicates(line);
+      // Assert
+      expect(cards).toStrictEqual(["Copper", "Estate"]);
+      expect(number).toStrictEqual([0, 1]);
+      expect(deck.logArchive).toStrictEqual([
+        "P plays a Hunter.",
+        "P gest +1 Action.",
+        "P reveals a Copper and 2 Estates.",
+      ]);
     }
   );
 });

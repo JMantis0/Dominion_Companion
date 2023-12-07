@@ -349,4 +349,29 @@ describe("getActCardsAndCounts", () => {
     expect(expectedNumber).toStrictEqual(resultNumbers);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
+
+  it("should handle consecutive 'into their hand' lines correctly", () => {
+    // Arrange
+    deck.logArchive = [
+      "P plays a Hunter.",
+      "P gest +1 Action.",
+      "P reveals a Copper and 2 Estates.",
+      "P puts a Copper into their hand.",
+    ];
+    deck.lastEntryProcessed = "P puts a Copper into their hand.";
+
+    // Act
+    const { act, cards, numberOfCards } = deck.getActCardsAndCounts(
+      "P puts a Copper and an Estate into their hand."
+    );
+    // Assert
+    expect(act).toStrictEqual("into their hand");
+    expect(cards).toStrictEqual(["Copper", "Estate"]);
+    expect(numberOfCards).toStrictEqual([0, 1]);
+    expect(deck.logArchive).toStrictEqual([
+      "P plays a Hunter.",
+      "P gest +1 Action.",
+      "P reveals a Copper and 2 Estates.",
+    ]);
+  });
 });
