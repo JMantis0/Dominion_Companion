@@ -294,8 +294,10 @@ export class BaseDeck {
    */
   consecutiveGainWithoutBuy(line: string): boolean {
     const consecutive: boolean =
+      this.logEntryAppliesToThisDeck(this.lastEntryProcessed) &&
       this.lastEntryProcessed.match(" gains ") !== null &&
       this.lastEntryProcessed.match(" buys ") === null &&
+      this.logEntryAppliesToThisDeck(line) &&
       line.match(" gains ") !== null &&
       line.match(" buys ") === null;
     return consecutive;

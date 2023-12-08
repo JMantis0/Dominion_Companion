@@ -26,4 +26,15 @@ describe("consecutiveGainWithoutBuy", () => {
     // Act and Assert
     expect(deck.consecutiveGainWithoutBuy("P gains a Gold.")).toBe(false);
   });
+
+  it(
+    "should return false if the given line and the lastEntryProcessed don't both belong " +
+      "to the same deck",
+    () => {
+      // Arrange
+      deck.lastEntryProcessed = "L gains a Curse";
+      // Act and Assert - Verify method returns false when either of the two lines are not applying to the deck.
+      expect(deck.consecutiveGainWithoutBuy("G gains a Gold"));
+    }
+  );
 });

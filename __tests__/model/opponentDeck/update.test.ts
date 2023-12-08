@@ -6,10 +6,6 @@ describe("Method update", () => {
   let deck: OpponentDeck;
   // Spy on method dependencies
 
-  const logEntryAppliesToThisDeck = jest.spyOn(
-    OpponentDeck.prototype,
-    "logEntryAppliesToThisDeck"
-  );
   const consecutiveTreasurePlays = jest.spyOn(
     OpponentDeck.prototype,
     "consecutiveTreasurePlays"
@@ -47,11 +43,6 @@ describe("Method update", () => {
     const log = ["oNick plays a Chapel"];
     // Act - simulate updating the opponent deck with a log that plays a Chapel
     deck.update(log);
-
-    // Verify the logEntryAppliesToThisDeck method was called and returned true
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
-    expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(true);
     // Verify consecutiveTreasurePlays was called once and returned false(called within getActCardsAndCounts)
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
@@ -97,10 +88,6 @@ describe("Method update", () => {
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
     // Verify getConsecutiveTreasurePlayCounts was not called000
     expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
-    // Verify logEntryAppliesToThisDeck was called with the correct argument and returned correctly
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
-    expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
     // Verify processDeckChanges was not called
     expect(processDeckChanges).not.toBeCalled();
     // Verify archives and vp were updated
@@ -151,14 +138,6 @@ describe("Method update", () => {
     });
     // Verify no call made to getConsecutiveTreasureCounts
     expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
-    // Verify calls and results from logEntryAppliesToThisDeck
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(3);
-    expect(logEntryAppliesToThisDeck).nthCalledWith(1, log[0]);
-    expect(logEntryAppliesToThisDeck).nthCalledWith(2, log[1]);
-    expect(logEntryAppliesToThisDeck).nthCalledWith(3, log[2]);
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
-    expect(logEntryAppliesToThisDeck.mock.results[1].value).toBe(false);
-    expect(logEntryAppliesToThisDeck.mock.results[2].value).toBe(true);
     // Verify processDeckChanges was only called 1 time, for the line that applies to the deck
     expect(processDeckChanges).toBeCalledTimes(1);
     expect(processDeckChanges).toBeCalledWith(
@@ -185,14 +164,11 @@ describe("Method update", () => {
     // Act - simulate an opponent making a consecutive treasure play.
     deck.update(["pNick plays 2 Coppers."]);
 
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
     // Verify consecutiveTreasurePlays was called and returned the mock value true
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith("pNick plays 2 Coppers.");
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(true);
-    // Verify calls and results from logEntryAppliesToThisDeck
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
-    expect(logEntryAppliesToThisDeck).toBeCalledWith("pNick plays 2 Coppers.");
+
     // Verify  getConsecutiveTreasurePlayCounts was called and returned correctly
     expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
     expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(

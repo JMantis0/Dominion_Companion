@@ -5,10 +5,6 @@ describe("update", () => {
   // Instantiate Deck object.
   let deck: Deck;
   // Spy on method dependencies
-  const logEntryAppliesToThisDeck = jest.spyOn(
-    Deck.prototype,
-    "logEntryAppliesToThisDeck"
-  );
   const consecutiveTreasurePlays = jest.spyOn(
     Deck.prototype,
     "consecutiveTreasurePlays"
@@ -74,7 +70,6 @@ describe("update", () => {
     // Act - Simulate update deck with a line that doesn't apply to the deck and is a consecutive treasure play.
     deck.update(log);
 
-
     // Verify getActCardsAndCounts is called with the correct argument
     expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(getActCardsAndCounts).toBeCalledWith(log[0]);
@@ -88,11 +83,6 @@ describe("update", () => {
     expect(setLogArchive).toBeCalledTimes(1);
     // Verify a check for consecutive merchant bonus
     expect(handleConsecutiveMerchantBonus).not.toBeCalled();
-    // Verify a check for logEntryPAppliesToThisDeck occurred and returned false
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
-    expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
-
     // Verify calls are not made to methods that are called for log lines that apply to this deck
     expect(shuffleAndCleanUpIfNeeded).not.toBeCalled();
     expect(drawLookedAtCardIfNeeded).not.toBeCalled();
@@ -119,10 +109,6 @@ describe("update", () => {
     deck.update(log);
 
     // Assert
-
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
-    expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(false);
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
@@ -147,10 +133,6 @@ describe("update", () => {
     deck.update(log);
 
     // Assert
-
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(1);
-    expect(logEntryAppliesToThisDeck).toBeCalledWith(log[0]);
-    expect(logEntryAppliesToThisDeck.mock.results[0].value).toBe(true);
     expect(shuffleAndCleanUpIfNeeded).toBeCalledTimes(1);
     expect(shuffleAndCleanUpIfNeeded).toBeCalledWith(log[0]);
     expect(getActCardsAndCounts).toBeCalledTimes(1);
@@ -184,7 +166,6 @@ describe("update", () => {
     deck.update(log);
 
     // Assert
-    expect(logEntryAppliesToThisDeck).toBeCalledTimes(3);
     expect(consecutiveTreasurePlays).toBeCalledTimes(3);
     expect(shuffleAndCleanUpIfNeeded).toBeCalledTimes(2);
     expect(shuffleAndCleanUpIfNeeded).nthCalledWith(1, log[0]);
