@@ -427,13 +427,13 @@ export class DOMObserver {
       "Hunting Party", //Done
       "Jester", //Done
       "Junk Dealer", //Done
-      "Magnate",
-      "Minion",
-      "Old Witch",
-      "Patrol",
-      "Pilgrim",
-      "Replace",
-      "Scholar",
+      "Magnate", //Done
+      "Minion", //Done
+      "Old Witch", //Done
+      "Patrol",   //Done
+      "Pilgrim", //Done
+      "Replace", //Done
+      "Scholar", //Done
       "Seer",
       "Soothsayer",
       "Stables",

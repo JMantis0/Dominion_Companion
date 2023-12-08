@@ -814,6 +814,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "topdecks":
         this.processTopDecksLine(cards, numberOfCards);
         break;
+      case "back onto their deck":
+        this.processTopDecksLine(cards, numberOfCards);
+        break;
       case "looks at":
         this.processLooksAtLine(cards, numberOfCards);
         break;
@@ -825,9 +828,6 @@ export class Deck extends BaseDeck implements StoreDeck {
         break;
       case "into their hand":
         this.processIntoTheirHandLine(cards, numberOfCards);
-        break;
-      case "back onto their deck":
-        this.processTopDecksLine(cards, numberOfCards);
         break;
       case "moves their deck to the discard":
         this.processMovesTheirDeckToTheDiscardLine();
@@ -948,6 +948,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Farming Village",
             "Sea Chart",
             "Sage",
+            "Patrol",
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
@@ -1095,6 +1096,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Wandering Minstrel",
             "Hunter",
             "Hunting Party",
+            "Patrol",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1122,13 +1124,18 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Wandering Minstrel",
             "Hunter",
             "Cartographer",
+            "Patrol",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
-        } else if (["Harbinger", "Scavenger"].includes(mostRecentAction)) {
+        } else if (
+          ["Harbinger", "Scavenger", "Replace"].includes(mostRecentAction)
+        ) {
           this.topDeckFromGraveyard(cards[i]);
         } else if (
-          ["Artisan", "Bureaucrat", "Courtyard"].includes(mostRecentAction)
+          ["Artisan", "Bureaucrat", "Courtyard", "Pilgrim"].includes(
+            mostRecentAction
+          )
         ) {
           this.topDeckFromHand(cards[i]);
         }
