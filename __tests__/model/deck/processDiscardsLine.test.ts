@@ -53,6 +53,26 @@ describe("processDiscardsLine", () => {
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - discard from library: Jester
+  it("should discard from the library when latestPlay is a Jester", () => {
+    // Arrange
+    deck.latestAction = "Jester";
+    deck.library = ["Copper", "Estate", "Silver"];
+    deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Jester.
+    deck.processDiscardsLine(["Silver"], [1]);
+
+    // Assert - Verify the library and graveyard contain the expected cards.
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
+    // Verify that other zones were not discarded from.
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+  });
+
   // Case - discard from library: Courier
   it("should discard from the library when latestPlay is a Courier", () => {
     // Arrange
@@ -64,12 +84,45 @@ describe("processDiscardsLine", () => {
     deck.setAside = ["Shouldn't Move"];
     deck.hand = ["Shouldn't Move"];
 
-    // Act - Simulate discarding from library with Vassal.
+    // Act - Simulate discarding from library with Courier.
     deck.processDiscardsLine(cards, numberOfCards);
 
     // Assert - Verify the library and graveyard contain the expected cards.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
     expect(deck.graveyard).toStrictEqual(["Silver", "Silver"]);
+    // Verify that other zones were not discarded from.
+    expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+  });
+
+  // Case - discard from library: Harvest
+  it("should discard from the library when latestPlay is a Harvest", () => {
+    // Arrange
+    deck.latestAction = "Harvest";
+    deck.library = [
+      "Copper",
+      "Estate",
+      "Silver",
+      "Silver",
+      "Silver",
+      "Hunting Party",
+    ];
+    deck.graveyard = ["Silver"];
+    deck.setAside = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Harvest.
+    deck.processDiscardsLine(["Silver", "Hunting Party"], [3, 1]);
+
+    // Assert - Verify the library and graveyard contain the expected cards.
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.graveyard).toStrictEqual([
+      "Silver",
+      "Silver",
+      "Silver",
+      "Silver",
+      "Hunting Party",
+    ]);
     // Verify that other zones were not discarded from.
     expect(deck.setAside).toStrictEqual(["Shouldn't Move"]);
     expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
@@ -233,5 +286,50 @@ describe("processDiscardsLine", () => {
       "Copper",
       "Copper",
     ]);
+  });
+
+  it("should discard from setAside when discards are caused by a Hunter", () => {
+    // Arrange
+    deck.latestAction = "Hunter";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Copper"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Copper"], [1]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper"]);
+  });
+
+  it("should discard from setAside when discards are caused by a Cartographer", () => {
+    // Arrange
+    deck.latestAction = "Cartographer";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Copper", "Copper", "Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Copper"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual(["Silver", "Silver"]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Copper"]);
+  });
+
+  it("should discard from setAside when discards are caused by a Hunting Party", () => {
+    // Arrange
+    deck.latestAction = "Hunting Party";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Silver"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
   });
 });

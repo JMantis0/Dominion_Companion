@@ -354,7 +354,7 @@ export class DOMObserver {
    * @param kingdom - A kingdom from the client
    * @returns - A boolean, false if the kingdom contains cards outside of the base set, true otherwise.
    */
-  static baseKingdomCardCheck(kingdom: string[]): boolean {
+  static supportedKingdomCardCheck(kingdom: string[]): boolean {
     let baseOnly: boolean = true;
     const baseCards = [
       "Cellar",
@@ -419,21 +419,21 @@ export class DOMObserver {
       "Treasure Map", //Done
       "Wandering Minstrel", //Done
       "Worker's Village", //Done
-      "Barbarian",
-      "Bazaar",
-      "Cartographer",
-      "Harvest",
-      "Hunter",
-      "Hunting Party",
-      "Jester",
-      "Junk Dealer",
-      "Magnate",
-      "Minion",
-      "Old Witch",
-      "Patrol",
-      "Pilgrim",
-      "Replace",
-      "Scholar",
+      "Barbarian", //Done
+      "Bazaar", //Done
+      "Cartographer", //Done
+      "Harvest", //Done
+      "Hunter", //Done
+      "Hunting Party", //Done
+      "Jester", //Done
+      "Junk Dealer", //Done
+      "Magnate", //Done
+      "Minion", //Done
+      "Old Witch", //Done
+      "Patrol",   //Done
+      "Pilgrim", //Done
+      "Replace", //Done
+      "Scholar", //Done
       "Seer",
       "Soothsayer",
       "Stables",
@@ -1125,7 +1125,7 @@ export class DOMObserver {
     if (DOMObserver.isKingdomElementPresent()) {
       DOMObserver.setKingdom(DOMObserver.getClientKingdom());
       DOMObserver.setBaseOnly(
-        DOMObserver.baseKingdomCardCheck(DOMObserver.kingdom)
+        DOMObserver.supportedKingdomCardCheck(DOMObserver.kingdom)
       );
       DOMObserver.dispatch(setBaseOnly(DOMObserver.baseOnly));
       if (!DOMObserver.baseOnly) {

@@ -814,6 +814,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "topdecks":
         this.processTopDecksLine(cards, numberOfCards);
         break;
+      case "back onto their deck":
+        this.processTopDecksLine(cards, numberOfCards);
+        break;
       case "looks at":
         this.processLooksAtLine(cards, numberOfCards);
         break;
@@ -825,9 +828,6 @@ export class Deck extends BaseDeck implements StoreDeck {
         break;
       case "into their hand":
         this.processIntoTheirHandLine(cards, numberOfCards);
-        break;
-      case "back onto their deck":
-        this.processTopDecksLine(cards, numberOfCards);
         break;
       case "moves their deck to the discard":
         this.processMovesTheirDeckToTheDiscardLine();
@@ -859,10 +859,15 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sage",
             "Farming Village",
             "Wandering Minstrel",
+            "Hunter",
+            "Cartographer",
+            "Hunting Party",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
-        } else if (["Vassal", "Courier"].includes(mostRecentPlay)) {
+        } else if (
+          ["Vassal", "Courier", "Harvest", "Jester"].includes(mostRecentPlay)
+        ) {
           this.discardFromLibrary(cards[i]);
         } else {
           this.discard(cards[i]);
@@ -935,7 +940,20 @@ export class Deck extends BaseDeck implements StoreDeck {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Mountain Village"].includes(this.latestAction)) {
           this.drawFromGraveyard(cards[i]);
-        } else this.drawFromSetAside(cards[i]);
+        }
+        if (
+          [
+            "Hunting Party",
+            "Hunter",
+            "Farming Village",
+            "Sea Chart",
+            "Sage",
+            "Patrol",
+            "Seer",
+          ].includes(this.latestAction)
+        ) {
+          this.drawFromSetAside(cards[i]);
+        }
       }
     }
   }
@@ -959,6 +977,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sentinel",
             "Fortune Hunter",
             "Wandering Minstrel",
+            "Cartographer",
           ].includes(mostRecentPlay)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -981,8 +1000,6 @@ export class Deck extends BaseDeck implements StoreDeck {
             this.setAsideFromLibrary(cards[i]);
             this.setWaitToDrawLibraryLook(true);
           }
-        } else {
-          // Looks at line was not caused by a Sentry, Bandit, or Library.  Nothing to process.
         }
       }
     }
@@ -1078,6 +1095,10 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sea Chart",
             "Farming Village",
             "Wandering Minstrel",
+            "Hunter",
+            "Hunting Party",
+            "Patrol",
+            "Seer",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1103,13 +1124,21 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sea Chart",
             "Fortune Hunter",
             "Wandering Minstrel",
+            "Hunter",
+            "Cartographer",
+            "Patrol",
+            "Seer",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
-        } else if (["Harbinger", "Scavenger"].includes(mostRecentAction)) {
+        } else if (
+          ["Harbinger", "Scavenger", "Replace"].includes(mostRecentAction)
+        ) {
           this.topDeckFromGraveyard(cards[i]);
         } else if (
-          ["Artisan", "Bureaucrat", "Courtyard"].includes(mostRecentAction)
+          ["Artisan", "Bureaucrat", "Courtyard", "Pilgrim"].includes(
+            mostRecentAction
+          )
         ) {
           this.topDeckFromHand(cards[i]);
         }
@@ -1130,7 +1159,7 @@ export class Deck extends BaseDeck implements StoreDeck {
           ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
         ) {
           this.trashFromSetAside(cards[i]);
-        } else if (["Swindler"].includes(mostRecentPlay)) {
+        } else if (["Swindler", "Barbarian"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
         } else if (
           mostRecentPlay === "Treasure Map" &&

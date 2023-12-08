@@ -149,6 +149,26 @@ describe("processTrashesLine", () => {
     expect(deck.hand).toStrictEqual(["Silver", "Estate"]);
   });
 
+  it("should remove cards trashed by Barbarian from library.", () => {
+    // Arrange
+    deck.latestAction = "Barbarian";
+    deck.library = ["Silver", "Estate","Vassal"];
+    deck.hand = ["Silver", "Estate"];
+    deck.entireDeck = ["Silver", "Silver", "Estate", "Estate", "Vassal"];
+    // Arguments for function being tested.
+    const cards = ["Vassal"];
+    const numberOfCards = [1];
+
+    // Act - simulate trashing an Estate from library by a Swindler.
+    deck.processTrashesLine(cards, numberOfCards);
+
+    // Assert - Verify the card was removed from library and entireDeck
+    expect(deck.entireDeck).toStrictEqual(["Silver", "Silver", "Estate","Estate"]);
+    expect(deck.library).toStrictEqual(["Silver","Estate"]);
+    // Verify hand is not changed
+    expect(deck.hand).toStrictEqual(["Silver", "Estate"]);
+  });
+
   it(
     "should trash from inPlay if the latestAction is 'Treasure Map' and the lastEntryProcessed " +
       "matches ' plays a Treasure Map.",

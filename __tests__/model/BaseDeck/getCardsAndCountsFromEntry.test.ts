@@ -15,7 +15,7 @@ describe("getCardsAndCountsFromEntry", () => {
 
   it("should return an array of cards and array of cardAmounts for given line", () => {
     // Act - Simulate calling with a line that has multiple cards with differing values.
-    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromEntry(
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
       "pName draws 4 Coppers, 10 Golds, and 2 Silvers."
     );
 
@@ -26,7 +26,7 @@ describe("getCardsAndCountsFromEntry", () => {
 
   it("should work for both numbers and the articles 'a' and 'an'", () => {
     // Act - Simulate calling with a line with one card starting a vowel.
-    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromEntry(
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
       "pName draws 4 Coppers, a Gold, and an Estate."
     );
 
@@ -37,7 +37,7 @@ describe("getCardsAndCountsFromEntry", () => {
 
   it("should return an empty arrays for lines with no card matches", () => {
     // Act - Simulate calling with a shuffle line.
-    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromEntry(
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
       "pNick shuffles their deck."
     );
 
