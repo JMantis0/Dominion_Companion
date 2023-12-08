@@ -949,6 +949,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sea Chart",
             "Sage",
             "Patrol",
+            "Seer",
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
@@ -1097,6 +1098,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Hunter",
             "Hunting Party",
             "Patrol",
+            "Seer",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1125,6 +1127,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Hunter",
             "Cartographer",
             "Patrol",
+            "Seer",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);

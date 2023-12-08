@@ -61,6 +61,19 @@ describe("processIntoTheirHandLine", () => {
     ]);
   });
 
+  it("should draw cards into hand from setAside when caused by a Seer", () => {
+    // Arrange
+    deck.latestAction = "Seer";
+    deck.setAside = ["Estate", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Estate", "Vassal"], [1, 1]);
+
+    // Assert - Verify cards were moved from setAside to hand.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Estate", "Vassal"]);
+  });
+
   it("should draw cards into hand from setAside when caused by a Hunting Party", () => {
     // Arrange
     deck.latestAction = "Hunting Party";

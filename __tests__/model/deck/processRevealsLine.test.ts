@@ -121,6 +121,31 @@ describe("processRevealsLine", () => {
     expect(deck.setAside).toStrictEqual(["Silver", "Silver", "Cellar"]);
   });
 
+  it("should move cards revealed by a Seer from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Seer";
+    deck.library = [
+      "Copper",
+      "Copper",
+      "Chapel",
+      "Estate",
+      "Bureaucrat",
+      "Gold",
+    ];
+    deck.setAside = [];
+
+    // Act - Simulate revealing a 2 Coppers and a Chapel from library with a Seer.
+    deck.processRevealsLine(["Copper", "Chapel"], [2, 1]);
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual([
+      "Estate",
+      "Bureaucrat",
+      "Gold",
+    ]);
+    expect(deck.setAside).toStrictEqual(["Copper", "Copper", "Chapel"]);
+  });
+
   it("should move cards revealed by a Patrol from library to setAside", () => {
     // Arrange
     deck.latestAction = "Patrol";

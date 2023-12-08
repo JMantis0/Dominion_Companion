@@ -185,6 +185,25 @@ describe("processTopDecksLine", () => {
     expect(deck.hand).toStrictEqual(["Market"]);
   });
 
+  it("should move cards topdecked by a Seer from setAside.", () => {
+    // Arrange deck state
+    deck.latestAction = "Seer";
+    deck.library = ["Silver"];
+    deck.hand = ["Market"];
+    deck.graveyard = ["Bureaucrat"];
+    deck.setAside = ["Copper", "Copper"];
+
+    // Act - Simulate top decking a Copper, a Gold, and a Moneylender with a Seer
+    deck.processTopDecksLine(["Copper"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.library).toStrictEqual(["Silver", "Copper", "Copper"]);
+    // Verify graveyard and hand are unchanged.
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
   it("should move cards topdecked by a Lookout from setAside.", () => {
     // Arrange deck state
     deck.latestAction = "Lookout";
