@@ -912,7 +912,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Bureaucrat", "Armory", "Treasure Map"].includes(mostRecentPlay)) {
           this.gainIntoLibrary(cards[i]);
-        } else if (this.isArtisanGain() || this.isMineGain()) {
+        } else if (
+          ["Artisan", "Mine", "Trading Post"].includes(mostRecentPlay)
+        ) {
           this.gainIntoHand(cards[i]);
         } else {
           const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
@@ -1162,8 +1164,9 @@ export class Deck extends BaseDeck implements StoreDeck {
         } else if (["Swindler", "Barbarian"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
         } else if (
-          mostRecentPlay === "Treasure Map" &&
-          this.lastEntryProcessed.match(" plays a Treasure Map.") !== null
+          (mostRecentPlay === "Treasure Map" &&
+            this.lastEntryProcessed.match(" plays a Treasure Map.") !== null) ||
+          ["Tragic Hero"].includes(mostRecentPlay)
         ) {
           this.trashFromInPlay(cards[i]);
         } else {

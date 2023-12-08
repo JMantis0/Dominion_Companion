@@ -430,15 +430,15 @@ export class DOMObserver {
       "Magnate", //Done
       "Minion", //Done
       "Old Witch", //Done
-      "Patrol",   //Done
+      "Patrol", //Done
       "Pilgrim", //Done
       "Replace", //Done
       "Scholar", //Done
-      "Seer",
-      "Soothsayer",
-      "Stables",
-      "Trading Post",
-      "Tragic Hero",
+      "Seer", //Done
+      "Soothsayer", //Done
+      "Stables", //Done
+      "Trading Post", //Done
+      "Tragic Hero", //Done
       "Upgrade",
       "Wheelwright",
       "Witch's Hut",

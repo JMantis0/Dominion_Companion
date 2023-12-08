@@ -16,6 +16,7 @@ describe("processGainsLine", () => {
       "Cellar",
       "Laboratory",
       "Treasure Map",
+      "Trading Post",
     ]);
     jest.clearAllMocks();
   });
@@ -182,6 +183,27 @@ describe("processGainsLine", () => {
     expect(deck.graveyard).toStrictEqual([]);
     // Verify the logArchive was not changed.
     expect(deck.logArchive).toStrictEqual(["pNick plays an Bureaucrat."]);
+  });
+
+  it("should add cards gained by Trading Post to hand.", () => {
+    // Arrange
+    deck.latestAction = "Trading Post";
+    deck.hand = ["Artisan", "Gold"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan", "Trading Post", "Gold"];
+
+    // Act - Simulate gaining a Silver by playing a Trading Post.
+    deck.processGainsLine("pNick gains a Silver.", ["Silver"], [1]);
+
+    // Assert - Verify a Silver was added to hand and entireDeck.
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Artisan",
+      "Trading Post",
+      "Gold",
+      "Silver",
+    ]);
+    expect(deck.hand).toStrictEqual(["Artisan", "Gold", "Silver"]);
   });
 
   it("should add cards gained by Armory to library.", () => {
