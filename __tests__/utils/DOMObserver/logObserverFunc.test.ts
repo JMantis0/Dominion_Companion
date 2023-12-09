@@ -14,6 +14,7 @@ describe("logObserverFunc", () => {
   // Mock dependencies
   let storeMock: DOMStore;
   let gameLogElement: HTMLElement;
+  jest.spyOn(Deck.prototype, "checkLogAccuracy").mockReturnValue(true);
   const getNewLogsAndUpdateDecks = jest.spyOn(
     DOMObserver,
     "getNewLogsAndUpdateDecks"

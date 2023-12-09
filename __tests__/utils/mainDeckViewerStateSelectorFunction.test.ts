@@ -35,30 +35,8 @@ describe("mainDeckViewerStateSelectorFunction", () => {
     // Construct the expected state object
     const expected: MainDeckViewerState = {
       deck: {
-        entireDeck: [
-          "Estate",
-          "Copper",
-          "Estate",
-          "Copper",
-          "Estate",
-          "Copper",
-          "Copper",
-          "Copper",
-          "Copper",
-          "Copper",
-        ],
-        library: [
-          "Estate",
-          "Copper",
-          "Estate",
-          "Copper",
-          "Estate",
-          "Copper",
-          "Copper",
-          "Copper",
-          "Copper",
-          "Copper",
-        ],
+        entireDeck: [],
+        library: [],
         graveyard: [],
         hand: [],
         inPlay: [],

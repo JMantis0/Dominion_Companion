@@ -425,7 +425,9 @@ const getRowColor = (cardName: string): string => {
     "Province",
     "Gardens",
     "Colony",
+    "Overgrown Estate",
   ];
+  const reactions: string[] = ["Moat", "Hovel"];
   const treasures: string[] = ["Copper", "Silver", "Gold", "Platinum"];
   if (treasures.indexOf(cardName) > -1) {
     color = treasureClass;
@@ -433,7 +435,7 @@ const getRowColor = (cardName: string): string => {
     color = victoryClass;
   } else if (cardName === "Curse") {
     color = curseClass;
-  } else if (cardName === "Moat") {
+  } else if (reactions.includes(cardName)) {
     color = reactionClass;
   } else color = actionClass;
   return color;

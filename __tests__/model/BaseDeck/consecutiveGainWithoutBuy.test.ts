@@ -34,7 +34,15 @@ describe("consecutiveGainWithoutBuy", () => {
       // Arrange
       deck.lastEntryProcessed = "L gains a Curse";
       // Act and Assert - Verify method returns false when either of the two lines are not applying to the deck.
-      expect(deck.consecutiveGainWithoutBuy("G gains a Gold"));
+      expect(deck.consecutiveGainWithoutBuy("G gains a Gold")).toBe(false);
     }
   );
+  it("should return false if the latestPlaySource and latestPlay are both Dismantle", () => {
+    // Arrange
+    deck.lastEntryProcessed = "P gains a Copper.";
+    deck.latestAction = "Dismantle";
+    deck.latestPlay = "Dismantle";
+    // Act and Assert - Verify method returns false when either of the two lines are not applying to the deck.
+    expect(deck.consecutiveGainWithoutBuy("P gains a Gold.")).toBe(false);
+  });
 });

@@ -439,12 +439,12 @@ export class DOMObserver {
       "Stables", //Done
       "Trading Post", //Done
       "Tragic Hero", //Done
-      "Upgrade",
-      "Wheelwright",
+      "Upgrade", //Done
+      "Wheelwright", //Done
       "Witch's Hut",
-      "Altar",
-      "Marquis",
-      "Expand",
+      "Altar", //Done
+      "Marquis", //Done
+      "Expand", //Done
       "Necropolis",
       "Hovel",
       "Overgrown Estate",

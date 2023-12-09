@@ -119,6 +119,7 @@ describe("handleConsecutiveDuplicates", () => {
       expect(deck.logArchive).toStrictEqual(["P trashes a Treasure Map."]);
     }
   );
+
   it(
     "should handle consecutive 'into their hand' lines by removing the most recent logEntry from the logArchive " +
       "and returning the correct card types and card amounts",

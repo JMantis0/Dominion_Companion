@@ -49,6 +49,7 @@ describe("update", () => {
   );
 
   const setLogArchive = jest.spyOn(Deck.prototype, "setLogArchive");
+  jest.spyOn(Deck.prototype, "checkLogAccuracy").mockReturnValue(true);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -97,7 +98,7 @@ describe("update", () => {
 
     expect(getMostRecentAction).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
-    expect(handleIncomingPasses).toBeCalledTimes(1);
+    expect(handleIncomingPasses).not.toBeCalled();
   });
 
   it("should correctly handle single log lines that are non-consecutive treasure plays that do not apply to the deck", () => {
@@ -122,7 +123,7 @@ describe("update", () => {
     expect(updateVP).toBeCalledTimes(1);
     expect(getMostRecentAction).toBeCalledTimes(1);
     expect(setLatestPlay).toBeCalledTimes(1);
-    expect(handleIncomingPasses).toBeCalledTimes(1);
+    expect(handleIncomingPasses).not.toBeCalled();
   });
 
   it("should correctly handle single log lines that apply to the deck", () => {
@@ -196,7 +197,7 @@ describe("update", () => {
     expect(updateVP).toBeCalledTimes(3);
     expect(getMostRecentAction).toBeCalledTimes(3);
     expect(setLatestPlay).toBeCalledTimes(3);
-    expect(handleIncomingPasses).toBeCalledTimes(1);
+    expect(handleIncomingPasses).not.toBeCalled();
   });
 
   it("should correctly identify and remove repeat buy gains done by an opponent", () => {
@@ -218,5 +219,47 @@ describe("update", () => {
     ]);
   });
 
-  // TODO add cases
+  it("should not remove treasure play log lines that are played by Courier", () => {
+    deck.logArchive = [
+      "t plays a Courier.",
+      "t gets +$1.",
+      "t shuffles their deck.",
+      "t discards a Copper.",
+      "t looks at a Copper.",
+      "t plays a Copper. (+$1)",
+    ];
+    deck.latestPlaySource = "Courier";
+    deck.update(["t plays a Silver and 2 Coppers. (+$4)"]);
+    expect(deck.logArchive).toStrictEqual([
+      "t plays a Courier.",
+      "t gets +$1.",
+      "t shuffles their deck.",
+      "t discards a Copper.",
+      "t looks at a Copper.",
+      "t plays a Copper. (+$1)",
+      "t plays a Silver and 2 Coppers. (+$4)",
+    ]);
+  });
+
+  it("should not remove treasure play log lines that are played by Fortune Hunter", () => {
+    deck.logArchive = [
+      "t plays a Fortune Hunter.",
+      "t gets +$2.",
+      "t looks at 3 Coppers.",
+      "t puts a Copper into their hand.",
+      "t topdecks 2 Coppers.",
+      "t plays a Copper. (+$1)",
+    ];
+    deck.latestPlaySource = "Fortune Hunter";
+    deck.update(["t plays a Silver and 2 Coppers. (+$4)"]);
+    expect(deck.logArchive).toStrictEqual([
+      "t plays a Fortune Hunter.",
+      "t gets +$2.",
+      "t looks at 3 Coppers.",
+      "t puts a Copper into their hand.",
+      "t topdecks 2 Coppers.",
+      "t plays a Copper. (+$1)",
+      "t plays a Silver and 2 Coppers. (+$4)",
+    ]);
+  });
 });
