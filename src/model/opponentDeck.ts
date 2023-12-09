@@ -14,7 +14,6 @@ export class OpponentDeck extends BaseDeck {
     kingdom: Array<string>
   ) {
     super(gameTitle, ratedGame, rating, playerName, playerNick, kingdom);
-    this.setDebug(false);
   }
 
   /**
@@ -65,6 +64,10 @@ export class OpponentDeck extends BaseDeck {
         break;
       case "passes":
         this.processPassesLine(cards, numberOfCards);
+        break;
+      case "starts with":
+        this.processStartsWithLine(cards, numberOfCards);
+        break;
     }
   }
 
@@ -111,6 +114,19 @@ export class OpponentDeck extends BaseDeck {
         } else {
           this.removeCardFromEntireDeck(cards[i]);
         }
+      }
+    }
+  }
+
+  /**
+   * Update function.  Adds starting cards to the entireDeck.
+   * @param cards - The given card names to start with.
+   * @param numberOfCards - The given card amounts to start with.
+   */
+  processStartsWithLine(cards: string[], numberOfCards: number[]) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        this.addCardToEntireDeck(cards[i]);
       }
     }
   }

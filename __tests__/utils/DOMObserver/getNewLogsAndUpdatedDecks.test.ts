@@ -13,6 +13,7 @@ describe("Function getNewLogsAndUpdateDecks", () => {
   let oDeck: OpponentDeck;
   let deckMap: Map<string, Deck | OpponentDeck>;
   let storeMock: DOMStore;
+  jest.spyOn(Deck.prototype, "checkLogAccuracy").mockReturnValue(true);
 
   beforeEach(() => {
     // Create a new store instance for DOMObserver

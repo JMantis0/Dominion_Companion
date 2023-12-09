@@ -430,21 +430,21 @@ export class DOMObserver {
       "Magnate", //Done
       "Minion", //Done
       "Old Witch", //Done
-      "Patrol",   //Done
+      "Patrol", //Done
       "Pilgrim", //Done
       "Replace", //Done
       "Scholar", //Done
-      "Seer",
-      "Soothsayer",
-      "Stables",
-      "Trading Post",
-      "Tragic Hero",
-      "Upgrade",
-      "Wheelwright",
+      "Seer", //Done
+      "Soothsayer", //Done
+      "Stables", //Done
+      "Trading Post", //Done
+      "Tragic Hero", //Done
+      "Upgrade", //Done
+      "Wheelwright", //Done
       "Witch's Hut",
-      "Altar",
-      "Marquis",
-      "Expand",
+      "Altar", //Done
+      "Marquis", //Done
+      "Expand", //Done
       "Necropolis",
       "Hovel",
       "Overgrown Estate",

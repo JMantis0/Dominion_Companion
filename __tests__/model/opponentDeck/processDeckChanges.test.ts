@@ -13,6 +13,9 @@ describe("Method processDeckChanges", () => {
   const processPassesLine = jest
     .spyOn(OpponentDeck.prototype, "processPassesLine")
     .mockImplementation(() => null);
+  const processStartsWithLine = jest
+    .spyOn(OpponentDeck.prototype, "processStartsWithLine")
+    .mockImplementation(() => null);
   beforeEach(() => {
     jest.clearAllMocks();
     deck = new OpponentDeck("", false, "", "pName", "pNick", []);
@@ -34,6 +37,7 @@ describe("Method processDeckChanges", () => {
     expect(processGainsLine).toBeCalledTimes(1);
     expect(processGainsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processTrashesLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
     expect(processPassesLine).not.toBeCalled();
   });
 
@@ -53,6 +57,7 @@ describe("Method processDeckChanges", () => {
     expect(processTrashesLine).toBeCalledTimes(1);
     expect(processTrashesLine).toBeCalledWith(cards, numberOfCards);
     expect(processGainsLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
     expect(processPassesLine).not.toBeCalled();
   });
 
@@ -71,6 +76,22 @@ describe("Method processDeckChanges", () => {
     // Assert - Verify only the processTrashesLine method is called and it is called with the correct arguments.
     expect(processPassesLine).toBeCalledTimes(1);
     expect(processPassesLine).toBeCalledWith(cards, numberOfCards);
+    expect(processGainsLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+  });
+
+  it("Should only call the method processStartsWithLine when the act is 'starts with'", () => {
+    const line = "P starts with 7 Coppers and 3 Estates.";
+    const act = "starts with";
+    const cards = ["Copper", "Estate"];
+    const numberOfCards = [7, 3];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+    // Assert - Verify only the processTrashesLine method is called and it is called with the correct arguments.
+    expect(processStartsWithLine).toBeCalledTimes(1);
+    expect(processStartsWithLine).toBeCalledWith(cards, numberOfCards);
+    expect(processPassesLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
   });

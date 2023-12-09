@@ -13,8 +13,8 @@ describe("handleIncomingPasses", () => {
 
     // Act - handle a line that is passing to the deck
     deck.handleIncomingPasses(
-      "passes",
       "L passes a Bureaucrat to pNick.",
+      "passes",
       ["Bureaucrat"],
       [1]
     );
@@ -31,8 +31,8 @@ describe("handleIncomingPasses", () => {
 
     // Act - handle a line that is passing to a different player
     deck.handleIncomingPasses(
-      "passes",
       "L passes a Bureaucrat to Charles.",
+      "passes",
       ["Bureaucrat"],
       [1]
     );

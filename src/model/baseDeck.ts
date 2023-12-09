@@ -1,4 +1,5 @@
 import { GameResult } from "../utils";
+import { getLogScrollContainerLogLines } from "../utils/utils";
 
 export class BaseDeck {
   currentVP: number = 3;
@@ -35,12 +36,6 @@ export class BaseDeck {
     this.gameTurn = 0;
     this.ratedGame = ratedGame;
     this.rating = rating;
-    for (let i = 0; i < 7; i++) {
-      if (i < 3) {
-        this.entireDeck.push("Estate");
-      }
-      this.entireDeck.push("Copper");
-    }
   }
 
   getCurrentVP(): number {
@@ -246,6 +241,28 @@ export class BaseDeck {
   }
 
   /**
+   * Checks the game-log in the client and the logArchive for accuracy,
+   * used to identify bugs.
+   * @returns - boolean for if the logs are accurately matching.
+   */
+  checkLogAccuracy(): boolean {
+    const gameLog = getLogScrollContainerLogLines();
+    const gLogTexts = [];
+    for (const el of gameLog) {
+      gLogTexts.push(el.innerText);
+    }
+    const accurate =
+      gLogTexts.length === this.logArchive.length ||
+      (gLogTexts.length === this.logArchive.length + 1 &&
+        gLogTexts.slice().pop() === "Between Turns");
+    if (!accurate) {
+      console.log("gameLog", gLogTexts);
+      console.log("logArchive", this.logArchive);
+    }
+    return accurate;
+  }
+
+  /**
    * Checks if the card in the most recent logArchive entry
    * was for the purchase of the card in the current line.
    * Purpose: Deck control flow to keep logArchive from having duplicate entries.
@@ -299,10 +316,17 @@ export class BaseDeck {
       this.lastEntryProcessed.match(" buys ") === null &&
       this.logEntryAppliesToThisDeck(line) &&
       line.match(" gains ") !== null &&
-      line.match(" buys ") === null;
+      line.match(" buys ") === null &&
+      !(this.latestAction === "Dismantle" && this.latestPlay === "Dismantle");
     return consecutive;
   }
 
+  /**
+   * Checks for consecutive 'into their hand' lines.  Needed to remove
+   * duplicate logs from the log archive.
+   * @param line - the given line.
+   * @returns - Boolean for whether the lines are consecutive into their hand lines.
+   */
   consecutiveIntoTheirHandLines(line: string): boolean {
     const consecutive =
       this.lastEntryProcessed.match(" into their hand") !== null &&
@@ -324,6 +348,12 @@ export class BaseDeck {
     );
   }
 
+  /**
+   * Checks if the given line and last line processed are both trash lines.
+   * Needed to keep the log archive and game log in sync.
+   * @param line - The given line.
+   * @returns Boolean for wether the lines are consecutive trashes.
+   */
   consecutiveTrash(line: string): boolean {
     const consecutiveTrashes =
       line.match(" trashes ") !== null &&
@@ -340,7 +370,9 @@ export class BaseDeck {
   consecutiveTreasurePlays(entry: string): boolean {
     const consecutiveTreasurePlays: boolean =
       this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
-      this.checkForTreasurePlayLine(entry);
+      this.checkForTreasurePlayLine(entry) &&
+      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource); // treasures played by these sources get their own log lines in the client game-log.
+
     return consecutiveTreasurePlays;
   }
 
@@ -358,12 +390,7 @@ export class BaseDeck {
     let act: string = "";
     let cards: Array<string> = [];
     let number: Array<number> = [];
-    if (
-      this.consecutiveTreasurePlays(line) &&
-      // If treasures that are not played from hand should not trigger
-      // consecutive treasure plays.
-      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource)
-    ) {
+    if (this.consecutiveTreasurePlays(line)) {
       number = this.getConsecutiveTreasurePlayCounts(line);
       act = "plays";
       cards = ["Copper", "Silver", "Gold", "Platinum"];
@@ -421,6 +448,7 @@ export class BaseDeck {
       "into their hand",
       "back onto their deck",
       "moves their deck to the discard",
+      "starts with",
     ];
     const lineWithoutNickName = line.slice(this.playerNick.length);
     if (line.match(" reveals their hand:") === null)

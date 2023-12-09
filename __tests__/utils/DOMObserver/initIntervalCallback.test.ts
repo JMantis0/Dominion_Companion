@@ -42,6 +42,7 @@ describe("initIntervalCallback", () => {
 
   // Spy on the MutationObserver's observe method
   const observe = jest.spyOn(MutationObserver.prototype, "observe");
+  jest.spyOn(Deck.prototype, "checkLogAccuracy").mockReturnValue(true);
   const clearInterval = jest
     .spyOn(global, "clearInterval")
     .mockImplementation(() => {});

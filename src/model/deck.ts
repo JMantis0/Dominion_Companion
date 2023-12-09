@@ -6,6 +6,8 @@ import {
 } from "../utils/utils";
 import type { StoreDeck } from "../utils";
 import { BaseDeck } from "./baseDeck";
+import { setError } from "../redux/contentSlice";
+import { store } from "../redux/store";
 
 /**
  * Class for a Deck object used to track a
@@ -29,12 +31,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     kingdom: Array<string>
   ) {
     super(gameTitle, ratedGame, rating, playerName, playerNick, kingdom);
-    for (let i = 0; i < 7; i++) {
-      if (i < 3) {
-        this.library.push("Estate");
-      }
-      this.library.push("Copper");
-    }
     this.debug = true;
   }
 
@@ -620,8 +616,8 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - The amounts of the cards on the given line.
    */
   handleIncomingPasses(
-    act: string,
     line: string,
+    act: string,
     cards: string[],
     numberOfCards: number[]
   ) {
@@ -832,6 +828,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "moves their deck to the discard":
         this.processMovesTheirDeckToTheDiscardLine();
         break;
+      case "starts with":
+        this.processStartsWithLine(cards, numberOfCards);
+        break;
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -912,7 +911,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Bureaucrat", "Armory", "Treasure Map"].includes(mostRecentPlay)) {
           this.gainIntoLibrary(cards[i]);
-        } else if (this.isArtisanGain() || this.isMineGain()) {
+        } else if (
+          ["Artisan", "Mine", "Trading Post"].includes(mostRecentPlay)
+        ) {
           this.gainIntoHand(cards[i]);
         } else {
           const buyAndGain = this.checkForBuyAndGain(line, cards[i]);
@@ -1016,6 +1017,36 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  processOpponentLog(
+    line: string,
+    act: string,
+    cards: string[],
+    numberOfCards: number[]
+  ) {
+    switch (act) {
+      case "plays":
+        this.processOpponentPlaysLine();
+        break;
+      case "passes":
+        this.handleIncomingPasses(line, act, cards, numberOfCards);
+    }
+  }
+
+  /**
+   * Update method handles deck state updates related to opponent 'plays' lines.
+   * Needed to update latestPlaySource for opponent log lines.
+   */
+  processOpponentPlaysLine() {
+    const nonHandPlaySource = this.checkForNonHandPlay();
+    let latestPlaySource: string;
+    if (nonHandPlaySource === "None") {
+      latestPlaySource = "Hand";
+    } else {
+      latestPlaySource = nonHandPlaySource;
+    }
+    this.setLatestPlaySource(latestPlaySource);
+  }
+
   /**
    * Update method handles passes of cards from one player to another.
    * @param cards - The cards being passed.
@@ -1108,6 +1139,19 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Update function.  Adds starting cards to the library and entireDeck.
+   * @param cards - The given card names to start with.
+   * @param numberOfCards - The given card amounts to start with.
+   */
+  processStartsWithLine(cards: string[], numberOfCards: number[]) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        this.gainIntoLibrary(cards[i]);
+      }
+    }
+  }
+
+  /**
    * Update function.  Topdecks cards according to the provided information.
    * @param cards  - Array of card names to topdeck.
    * @param numberOfCards - Array of the amounts of each card to topdeck.
@@ -1162,8 +1206,9 @@ export class Deck extends BaseDeck implements StoreDeck {
         } else if (["Swindler", "Barbarian"].includes(mostRecentPlay)) {
           this.trashFromLibrary(cards[i]);
         } else if (
-          mostRecentPlay === "Treasure Map" &&
-          this.lastEntryProcessed.match(" plays a Treasure Map.") !== null
+          (mostRecentPlay === "Treasure Map" &&
+            this.lastEntryProcessed.match(" plays a Treasure Map.") !== null) ||
+          ["Tragic Hero"].includes(mostRecentPlay)
         ) {
           this.trashFromInPlay(cards[i]);
         } else {
@@ -1423,13 +1468,21 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.drawLookedAtCardIfNeeded(act);
         this.processDeckChanges(line, act, cards, numberOfCards);
       } else {
-        this.handleIncomingPasses(act, line, cards, numberOfCards);
+        this.processOpponentLog(line, act, cards, numberOfCards);
       }
       this.updateArchives(line);
       this.updateVP();
       this.setLatestAction(this.getMostRecentAction(this.logArchive));
       this.setLatestPlay(this.getMostRecentPlay(this.logArchive));
+      // Check for logArchive Accuracy
+
       if (this.debug) console.groupEnd();
     });
+    if (!this.checkLogAccuracy()) {
+      console.error("logArchive and gameLog lengths differ");
+      store.dispatch(setError("logArchive and gameLog lengths differ"));
+    } else {
+      store.dispatch(setError(null));
+    }
   }
 }

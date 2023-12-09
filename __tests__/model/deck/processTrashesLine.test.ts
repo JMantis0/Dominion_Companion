@@ -152,7 +152,7 @@ describe("processTrashesLine", () => {
   it("should remove cards trashed by Barbarian from library.", () => {
     // Arrange
     deck.latestAction = "Barbarian";
-    deck.library = ["Silver", "Estate","Vassal"];
+    deck.library = ["Silver", "Estate", "Vassal"];
     deck.hand = ["Silver", "Estate"];
     deck.entireDeck = ["Silver", "Silver", "Estate", "Estate", "Vassal"];
     // Arguments for function being tested.
@@ -163,8 +163,13 @@ describe("processTrashesLine", () => {
     deck.processTrashesLine(cards, numberOfCards);
 
     // Assert - Verify the card was removed from library and entireDeck
-    expect(deck.entireDeck).toStrictEqual(["Silver", "Silver", "Estate","Estate"]);
-    expect(deck.library).toStrictEqual(["Silver","Estate"]);
+    expect(deck.entireDeck).toStrictEqual([
+      "Silver",
+      "Silver",
+      "Estate",
+      "Estate",
+    ]);
+    expect(deck.library).toStrictEqual(["Silver", "Estate"]);
     // Verify hand is not changed
     expect(deck.hand).toStrictEqual(["Silver", "Estate"]);
   });
@@ -192,6 +197,54 @@ describe("processTrashesLine", () => {
       expect(deck.entireDeck).toStrictEqual(["Copper", "Estate"]);
     }
   );
+  it("should trash from inPlay if the latestAction is 'Tragic Hero", () => {
+    // Arrange
+    deck.latestAction = "Tragic Hero";
+    deck.entireDeck = [
+      "Copper",
+      "Estate",
+      "Tragic Hero",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+    ];
+    deck.inPlay = ["Tragic Hero"];
+    deck.library = ["Copper"];
+    deck.hand = [
+      "Estate",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+    ];
+    deck.trash = ["Copper"];
+
+    // Act
+    deck.processTrashesLine(["Tragic Hero"], [1]);
+
+    // Assert - Verify the card was trashed from inPlay
+    expect(deck.inPlay).toStrictEqual([]);
+    expect(deck.trash).toStrictEqual(["Copper", "Tragic Hero"]);
+    // Verify the card was removed from the entire deck.
+    expect(deck.entireDeck).toStrictEqual([
+      "Copper",
+      "Estate",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+    ]);
+  });
 
   it(
     "should trash from hand if the latestAction is 'Treasure Map' and the lastEntryProcessed " +
