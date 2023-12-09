@@ -1,6 +1,6 @@
 import { GameResult } from "../utils";
 import { getLogScrollContainerLogLines } from "../utils/utils";
-
+import durationList from "../../src/utils/durations";
 export class BaseDeck {
   currentVP: number = 3;
   debug: boolean = true;
@@ -734,6 +734,24 @@ export class BaseDeck {
       }
     }
     return consecutiveMerchantBonus;
+  }
+
+  /**
+   * Checks whether the given plays line plays a duration card.
+   * @param playLine - the given line
+   * @returns -Boolean for whether the line plays a duration card.
+   */
+  isDurationPlay(playLine: string): boolean {
+    let durationPlay: boolean = false;
+    const durationNames = Object.keys(durationList);
+    if (playLine.match(" plays ") !== null)
+      for (let i = 0; i <= durationNames.length; i++) {
+        if (playLine.match(durationNames[i]) !== null) {
+          durationPlay = true;
+          break;
+        }
+      }
+    return durationPlay;
   }
 
   /**

@@ -7,6 +7,7 @@ import {
 import { ToolkitStore } from "@reduxjs/toolkit/dist/configureStore";
 import { ContentState } from "../redux/contentSlice";
 import { OptionsState } from "../redux/optionsSlice";
+import { Duration } from "../model/duration";
 
 /**
  * Custom object literal type.  One property holds value for the total amount of cards
@@ -55,6 +56,84 @@ type DOMStore = ToolkitStore<
     >
   | never[]
 >;
+
+type DurationName =
+  | "Cage"
+  | "Grotto"
+  | "Guardian"
+  | "Haven"
+  | "Lighthouse"
+  | "Search"
+  | "Amulet"
+  | "Astrolabe"
+  | "Caravan Guard"
+  | "Cargo Ship"
+  | "Church"
+  | "Dungeon"
+  | "Enchantress"
+  | "Fishing Village"
+  | "Gear"
+  | "Ghost Town"
+  | "Importer"
+  | "Monkey"
+  | "Secluded Shrine"
+  | "Secret Cave"
+  | "Siren"
+  | "Stowaway"
+  | "Taskmaster"
+  | "Abundance"
+  | "Blockade"
+  | "Cabin Boy"
+  | "Caravan"
+  | "Conjurer"
+  | "Flagship"
+  | "Garrison"
+  | "Landing Party"
+  | "Research"
+  | "Royal Galley"
+  | "Sailor"
+  | "Tide Pools"
+  | "Village Green"
+  | "Voyage"
+  | "Rope"
+  | "Ghost"
+  | "Archive"
+  | "Barge"
+  | "Bridge Troll"
+  | "Buried Treasure"
+  | "Cobbler"
+  | "Contract"
+  | "Corsair"
+  | "Crew"
+  | "Crypt"
+  | "Cutthroat"
+  | "Den of Sin"
+  | "Enlarge"
+  | "Frigate"
+  | "Gatekeeper"
+  | "Haunted Woods"
+  | "Highwayman"
+  | "Longship"
+  | "Mastermind"
+  | "Merchant Ship"
+  | "Outpost"
+  | "Pirate"
+  | "Quartermaster"
+  | "Sea Witch"
+  | "Swamp Hag"
+  | "Tactician"
+  | "Warlord"
+  | "Wharf"
+  | "Captain"
+  | "Hireling"
+  | "Raider"
+  | "Stronghold"
+  | "Champion"
+  | "Amphora"
+  | "Endless Chalice"
+  | "Figurehead"
+  | "Jewels"
+  | "Prince";
 
 /**
  * Interface used for handling unknown objects that *might* be an error.
@@ -195,6 +274,7 @@ interface SplitMaps {
  * Type used to stringify and store in Chrome Local Storage
  */
 interface StoreDeck {
+  activeDurations: Array<Duration>;
   currentVP: number;
   entireDeck: Array<string>;
   gameResult: GameResult;
@@ -223,6 +303,7 @@ export {
   CardCounts,
   DeckZones,
   DiscardZoneViewerState,
+  DurationName,
   DOMStore,
   ErrorWithMessage,
   GameResult,
