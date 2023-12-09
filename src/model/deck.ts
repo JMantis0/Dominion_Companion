@@ -8,12 +8,14 @@ import type { StoreDeck } from "../utils";
 import { BaseDeck } from "./baseDeck";
 import { setError } from "../redux/contentSlice";
 import { store } from "../redux/store";
+import { Duration } from "./duration";
 
 /**
  * Class for a Deck object used to track a
  * player's Deck state.
  */
 export class Deck extends BaseDeck implements StoreDeck {
+  activeDurations: Array<Duration> = [];
   graveyard: Array<string> = [];
   hand: Array<string> = [];
   inPlay: Array<string> = [];
