@@ -1,15 +1,19 @@
 import { DurationName } from "../utils";
+import { duration_constants } from "../utils/durations";
 
 export class Duration {
-  age: number = 0;
+  age: number | undefined = 0;
   name: DurationName;
-  constructor(name: DurationName) {
+  constructor(name: DurationName, age?: number) {
     this.name = name;
+    if (age !== undefined) {
+      this.age = age;
+    } else this.age = duration_constants[name].LIFESPAN;
   }
-  getAge(): number {
+  getAge(): number | undefined {
     return this.age;
   }
-  setAge(age: number) {
+  setAge(age: number | undefined) {
     this.age = age;
   }
   getName(): DurationName {

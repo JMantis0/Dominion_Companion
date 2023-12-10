@@ -26,6 +26,7 @@ import { RootState, store } from "../redux/store";
 import { setMinimized, setViewerHidden } from "../redux/contentSlice";
 import { Serializable } from "child_process";
 import Scrollbars from "react-custom-scrollbars-2";
+import { duration_constants } from "./durations";
 
 /**
  * Function that calculates mathematical combinations
@@ -415,10 +416,11 @@ const getPrimaryFrameStatus = (): boolean | undefined => {
 const getRowColor = (cardName: string): string => {
   let color;
   const actionClass: string = "text-[#fff5c7]";
-  const victoryClass: string = "text-green-300";
+  const victoryClass: string = "text-[#6ed515]";
   const treasureClass: string = "text-[#F4FF00]";
   const curseClass: string = "text-purple-400";
   const reactionClass: string = "text-[#6eccff]";
+  const durationClass: string = "text-[#f49d20]";
   const victories: string[] = [
     "Estate",
     "Duchy",
@@ -429,6 +431,8 @@ const getRowColor = (cardName: string): string => {
   ];
   const reactions: string[] = ["Moat", "Hovel"];
   const treasures: string[] = ["Copper", "Silver", "Gold", "Platinum"];
+  const durations = Object.keys(duration_constants);
+
   if (treasures.indexOf(cardName) > -1) {
     color = treasureClass;
   } else if (victories.indexOf(cardName) > -1) {
@@ -437,6 +441,8 @@ const getRowColor = (cardName: string): string => {
     color = curseClass;
   } else if (reactions.includes(cardName)) {
     color = reactionClass;
+  } else if (durations.includes(cardName)) {
+    color = durationClass;
   } else color = actionClass;
   return color;
 };

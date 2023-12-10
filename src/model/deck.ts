@@ -36,6 +36,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.debug = true;
   }
 
+  getActiveDurations(): Duration[] {
+    return this.activeDurations;
+  }
+
+  setActiveDurations(activeDurations: Duration[]) {
+    this.activeDurations = activeDurations;
+  }
+
   getGraveyard() {
     return this.graveyard;
   }
@@ -90,6 +98,19 @@ export class Deck extends BaseDeck implements StoreDeck {
 
   setWaitToShuffle(wait: boolean) {
     this.waitToShuffle = wait;
+  }
+
+  /**
+   * Decreases age of all active durations by 1
+   */
+  ageAllActiveDurations() {
+    this.activeDurations.forEach((duration) => {
+      if (duration.age !== undefined) {
+        duration.setAge(duration.age - 1);
+      } else {
+        throw Error("Duration age is undefined.");
+      }
+    });
   }
 
   /**
@@ -291,9 +312,29 @@ export class Deck extends BaseDeck implements StoreDeck {
    * Iterates over all the card instances in the hand and inPlay field arrays.
    * For each iteration, the card instance is added to the graveyard array and removed
    * from the hand and/or inPlay arrays and added to the graveyard array.
+   * Active durations are excluded from this process, and remain in the inPlay array.
    */
   cleanup() {
     if (this.debug) console.group("Cleaning up:");
+    // Temporarily remove active durations with remaining lifespan from inPlay.
+    const livingDurations: Duration[] = [];
+    const livingDurationNames: string[] = [];
+    this.activeDurations.forEach((duration) => {
+      if (duration.age !== undefined && duration.age > 0) {
+        const index = this.inPlay.indexOf(duration.name);
+        if (index < 0) throw Error(`No ${duration.name} in play.`);
+        const inPlayCopy = this.inPlay.slice();
+        livingDurations.push(duration);
+        livingDurationNames.push(duration.name);
+        inPlayCopy.splice(index, 1);
+        this.setInPlay(inPlayCopy);
+      } else if (duration.age !== undefined && duration.age === 0) {
+        console.log(
+          `Duration ${duration.name} has reached 0 and will be removed.`
+        );
+      }
+    });
+
     const handCopy = this.hand.slice();
     const inPlayCopy = this.inPlay.slice();
     const graveyardCopy = this.graveyard.slice();
@@ -314,8 +355,13 @@ export class Deck extends BaseDeck implements StoreDeck {
       handCopy.splice(j, 1);
     }
     this.setHand(handCopy);
-    this.setInPlay(inPlayCopy);
     this.setGraveyard(graveyardCopy);
+    // Repopulate inPlay with living durations
+    this.setInPlay(livingDurationNames);
+    // Set the activeDurations field to be only the living durations
+    this.setActiveDurations(livingDurations);
+    // Age active durations.
+    this.ageAllActiveDurations();
     if (this.debug) console.groupEnd();
   }
 
@@ -1091,23 +1137,32 @@ export class Deck extends BaseDeck implements StoreDeck {
   processPlaysLine(line: string, cards: string[], numberOfCards: number[]) {
     const throneRoomPlay = line.match(" again.");
     const treasurePlay = this.checkForTreasurePlayLine(line);
+    const durationPlay = this.isDurationPlay(line);
     let nonHandPlay = this.checkForNonHandPlay();
     if (nonHandPlay === "Vassal" && treasurePlay) {
       nonHandPlay = "None";
     }
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (nonHandPlay === "Fortune Hunter") {
-          this.setLatestPlaySource("Fortune Hunter");
+        console.log("duration Play for line", line, "is", durationPlay);
+        if (durationPlay) {
+          // There is an assumption here that there will only be one card on the duration
+          // plays line.
+          const activeDurationsCopy = this.activeDurations.slice();
+          activeDurationsCopy.push(new Duration("Rope"));
+          this.setActiveDurations(activeDurationsCopy);
+          this.play(cards[i]);
+        } else if (nonHandPlay === "Fortune Hunter") {
           this.playFromSetAside(cards[i]);
+          this.setLatestPlaySource("Fortune Hunter");
         } else if (throneRoomPlay) {
           this.setLatestPlaySource("Throne Room");
         } else if (["Courier", "Vassal"].includes(nonHandPlay)) {
-          this.setLatestPlaySource(nonHandPlay);
           this.playFromDiscard(cards[i]);
+          this.setLatestPlaySource(nonHandPlay);
         } else {
-          this.setLatestPlaySource("Hand");
           this.play(cards[i]);
+          this.setLatestPlaySource("Hand");
         }
       }
     }

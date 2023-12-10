@@ -21,7 +21,7 @@ describe("getRowColor", () => {
     const color = getRowColor(cardName);
 
     // Assert
-    expect(color).toBe("text-green-300");
+    expect(color).toBe("text-[#6ed515]");
   });
 
   it("should return the correct color for a curse card", () => {
@@ -55,6 +55,17 @@ describe("getRowColor", () => {
 
     // Assert
     expect(color).toBe("text-[#fff5c7]");
+  });
+
+  it("should return the default color for duration card", () => {
+    // Arrange - Create a sample card name for an duration card
+    const cardName = "Rope"; // Not in any special category
+
+    // Act
+    const color = getRowColor(cardName);
+
+    // Assert
+    expect(color).toBe("text-[#f49d20]");
   });
 
   // Add more test cases as needed

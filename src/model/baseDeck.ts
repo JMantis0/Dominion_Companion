@@ -1,6 +1,6 @@
 import { GameResult } from "../utils";
 import { getLogScrollContainerLogLines } from "../utils/utils";
-import durationList from "../../src/utils/durations";
+import { duration_constants } from "../../src/utils/durations";
 export class BaseDeck {
   currentVP: number = 3;
   debug: boolean = true;
@@ -743,9 +743,9 @@ export class BaseDeck {
    */
   isDurationPlay(playLine: string): boolean {
     let durationPlay: boolean = false;
-    const durationNames = Object.keys(durationList);
+    const durationNames = Object.keys(duration_constants);
     if (playLine.match(" plays ") !== null)
-      for (let i = 0; i <= durationNames.length; i++) {
+      for (let i = 0; i < durationNames.length; i++) {
         if (playLine.match(durationNames[i]) !== null) {
           durationPlay = true;
           break;

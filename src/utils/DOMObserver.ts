@@ -445,9 +445,10 @@ export class DOMObserver {
       "Altar", //Done
       "Marquis", //Done
       "Expand", //Done
-      "Necropolis",
-      "Hovel",
-      "Overgrown Estate",
+      "Necropolis", //Done
+      "Hovel", //Done
+      "Overgrown Estate", //Done
+      "Rope", //Done
     ];
     for (let i = 0; i < kingdom.length; i++) {
       if (!baseCards.includes(kingdom[i])) {

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "@jest/globals";
-import durationList from "../../../src/utils/durations";
+import { duration_constants } from "../../../src/utils/durations";
 import { BaseDeck } from "../../../src/model/baseDeck";
 describe("isDurationPlay", () => {
   let bDeck: BaseDeck;
-  const durationNames: string[] = Object.keys(durationList);
+  const durationNames: string[] = Object.keys(duration_constants);
   beforeEach(() => {
     bDeck = new BaseDeck("", false, "", "Player", "P", []);
   });
@@ -19,7 +19,7 @@ describe("isDurationPlay", () => {
   });
   it("should return false when the given line plays a card that is not a duration.", () => {
     ["Copper", "Sentry", "Vassal"].forEach((cardName) => {
-      expect(bDeck.isDurationPlay(`P draws a $${cardName}.`)).toBe(false);
+      expect(bDeck.isDurationPlay(`P plays a $${cardName}.`)).toBe(false);
     });
   });
 });
