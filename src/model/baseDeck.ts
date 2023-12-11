@@ -1,6 +1,6 @@
 import { GameResult } from "../utils";
 import { getLogScrollContainerLogLines } from "../utils/utils";
-import durationList from "../../src/utils/durations";
+import { duration_constants } from "../../src/utils/durations";
 export class BaseDeck {
   currentVP: number = 3;
   debug: boolean = true;
@@ -220,7 +220,7 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina/) !== null;
+      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina|Fool's Golds?|Rope?/) !== null;
     return treasureLine;
   }
 
@@ -391,9 +391,8 @@ export class BaseDeck {
     let cards: Array<string> = [];
     let number: Array<number> = [];
     if (this.consecutiveTreasurePlays(line)) {
-      number = this.getConsecutiveTreasurePlayCounts(line);
+      [cards, number] = this.handleConsecutiveDuplicates(line);
       act = "plays";
-      cards = ["Copper", "Silver", "Gold", "Platinum"];
     } else if (this.consecutiveReveals(line)) {
       [cards, number] = this.handleConsecutiveReveals(line);
       act = "reveals";
@@ -743,9 +742,9 @@ export class BaseDeck {
    */
   isDurationPlay(playLine: string): boolean {
     let durationPlay: boolean = false;
-    const durationNames = Object.keys(durationList);
+    const durationNames = Object.keys(duration_constants);
     if (playLine.match(" plays ") !== null)
-      for (let i = 0; i <= durationNames.length; i++) {
+      for (let i = 0; i < durationNames.length; i++) {
         if (playLine.match(durationNames[i]) !== null) {
           durationPlay = true;
           break;

@@ -13,7 +13,9 @@ describe("Function getNewLogsAndUpdateDecks", () => {
   let oDeck: OpponentDeck;
   let deckMap: Map<string, Deck | OpponentDeck>;
   let storeMock: DOMStore;
+  // Stub Deck methods
   jest.spyOn(Deck.prototype, "checkLogAccuracy").mockReturnValue(true);
+  jest.spyOn(Deck.prototype, "lineSource").mockReturnValue("None");
 
   beforeEach(() => {
     // Create a new store instance for DOMObserver

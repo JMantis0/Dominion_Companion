@@ -22,6 +22,7 @@ describe("getActCardsAndCounts", () => {
       "Gold",
       "Province",
       "Sentry",
+      "Platinum",
     ]);
   });
 
@@ -41,8 +42,8 @@ describe("getActCardsAndCounts", () => {
 
     // Assert
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
   });
 
   it("should work for lines with multiple cards with different amounts", () => {
@@ -61,8 +62,8 @@ describe("getActCardsAndCounts", () => {
 
     // Assert
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
   });
 
   it("should handle consecutive treasure plays correctly", () => {
@@ -71,8 +72,8 @@ describe("getActCardsAndCounts", () => {
     deck.lastEntryProcessed = "pNick plays 2 Coppers and a Silver.";
     const line = "pNick plays 2 Coppers and 2 Silvers.";
     const expectedAct: string = "plays";
-    const expectedCards: string[] = ["Copper", "Silver", "Gold", "Platinum"];
-    const expectedNumber: number[] = [0, 1, 0, 0];
+    const expectedCards: string[] = ["Copper", "Silver"];
+    const expectedNumber: number[] = [0, 1];
     const expectedLogArchive = ["Log1"];
     // Act
     const {
@@ -83,10 +84,9 @@ describe("getActCardsAndCounts", () => {
     const resultLogArchive = deck.logArchive;
 
     // Assert
-    expect;
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
 
@@ -96,8 +96,8 @@ describe("getActCardsAndCounts", () => {
     deck.lastEntryProcessed = "pNick plays 2 Coppers and a Platinum.";
     const line = "pNick plays 2 Coppers and 2 Platina.";
     const expectedAct: string = "plays";
-    const expectedCards: string[] = ["Copper", "Silver", "Gold", "Platinum"];
-    const expectedNumber: number[] = [0, 0, 0, 1];
+    const expectedCards: string[] = ["Copper", "Platinum"];
+    const expectedNumber: number[] = [0, 1];
     const expectedLogArchive = ["Log1"];
     // Act
     const {
@@ -108,10 +108,9 @@ describe("getActCardsAndCounts", () => {
     const resultLogArchive = deck.logArchive;
 
     // Assert
-    expect;
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
 
@@ -135,8 +134,8 @@ describe("getActCardsAndCounts", () => {
     const resultLogArchive = deck.getLogArchive();
     // Assert
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
 
@@ -173,8 +172,8 @@ describe("getActCardsAndCounts", () => {
     const resultLogArchive = deck.getLogArchive();
     // Assert
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
 
@@ -209,8 +208,8 @@ describe("getActCardsAndCounts", () => {
     const resultLogArchive = deck.getLogArchive();
     // Assert
     expect(resultAct).toStrictEqual(expectedAct);
-    expect(expectedCards).toStrictEqual(resultCards);
-    expect(expectedNumber).toStrictEqual(resultNumbers);
+    expect(resultCards).toStrictEqual(expectedCards);
+    expect(resultNumbers).toStrictEqual(expectedNumber);
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
 

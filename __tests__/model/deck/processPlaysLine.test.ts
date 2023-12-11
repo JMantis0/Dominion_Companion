@@ -215,4 +215,23 @@ describe("processPlaysLine", () => {
       expect(deck.inPlay).toStrictEqual(["Fortune Hunter", "Copper"]);
     }
   );
+
+  it("should create a duration object when the given line plays a duration card", () => {
+    // Arrange
+    deck.hand = ["Rope", "Copper"];
+    deck.inPlay = ["Merchant"];
+    checkForNonHandPlay.mockReturnValue("None");
+    const line = "pNick plays a Rope.";
+    const cards = ["Rope"];
+    const numberOfCards = [1];
+
+    // Act
+    deck.processPlaysLine(line, cards, numberOfCards);
+    // Assert - Verify a duration object whose value for field name is "Rope"
+    expect(deck.activeDurations.length).toBe(1);
+    expect(deck.activeDurations[0].name).toBe("Rope");
+    // Verify card was moved from hand to inPlay
+    expect(deck.hand).toStrictEqual(["Copper"]);
+    expect(deck.inPlay).toStrictEqual(["Merchant", "Rope"]);
+  });
 });

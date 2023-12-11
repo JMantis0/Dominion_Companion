@@ -23,6 +23,8 @@ describe("logObserverFunc", () => {
     DOMObserver,
     "dispatchUpdatedDecksToRedux"
   );
+  // Stub Deck method lineSource
+  jest.spyOn(Deck.prototype, "lineSource").mockReturnValue("None");
 
   beforeEach(() => {
     DOMObserver.resetGame();
