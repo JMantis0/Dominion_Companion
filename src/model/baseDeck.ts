@@ -220,7 +220,7 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina/) !== null;
+      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina|Fool's Golds?|Rope?/) !== null;
     return treasureLine;
   }
 
@@ -391,9 +391,8 @@ export class BaseDeck {
     let cards: Array<string> = [];
     let number: Array<number> = [];
     if (this.consecutiveTreasurePlays(line)) {
-      number = this.getConsecutiveTreasurePlayCounts(line);
+      [cards, number] = this.handleConsecutiveDuplicates(line);
       act = "plays";
-      cards = ["Copper", "Silver", "Gold", "Platinum"];
     } else if (this.consecutiveReveals(line)) {
       [cards, number] = this.handleConsecutiveReveals(line);
       act = "reveals";

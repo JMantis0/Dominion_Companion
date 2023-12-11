@@ -1,10 +1,16 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
 describe("processGainsLine", () => {
   // Declare Deck reference.
   let deck: Deck;
-
+  const lineSource = jest
+    .spyOn(Deck.prototype, "lineSource")
+    .mockReturnValue("None");
   beforeEach(() => {
     deck = new Deck("", false, "", "pName", "pNick", [
       "Copper",
@@ -263,6 +269,28 @@ describe("processGainsLine", () => {
       "Gold",
       "Gold",
     ]);
+    // Verify nothing was gained into hand or graveyard.
+    expect(deck.hand).toStrictEqual(["Artisan"]);
+    expect(deck.graveyard).toStrictEqual([]);
+  });
+
+  it("should add cards gained by Fool's Gold reaction to library.", () => {
+    // Arrange
+    lineSource.mockReturnValue("L buys and gains a Province.");
+    const cards = ["Gold"];
+    const numberOfCards = [1];
+    const line = "G gains a Gold.";
+    deck.graveyard = [];
+    deck.hand = ["Artisan"];
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan"];
+
+    // Act - Simulate gaining 4 Golds from a Treasure Map.
+    deck.processGainsLine(line, cards, numberOfCards);
+
+    // Assert - Verify 4 Golds were added to library and entireDeck.
+    expect(deck.library).toStrictEqual(["Copper", "Gold"]);
+    expect(deck.entireDeck).toStrictEqual(["Copper", "Artisan", "Gold"]);
     // Verify nothing was gained into hand or graveyard.
     expect(deck.hand).toStrictEqual(["Artisan"]);
     expect(deck.graveyard).toStrictEqual([]);

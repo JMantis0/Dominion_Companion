@@ -9,6 +9,7 @@ describe("handleConsecutiveDuplicates", () => {
       "Remodel",
       "Chapel",
       "Estate",
+      "Silver",
       "Gold",
     ]);
   });
@@ -145,4 +146,22 @@ describe("handleConsecutiveDuplicates", () => {
       ]);
     }
   );
+
+  it("should return an array with the correct number of each treasure to play (all treasures in both lines)", () => {
+    // Arrange
+    deck.lastEntryProcessed =
+      "pNick plays 2 Coppers, 2 Silvers, and 3 Golds. (+$15)";
+
+    // Act and Assert - Simulate playing multiple treasures on a single line.
+    expect(
+      deck.handleConsecutiveDuplicates(
+        "pNick plays 5 Coppers, 5 Silvers, and 10 Golds. (+$4)"
+      )
+    ).toStrictEqual([
+      ["Copper", "Silver", "Gold"],
+      [3, 3, 7],
+    ]);
+  });
+
+  it("should handle treasures correctly", () => {});
 });

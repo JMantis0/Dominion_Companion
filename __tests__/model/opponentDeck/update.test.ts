@@ -10,9 +10,9 @@ describe("Method update", () => {
     OpponentDeck.prototype,
     "consecutiveTreasurePlays"
   );
-  const getConsecutiveTreasurePlayCounts = jest.spyOn(
+  const handleConsecutiveDuplicates = jest.spyOn(
     OpponentDeck.prototype,
-    "getConsecutiveTreasurePlayCounts"
+    "handleConsecutiveDuplicates"
   );
   const getActCardsAndCounts = jest.spyOn(
     OpponentDeck.prototype,
@@ -46,8 +46,8 @@ describe("Method update", () => {
     // Verify consecutiveTreasurePlays was called once and returned false(called within getActCardsAndCounts)
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    // Verify getConsecutiveTreasurePlayCounts was not called (should only be called if the given line plays a treasure)
-    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
+    // Verify handleConsecutiveDuplicates was not called (should only be called if the given line plays a treasure)
+    expect(handleConsecutiveDuplicates).not.toBeCalled();
     // Verify getActCardsAndCounts was called with the given line and returned correctly.
     expect(getActCardsAndCounts).toBeCalledTimes(1);
     expect(getActCardsAndCounts).toBeCalledWith(log[0]);
@@ -86,8 +86,8 @@ describe("Method update", () => {
     expect(consecutiveTreasurePlays).toBeCalledTimes(1);
     expect(consecutiveTreasurePlays).toBeCalledWith(log[0]);
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(false);
-    // Verify getConsecutiveTreasurePlayCounts was not called000
-    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
+    // Verify handleConsecutiveDuplicates was not called000
+    expect(handleConsecutiveDuplicates).not.toBeCalled();
     // Verify processDeckChanges was not called
     expect(processDeckChanges).not.toBeCalled();
     // Verify archives and vp were updated
@@ -137,7 +137,7 @@ describe("Method update", () => {
       numberOfCards: [1, 1],
     });
     // Verify no call made to getConsecutiveTreasureCounts
-    expect(getConsecutiveTreasurePlayCounts).not.toBeCalled();
+    expect(handleConsecutiveDuplicates).not.toBeCalled();
     // Verify processDeckChanges was only called 1 time, for the line that applies to the deck
     expect(processDeckChanges).toBeCalledTimes(1);
     expect(processDeckChanges).toBeCalledWith(
@@ -169,14 +169,15 @@ describe("Method update", () => {
     expect(consecutiveTreasurePlays).toBeCalledWith("pNick plays 2 Coppers.");
     expect(consecutiveTreasurePlays.mock.results[0].value).toBe(true);
 
-    // Verify  getConsecutiveTreasurePlayCounts was called and returned correctly
-    expect(getConsecutiveTreasurePlayCounts).toBeCalledTimes(1);
-    expect(getConsecutiveTreasurePlayCounts).toBeCalledWith(
+    // Verify  handleConsecutiveDuplicates was called and returned correctly
+    expect(handleConsecutiveDuplicates).toBeCalledTimes(1);
+    expect(handleConsecutiveDuplicates).toBeCalledWith(
       "pNick plays 2 Coppers."
     );
-    expect(
-      getConsecutiveTreasurePlayCounts.mock.results[0].value
-    ).toStrictEqual([1, 0, 0, 0]);
+    expect(handleConsecutiveDuplicates.mock.results[0].value).toStrictEqual([
+      ["Copper"],
+      [1],
+    ]);
     // Verify update to archives and VP are called.
     expect(updateArchives).toBeCalledTimes(1);
     expect(updateArchives).toBeCalledWith("pNick plays 2 Coppers.");

@@ -757,6 +757,37 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Gets the source line for the most recent log line.
+   * This method is similar to checkForNonHandPlay, but is more generic,
+   * as it looks for non-play sources lines, such as the trigger line
+   * for a Fool's Gold trash/gain log.  This method is needed to determine
+   * which zones are being effected.
+   * @returns - the line that is the source/cause of the most recent log line.
+   */
+  lineSource(): string | null {
+    const logLines = Array.from(getLogScrollContainerLogLines())
+      .slice(0, this.logArchive.length + 1)
+      .reverse();
+    let source: string | null = "None";
+    for (let i = 0; i < logLines.length - 1; i++) {
+      const current = logLines[i];
+      const prev = logLines[i + 1];
+      const currentPadding: number = parseInt(
+        current.style.paddingLeft.slice(0, current.style.paddingLeft.length - 1)
+      );
+      const prevPadding: number = parseInt(
+        prev.style.paddingLeft.slice(0, prev.style.paddingLeft.length - 1)
+      );
+      if (currentPadding === 0) break;
+      else if (prevPadding < currentPadding) {
+        source = prev.textContent;
+        break;
+      }
+    }
+    return source;
+  }
+
+  /**
    * Checks hand field array to see if card is there.  If yes, removes one
    * instance of that card from the hand field and then adds one
    * instance of that card to inPlay field
@@ -957,7 +988,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (["Bureaucrat", "Armory", "Treasure Map"].includes(mostRecentPlay)) {
+        if (
+          ["Bureaucrat", "Armory", "Treasure Map", "Fool's Gold"].includes(
+            mostRecentPlay
+          ) ||
+          (this.lineSource()?.match(/gains (a|\d*) Province/) &&
+            cards[0] === "Gold" &&
+            numberOfCards[0] === 1)
+        ) {
           this.gainIntoLibrary(cards[i]);
         } else if (
           ["Artisan", "Mine", "Trading Post"].includes(mostRecentPlay)
@@ -1144,7 +1182,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        console.log("duration Play for line", line, "is", durationPlay);
         if (durationPlay) {
           // There is an assumption here that there will only be one card on the duration
           // plays line.
