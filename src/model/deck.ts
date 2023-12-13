@@ -490,6 +490,26 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Draws the given card from durationSetAside into hand.
+   * @param card - The given card.
+   */
+  drawFromDurationSetAside(card: string) {
+    const index = this.durationSetAside.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in durationSetAside.`);
+    } else {
+      if (this.debug)
+        console.info(`Drawing ${card} from durationSetAside into hand.`);
+      const handCopy = this.hand.slice();
+      const durationSetAsideCopy = this.durationSetAside.slice();
+      handCopy.push(card);
+      durationSetAsideCopy.splice(index, 1);
+      this.setHand(handCopy);
+      this.setDurationSetAside(durationSetAsideCopy);
+    }
+  }
+
+  /**
    * Draws the card from the previous line.  Used to
    * handle Library looks that lack sufficient context to
    * handle immediately.
@@ -509,6 +529,10 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.drawFromSetAside(prevLineCard);
   }
 
+  /**
+   * Draws the given card from graveyard into hand.
+   * @param card - The given card.
+   */
   drawFromGraveyard(card: string) {
     const index = this.graveyard.indexOf(card);
     if (index < 0) {
@@ -960,6 +984,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "into their hand":
         this.processIntoTheirHandLine(cards, numberOfCards);
         break;
+      case "in hand":
+        this.processIntoTheirHandLine(cards, numberOfCards);
+        break;
       case "moves their deck to the discard":
         this.processMovesTheirDeckToTheDiscardLine();
         break;
@@ -1086,12 +1113,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - The amounts of the given cards.
    */
   processIntoTheirHandLine(cards: string[], numberOfCards: number[]) {
+    const isDurationEffect = this.isDurationEffect();
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (["Mountain Village"].includes(this.latestAction)) {
           this.drawFromGraveyard(cards[i]);
-        }
-        if (
+        } else if (
           [
             "Hunting Party",
             "Hunter",
@@ -1103,6 +1130,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
+        } else if (isDurationEffect) {
+          this.drawFromDurationSetAside(cards[i]);
         }
       }
     }

@@ -1,8 +1,15 @@
-import { beforeEach, describe, expect, it } from "@jest/globals";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processIntoTheirHandLine", () => {
   let deck: Deck;
+  const isDurationEffect = jest
+    .spyOn(BaseDeck.prototype, "isDurationEffect")
+    .mockReturnValue(true);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   beforeEach(() => {
     deck = new Deck("", false, "", "Player", "P", []);
@@ -119,6 +126,19 @@ describe("processIntoTheirHandLine", () => {
     deck.processIntoTheirHandLine(["Vassal"], [1]);
 
     expect(deck.graveyard).toStrictEqual(["Copper", "Copper"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
+  });
+
+  it("should draw cards into hand from durationSetAside when caused duration effect", () => {
+    // Arrange
+    deck.latestAction = "None";
+    deck.durationSetAside = ["Copper", "Copper", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    isDurationEffect.mockReturnValue(true);
+    // Act
+    deck.processIntoTheirHandLine(["Vassal"], [1]);
+
+    expect(deck.durationSetAside).toStrictEqual(["Copper", "Copper"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
   });
 });

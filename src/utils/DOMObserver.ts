@@ -321,10 +321,10 @@ export class DOMObserver {
       const lastLineProcessed = procArr.slice().pop();
       if (lastLineProcessed !== gLogArr[procArr.length - 1]) {
         console.log(
-          "Unequal lines, but last line of processed logs is not equal to its mate in gamelog"
+          "Unequal lines, but last line of processed logs is not equal to its mate in gamel og"
         );
         console.log("LastLine Processed ", lastLineProcessed);
-        console.log("mated Gamelog line", gLogArr[procArr.length - 1]);
+        console.log("mated game log line", gLogArr[procArr.length - 1]);
         console.log("Popping off last line from logsProcessed");
         procArr.pop();
         DOMObserver.setLogsProcessed(procArr.join("\n"));
@@ -450,7 +450,7 @@ export class DOMObserver {
       "Overgrown Estate", //Done
       "Fool's Gold", //Done
       "Grotto", //Done
-      "Haven",
+      "Haven", //Done
       "Pawn",
       "Amulet",
       "Anvil",

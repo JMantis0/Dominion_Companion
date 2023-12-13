@@ -6,7 +6,7 @@ describe("consecutiveIntoTheirHandLines", () => {
   beforeEach(() => {
     bDeck = new BaseDeck("", false, "", "Player", "P", []);
   });
-  it("should return true if the lastEntry processed and the given line are both  'into their hand' lines", () => {
+  it("should return true if the lastEntry processed and the given line are both 'into their hand' lines", () => {
     // Arrange
     bDeck.lastEntryProcessed = "P puts a Copper into their hand.";
 
@@ -17,7 +17,7 @@ describe("consecutiveIntoTheirHandLines", () => {
       )
     ).toBe(true);
   });
-  it("should return false if the lastEntry processed and the given line are both  'into their hand' lines", () => {
+  it("should return false if the lastEntry processed and the given line are not both 'into their hand' lines", () => {
     // Arrange
     bDeck.lastEntryProcessed = "P puts a Copper into their hand.";
 

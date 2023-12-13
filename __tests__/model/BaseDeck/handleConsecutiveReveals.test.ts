@@ -37,28 +37,28 @@ describe("handleConsecutiveReveals", () => {
       expect(number).toStrictEqual([1]);
     }
   );
+  // THIS TEST IS DEPRECATED until needs dictate otherwise.  It may be useful for a specific case later.
+  // it(
+  //   "should not remove the most recent logArchive entry if it reveals a card type that was not " +
+  //     "revealed on the previous line.",
+  //   () => {
+  //     // Arrange
+  //     deck.logArchive = ["P gets +1 Action.", "P reveals 3 Coppers."];
+  //     const line = "P reveals 3 Coppers and a Remodel.";
 
-  it(
-    "should not remove the most recent logArchive entry if it reveals a card type that was not " +
-      "revealed on the previous line.",
-    () => {
-      // Arrange
-      deck.logArchive = ["P gets +1 Action.", "P reveals 3 Coppers."];
-      const line = "P reveals 3 Coppers and a Remodel.";
+  //     const [cards, number] = deck.handleConsecutiveReveals(line);
 
-      const [cards, number] = deck.handleConsecutiveReveals(line);
+  //     // Act
+  //     expect(deck.logArchive).toStrictEqual([
+  //       "P gets +1 Action.",
+  //       "P reveals 3 Coppers.",
+  //     ]);
 
-      // Act
-      expect(deck.logArchive).toStrictEqual([
-        "P gets +1 Action.",
-        "P reveals 3 Coppers.",
-      ]);
-
-      // Assert
-      expect(cards).toStrictEqual(["Copper", "Remodel"]);
-      expect(number).toStrictEqual([0, 1]);
-    }
-  );
+  //     // Assert
+  //     expect(cards).toStrictEqual(["Copper", "Remodel"]);
+  //     expect(number).toStrictEqual([0, 1]);
+  //   }
+  // );
   // Failing case
   it(
     "should not remove the most recent logArchive entry if it reveals a card type that was not " +

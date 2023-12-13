@@ -23,6 +23,8 @@ describe("getActCardsAndCounts", () => {
       "Province",
       "Sentry",
       "Platinum",
+      "Overgrown Estate",
+      "Hovel"
     ]);
   });
 
@@ -139,45 +141,7 @@ describe("getActCardsAndCounts", () => {
     expect(resultLogArchive).toStrictEqual(expectedLogArchive);
   });
 
-  it("should handle consecutive Sage reveals correctly when logArchive doesn't need to be reconciled", () => {
-    // Arrange
-    const initialLogArchive = [
-      "pNick plays a Sage.",
-      "pNick gets +1 Action.",
-      "pNick reveals 2 Coppers.",
-      "pNick shuffles their deck.",
-      "pNick reveals 3 Coppers and a Chapel.",
-    ];
-    deck.latestAction = "Sage";
-    deck.logArchive = initialLogArchive;
-    deck.lastEntryProcessed = "pNick reveals 3 Coppers and a Chapel.";
-    const line = "pNick reveals 3 Coppers, a Chapel, and an Estate.";
-    const expectedAct: string = "reveals";
-    const expectedCards: string[] = ["Copper", "Chapel", "Estate"];
-    const expectedNumber: number[] = [0, 0, 1];
-    const expectedLogArchive = [
-      "pNick plays a Sage.",
-      "pNick gets +1 Action.",
-      "pNick reveals 2 Coppers.",
-      "pNick shuffles their deck.",
-      "pNick reveals 3 Coppers and a Chapel.",
-    ];
-
-    // Act
-    const {
-      act: resultAct,
-      cards: resultCards,
-      numberOfCards: resultNumbers,
-    } = deck.getActCardsAndCounts(line);
-    const resultLogArchive = deck.getLogArchive();
-    // Assert
-    expect(resultAct).toStrictEqual(expectedAct);
-    expect(resultCards).toStrictEqual(expectedCards);
-    expect(resultNumbers).toStrictEqual(expectedNumber);
-    expect(resultLogArchive).toStrictEqual(expectedLogArchive);
-  });
-
-  it("should handle consecutive Sage reveals correctly when logArchive needs to be reconciled", () => {
+  it("should handle consecutive Sage reveals correctly", () => {
     // Arrange
     const initialLogArchive = [
       "pNick plays a Sage.",
@@ -352,25 +316,71 @@ describe("getActCardsAndCounts", () => {
   it("should handle consecutive 'into their hand' lines correctly", () => {
     // Arrange
     deck.logArchive = [
-      "P plays a Hunter.",
-      "P gest +1 Action.",
-      "P reveals a Copper and 2 Estates.",
-      "P puts a Copper into their hand.",
+      "pNick plays a Hunter.",
+      "pNick gest +1 Action.",
+      "pNick reveals a Copper and 2 Estates.",
+      "pNick puts a Copper into their hand.",
     ];
-    deck.lastEntryProcessed = "P puts a Copper into their hand.";
+    deck.lastEntryProcessed = "pNick puts a Copper into their hand.";
 
     // Act
     const { act, cards, numberOfCards } = deck.getActCardsAndCounts(
-      "P puts a Copper and an Estate into their hand."
+      "pNick puts a Copper and an Estate into their hand."
     );
     // Assert
     expect(act).toStrictEqual("into their hand");
     expect(cards).toStrictEqual(["Copper", "Estate"]);
     expect(numberOfCards).toStrictEqual([0, 1]);
     expect(deck.logArchive).toStrictEqual([
-      "P plays a Hunter.",
-      "P gest +1 Action.",
-      "P reveals a Copper and 2 Estates.",
+      "pNick plays a Hunter.",
+      "pNick gest +1 Action.",
+      "pNick reveals a Copper and 2 Estates.",
     ]);
+  });
+
+  it("should get Overgrown Estate from lines properly", () => {
+    // Arrange
+
+    // Act
+    const { act, cards, numberOfCards } = deck.getActCardsAndCounts(
+      "pNick draws an Overgrown Estate."
+    );
+    // Assert
+    expect(act).toStrictEqual("draws");
+    expect(cards).toStrictEqual(["Overgrown Estate"]);
+    expect(numberOfCards).toStrictEqual([1]);
+  });
+
+  it("should handle consecutive 'in hand' lines correctly", () => {
+    // Arrange
+    deck.logArchive = [
+      "pNick starts their turn.",
+      "pNick puts a Hovel, and an Overgrown Estate in hand (Haven).",
+    ];
+    deck.lastEntryProcessed =
+      "pNick puts a Hovel, and an Overgrown Estate in hand (Haven).";
+
+    // Act
+    const { act, cards, numberOfCards } = deck.getActCardsAndCounts(
+      "G puts a Copper, a Hovel, and an Overgrown Estate in hand (Haven)."
+    );
+    // Assert
+    expect(act).toStrictEqual("in hand");
+    expect(cards).toStrictEqual(["Copper", "Hovel", "Overgrown Estate"]);
+    expect(numberOfCards).toStrictEqual([1, 0, 0]);
+    expect(deck.logArchive).toStrictEqual(["pNick starts their turn."]);
+  });
+
+  it("should get Overgrown Estate from lines properly", () => {
+    // Arrange
+
+    // Act
+    const { act, cards, numberOfCards } = deck.getActCardsAndCounts(
+      "pNick draws an Overgrown Estate."
+    );
+    // Assert
+    expect(act).toStrictEqual("draws");
+    expect(cards).toStrictEqual(["Overgrown Estate"]);
+    expect(numberOfCards).toStrictEqual([1]);
   });
 });

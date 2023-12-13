@@ -324,6 +324,19 @@ export class BaseDeck {
   }
 
   /**
+   * Checks for consecutive 'in hand' lines.  Needed to remove
+   * duplicate logs from the log archive.
+   * @param line - the given line.
+   * @returns - Boolean for whether the lines are consecutive into their hand lines.
+   */
+  consecutiveInHandLines(line: string): boolean {
+    const consecutive =
+      this.lastEntryProcessed.match(" in hand \\(") !== null &&
+      line.match(" in hand \\(") !== null;
+    return consecutive;
+  }
+
+  /**
    * Checks for consecutive 'into their hand' lines.  Needed to remove
    * duplicate logs from the log archive.
    * @param line - the given line.
@@ -407,6 +420,9 @@ export class BaseDeck {
     } else if (this.consecutiveIntoTheirHandLines(line)) {
       act = "into their hand";
       [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveInHandLines(line)) {
+      act = "in hand";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromLine(line);
       [cards, number] = this.getCardsAndCountsFromLine(line);
@@ -451,6 +467,7 @@ export class BaseDeck {
       "back onto their deck",
       "moves their deck to the discard",
       "starts with",
+      "in hand",
     ];
     const lineWithoutNickName = line.slice(this.playerNick.length);
     if (line.match(" reveals their hand:") === null)
@@ -484,7 +501,7 @@ export class BaseDeck {
       if (card === "Platinum") {
         cardMatcher = "Platin";
       } else cardMatcher = card.substring(0, card.length - 1);
-      if (line.match(" " + cardMatcher) !== null) {
+      if (line.match(new RegExp(`(an?|\\d+) ${cardMatcher}`)) !== null) {
         const upperSlice = line.indexOf(cardMatcher) - 1;
         const lowerSlice = line.substring(0, upperSlice).lastIndexOf(" ") + 1;
         const amountChar = line.substring(lowerSlice, upperSlice);
@@ -700,10 +717,7 @@ export class BaseDeck {
       cards.push(card);
       numberOfCards.push(number);
     });
-    if (
-      !intercedingShuffle ||
-      reconciling === "reconcile"
-    ) {
+    if (!intercedingShuffle || reconciling === "reconcile") {
       this.popLastLogArchiveEntry(this.logArchive);
     }
 

@@ -1,7 +1,7 @@
 import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("getCardsAndCountsFromEntry", () => {
+describe("getCardsAndCountsFromLine", () => {
   let deck: BaseDeck;
 
   beforeEach(() => {
@@ -10,6 +10,7 @@ describe("getCardsAndCountsFromEntry", () => {
       "Gold",
       "Estate",
       "Copper",
+      "Overgrown Estate",
     ]);
   });
 
@@ -44,5 +45,16 @@ describe("getCardsAndCountsFromEntry", () => {
     // Assert
     expect(cardResult).toStrictEqual([]);
     expect(cardAmountResult).toStrictEqual([]);
+  });
+
+  it("should handle Overgrown Estate correctly", () => {
+    // Act - Simulate calling with a shuffle line.
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
+      "pNick draws an Overgrown Estate."
+    );
+
+    // Assert
+    expect(cardResult).toStrictEqual(["Overgrown Estate"]);
+    expect(cardAmountResult).toStrictEqual([1]);
   });
 });

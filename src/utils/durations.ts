@@ -4,7 +4,7 @@ export const duration_constants: {
   Cage: { LIFESPAN: undefined },
   Grotto: { LIFESPAN: 1 },
   Guardian: { LIFESPAN: undefined },
-  Haven: { LIFESPAN: undefined },
+  Haven: { LIFESPAN: 1 },
   Lighthouse: { LIFESPAN: undefined },
   Search: { LIFESPAN: undefined },
   Amulet: { LIFESPAN: undefined },

@@ -18,4 +18,13 @@ describe("drawFromGraveyard", () => {
     expect(deck.graveyard).toStrictEqual(["Copper", "Estate"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Fortune Hunter"]);
   });
+  it("should throw an error if the given card is not in the graveyard", () => {
+    // Arrange
+    deck.graveyard = ["Copper", "Estate", "Fortune Hunter"];
+
+    // Act and Assert
+    expect(() => deck.drawFromGraveyard("Fool's Gold")).toThrowError(
+      "No Fool's Gold in discard."
+    );
+  });
 });

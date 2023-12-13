@@ -139,4 +139,11 @@ describe("getActionFromEntry", () => {
       "aside with"
     );
   });
+
+  it("should return 'in hand' when the line matches 'in hand'", () => {
+    // Act and Assert
+    expect(deck.getActionFromLine("G puts a Copper in hand (Haven).")).toBe(
+      "in hand"
+    );
+  });
 });
