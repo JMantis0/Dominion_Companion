@@ -1,10 +1,16 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
+/**
+ * @jest-environment jsdom
+ */
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processDiscardsLine", () => {
   // Declare Deck reference.
   let deck: Deck;
-
+  const isDurationEffect = jest
+    .spyOn(BaseDeck.prototype, "isDurationEffect")
+    .mockReturnValue(false);
   beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
   });
@@ -330,6 +336,20 @@ describe("processDiscardsLine", () => {
 
     // Assert - Verify the cards were moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
+  });
+
+  it("should discard from durationSetAside when discards are caused by duration effect resolving", () => {
+    // Arrange
+    isDurationEffect.mockReturnValue(true);
+    deck.durationSetAside = ["Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine(["Silver"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.durationSetAside).toStrictEqual([]);
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
   });
 });

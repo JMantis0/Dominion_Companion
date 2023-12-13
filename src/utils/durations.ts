@@ -2,7 +2,7 @@ export const duration_constants: {
   [title: string]: { LIFESPAN: number | undefined };
 } = {
   Cage: { LIFESPAN: undefined },
-  Grotto: { LIFESPAN: undefined },
+  Grotto: { LIFESPAN: 1 },
   Guardian: { LIFESPAN: undefined },
   Haven: { LIFESPAN: undefined },
   Lighthouse: { LIFESPAN: undefined },

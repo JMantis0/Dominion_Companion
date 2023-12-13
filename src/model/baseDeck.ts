@@ -220,7 +220,9 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina|Fool's Golds?|Rope?/) !== null;
+      line.match(
+        /Coppers?|Silvers?|Golds?|Platinum|Platina|Fool's Golds?|Rope?/
+      ) !== null;
     return treasureLine;
   }
 
@@ -434,6 +436,7 @@ export class BaseDeck {
     let act: string = "None";
     const actionArray = [
       "aside with Library",
+      "aside with", // 'aside with' needs to be placed after 'aside with Library', or Library will not be tracked correctly
       "discards",
       "draws",
       "gains",
@@ -681,7 +684,7 @@ export class BaseDeck {
     const [currCards, currNumberOfCards] = this.getCardsAndCountsFromLine(line);
     const [prevCards, prevNumberOfCards] =
       this.getCardsAndCountsFromLine(previousRevealsLine);
-    const newCardOnCurrentLine: boolean = currCards.length > prevCards.length;
+    // const newCardOnCurrentLine: boolean = currCards.length > prevCards.length;
     const map = new Map<string, number>();
     currCards.forEach((card, idx) => {
       map.set(card, currNumberOfCards[idx]);
@@ -698,7 +701,7 @@ export class BaseDeck {
       numberOfCards.push(number);
     });
     if (
-      (!intercedingShuffle && !newCardOnCurrentLine) ||
+      !intercedingShuffle ||
       reconciling === "reconcile"
     ) {
       this.popLastLogArchiveEntry(this.logArchive);
@@ -736,6 +739,16 @@ export class BaseDeck {
   }
 
   /**
+   * Checks if the line being processed is caused by a duration.
+   * @returns - Boolean for whether the line being processed is caused by a duration
+   */
+  isDurationEffect(): boolean {
+    const durationEffect =
+      this.lineSource().match(`${this.playerNick} starts their turn.`) !== null;
+    return durationEffect;
+  }
+
+  /**
    * Checks whether the given plays line plays a duration card.
    * @param playLine - the given line
    * @returns -Boolean for whether the line plays a duration card.
@@ -751,6 +764,55 @@ export class BaseDeck {
         }
       }
     return durationPlay;
+  }
+
+  /**
+   * Identifies whether the given line resolves a Duration effect.
+   * @param line - The given line.
+   * @returns - Boolean for whether the line resolves a Duration.
+   */
+  isDurationResolutionLine(line: string): boolean {
+    let isDurationResolutionLine: boolean = false;
+    const durationNames = Object.keys(duration_constants);
+    for (let i = 0; i < durationNames.length; i++) {
+      const durationName = durationNames[i];
+      if (line.match(`(${durationName})`) !== null) {
+        isDurationResolutionLine = true;
+        break;
+      }
+    }
+    return isDurationResolutionLine;
+  }
+
+  /**
+   * Gets the source line for the most recent log line.
+   * This method is similar to checkForNonHandPlay, but is more generic,
+   * as it looks for non-play sources lines, such as the trigger line
+   * for a Fool's Gold trash/gain log.  This method is needed to determine
+   * which zones are being effected.
+   * @returns - the line that is the source/cause of the most recent log line.
+   */
+  lineSource(): string {
+    const logLines = Array.from(getLogScrollContainerLogLines())
+      .slice(0, this.logArchive.length + 1)
+      .reverse();
+    let source: string = "None";
+    for (let i = 0; i < logLines.length - 1; i++) {
+      const current = logLines[i];
+      const prev = logLines[i + 1];
+      const currentPadding: number = parseInt(
+        current.style.paddingLeft.slice(0, current.style.paddingLeft.length - 1)
+      );
+      const prevPadding: number = parseInt(
+        prev.style.paddingLeft.slice(0, prev.style.paddingLeft.length - 1)
+      );
+      if (currentPadding === 0) break;
+      else if (prevPadding < currentPadding) {
+        source = prev.textContent || "None";
+        break;
+      }
+    }
+    return source;
   }
 
   /**

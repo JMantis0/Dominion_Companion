@@ -125,11 +125,18 @@ describe("getActionFromEntry", () => {
       )
     ).toBe("None");
   });
-  
+
   it("should return 'starts with' when the line matches 'starts with'", () => {
     // Act and Assert
     expect(deck.getActionFromLine("pNick starts with 3 Estates.")).toBe(
       "starts with"
+    );
+  });
+
+  it("should return 'aside with' when the line matches 'aside with'", () => {
+    // Act and Assert
+    expect(deck.getActionFromLine("G sets 3 Estates aside with Grotto")).toBe(
+      "aside with"
     );
   });
 });

@@ -2,15 +2,15 @@
  * @jest-environment jsdom
  */
 import { describe, it, expect, beforeEach } from "@jest/globals";
-import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("lineSource", () => {
   // Declare Deck reference.
-  let deck: Deck;
+  let deck: BaseDeck;
 
   // Arrange DOM before each test
   beforeEach(() => {
-    deck = new Deck("", false, "", "Player", "P", []);
+    deck = new BaseDeck("", false, "", "Player", "P", []);
     document.body.innerHTML = "";
   });
 

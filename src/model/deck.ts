@@ -4,7 +4,7 @@ import {
   getLogScrollContainerLogLines,
   toErrorWithMessage,
 } from "../utils/utils";
-import type { StoreDeck } from "../utils";
+import type { DurationName, StoreDeck } from "../utils";
 import { BaseDeck } from "./baseDeck";
 import { setError } from "../redux/contentSlice";
 import { store } from "../redux/store";
@@ -16,6 +16,8 @@ import { Duration } from "./duration";
  */
 export class Deck extends BaseDeck implements StoreDeck {
   activeDurations: Array<Duration> = [];
+  durationLogs: Array<string> = [];
+  durationSetAside: Array<string> = [];
   graveyard: Array<string> = [];
   hand: Array<string> = [];
   inPlay: Array<string> = [];
@@ -42,6 +44,22 @@ export class Deck extends BaseDeck implements StoreDeck {
 
   setActiveDurations(activeDurations: Duration[]) {
     this.activeDurations = activeDurations;
+  }
+
+  getDurationLogs(): string[] {
+    return this.durationLogs;
+  }
+
+  setDurationLogs(durationLogs: string[]) {
+    this.durationLogs = durationLogs;
+  }
+
+  getDurationSetAside(): string[] {
+    return this.durationSetAside;
+  }
+
+  setDurationSetAside(durationSetAside: string[]) {
+    this.durationSetAside = durationSetAside;
   }
 
   getGraveyard() {
@@ -319,7 +337,9 @@ export class Deck extends BaseDeck implements StoreDeck {
     // Temporarily remove active durations with remaining lifespan from inPlay.
     const livingDurations: Duration[] = [];
     const livingDurationNames: string[] = [];
-    this.activeDurations.forEach((duration) => {
+    this.activeDurations.forEach((duration, idx) => {
+      console.log("active duration ", idx);
+      console.log(duration);
       if (duration.age !== undefined && duration.age > 0) {
         const index = this.inPlay.indexOf(duration.name);
         if (index < 0) throw Error(`No ${duration.name} in play.`);
@@ -411,6 +431,24 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  /**
+   * Moves the provided card from the durationSetAside zone to the graveyard.
+   * @param card - The provided card.
+   */
+  discardFromDurationSetAside(card: string) {
+    const index = this.durationSetAside.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in durationSetAside.`);
+    } else {
+      if (this.debug) console.log(`Discarding ${card} from durationSetAside.`);
+      const graveyardCopy = this.graveyard.slice();
+      const durationSetAsideCopy = this.durationSetAside.slice();
+      graveyardCopy.push(card);
+      durationSetAsideCopy.splice(index, 1);
+      this.setGraveyard(graveyardCopy);
+      this.setDurationSetAside(durationSetAsideCopy);
+    }
+  }
   /**
    * Moves the provided card from the setAside zone to the graveyard.
    * @param card - The provided card.
@@ -519,6 +557,26 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Removes one instance of the given card from hand and adds it to durationSetAside.
+   * @param card - The given card.
+   */
+  durationSetAsideFromHand(card: string) {
+    const index = this.hand.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in hand.`);
+    } else {
+      if (this.debug)
+        console.info(`Setting aside ${card} from hand into durationSetAside.`);
+      const durationSetAsideCopy = this.durationSetAside.slice();
+      const handCopy = this.hand.slice();
+      durationSetAsideCopy.push(card);
+      handCopy.splice(index, 1);
+      this.setDurationSetAside(durationSetAsideCopy);
+      this.setHand(handCopy);
+    }
+  }
+
+  /**
    * Takes a card and pushes it to the graveyard field array.
    * @param card = The given card.
    */
@@ -596,9 +654,6 @@ export class Deck extends BaseDeck implements StoreDeck {
         }
       }
       if (playFound || logArchive[i].match("Turn ")) break;
-    }
-    if (!playFound) {
-      playFound = false;
     }
 
     return mostRecentActionPlayed;
@@ -757,34 +812,27 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
-   * Gets the source line for the most recent log line.
-   * This method is similar to checkForNonHandPlay, but is more generic,
-   * as it looks for non-play sources lines, such as the trigger line
-   * for a Fool's Gold trash/gain log.  This method is needed to determine
-   * which zones are being effected.
-   * @returns - the line that is the source/cause of the most recent log line.
+   * Moves an instance of the given card from the given fromZone to the given toZone,
+   * and returns the resulting arrays.
+   * @param card - The card to be moved.
+   * @param fromZone - The zone the card shall be removed from.
+   * @param toZone - The zone the card shall be moved to
+   * @returns - An object containing the new resulting Zones
    */
-  lineSource(): string | null {
-    const logLines = Array.from(getLogScrollContainerLogLines())
-      .slice(0, this.logArchive.length + 1)
-      .reverse();
-    let source: string | null = "None";
-    for (let i = 0; i < logLines.length - 1; i++) {
-      const current = logLines[i];
-      const prev = logLines[i + 1];
-      const currentPadding: number = parseInt(
-        current.style.paddingLeft.slice(0, current.style.paddingLeft.length - 1)
-      );
-      const prevPadding: number = parseInt(
-        prev.style.paddingLeft.slice(0, prev.style.paddingLeft.length - 1)
-      );
-      if (currentPadding === 0) break;
-      else if (prevPadding < currentPadding) {
-        source = prev.textContent;
-        break;
-      }
+  moveCard(
+    card: string,
+    fromZone: string[],
+    toZone: string[]
+  ): { newFromZone: string[]; newToZone: string[] } {
+    const index = fromZone.indexOf(card);
+    if (index < 0) {
+      throw Error(`No ${card} in fromZone.`);
     }
-    return source;
+    const newToZone = toZone.slice();
+    const newFromZone = fromZone.slice();
+    newToZone.push(card);
+    newFromZone.splice(index, 1);
+    return { newFromZone, newToZone };
   }
 
   /**
@@ -853,6 +901,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  processAsideWithLine(cards: string[], numberOfCards: number[]) {
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        this.durationSetAsideFromHand(cards[i]);
+      }
+    }
+  }
+
   /**
    * Update function.  Calls the appropriate process line function to update
    * the deck state.
@@ -910,6 +966,10 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "starts with":
         this.processStartsWithLine(cards, numberOfCards);
         break;
+      case "aside with":
+        this.processAsideWithLine(cards, numberOfCards);
+        break;
+
       // case "aside with Library":
       // Placing this switch case here as a reminder that this
       // act exists, and needs to exist for the function
@@ -925,6 +985,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   processDiscardsLine(cards: string[], numberOfCards: number[]) {
     const mostRecentPlay: string = this.latestAction;
+    const isDurationEffect = this.isDurationEffect();
     // const libraryDiscard = this.checkForLibraryDiscard(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
@@ -947,6 +1008,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           ["Vassal", "Courier", "Harvest", "Jester"].includes(mostRecentPlay)
         ) {
           this.discardFromLibrary(cards[i]);
+        } else if (isDurationEffect) {
+          this.discardFromDurationSetAside(cards[i]);
         } else {
           this.discard(cards[i]);
         }
@@ -1185,8 +1248,9 @@ export class Deck extends BaseDeck implements StoreDeck {
         if (durationPlay) {
           // There is an assumption here that there will only be one card on the duration
           // plays line.
+          console.log("Duration play occurring, ", cards[i]);
           const activeDurationsCopy = this.activeDurations.slice();
-          activeDurationsCopy.push(new Duration("Rope"));
+          activeDurationsCopy.push(new Duration(cards[i] as DurationName));
           this.setActiveDurations(activeDurationsCopy);
           this.play(cards[i]);
         } else if (nonHandPlay === "Fortune Hunter") {
@@ -1551,32 +1615,75 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param log - An array of log lines from the DOM Clients
    */
   update(log: Array<string>) {
+    // let lineIsCausedByDuration: boolean = false;
     log.forEach((line) => {
       if (this.debug) console.group(line);
-      const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
-      if (this.isConsecutiveMerchantBonus(line)) {
-        this.handleConsecutiveMerchantBonus();
-      }
-      if (this.logEntryAppliesToThisDeck(line)) {
-        this.shuffleAndCleanUpIfNeeded(line);
-        this.drawLookedAtCardIfNeeded(act);
-        this.processDeckChanges(line, act, cards, numberOfCards);
-      } else {
-        this.processOpponentLog(line, act, cards, numberOfCards);
-      }
-      this.updateArchives(line);
-      this.updateVP();
-      this.setLatestAction(this.getMostRecentAction(this.logArchive));
-      this.setLatestPlay(this.getMostRecentPlay(this.logArchive));
-      // Check for logArchive Accuracy
 
+      // const lineSource = this.lineSource();
+      // lineIsCausedByDuration = lineSource
+      //   ? lineSource.match(`${this.playerNick} starts their turn.`) !== null
+      //   : false;
+      // const lineIsDurationResolution = this.isDurationResolutionLine(line);
+      // if (lineIsCausedByDuration && !lineIsDurationResolution) {
+      //   console.log("Duration Processing");
+      //   // Here, instead of processing the log, we temporarily store the log to be processed later,
+      //   // when we have the required context information, namely, which duration is causing the logs.
+      //   const durationLogsCopy = this.durationLogs.slice();
+      //   durationLogsCopy.push(line);
+      //   this.setDurationLogs(durationLogsCopy);
+      // } else if (lineIsCausedByDuration && lineIsDurationResolution) {
+      //   // Here we process the delayed Duration logs
+      //   const durationLogsCopy = this.durationLogs.slice();
+      //   durationLogsCopy.push(line);
+      //   this.setDurationLogs(durationLogsCopy);
+      //   console.log("line is a duration resolution");
+      //   this.durationLogs.forEach((line) => {
+      //     const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+      //     if (this.isConsecutiveMerchantBonus(line)) {
+      //       this.handleConsecutiveMerchantBonus();
+      //     }
+      //     if (this.logEntryAppliesToThisDeck(line)) {
+      //       this.shuffleAndCleanUpIfNeeded(line);
+      //       this.drawLookedAtCardIfNeeded(act);
+      //       this.processDeckChanges(line, act, cards, numberOfCards);
+      //     } else {
+      //       this.processOpponentLog(line, act, cards, numberOfCards);
+      //     }
+      //     console.log("processing is complete for duration effects.");
+      //     this.setDurationLogs([]);
+      //   });
+      // } else
+      {
+        const { act, cards, numberOfCards } = this.getActCardsAndCounts(line);
+        if (this.isConsecutiveMerchantBonus(line)) {
+          this.handleConsecutiveMerchantBonus();
+        }
+        if (this.logEntryAppliesToThisDeck(line)) {
+          this.shuffleAndCleanUpIfNeeded(line);
+          this.drawLookedAtCardIfNeeded(act);
+          this.processDeckChanges(line, act, cards, numberOfCards);
+        } else {
+          this.processOpponentLog(line, act, cards, numberOfCards);
+        }
+        this.updateArchives(line);
+        this.updateVP();
+        this.setLatestAction(this.getMostRecentAction(this.logArchive));
+        this.setLatestPlay(this.getMostRecentPlay(this.logArchive));
+        // Check for logArchive Accuracy
+      }
       if (this.debug) console.groupEnd();
     });
-    if (!this.checkLogAccuracy()) {
+    if (
+      // lineIsCausedByDuration &&
+      this
+        .checkLogAccuracy
+        // lineIsCausedByDuration
+        ()
+    ) {
+      store.dispatch(setError(null));
+    } else {
       console.error("logArchive and gameLog lengths differ");
       store.dispatch(setError("logArchive and gameLog lengths differ"));
-    } else {
-      store.dispatch(setError(null));
     }
   }
 }

@@ -448,8 +448,8 @@ export class DOMObserver {
       "Necropolis", //Done
       "Hovel", //Done
       "Overgrown Estate", //Done
-      "Fool's Gold",
-      "Grotto",
+      "Fool's Gold", //Done
+      "Grotto", //Done
       "Haven",
       "Pawn",
       "Amulet",
