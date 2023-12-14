@@ -7,14 +7,14 @@ export const duration_constants: {
   Haven: { LIFESPAN: 1 },
   Lighthouse: { LIFESPAN: undefined },
   Search: { LIFESPAN: undefined },
-  Amulet: { LIFESPAN: undefined },
-  Astrolabe: { LIFESPAN: undefined },
+  Amulet: { LIFESPAN: 1 },
+  Astrolabe: { LIFESPAN: 1 },
   "Caravan Guard": { LIFESPAN: undefined },
   "Cargo Ship": { LIFESPAN: undefined },
   Church: { LIFESPAN: undefined },
-  Dungeon: { LIFESPAN: undefined },
+  Dungeon: { LIFESPAN: 1 },
   Enchantress: { LIFESPAN: undefined },
-  "Fishing Village": { LIFESPAN: undefined },
+  "Fishing Village": { LIFESPAN: 1 },
   Gear: {
     LIFESPAN: undefined,
     // Puts into setAside on play

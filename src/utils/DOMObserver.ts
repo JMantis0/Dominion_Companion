@@ -1186,7 +1186,12 @@ export class DOMObserver {
    */
   static kingdomInitializer(): void {
     if (DOMObserver.isKingdomElementPresent()) {
-      DOMObserver.setKingdom(DOMObserver.getClientKingdom());
+      const initialGameLog = DOMObserver.getClientGameLog();
+      const shelters: string[] = [];
+      ["Hovel", "Necropolis", "Overgrown Estate"].forEach((shelter) => {
+        if (initialGameLog.match(shelter) !== null) shelters.push(shelter);
+      });
+      DOMObserver.setKingdom(DOMObserver.getClientKingdom().concat(shelters));
       DOMObserver.setBaseOnly(
         DOMObserver.supportedKingdomCardCheck(DOMObserver.kingdom)
       );

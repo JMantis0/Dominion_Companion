@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { DOMObserver } from "../../../src/utils/DOMObserver";
 import contentSlice, {
   setBaseOnly as setBaseOnlyRedux,
@@ -20,6 +20,10 @@ describe("kingdomInitializer should check if the kingdom-viewer-group element is
   let nameElement5: HTMLElement;
   // Declare a redux store
   let storeMock: DOMStore;
+  // mock getClientGameLog for shelter testing.
+  const getClientGameLogMock = jest
+    .spyOn(DOMObserver, "getClientGameLog")
+    .mockReturnValue("");
 
   beforeEach(() => {
     DOMObserver.resetGame();
@@ -146,5 +150,58 @@ describe("kingdomInitializer should check if the kingdom-viewer-group element is
     expect(DOMObserver.baseOnly).toBe(true);
     expect(storeMock.getState().content.baseOnly).toBe(true);
     expect(DOMObserver.kingdomInitialized).toBe(false);
+  });
+
+  it("should add shelters to the kingdom if the Shelter Names are found in the game-log", () => {
+    // Arrange - Mock return value for getClientGameLog that includes shelters in logs.
+    getClientGameLogMock.mockReturnValue(
+      "Game #135578700, unrated.\n\nCard Pool: level 2\nL starts with 7 Coppers.\nL starts with a Hovel, a Necropolis, and an Overgrown Estate.\nG starts with 7 Coppers.\nG starts with a Hovel, a Necropolis, and an Overgrown Estate."
+    );
+
+    // Create a kingdom-viewer group.
+    // Arrange a scenario where the kingdom element is present in the DOM and the kingdom contains only base cards.
+    nameElement1 = document.createElement("div");
+    nameElement1.classList.add("name-layer");
+    nameElement2 = document.createElement("div");
+    nameElement2.classList.add("name-layer");
+    nameElement3 = document.createElement("div");
+    nameElement3.classList.add("name-layer");
+    nameElement4 = document.createElement("div");
+    nameElement4.classList.add("name-layer");
+    nameElement5 = document.createElement("div");
+    nameElement5.classList.add("name-layer");
+
+    nameElement1.innerText = "Vassal";
+    nameElement2.innerText = "Bureaucrat";
+    nameElement3.innerText = "Sentry";
+    nameElement4.innerText = "Market";
+    nameElement5.innerText = "Chapel";
+
+    kingdomViewerElement = document.createElement("div");
+    kingdomViewerElement.classList.add("kingdom-viewer-group");
+    cardStacksElement = document.createElement("div");
+    cardStacksElement.classList.add("card-stacks");
+
+    cardStacksElement.appendChild(nameElement1);
+    cardStacksElement.appendChild(nameElement2);
+    cardStacksElement.appendChild(nameElement3);
+    cardStacksElement.appendChild(nameElement4);
+    cardStacksElement.appendChild(nameElement5);
+
+    document.body.appendChild(kingdomViewerElement);
+    document.body.appendChild(cardStacksElement);
+    storeMock.dispatch(setBaseOnlyRedux(false));
+    // Act - Simulate calling the kingdomInitializer when the kingdom element is present and it is a base kingdom.
+    DOMObserver.kingdomInitializer();
+    expect(DOMObserver.kingdom).toStrictEqual([
+      "Vassal",
+      "Bureaucrat",
+      "Sentry",
+      "Market",
+      "Chapel",
+      "Hovel",
+      "Necropolis",
+      "Overgrown Estate",
+    ]);
   });
 });

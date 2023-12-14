@@ -221,7 +221,7 @@ export class BaseDeck {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
       line.match(
-        /Coppers?|Silvers?|Golds?|Platinum|Platina|Fool's Golds?|Rope?/
+        /Coppers?|Silvers?|Golds?|Platinum|Platina/
       ) !== null;
     return treasureLine;
   }
