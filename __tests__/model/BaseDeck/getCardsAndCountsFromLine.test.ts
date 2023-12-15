@@ -37,7 +37,7 @@ describe("getCardsAndCountsFromLine", () => {
   });
 
   it("should return an empty arrays for lines with no card matches", () => {
-    // Act - Simulate calling with a shuffle line.
+    // Act
     const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
       "pNick shuffles their deck."
     );
@@ -48,13 +48,24 @@ describe("getCardsAndCountsFromLine", () => {
   });
 
   it("should handle Overgrown Estate correctly", () => {
-    // Act - Simulate calling with a shuffle line.
+    // Act
     const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
       "pNick draws an Overgrown Estate."
     );
 
     // Assert
     expect(cardResult).toStrictEqual(["Overgrown Estate"]);
+    expect(cardAmountResult).toStrictEqual([1]);
+  });
+
+  it("should handle cards found by wishing correctly", () => {
+    // Act
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
+      "pNick wishes for Copper and finds it."
+    );
+
+    // Assert
+    expect(cardResult).toStrictEqual(["Copper"]);
     expect(cardAmountResult).toStrictEqual([1]);
   });
 });

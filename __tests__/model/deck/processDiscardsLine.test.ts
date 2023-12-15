@@ -362,6 +362,21 @@ describe("processDiscardsLine", () => {
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
   });
 
+  it("should discard from setAside when discards are caused by an Advisor", () => {
+    // Arrange
+    deck.latestAction = "Advisor";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Gold"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine("non-duration effect line", ["Gold"], [1]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Gold"]);
+  });
+
   it("should discard from durationSetAside when discards are caused by duration effect resolving", () => {
     // Arrange
     isDurationEffect.mockReturnValue(true);

@@ -957,6 +957,9 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "draws":
         this.processDrawsLine(line, cards, numberOfCards);
         break;
+      case "and finds it":
+        this.processDrawsLine(line, cards, numberOfCards);
+        break;
       case "discards":
         this.processDiscardsLine(line, cards, numberOfCards);
         break;
@@ -1031,6 +1034,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Cartographer",
             "Hunting Party",
             "Fortune Teller",
+            "Advisor",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1134,6 +1138,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Sage",
             "Patrol",
             "Seer",
+            "Advisor",
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
@@ -1325,6 +1330,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Patrol",
             "Seer",
             "Fortune Teller",
+            "Advisor",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1367,7 +1373,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Cartographer",
             "Patrol",
             "Seer",
-            "Fortune Teller"
+            "Fortune Teller",
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);

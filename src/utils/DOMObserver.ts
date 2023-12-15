@@ -459,10 +459,10 @@ export class DOMObserver {
       "Fishing Village", //Done
       "Fortune Teller", //Done
       "Gear", //Done
-      "Smugglers",
-      "Steward",
-      "Wishing Well",
-      "Advisor",
+      "Smugglers", // Done
+      "Steward", //Done
+      "Wishing Well", // Done
+      "Advisor", //Done
       "Baron",
       "Cabin Boy",
       "Caravan",

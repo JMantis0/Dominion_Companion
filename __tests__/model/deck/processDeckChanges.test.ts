@@ -388,7 +388,7 @@ describe("processDeckChanges", () => {
   });
 
   it("should only call method processIntoTheirHandLine when the act is 'in hand'.", () => {
-    const line = "G puts a Copper, a Silver, and a Sage in hand (Haven).";
+    const line = "pNick puts a Copper, a Silver, and a Sage in hand (Haven).";
     const act = "in hand";
     const cards = ["Copper", "Silver", "Sage"];
     const numberOfCards = [1, 1, 1];
@@ -466,7 +466,7 @@ describe("processDeckChanges", () => {
   });
 
   it("should only call method processAsideWithLine when the act is 'aside with'.", () => {
-    const line = "G sets a 3 Coppers aside with Grotto.";
+    const line = "pNick sets a 3 Coppers aside with Grotto.";
     const act = "aside with";
     const cards = ["Copper"];
     const numberOfCards = [3];
@@ -487,6 +487,33 @@ describe("processDeckChanges", () => {
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
     expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+  });
+
+  it("should only call method draw when the act is 'and finds it'.", () => {
+    const line = "pNick wishes for Coppers and finds it.";
+    const act = "and finds it";
+    const cards = ["Copper"];
+    const numberOfCards = [1];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
+    expect(processDrawsLine).toBeCalledTimes(1);
+    expect(processDrawsLine).toBeCalledWith(line, cards, numberOfCards);
+    expect(processAsideWithLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
+    expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(processTopDecksLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();

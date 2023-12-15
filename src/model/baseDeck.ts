@@ -364,7 +364,9 @@ export class BaseDeck {
   consecutiveReveals(line: string): boolean {
     return (
       line.match(" reveals ") !== null &&
-      ["Sage", "Farming Village","Fortune Teller"].includes(this.latestAction) &&
+      ["Sage", "Farming Village", "Fortune Teller"].includes(
+        this.latestAction
+      ) &&
       this.lastEntryProcessed.match(" reveals ") !== null
     );
   }
@@ -492,6 +494,7 @@ export class BaseDeck {
       "moves their deck to the discard",
       "starts with",
       "in hand",
+      "and finds it",
     ];
     const lineWithoutNickName = line.slice(this.playerNick.length);
     if (line.match(" reveals their hand:") === null)
@@ -525,12 +528,14 @@ export class BaseDeck {
       if (card === "Platinum") {
         cardMatcher = "Platin";
       } else cardMatcher = card.substring(0, card.length - 1);
-      if (line.match(new RegExp(`(an?|\\d+) ${cardMatcher}`)) !== null) {
+      if (
+        line.match(new RegExp(`(an?|\\d+|wishes for) ${cardMatcher}`)) !== null
+      ) {
         const upperSlice = line.indexOf(cardMatcher) - 1;
         const lowerSlice = line.substring(0, upperSlice).lastIndexOf(" ") + 1;
         const amountChar = line.substring(lowerSlice, upperSlice);
         let amount = 0;
-        if (amountChar == "an" || amountChar == "a") {
+        if (["an", "a", "for"].includes(amountChar)) {
           amount = 1;
         } else {
           amount = parseInt(amountChar);
