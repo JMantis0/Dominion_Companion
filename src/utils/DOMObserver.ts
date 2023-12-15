@@ -463,11 +463,11 @@ export class DOMObserver {
       "Steward", //Done
       "Wishing Well", // Done
       "Advisor", //Done
-      "Baron",
-      "Cabin Boy",
-      "Caravan",
-      "Carpenter",
-      "Conclave",
+      "Baron", //Done
+      "Cabin Boy", //Done
+      "Caravan", //Done
+      "Carpenter", //Done
+      "Conclave", //Done
       "Crucible",
       "Envoy",
       "Innkeeper",

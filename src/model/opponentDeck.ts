@@ -61,7 +61,7 @@ export class OpponentDeck extends BaseDeck {
         this.processGainsLine(line, cards, numberOfCards);
         break;
       case "trashes":
-        this.processTrashesLine(cards, numberOfCards);
+        this.processTrashesLine(line, cards, numberOfCards);
         break;
       case "passes":
         this.processPassesLine(cards, numberOfCards);
@@ -137,7 +137,10 @@ export class OpponentDeck extends BaseDeck {
    * @param cards - Array of the cards names to trash.
    * @param numberOfCards - Array of the amount of each card to trash.
    */
-  processTrashesLine(cards: string[], numberOfCards: number[]) {
+  processTrashesLine(line: string, cards: string[], numberOfCards: number[]) {
+    line; // this param is not used but required to avoid type errors when creating a deckMap.
+    // This occurs because both Deck and OpponentDeck have a method with this name, and they must have
+    // the same parameters to avoid compile errors.
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         const trashCopy = this.trash.slice();

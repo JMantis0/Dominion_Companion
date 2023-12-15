@@ -1,4 +1,4 @@
-import { describe, it, expect,  beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { OpponentDeck } from "../../../src/model/opponentDeck";
 
 describe("processTrashesLine", () => {
@@ -14,7 +14,7 @@ describe("processTrashesLine", () => {
     deck.trash = ["Copper"];
     deck.entireDeck = ["Copper", "Copper", "Estate", "Estate", "Market"];
     // Act - Simulate opponent trashing 4 cards with a Chapel
-    deck.processTrashesLine(["Copper", "Estate"], [2, 2]);
+    deck.processTrashesLine("any line", ["Copper", "Estate"], [2, 2]);
     expect(deck.trash).toStrictEqual([
       "Copper",
       "Copper",

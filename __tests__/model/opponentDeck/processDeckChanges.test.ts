@@ -55,7 +55,7 @@ describe("Method processDeckChanges", () => {
 
     // Assert - Verify only the processTrashesLine method is called and it is called with the correct arguments.
     expect(processTrashesLine).toBeCalledTimes(1);
-    expect(processTrashesLine).toBeCalledWith(cards, numberOfCards);
+    expect(processTrashesLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processGainsLine).not.toBeCalled();
     expect(processStartsWithLine).not.toBeCalled();
     expect(processPassesLine).not.toBeCalled();

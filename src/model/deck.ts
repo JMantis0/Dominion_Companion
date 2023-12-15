@@ -967,7 +967,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.processPlaysLine(line, cards, numberOfCards);
         break;
       case "trashes":
-        this.processTrashesLine(cards, numberOfCards);
+        this.processTrashesLine(line, cards, numberOfCards);
         break;
       case "topdecks":
         this.processTopDecksLine(cards, numberOfCards);
@@ -1397,8 +1397,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards - Array of the cards names to trash.
    * @param numberOfCards - Array of the amount of each card to trash.
    */
-  processTrashesLine(cards: string[], numberOfCards: number[]) {
+  processTrashesLine(line: string, cards: string[], numberOfCards: number[]) {
     const mostRecentPlay = this.latestAction;
+    let durationEffectCausedBy: string = "None";
+    const isDurationEffect = this.isDurationEffect();
+    if (isDurationEffect)
+      durationEffectCausedBy = this.durationEffectCausedBy(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1410,7 +1414,8 @@ export class Deck extends BaseDeck implements StoreDeck {
         } else if (
           (mostRecentPlay === "Treasure Map" &&
             this.lastEntryProcessed.match(" plays a Treasure Map.") !== null) ||
-          ["Tragic Hero"].includes(mostRecentPlay)
+          ["Tragic Hero"].includes(mostRecentPlay) ||
+          ["Cabin Boy"].includes(durationEffectCausedBy)
         ) {
           this.trashFromInPlay(cards[i]);
         } else {
