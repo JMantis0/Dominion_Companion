@@ -1,9 +1,13 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processTrashesLine", () => {
   // Declare Deck reference.
   let deck: Deck;
+  const isDurationEffect = jest
+    .spyOn(BaseDeck.prototype, "isDurationEffect")
+    .mockReturnValue(false);
 
   beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
@@ -21,7 +25,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1];
 
     // Act - simulate trashing a Copper from hand by a Moneylender.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify card was removed from hand and entireDeck
     expect(deck.hand).toStrictEqual(["Estate"]);
@@ -46,7 +50,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1, 1];
 
     // Act - simulate trashing an Estate and a Copper from setAside by a Sentry.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify cards were removed from setAside and entireDeck
     expect(deck.setAside).toStrictEqual([]);
@@ -66,7 +70,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1];
 
     // Act - simulate trashing a Silver from setAside by a Bandit.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the card was removed from setAside and entireDeck
     expect(deck.setAside).toStrictEqual(["Estate"]);
@@ -86,7 +90,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1];
 
     // Act - simulate trashing an Estate from setAside by a Lookout.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the card was removed from setAside and entireDeck
     expect(deck.setAside).toStrictEqual(["Silver", "Estate"]);
@@ -114,7 +118,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1, 1];
 
     // Act - simulate trashing an Estate from setAside by a Lookout.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the card was removed from setAside and entireDeck
     expect(deck.entireDeck).toStrictEqual([
@@ -140,7 +144,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1];
 
     // Act - simulate trashing an Estate from library by a Swindler.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the card was removed from library and entireDeck
     expect(deck.entireDeck).toStrictEqual(["Silver", "Silver", "Estate"]);
@@ -160,7 +164,7 @@ describe("processTrashesLine", () => {
     const numberOfCards = [1];
 
     // Act - simulate trashing an Estate from library by a Swindler.
-    deck.processTrashesLine(cards, numberOfCards);
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the card was removed from library and entireDeck
     expect(deck.entireDeck).toStrictEqual([
@@ -188,7 +192,11 @@ describe("processTrashesLine", () => {
       deck.trash = ["Copper"];
 
       // Act
-      deck.processTrashesLine(["Treasure Map"], [1]);
+      deck.processTrashesLine(
+        "Non-duration effect line",
+        ["Treasure Map"],
+        [1]
+      );
 
       // Assert - Verify the card was trashed from inPlay
       expect(deck.inPlay).toStrictEqual([]);
@@ -227,7 +235,7 @@ describe("processTrashesLine", () => {
     deck.trash = ["Copper"];
 
     // Act
-    deck.processTrashesLine(["Tragic Hero"], [1]);
+    deck.processTrashesLine("Non-duration effect line", ["Tragic Hero"], [1]);
 
     // Assert - Verify the card was trashed from inPlay
     expect(deck.inPlay).toStrictEqual([]);
@@ -239,6 +247,35 @@ describe("processTrashesLine", () => {
       "Copper",
       "Copper",
       "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+      "Copper",
+    ]);
+  });
+
+  it("should trash from inPlay if the current line is a durationEffect of a Cabin Boy", () => {
+    // Arrange
+    deck.latestAction = "None";
+    deck.entireDeck = ["Copper", "Copper", "Copper", "Copper", "Cabin Boy"];
+    deck.inPlay = ["Cabin Boy"];
+    deck.library = ["Copper"];
+    deck.hand = ["Copper", "Copper", "Copper"];
+    deck.trash = ["Estate"];
+    isDurationEffect.mockReturnValue(true);
+
+    // Act
+    deck.processTrashesLine(
+      "G trashes a Cabin Boy. (Cabin Boy)",
+      ["Cabin Boy"],
+      [1]
+    );
+
+    // Assert - Verify the card was trashed from inPlay
+    expect(deck.inPlay).toStrictEqual([]);
+    expect(deck.trash).toStrictEqual(["Estate", "Cabin Boy"]);
+    // Verify the card was removed from the entire deck.
+    expect(deck.entireDeck).toStrictEqual([
       "Copper",
       "Copper",
       "Copper",
@@ -260,7 +297,11 @@ describe("processTrashesLine", () => {
       deck.trash = ["Copper", "Treasure Map"];
 
       // Act
-      deck.processTrashesLine(["Treasure Map"], [1]);
+      deck.processTrashesLine(
+        "Non-duration effect line",
+        ["Treasure Map"],
+        [1]
+      );
 
       // Assert - Verify the card was trashed from inPlay
       expect(deck.hand).toStrictEqual(["Estate"]);

@@ -1,12 +1,18 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
+/**
+ * @jest-environment jsdom
+ */
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processDiscardsLine", () => {
   // Declare Deck reference.
   let deck: Deck;
-
+  const isDurationEffect = jest
+    .spyOn(BaseDeck.prototype, "isDurationEffect")
+    .mockReturnValue(false);
   beforeEach(() => {
-    deck = new Deck("", false, "", "pNick", "pName", []);
+    deck = new Deck("", false, "", "Player", "P", []);
   });
 
   // Case - discard from hand
@@ -21,7 +27,7 @@ describe("processDiscardsLine", () => {
     deck.library = ["Shouldn't Move"];
 
     // Act - Simulate discarding two cards to an opponent's Militia.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the hand and graveyard contain the expected cards.
     expect(deck.hand).toStrictEqual(["Estate"]);
@@ -43,7 +49,7 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Vassal.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the library and graveyard contain the expected cards.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -63,7 +69,7 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Jester.
-    deck.processDiscardsLine(["Silver"], [1]);
+    deck.processDiscardsLine("non-duration effect line", ["Silver"], [1]);
 
     // Assert - Verify the library and graveyard contain the expected cards.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -85,7 +91,7 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Courier.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the library and graveyard contain the expected cards.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -112,7 +118,11 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Harvest.
-    deck.processDiscardsLine(["Silver", "Hunting Party"], [3, 1]);
+    deck.processDiscardsLine(
+      "non-duration effect line",
+      ["Silver", "Hunting Party"],
+      [3, 1]
+    );
 
     // Assert - Verify the library and graveyard contain the expected cards.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -140,7 +150,7 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding from library with Bandit.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify setAside and graveyard contain the expected cards.
     expect(deck.setAside).toStrictEqual([]);
@@ -162,7 +172,7 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - simulate discarding 3 cards with a Library.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     // Assert - Verify the setAside and graveyard zones contain the expected cards.
     expect(deck.setAside).toStrictEqual([]);
@@ -189,7 +199,7 @@ describe("processDiscardsLine", () => {
     deck.hand = ["Shouldn't Move"];
 
     // Act - Simulate discarding 2 cards with Sentry.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     //Assert - Verify the setAside and graveyard zones contain the expected cards.
     expect(deck.setAside).toStrictEqual([]);
@@ -212,7 +222,7 @@ describe("processDiscardsLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate discarding a Province cards with Lookout.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     //Assert - Verify the setAside and graveyard zones contain the expected cards.
     expect(deck.setAside).toStrictEqual(["Silver"]);
@@ -235,7 +245,7 @@ describe("processDiscardsLine", () => {
     const numberOfCards = [1, 1];
 
     // Act - Simulate discarding a Province cards with Sage.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     //Assert - Verify the setAside and graveyard zones contain the expected cards.
     expect(deck.setAside).toStrictEqual([]);
@@ -258,7 +268,7 @@ describe("processDiscardsLine", () => {
     const numberOfCards = [1, 1];
 
     // Act - Simulate discarding a Province cards with Farming Village.
-    deck.processDiscardsLine(cards, numberOfCards);
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
 
     //Assert - Verify the setAside and graveyard zones contain the expected cards.
     expect(deck.setAside).toStrictEqual([]);
@@ -276,7 +286,11 @@ describe("processDiscardsLine", () => {
     deck.graveyard = ["Bureaucrat"];
 
     // Act
-    deck.processDiscardsLine(["Estate", "Copper"], [1, 2]);
+    deck.processDiscardsLine(
+      "non-duration effect line",
+      ["Estate", "Copper"],
+      [1, 2]
+    );
 
     // Assert - Verify the cards were moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual([]);
@@ -296,7 +310,7 @@ describe("processDiscardsLine", () => {
     deck.graveyard = ["Bureaucrat"];
 
     // Act
-    deck.processDiscardsLine(["Copper"], [1]);
+    deck.processDiscardsLine("non-duration effect line", ["Copper"], [1]);
 
     // Assert - Verify the cards were moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual([]);
@@ -311,7 +325,7 @@ describe("processDiscardsLine", () => {
     deck.graveyard = ["Bureaucrat"];
 
     // Act
-    deck.processDiscardsLine(["Copper"], [2]);
+    deck.processDiscardsLine("non-duration effect line", ["Copper"], [2]);
 
     // Assert - Verify the cards were moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual(["Silver", "Silver"]);
@@ -326,10 +340,69 @@ describe("processDiscardsLine", () => {
     deck.graveyard = ["Bureaucrat"];
 
     // Act
-    deck.processDiscardsLine(["Silver"], [2]);
+    deck.processDiscardsLine("non-duration effect line", ["Silver"], [2]);
 
     // Assert - Verify the cards were moved from setAside to graveyard.
     expect(deck.setAside).toStrictEqual([]);
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
+  });
+
+  it("should discard from setAside when discards are caused by a Fortune Teller", () => {
+    // Arrange
+    deck.latestAction = "Fortune Teller";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine("non-duration effect line", ["Silver"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
+  });
+
+  it("should discard from setAside when discards are caused by an Advisor", () => {
+    // Arrange
+    deck.latestAction = "Advisor";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Gold"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine("non-duration effect line", ["Gold"], [1]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Gold"]);
+  });
+
+  it("should discard from durationSetAside when discards are caused by duration effect resolving", () => {
+    // Arrange
+    isDurationEffect.mockReturnValue(true);
+    deck.durationSetAside = ["Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine("Duration effect line", ["Silver"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.durationSetAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
+  });
+
+  it("should process discards caused by Dungeon effect correctly", () => {
+    // Arrange
+    isDurationEffect.mockReturnValue(true);
+    deck.hand = ["Copper", "Estate", "Vassal", "Sentry", "Village"];
+    deck.graveyard = ["Bureaucrat"];
+    const line = "P discards a Copper and an Estate. (Dungeon)";
+
+    // Act - Simulate a Dungeon effect discarding a Copper and an Estate
+    deck.processDiscardsLine(line, ["Copper", "Estate"], [1, 1]);
+
+    // Assert - Verify the hand and graveyard contain the correct cards
+    expect(deck.hand).toStrictEqual(["Vassal", "Sentry", "Village"]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Estate"]);
   });
 });

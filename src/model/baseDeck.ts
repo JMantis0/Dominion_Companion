@@ -1,4 +1,4 @@
-import { GameResult } from "../utils";
+import { DurationName, GameResult } from "../utils";
 import { getLogScrollContainerLogLines } from "../utils/utils";
 import { duration_constants } from "../../src/utils/durations";
 export class BaseDeck {
@@ -220,7 +220,7 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina|Fool's Golds?|Rope?/) !== null;
+      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina/) !== null;
     return treasureLine;
   }
 
@@ -248,13 +248,21 @@ export class BaseDeck {
   checkLogAccuracy(): boolean {
     const gameLog = getLogScrollContainerLogLines();
     const gLogTexts = [];
+    let premovesPresent: boolean = false;
     for (const el of gameLog) {
       gLogTexts.push(el.innerText);
+      if (
+        el.textContent !== null &&
+        el.textContent.match("Premoves") !== null
+      ) {
+        premovesPresent = true;
+      }
     }
     const accurate =
       gLogTexts.length === this.logArchive.length ||
       (gLogTexts.length === this.logArchive.length + 1 &&
-        gLogTexts.slice().pop() === "Between Turns");
+        gLogTexts.slice().pop() === "Between Turns" &&
+        !premovesPresent);
     if (!accurate) {
       console.log("gameLog", gLogTexts);
       console.log("logArchive", this.logArchive);
@@ -322,6 +330,19 @@ export class BaseDeck {
   }
 
   /**
+   * Checks for consecutive 'in hand' lines.  Needed to remove
+   * duplicate logs from the log archive.
+   * @param line - the given line.
+   * @returns - Boolean for whether the lines are consecutive into their hand lines.
+   */
+  consecutiveInHandLines(line: string): boolean {
+    const consecutive =
+      this.lastEntryProcessed.match(" in hand \\(") !== null &&
+      line.match(" in hand \\(") !== null;
+    return consecutive;
+  }
+
+  /**
    * Checks for consecutive 'into their hand' lines.  Needed to remove
    * duplicate logs from the log archive.
    * @param line - the given line.
@@ -343,7 +364,9 @@ export class BaseDeck {
   consecutiveReveals(line: string): boolean {
     return (
       line.match(" reveals ") !== null &&
-      ["Sage", "Farming Village"].includes(this.latestAction) &&
+      ["Sage", "Farming Village", "Fortune Teller"].includes(
+        this.latestAction
+      ) &&
       this.lastEntryProcessed.match(" reveals ") !== null
     );
   }
@@ -377,6 +400,24 @@ export class BaseDeck {
   }
 
   /**
+   * Returns the name of the duration that is causing the given duration line.
+   * @param durationLine - The given durationLine.
+   * @returns - the name of the duration causing the given duration line.
+   */
+  durationEffectCausedBy(durationLine: string): string {
+    let durationCausedBy: string = "None";
+    const duration_names = Object.keys(duration_constants);
+    for (let i = 0; i < duration_names.length; i++) {
+      const durationName = duration_names[i] as DurationName;
+      if (durationLine.match(`(${durationName})`) !== null) {
+        durationCausedBy = durationName;
+        break;
+      }
+    }
+    return durationCausedBy;
+  }
+
+  /**
    * Function gets required details from the current line
    * @param line - Current line being processed through the update method.
    * @returns - on object containing the act from the line, an array of cards from the line
@@ -404,6 +445,9 @@ export class BaseDeck {
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else if (this.consecutiveIntoTheirHandLines(line)) {
       act = "into their hand";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveInHandLines(line)) {
+      act = "in hand";
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromLine(line);
@@ -434,6 +478,7 @@ export class BaseDeck {
     let act: string = "None";
     const actionArray = [
       "aside with Library",
+      "aside with", // 'aside with' needs to be placed after 'aside with Library', or Library will not be tracked correctly
       "discards",
       "draws",
       "gains",
@@ -448,6 +493,8 @@ export class BaseDeck {
       "back onto their deck",
       "moves their deck to the discard",
       "starts with",
+      "in hand",
+      "and finds it",
     ];
     const lineWithoutNickName = line.slice(this.playerNick.length);
     if (line.match(" reveals their hand:") === null)
@@ -481,12 +528,14 @@ export class BaseDeck {
       if (card === "Platinum") {
         cardMatcher = "Platin";
       } else cardMatcher = card.substring(0, card.length - 1);
-      if (line.match(" " + cardMatcher) !== null) {
+      if (
+        line.match(new RegExp(`(an?|\\d+|wishes for) ${cardMatcher}`)) !== null
+      ) {
         const upperSlice = line.indexOf(cardMatcher) - 1;
         const lowerSlice = line.substring(0, upperSlice).lastIndexOf(" ") + 1;
         const amountChar = line.substring(lowerSlice, upperSlice);
         let amount = 0;
-        if (amountChar == "an" || amountChar == "a") {
+        if (["an", "a", "for"].includes(amountChar)) {
           amount = 1;
         } else {
           amount = parseInt(amountChar);
@@ -681,7 +730,7 @@ export class BaseDeck {
     const [currCards, currNumberOfCards] = this.getCardsAndCountsFromLine(line);
     const [prevCards, prevNumberOfCards] =
       this.getCardsAndCountsFromLine(previousRevealsLine);
-    const newCardOnCurrentLine: boolean = currCards.length > prevCards.length;
+    // const newCardOnCurrentLine: boolean = currCards.length > prevCards.length;
     const map = new Map<string, number>();
     currCards.forEach((card, idx) => {
       map.set(card, currNumberOfCards[idx]);
@@ -697,10 +746,7 @@ export class BaseDeck {
       cards.push(card);
       numberOfCards.push(number);
     });
-    if (
-      (!intercedingShuffle && !newCardOnCurrentLine) ||
-      reconciling === "reconcile"
-    ) {
+    if (!intercedingShuffle || reconciling === "reconcile") {
       this.popLastLogArchiveEntry(this.logArchive);
     }
 
@@ -736,6 +782,16 @@ export class BaseDeck {
   }
 
   /**
+   * Checks if the line being processed is caused by a duration.
+   * @returns - Boolean for whether the line being processed is caused by a duration
+   */
+  isDurationEffect(): boolean {
+    const durationEffect =
+      this.lineSource().match(`${this.playerNick} starts their turn.`) !== null;
+    return durationEffect;
+  }
+
+  /**
    * Checks whether the given plays line plays a duration card.
    * @param playLine - the given line
    * @returns -Boolean for whether the line plays a duration card.
@@ -751,6 +807,55 @@ export class BaseDeck {
         }
       }
     return durationPlay;
+  }
+
+  /**
+   * Identifies whether the given line resolves a Duration effect.
+   * @param line - The given line.
+   * @returns - Boolean for whether the line resolves a Duration.
+   */
+  isDurationResolutionLine(line: string): boolean {
+    let isDurationResolutionLine: boolean = false;
+    const durationNames = Object.keys(duration_constants);
+    for (let i = 0; i < durationNames.length; i++) {
+      const durationName = durationNames[i];
+      if (line.match(`(${durationName})`) !== null) {
+        isDurationResolutionLine = true;
+        break;
+      }
+    }
+    return isDurationResolutionLine;
+  }
+
+  /**
+   * Gets the source line for the most recent log line.
+   * This method is similar to checkForNonHandPlay, but is more generic,
+   * as it looks for non-play sources lines, such as the trigger line
+   * for a Fool's Gold trash/gain log.  This method is needed to determine
+   * which zones are being effected.
+   * @returns - the line that is the source/cause of the most recent log line.
+   */
+  lineSource(): string {
+    const logLines = Array.from(getLogScrollContainerLogLines())
+      .slice(0, this.logArchive.length + 1)
+      .reverse();
+    let source: string = "None";
+    for (let i = 0; i < logLines.length - 1; i++) {
+      const current = logLines[i];
+      const prev = logLines[i + 1];
+      const currentPadding: number = parseInt(
+        current.style.paddingLeft.slice(0, current.style.paddingLeft.length - 1)
+      );
+      const prevPadding: number = parseInt(
+        prev.style.paddingLeft.slice(0, prev.style.paddingLeft.length - 1)
+      );
+      if (currentPadding === 0) break;
+      else if (prevPadding < currentPadding) {
+        source = prev.textContent || "None";
+        break;
+      }
+    }
+    return source;
   }
 
   /**

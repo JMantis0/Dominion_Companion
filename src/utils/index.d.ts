@@ -276,6 +276,7 @@ interface SplitMaps {
 interface StoreDeck {
   activeDurations: Array<Duration>;
   currentVP: number;
+  durationSetAside: string[];
   entireDeck: Array<string>;
   gameResult: GameResult;
   gameTitle: string;

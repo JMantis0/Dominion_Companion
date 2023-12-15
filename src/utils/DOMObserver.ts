@@ -321,10 +321,10 @@ export class DOMObserver {
       const lastLineProcessed = procArr.slice().pop();
       if (lastLineProcessed !== gLogArr[procArr.length - 1]) {
         console.log(
-          "Unequal lines, but last line of processed logs is not equal to its mate in gamelog"
+          "Unequal lines, but last line of processed logs is not equal to its mate in gamel og"
         );
         console.log("LastLine Processed ", lastLineProcessed);
-        console.log("mated Gamelog line", gLogArr[procArr.length - 1]);
+        console.log("mated game log line", gLogArr[procArr.length - 1]);
         console.log("Popping off last line from logsProcessed");
         procArr.pop();
         DOMObserver.setLogsProcessed(procArr.join("\n"));
@@ -448,26 +448,26 @@ export class DOMObserver {
       "Necropolis", //Done
       "Hovel", //Done
       "Overgrown Estate", //Done
-      "Fool's Gold",
-      "Grotto",
-      "Haven",
-      "Pawn",
-      "Amulet",
-      "Anvil",
-      "Astrolabe",
-      "Dungeon",
-      "Fishing Village",
-      "Fortune Teller",
-      "Gear",
-      "Smugglers",
-      "Steward",
-      "Wishing Well",
-      "Advisor",
-      "Baron",
-      "Cabin Boy",
-      "Caravan",
-      "Carpenter",
-      "Conclave",
+      "Fool's Gold", //Done
+      "Grotto", //Done
+      "Haven", //Done
+      "Pawn", //Done
+      "Amulet", //Done
+      "Anvil", //Done
+      "Astrolabe", //Done
+      "Dungeon", //Done
+      "Fishing Village", //Done
+      "Fortune Teller", //Done
+      "Gear", //Done
+      "Smugglers", // Done
+      "Steward", //Done
+      "Wishing Well", // Done
+      "Advisor", //Done
+      "Baron", //Done
+      "Cabin Boy", //Done
+      "Caravan", //Done
+      "Carpenter", //Done
+      "Conclave", //Done
       "Crucible",
       "Envoy",
       "Innkeeper",
@@ -1186,7 +1186,12 @@ export class DOMObserver {
    */
   static kingdomInitializer(): void {
     if (DOMObserver.isKingdomElementPresent()) {
-      DOMObserver.setKingdom(DOMObserver.getClientKingdom());
+      const initialGameLog = DOMObserver.getClientGameLog();
+      const shelters: string[] = [];
+      ["Hovel", "Necropolis", "Overgrown Estate"].forEach((shelter) => {
+        if (initialGameLog.match(shelter) !== null) shelters.push(shelter);
+      });
+      DOMObserver.setKingdom(DOMObserver.getClientKingdom().concat(shelters));
       DOMObserver.setBaseOnly(
         DOMObserver.supportedKingdomCardCheck(DOMObserver.kingdom)
       );

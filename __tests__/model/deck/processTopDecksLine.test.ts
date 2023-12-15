@@ -342,6 +342,24 @@ describe("processTopDecksLine", () => {
     expect(deck.hand).toStrictEqual(["Market"]);
   });
 
+  it("should move cards topdecked by a Fortune Teller from setAside to library.", () => {
+    // Arrange deck state
+    deck.latestAction = "Fortune Teller";
+    deck.library = ["Copper"];
+    deck.hand = ["Market"];
+    deck.graveyard = ["Bureaucrat"];
+    deck.setAside = ["Estate"];
+    // Act - Simulate top decking a card with a Fortune Teller.
+    deck.processTopDecksLine(["Estate"], [1]);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    // Verify graveyard and hand are unchanged.
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
+    expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
   it("should move cards topdecked by a Scavenger from graveyard to the library", () => {
     // Arrange
     deck.latestAction = "Scavenger";

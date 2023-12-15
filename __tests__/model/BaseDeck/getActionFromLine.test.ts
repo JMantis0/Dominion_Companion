@@ -125,11 +125,32 @@ describe("getActionFromEntry", () => {
       )
     ).toBe("None");
   });
-  
+
   it("should return 'starts with' when the line matches 'starts with'", () => {
     // Act and Assert
     expect(deck.getActionFromLine("pNick starts with 3 Estates.")).toBe(
       "starts with"
+    );
+  });
+
+  it("should return 'aside with' when the line matches 'aside with'", () => {
+    // Act and Assert
+    expect(deck.getActionFromLine("pNick sets 3 Estates aside with Grotto")).toBe(
+      "aside with"
+    );
+  });
+
+  it("should return 'in hand' when the line matches 'in hand'", () => {
+    // Act and Assert
+    expect(deck.getActionFromLine("pNick puts a Copper in hand (Haven).")).toBe(
+      "in hand"
+    );
+  });
+
+  it("should return 'and finds it' when the line matches 'and finds it'", () => {
+    // Act and Assert
+    expect(deck.getActionFromLine("pNick wishes for Copper and finds it.")).toBe(
+      "and finds it"
     );
   });
 });

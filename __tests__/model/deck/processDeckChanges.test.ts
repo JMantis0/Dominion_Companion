@@ -48,6 +48,9 @@ describe("processDeckChanges", () => {
   const processStartsWithLine = jest
     .spyOn(Deck.prototype, "processStartsWithLine")
     .mockImplementation(() => null);
+  const processAsideWithLine = jest
+    .spyOn(Deck.prototype, "processAsideWithLine")
+    .mockImplementation(() => null);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -150,7 +153,7 @@ describe("processDeckChanges", () => {
 
     // Assert - Verify only the processDiscards method is called, and is called with the correct arguments.
     expect(processDiscardsLine).toBeCalledTimes(1);
-    expect(processDiscardsLine).toBeCalledWith(cards, numberOfCards);
+    expect(processDiscardsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processDrawsLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();
@@ -206,7 +209,7 @@ describe("processDeckChanges", () => {
 
     // Assert - Verify only the processTrashes method is called, and is called with the correct arguments.
     expect(processTrashesLine).toBeCalledTimes(1);
-    expect(processTrashesLine).toBeCalledWith(cards, numberOfCards);
+    expect(processTrashesLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
     expect(processDrawsLine).not.toBeCalled();
@@ -384,6 +387,32 @@ describe("processDeckChanges", () => {
     expect(processStartsWithLine).not.toBeCalled();
   });
 
+  it("should only call method processIntoTheirHandLine when the act is 'in hand'.", () => {
+    const line = "pNick puts a Copper, a Silver, and a Sage in hand (Haven).";
+    const act = "in hand";
+    const cards = ["Copper", "Silver", "Sage"];
+    const numberOfCards = [1, 1, 1];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
+    expect(processIntoTheirHandLine).toBeCalledTimes(1);
+    expect(processIntoTheirHandLine).toBeCalledWith(cards, numberOfCards);
+    expect(processPassesLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(processTopDecksLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+    expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
+  });
+
   it("should only call method processMovesTheirDeckToTheDiscardLine when the act is 'moves their deck to the discard'.", () => {
     const line = "P moves their deck to the discard.";
     const act = "moves their deck to the discard";
@@ -431,6 +460,60 @@ describe("processDeckChanges", () => {
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
     expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+  });
+
+  it("should only call method processAsideWithLine when the act is 'aside with'.", () => {
+    const line = "pNick sets a 3 Coppers aside with Grotto.";
+    const act = "aside with";
+    const cards = ["Copper"];
+    const numberOfCards = [3];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
+    expect(processAsideWithLine).toBeCalledTimes(1);
+    expect(processAsideWithLine).toBeCalledWith(cards, numberOfCards);
+    expect(processStartsWithLine).not.toBeCalled();
+    expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(processTopDecksLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+  });
+
+  it("should only call method draw when the act is 'and finds it'.", () => {
+    const line = "pNick wishes for Coppers and finds it.";
+    const act = "and finds it";
+    const cards = ["Copper"];
+    const numberOfCards = [1];
+
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
+    expect(processDrawsLine).toBeCalledTimes(1);
+    expect(processDrawsLine).toBeCalledWith(line, cards, numberOfCards);
+    expect(processAsideWithLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
+    expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(processTopDecksLine).not.toBeCalled();
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();

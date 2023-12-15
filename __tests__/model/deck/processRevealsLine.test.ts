@@ -181,4 +181,76 @@ describe("processRevealsLine", () => {
       "Moneylender",
     ]);
   });
+
+  it("should move cards revealed by a Fortune Teller from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Fortune Teller";
+    deck.library = [
+      "Moneylender",
+      "Copper",
+      "Estate",
+      "Bureaucrat",
+      "Gold",
+      "Silver",
+      "Silver",
+      "Cellar",
+    ];
+    deck.setAside = [];
+
+    // Act - Simulate revealing a a Copper, a Gold, an Estate, and a Moneylender from library with a Fortune Teller.
+    deck.processRevealsLine(
+      ["Copper", "Gold", "Estate", "Moneylender"],
+      [1, 1, 1, 1]
+    );
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual([
+      "Bureaucrat",
+      "Silver",
+      "Silver",
+      "Cellar",
+    ]);
+    expect(deck.setAside).toStrictEqual([
+      "Copper",
+      "Gold",
+      "Estate",
+      "Moneylender",
+    ]);
+  });
+
+  it("should move cards revealed by a Advisor from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Advisor";
+    deck.library = [
+      "Moneylender",
+      "Copper",
+      "Estate",
+      "Bureaucrat",
+      "Gold",
+      "Silver",
+      "Silver",
+      "Cellar",
+    ];
+    deck.setAside = [];
+
+    // Act - Simulate revealing a a Copper, a Gold, an Estate, and a Moneylender from library with a Advisor.
+    deck.processRevealsLine(
+      ["Copper", "Gold", "Estate", "Moneylender"],
+      [1, 1, 1, 1]
+    );
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual([
+      "Bureaucrat",
+      "Silver",
+      "Silver",
+      "Cellar",
+    ]);
+    expect(deck.setAside).toStrictEqual([
+      "Copper",
+      "Gold",
+      "Estate",
+      "Moneylender",
+    ]);
+  });
 });

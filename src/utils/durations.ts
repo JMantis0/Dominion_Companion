@@ -2,21 +2,21 @@ export const duration_constants: {
   [title: string]: { LIFESPAN: number | undefined };
 } = {
   Cage: { LIFESPAN: undefined },
-  Grotto: { LIFESPAN: undefined },
+  Grotto: { LIFESPAN: 1 },
   Guardian: { LIFESPAN: undefined },
-  Haven: { LIFESPAN: undefined },
+  Haven: { LIFESPAN: 1 },
   Lighthouse: { LIFESPAN: undefined },
   Search: { LIFESPAN: undefined },
-  Amulet: { LIFESPAN: undefined },
-  Astrolabe: { LIFESPAN: undefined },
+  Amulet: { LIFESPAN: 1 },
+  Astrolabe: { LIFESPAN: 1 },
   "Caravan Guard": { LIFESPAN: undefined },
   "Cargo Ship": { LIFESPAN: undefined },
   Church: { LIFESPAN: undefined },
-  Dungeon: { LIFESPAN: undefined },
+  Dungeon: { LIFESPAN: 1 },
   Enchantress: { LIFESPAN: undefined },
-  "Fishing Village": { LIFESPAN: undefined },
+  "Fishing Village": { LIFESPAN: 1 },
   Gear: {
-    LIFESPAN: undefined,
+    LIFESPAN: 1,
     // Puts into setAside on play
     // <pNick> sets <card(s)> aside with Gear.
     // Puts into hand on turn start...
@@ -32,8 +32,8 @@ export const duration_constants: {
   Taskmaster: { LIFESPAN: undefined },
   Abundance: { LIFESPAN: undefined },
   Blockade: { LIFESPAN: undefined },
-  "Cabin Boy": { LIFESPAN: undefined },
-  Caravan: { LIFESPAN: undefined },
+  "Cabin Boy": { LIFESPAN: 1 },
+  Caravan: { LIFESPAN: 1 },
   Conjurer: { LIFESPAN: undefined },
   Flagship: { LIFESPAN: undefined },
   Garrison: { LIFESPAN: undefined },

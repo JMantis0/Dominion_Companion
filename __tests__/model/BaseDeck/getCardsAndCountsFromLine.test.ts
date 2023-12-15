@@ -1,7 +1,7 @@
 import { it, describe, expect, beforeEach } from "@jest/globals";
 import { BaseDeck } from "../../../src/model/baseDeck";
 
-describe("getCardsAndCountsFromEntry", () => {
+describe("getCardsAndCountsFromLine", () => {
   let deck: BaseDeck;
 
   beforeEach(() => {
@@ -10,6 +10,7 @@ describe("getCardsAndCountsFromEntry", () => {
       "Gold",
       "Estate",
       "Copper",
+      "Overgrown Estate",
     ]);
   });
 
@@ -36,7 +37,7 @@ describe("getCardsAndCountsFromEntry", () => {
   });
 
   it("should return an empty arrays for lines with no card matches", () => {
-    // Act - Simulate calling with a shuffle line.
+    // Act
     const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
       "pNick shuffles their deck."
     );
@@ -44,5 +45,27 @@ describe("getCardsAndCountsFromEntry", () => {
     // Assert
     expect(cardResult).toStrictEqual([]);
     expect(cardAmountResult).toStrictEqual([]);
+  });
+
+  it("should handle Overgrown Estate correctly", () => {
+    // Act
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
+      "pNick draws an Overgrown Estate."
+    );
+
+    // Assert
+    expect(cardResult).toStrictEqual(["Overgrown Estate"]);
+    expect(cardAmountResult).toStrictEqual([1]);
+  });
+
+  it("should handle cards found by wishing correctly", () => {
+    // Act
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
+      "pNick wishes for Copper and finds it."
+    );
+
+    // Assert
+    expect(cardResult).toStrictEqual(["Copper"]);
+    expect(cardAmountResult).toStrictEqual([1]);
   });
 });

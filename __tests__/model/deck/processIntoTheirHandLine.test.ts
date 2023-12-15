@@ -1,8 +1,15 @@
-import { beforeEach, describe, expect, it } from "@jest/globals";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processIntoTheirHandLine", () => {
   let deck: Deck;
+  const isDurationEffect = jest
+    .spyOn(BaseDeck.prototype, "isDurationEffect")
+    .mockReturnValue(true);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   beforeEach(() => {
     deck = new Deck("", false, "", "Player", "P", []);
@@ -105,9 +112,21 @@ describe("processIntoTheirHandLine", () => {
     deck.hand = ["Bureaucrat"];
     // Act
     deck.processIntoTheirHandLine(["Estate", "Gardens"], [1, 1]);
-
+    // Assert
     expect(deck.setAside).toStrictEqual(["Copper", "Gold"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Estate", "Gardens"]);
+  });
+
+  it("should draw cards into hand from setAside when caused by an Advisor", () => {
+    // Arrange
+    deck.latestAction = "Advisor";
+    deck.setAside = ["Copper", "Gold", "Estate"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(["Estate", "Copper"], [1, 1]);
+    // Assert
+    expect(deck.setAside).toStrictEqual(["Gold"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Estate", "Copper"]);
   });
 
   it("should draw cards into hand from graveyard when caused by a Mountain Village", () => {
@@ -118,7 +137,21 @@ describe("processIntoTheirHandLine", () => {
     // Act
     deck.processIntoTheirHandLine(["Vassal"], [1]);
 
+    // Assert
     expect(deck.graveyard).toStrictEqual(["Copper", "Copper"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
+  });
+
+  it("should draw cards into hand from durationSetAside when caused duration effect", () => {
+    // Arrange
+    deck.latestAction = "None";
+    deck.durationSetAside = ["Copper", "Copper", "Vassal"];
+    deck.hand = ["Bureaucrat"];
+    isDurationEffect.mockReturnValue(true);
+    // Act
+    deck.processIntoTheirHandLine(["Vassal"], [1]);
+    // Assert
+    expect(deck.durationSetAside).toStrictEqual(["Copper", "Copper"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
   });
 });
