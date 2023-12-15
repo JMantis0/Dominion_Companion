@@ -129,6 +129,27 @@ describe("processIntoTheirHandLine", () => {
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Estate", "Copper"]);
   });
 
+  it("should draw cards into hand from setAside when caused by an Envoy", () => {
+    // Arrange
+    deck.latestAction = "Envoy";
+    deck.setAside = ["Copper", "Copper", "Estate", "Moneylender"];
+    deck.hand = ["Bureaucrat"];
+    // Act
+    deck.processIntoTheirHandLine(
+      ["Copper", "Copper", "Estate", "Moneylender"],
+      [1, 1, 1, 1]
+    );
+    // Assert
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.hand).toStrictEqual([
+      "Bureaucrat",
+      "Copper",
+      "Copper",
+      "Estate",
+      "Moneylender",
+    ]);
+  });
+
   it("should draw cards into hand from graveyard when caused by a Mountain Village", () => {
     // Arrange
     deck.latestAction = "Mountain Village";

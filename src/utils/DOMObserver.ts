@@ -468,7 +468,7 @@ export class DOMObserver {
       "Caravan", //Done
       "Carpenter", //Done
       "Conclave", //Done
-      "Crucible",
+      "Crucible", //Done
       "Envoy",
       "Innkeeper",
       "Magpie",

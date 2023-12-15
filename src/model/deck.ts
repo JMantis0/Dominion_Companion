@@ -1035,6 +1035,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Hunting Party",
             "Fortune Teller",
             "Advisor",
+            "Envoy",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1139,6 +1140,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Patrol",
             "Seer",
             "Advisor",
+            "Envoy",
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
@@ -1331,6 +1333,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Seer",
             "Fortune Teller",
             "Advisor",
+            "Envoy",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
