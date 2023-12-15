@@ -1,4 +1,4 @@
-import { GameResult } from "../utils";
+import { DurationName, GameResult } from "../utils";
 import { getLogScrollContainerLogLines } from "../utils/utils";
 import { duration_constants } from "../../src/utils/durations";
 export class BaseDeck {
@@ -220,9 +220,7 @@ export class BaseDeck {
   checkForTreasurePlayLine(line: string): boolean {
     const treasureLine: boolean =
       line.match(" plays ") !== null &&
-      line.match(
-        /Coppers?|Silvers?|Golds?|Platinum|Platina/
-      ) !== null;
+      line.match(/Coppers?|Silvers?|Golds?|Platinum|Platina/) !== null;
     return treasureLine;
   }
 
@@ -250,13 +248,21 @@ export class BaseDeck {
   checkLogAccuracy(): boolean {
     const gameLog = getLogScrollContainerLogLines();
     const gLogTexts = [];
+    let premovesPresent: boolean = false;
     for (const el of gameLog) {
       gLogTexts.push(el.innerText);
+      if (
+        el.textContent !== null &&
+        el.textContent.match("Premoves") !== null
+      ) {
+        premovesPresent = true;
+      }
     }
     const accurate =
       gLogTexts.length === this.logArchive.length ||
       (gLogTexts.length === this.logArchive.length + 1 &&
-        gLogTexts.slice().pop() === "Between Turns");
+        gLogTexts.slice().pop() === "Between Turns" &&
+        !premovesPresent);
     if (!accurate) {
       console.log("gameLog", gLogTexts);
       console.log("logArchive", this.logArchive);
@@ -358,7 +364,7 @@ export class BaseDeck {
   consecutiveReveals(line: string): boolean {
     return (
       line.match(" reveals ") !== null &&
-      ["Sage", "Farming Village"].includes(this.latestAction) &&
+      ["Sage", "Farming Village","Fortune Teller"].includes(this.latestAction) &&
       this.lastEntryProcessed.match(" reveals ") !== null
     );
   }
@@ -389,6 +395,24 @@ export class BaseDeck {
       !["Courier", "Fortune Hunter"].includes(this.latestPlaySource); // treasures played by these sources get their own log lines in the client game-log.
 
     return consecutiveTreasurePlays;
+  }
+
+  /**
+   * Returns the name of the duration that is causing the given duration line.
+   * @param durationLine - The given durationLine.
+   * @returns - the name of the duration causing the given duration line.
+   */
+  durationEffectCausedBy(durationLine: string): string {
+    let durationCausedBy: string = "None";
+    const duration_names = Object.keys(duration_constants);
+    for (let i = 0; i < duration_names.length; i++) {
+      const durationName = duration_names[i] as DurationName;
+      if (durationLine.match(`(${durationName})`) !== null) {
+        durationCausedBy = durationName;
+        break;
+      }
+    }
+    return durationCausedBy;
   }
 
   /**

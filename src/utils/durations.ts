@@ -16,7 +16,7 @@ export const duration_constants: {
   Enchantress: { LIFESPAN: undefined },
   "Fishing Village": { LIFESPAN: 1 },
   Gear: {
-    LIFESPAN: undefined,
+    LIFESPAN: 1,
     // Puts into setAside on play
     // <pNick> sets <card(s)> aside with Gear.
     // Puts into hand on turn start...

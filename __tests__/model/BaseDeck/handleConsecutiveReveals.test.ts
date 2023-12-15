@@ -9,6 +9,7 @@ describe("handleConsecutiveReveals", () => {
       "Remodel",
       "Chapel",
       "Estate",
+      "Fortune Teller",
     ]);
   });
 
@@ -106,6 +107,29 @@ describe("handleConsecutiveReveals", () => {
       // Assert
       expect(cards).toStrictEqual(["Copper", "Estate"]);
       expect(number).toStrictEqual([1, 0]);
+      expect(deck.logArchive).toStrictEqual([
+        "pNick plays a Sage.",
+        "pNick gets +1 Action.",
+      ]);
     }
   );
+
+  it("should handle consecutive reveals lines when caused by a Fortune Teller", () => {
+    // Arrange
+    deck.logArchive = [
+      "P plays a Fortune Teller.",
+      "P gets +$2.",
+      "L reveals a Fortune Teller.",
+    ];
+    const line = "L reveals an Estate and a Fortune Teller.";
+    // Act
+    const [cards, number] = deck.handleConsecutiveReveals(line);
+    // Assert
+    expect(cards).toStrictEqual(["Estate", "Fortune Teller"]);
+    expect(number).toStrictEqual([1, 0]);
+    expect(deck.logArchive).toStrictEqual([
+      "P plays a Fortune Teller.",
+      "P gets +$2.",
+    ]);
+  });
 });

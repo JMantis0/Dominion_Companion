@@ -958,7 +958,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.processDrawsLine(line, cards, numberOfCards);
         break;
       case "discards":
-        this.processDiscardsLine(cards, numberOfCards);
+        this.processDiscardsLine(line, cards, numberOfCards);
         break;
       case "plays":
         this.processPlaysLine(line, cards, numberOfCards);
@@ -1010,10 +1010,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards - Array of card names to be discarded.
    * @param numberOfCards - Array of the amounts of each card to discard.
    */
-  processDiscardsLine(cards: string[], numberOfCards: number[]) {
+  processDiscardsLine(line: string, cards: string[], numberOfCards: number[]) {
     const mostRecentPlay: string = this.latestAction;
+    let durationEffectCausedBy: string = "None";
     const isDurationEffect = this.isDurationEffect();
-    // const libraryDiscard = this.checkForLibraryDiscard(line);
+    if (isDurationEffect)
+      durationEffectCausedBy = this.durationEffectCausedBy(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1028,6 +1030,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Hunter",
             "Cartographer",
             "Hunting Party",
+            "Fortune Teller",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1036,7 +1039,11 @@ export class Deck extends BaseDeck implements StoreDeck {
         ) {
           this.discardFromLibrary(cards[i]);
         } else if (isDurationEffect) {
-          this.discardFromDurationSetAside(cards[i]);
+          if (durationEffectCausedBy === "Dungeon") {
+            this.discard(cards[i]);
+          } else {
+            this.discardFromDurationSetAside(cards[i]);
+          }
         } else {
           this.discard(cards[i]);
         }
@@ -1317,6 +1324,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Hunting Party",
             "Patrol",
             "Seer",
+            "Fortune Teller",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1359,6 +1367,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Cartographer",
             "Patrol",
             "Seer",
+            "Fortune Teller"
           ].includes(mostRecentAction)
         ) {
           this.topDeckFromSetAside(cards[i]);

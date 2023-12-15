@@ -153,7 +153,7 @@ describe("processDeckChanges", () => {
 
     // Assert - Verify only the processDiscards method is called, and is called with the correct arguments.
     expect(processDiscardsLine).toBeCalledTimes(1);
-    expect(processDiscardsLine).toBeCalledWith(cards, numberOfCards);
+    expect(processDiscardsLine).toBeCalledWith(line, cards, numberOfCards);
     expect(processDrawsLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();

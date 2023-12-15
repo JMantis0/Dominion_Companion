@@ -451,14 +451,14 @@ export class DOMObserver {
       "Fool's Gold", //Done
       "Grotto", //Done
       "Haven", //Done
-      "Pawn",
-      "Amulet",
-      "Anvil",
-      "Astrolabe",
-      "Dungeon",
-      "Fishing Village",
-      "Fortune Teller",
-      "Gear",
+      "Pawn", //Done
+      "Amulet", //Done
+      "Anvil", //Done
+      "Astrolabe", //Done
+      "Dungeon", //Done
+      "Fishing Village", //Done
+      "Fortune Teller", //Done
+      "Gear", //Done
       "Smugglers",
       "Steward",
       "Wishing Well",
