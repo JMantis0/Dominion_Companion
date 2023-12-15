@@ -767,7 +767,8 @@ export class Deck extends BaseDeck implements StoreDeck {
   ifCleanUpNeeded(entry: string): boolean {
     const cleanUp = this.checkForCleanUp(entry);
     const cellarDraws = this.checkForCellarDraw();
-    return cleanUp && !cellarDraws;
+    const innKeeperDraw = this.latestAction === "Innkeeper";
+    return cleanUp && !cellarDraws && !innKeeperDraw;
   }
 
   /**

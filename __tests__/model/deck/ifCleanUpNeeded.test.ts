@@ -9,12 +9,13 @@ describe("ifCleanUpNeeded", () => {
     deck = new Deck("", false, "", "pName", "pNick", []);
   });
 
-  // Five Cases
+  // Cases
   // 1) entireDeck.length >= 5 && draws on given line != 5
   // 2) entireDeck.length >= 5 && draws on given line = 5 caused by Cellar
   // 3) entireDeck.length >= 5 && draws on given line = 5 not caused by Cellar
   // 4) entireDeck.length = n < 5 && draws on given line = n
   // 5) entireDeck.length = n < 5 && draws on given line < n
+  // 6) entireDeck.length >=5 and draws on line = 5 caused by Innkeeper
 
   // Case 1 - entireDeck.length >= 5 && draws on given line != 5
   it("should return false if entireDeck.length >= 5 && draws on given line != 5", () => {
@@ -102,5 +103,22 @@ describe("ifCleanUpNeeded", () => {
 
     // Act and Assert - Verify method returns false, only 1 card being drawn on the given line, while entireDeck is length 3
     expect(deck.ifCleanUpNeeded("pNick draws a Copper.")).toBe(false);
+  });
+
+  // Case 6 - entireDeck.length >= 5 && draws = 5 caused by Innkeeper
+  it("should return false if entireDeck.length >= 5 && draws on given line = 5 caused by Innkeeper", () => {
+    // Arrange
+    deck.latestAction = "Innkeeper";
+    deck.logArchive = [
+      "pNick plays an Innkeeper.",
+      "pNick gets +1 Action.",
+      "pNick shuffles their deck.",
+      "pNick draws 2 Coppers, a Silver, an Estate, and an Innkeeper.",
+    ];
+    const line =
+      "pNick draws 2 Coppers, a Silver, an Estate, and an Innkeeper.";
+
+    // Act and Assert
+    expect(deck.ifCleanUpNeeded(line)).toBe(false);
   });
 });
