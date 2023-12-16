@@ -478,7 +478,7 @@ export class BaseDeck {
     let act: string = "None";
     const actionArray = [
       "aside with Library",
-      "aside with", // 'aside with' needs to be placed after 'aside with Library', or Library will not be tracked correctly
+      "aside", // 'aside' needs to be placed after 'aside with Library', or Library will not be tracked correctly
       "discards",
       "draws",
       "gains",
@@ -840,12 +840,12 @@ export class BaseDeck {
       .slice(0, this.logArchive.length + 1)
       .reverse();
     let source: string = "None";
+    const current = logLines[0];
+    const currentPadding: number = parseInt(
+      current.style.paddingLeft.slice(0, current.style.paddingLeft.length - 1)
+    );
     for (let i = 0; i < logLines.length - 1; i++) {
-      const current = logLines[i];
       const prev = logLines[i + 1];
-      const currentPadding: number = parseInt(
-        current.style.paddingLeft.slice(0, current.style.paddingLeft.length - 1)
-      );
       const prevPadding: number = parseInt(
         prev.style.paddingLeft.slice(0, prev.style.paddingLeft.length - 1)
       );
@@ -929,6 +929,8 @@ export class BaseDeck {
           case "Gardens":
             return Math.floor(this.entireDeck.length / 10) + accumulatedVP;
           case "Estate":
+            return 1 + accumulatedVP;
+          case "Mill":
             return 1 + accumulatedVP;
           case "Duchy":
             return 3 + accumulatedVP;

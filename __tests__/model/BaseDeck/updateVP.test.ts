@@ -24,9 +24,11 @@ describe("updateVP", () => {
       "Gardens",
       "Gardens",
       "Curse",
+      "Mill",
+      "Mill",
     ];
     deck.setEntireDeck(entireDeckList);
-    const expectedVP = 23; // Easily countable by inspection
+    const expectedVP = 25; // Easily countable by inspection
 
     // Act
     deck.updateVP();
@@ -46,6 +48,7 @@ describe("updateVP", () => {
     const randomProvinceAmount = randomNumber();
     const randomGardensAmount = randomNumber();
     const randomCurseAmount = randomNumber();
+    const randomMillAmount = randomNumber();
     const entireDeck: string[] = [];
     [...Array<number>(randomEstateAmount).keys()].forEach(() =>
       entireDeck.push("Estate")
@@ -62,11 +65,15 @@ describe("updateVP", () => {
     [...Array<number>(randomCurseAmount).keys()].forEach(() =>
       entireDeck.push("Curse")
     );
+    [...Array<number>(randomMillAmount).keys()].forEach(() =>
+      entireDeck.push("Mill")
+    );
     deck.setEntireDeck(entireDeck);
 
     // Calculate the expected VP
     const expectedVP =
       randomEstateAmount +
+      randomMillAmount +
       randomDuchyAmount * 3 +
       randomProvinceAmount * 6 +
       randomGardensAmount * Math.floor(deck.entireDeck.length / 10) -

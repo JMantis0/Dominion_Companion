@@ -160,6 +160,28 @@ describe("processDiscardsLine", () => {
     expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
 
+  // Case - Discard from setAside: Envoy
+  it("should discard from setAside when latestPlay is a Envoy", () => {
+    // Arrange
+    deck.latestAction = "Envoy";
+    const cards = ["Gold"];
+    const numberOfCards = [1];
+    deck.setAside = ["Gold"];
+    deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Envoy.
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
+
+    // Assert - Verify setAside and graveyard contain the expected cards.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Gold"]);
+    // Verify other zones were not discarded from.
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
+  });
+
   // Case - Discard from setAside: Library
   it("should discard from setAside when latestPlay is a Library", () => {
     // Arrange

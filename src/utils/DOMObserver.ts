@@ -468,15 +468,15 @@ export class DOMObserver {
       "Caravan", //Done
       "Carpenter", //Done
       "Conclave", //Done
-      "Crucible",
-      "Envoy",
-      "Innkeeper",
-      "Magpie",
-      "Mill",
-      "Mining Village",
-      "Research",
+      "Crucible", //Done
+      "Envoy", //Done
+      "Innkeeper", //Done
+      "Magpie", //Done
+      "Mill", //Done
+      "Mining Village", //Done
+      "Research", //Done
       "Rope", //Done
-      "Royal Galley",
+      "Royal Galley", //Done
       "Secret Passage",
       "Spice Merchant",
       "Taxman",
