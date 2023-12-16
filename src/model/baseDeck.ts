@@ -525,10 +525,12 @@ export class BaseDeck {
     };
     const lineData: Array<LineDatum> = [];
     this.kingdom.forEach((card) => {
-      // Add case for matching Platinums, which have plural form 'Platina'
+      // Matching  plurals handling, Taxman=>Taxmen, Platinums=>Platina.
       let cardMatcher: string;
       if (card === "Platinum") {
         cardMatcher = "Platin";
+      } else if (card === "Taxman") {
+        cardMatcher = "Taxm";
       } else cardMatcher = card.substring(0, card.length - 1);
       if (
         line.match(new RegExp(`(an?|\\d+|wishes for) ${cardMatcher}`)) !== null

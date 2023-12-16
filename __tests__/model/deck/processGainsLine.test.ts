@@ -274,6 +274,23 @@ describe("processGainsLine", () => {
     expect(deck.graveyard).toStrictEqual([]);
   });
 
+  it("should add cards gained by Taxman to library.", () => {
+    // Arrange
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+    const line = "pNick gains a Silver.";
+    deck.latestAction = "Taxman";
+    deck.library = ["Copper"];
+    deck.entireDeck = ["Copper", "Artisan"];
+
+    // Act - Simulate gaining 4 Golds from a Treasure Map.
+    deck.processGainsLine(line, cards, numberOfCards);
+
+    // Assert - Verify 1 Silver is added to library and entireDeck.
+    expect(deck.library).toStrictEqual(["Copper", "Silver"]);
+    expect(deck.entireDeck).toStrictEqual(["Copper", "Artisan", "Silver"]);
+  });
+
   it("should add cards gained by Fool's Gold reaction to library.", () => {
     // Arrange
     lineSource.mockReturnValue("L buys and gains a Province.");

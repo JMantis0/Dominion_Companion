@@ -1156,9 +1156,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Bureaucrat", "Armory", "Treasure Map", "Fool's Gold"].includes(
-            mostRecentPlay
-          ) ||
+          [
+            "Bureaucrat",
+            "Armory",
+            "Treasure Map",
+            "Fool's Gold",
+            "Taxman",
+          ].includes(mostRecentPlay) ||
+          // Fool's Gold reaction
           (this.lineSource()?.match(/gains (a|\d*) Province/) &&
             cards[0] === "Gold" &&
             numberOfCards[0] === 1)

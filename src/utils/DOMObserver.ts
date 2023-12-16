@@ -477,9 +477,9 @@ export class DOMObserver {
       "Research", //Done
       "Rope", //Done
       "Royal Galley", //Done
-      "Secret Passage",
-      "Spice Merchant",
-      "Taxman",
+      "Secret Passage", //Done
+      "Spice Merchant", //Done
+      "Taxman", //Done
       "Tide Pools",
       "Town",
       "Archive",
