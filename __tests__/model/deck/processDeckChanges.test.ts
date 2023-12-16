@@ -24,8 +24,8 @@ describe("processDeckChanges", () => {
   const processTrashesLine = jest
     .spyOn(Deck.prototype, "processTrashesLine")
     .mockImplementation(() => null);
-  const processTopDecksLine = jest
-    .spyOn(Deck.prototype, "processTopDecksLine")
+  const processMoveToLibraryLine = jest
+    .spyOn(Deck.prototype, "processMoveToLibraryLine")
     .mockImplementation(() => null);
   const processLooksAtLine = jest
     .spyOn(Deck.prototype, "processLooksAtLine")
@@ -75,7 +75,7 @@ describe("processDeckChanges", () => {
     expect(processDiscardsLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
@@ -103,7 +103,7 @@ describe("processDeckChanges", () => {
     expect(processDiscardsLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
@@ -131,7 +131,7 @@ describe("processDeckChanges", () => {
     expect(processDiscardsLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
@@ -159,7 +159,7 @@ describe("processDeckChanges", () => {
     expect(setWaitToShuffle).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
@@ -187,7 +187,7 @@ describe("processDeckChanges", () => {
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
@@ -215,7 +215,7 @@ describe("processDeckChanges", () => {
     expect(processDrawsLine).not.toBeCalled();
     expect(processGainsLine).not.toBeCalled();
     expect(setWaitToShuffle).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processRevealsLine).not.toBeCalled();
@@ -225,7 +225,7 @@ describe("processDeckChanges", () => {
     expect(processStartsWithLine).not.toBeCalled();
   });
 
-  it("should only call method processTopDecksLine when the act is 'topdecks'.", () => {
+  it("should only call method processMoveToLibraryLine when the act is 'topdecks'.", () => {
     // Arguments for function being tested
     const line = "pNick topdecks a Festival.";
     const act = "topdecks";
@@ -236,8 +236,8 @@ describe("processDeckChanges", () => {
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
     // Assert - Verify only the processTopDecks method is called, and is called with the correct arguments.
-    expect(processTopDecksLine).toBeCalledTimes(1);
-    expect(processTopDecksLine).toBeCalledWith(cards, numberOfCards);
+    expect(processMoveToLibraryLine).toBeCalledTimes(1);
+    expect(processMoveToLibraryLine).toBeCalledWith(cards, numberOfCards);
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -253,7 +253,63 @@ describe("processDeckChanges", () => {
     expect(processStartsWithLine).not.toBeCalled();
   });
 
-  it("should only call method processTopDecksLine when the act is 'back onto their deck'.", () => {
+  it("should only call method processMoveToLibraryLine when the act is 'on the bottom of their deck'.", () => {
+    // Arguments for function being tested
+    const line = "pNick puts an Estate on the bottom of their deck.";
+    const act = "on the bottom of their deck";
+    const cards: string[] = ["Estate"];
+    const numberOfCards: number[] = [1];
+
+    // Act - simulate processing a topdecks line.
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processTopDecks method is called, and is called with the correct arguments.
+    expect(processMoveToLibraryLine).toBeCalledTimes(1);
+    expect(processMoveToLibraryLine).toBeCalledWith(cards, numberOfCards);
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+    expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
+  });
+
+  it("should only call method processMoveToLibraryLine when the act is 'into their deck'.", () => {
+    // Arguments for function being tested
+    const line = "pNick inserts a Copper into their deck.";
+    const act = "into their deck";
+    const cards: string[] = ["Estate"];
+    const numberOfCards: number[] = [1];
+
+    // Act - simulate processing a topdecks line.
+    deck.processDeckChanges(line, act, cards, numberOfCards);
+
+    // Assert - Verify only the processTopDecks method is called, and is called with the correct arguments.
+    expect(processMoveToLibraryLine).toBeCalledTimes(1);
+    expect(processMoveToLibraryLine).toBeCalledWith(cards, numberOfCards);
+    expect(processTrashesLine).not.toBeCalled();
+    expect(processPlaysLine).not.toBeCalled();
+    expect(processDiscardsLine).not.toBeCalled();
+    expect(processDrawsLine).not.toBeCalled();
+    expect(processGainsLine).not.toBeCalled();
+    expect(setWaitToShuffle).not.toBeCalled();
+    expect(processLooksAtLine).not.toBeCalled();
+    expect(setAsideFromLibrary).not.toBeCalled();
+    expect(processRevealsLine).not.toBeCalled();
+    expect(processPassesLine).not.toBeCalled();
+    expect(processIntoTheirHandLine).not.toBeCalled();
+    expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
+    expect(processStartsWithLine).not.toBeCalled();
+  });
+
+  it("should only call method processMoveToLibraryLine when the act is 'back onto their deck'.", () => {
     // Arguments for function being tested
     const line = "pNick topdecks a Festival.";
     const act = "back onto their deck";
@@ -264,8 +320,8 @@ describe("processDeckChanges", () => {
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
     // Assert - Verify only the processTopDecks method is called, and is called with the correct arguments.
-    expect(processTopDecksLine).toBeCalledTimes(1);
-    expect(processTopDecksLine).toBeCalledWith(cards, numberOfCards);
+    expect(processMoveToLibraryLine).toBeCalledTimes(1);
+    expect(processMoveToLibraryLine).toBeCalledWith(cards, numberOfCards);
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -294,7 +350,7 @@ describe("processDeckChanges", () => {
     // Assert - Verify only the processLooksAt method is called, and is called with the correct arguments.
     expect(processLooksAtLine).toBeCalledTimes(1);
     expect(processLooksAtLine).toBeCalledWith(cards, numberOfCards);
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -322,7 +378,7 @@ describe("processDeckChanges", () => {
     expect(processRevealsLine).toBeCalledWith(cards, numberOfCards);
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -348,7 +404,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).toBeCalledWith(cards, numberOfCards);
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -375,7 +431,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -401,7 +457,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -428,7 +484,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -455,7 +511,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -482,7 +538,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();
@@ -510,7 +566,7 @@ describe("processDeckChanges", () => {
     expect(processPassesLine).not.toBeCalled();
     expect(setAsideFromLibrary).not.toBeCalled();
     expect(processLooksAtLine).not.toBeCalled();
-    expect(processTopDecksLine).not.toBeCalled();
+    expect(processMoveToLibraryLine).not.toBeCalled();
     expect(processTrashesLine).not.toBeCalled();
     expect(processPlaysLine).not.toBeCalled();
     expect(processDiscardsLine).not.toBeCalled();

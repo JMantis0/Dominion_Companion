@@ -495,6 +495,8 @@ export class BaseDeck {
       "starts with",
       "in hand",
       "and finds it",
+      "into their deck",
+      "on the bottom of their deck",
     ];
     const lineWithoutNickName = line.slice(this.playerNick.length);
     if (line.match(" reveals their hand:") === null)

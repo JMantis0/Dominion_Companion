@@ -1029,10 +1029,16 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.processTrashesLine(line, cards, numberOfCards);
         break;
       case "topdecks":
-        this.processTopDecksLine(cards, numberOfCards);
+        this.processMoveToLibraryLine(cards, numberOfCards);
         break;
       case "back onto their deck":
-        this.processTopDecksLine(cards, numberOfCards);
+        this.processMoveToLibraryLine(cards, numberOfCards);
+        break;
+      case "into their deck":
+        this.processMoveToLibraryLine(cards, numberOfCards);
+        break;
+      case "on the bottom of their deck":
+        this.processMoveToLibraryLine(cards, numberOfCards);
         break;
       case "looks at":
         this.processLooksAtLine(cards, numberOfCards);
@@ -1419,7 +1425,7 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards  - Array of card names to topdeck.
    * @param numberOfCards - Array of the amounts of each card to topdeck.
    */
-  processTopDecksLine(cards: string[], numberOfCards: number[]) {
+  processMoveToLibraryLine(cards: string[], numberOfCards: number[]) {
     const mostRecentAction = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
@@ -1444,9 +1450,13 @@ export class Deck extends BaseDeck implements StoreDeck {
         ) {
           this.topDeckFromGraveyard(cards[i]);
         } else if (
-          ["Artisan", "Bureaucrat", "Courtyard", "Pilgrim"].includes(
-            mostRecentAction
-          )
+          [
+            "Artisan",
+            "Bureaucrat",
+            "Courtyard",
+            "Pilgrim",
+            "Secret Passage",
+          ].includes(mostRecentAction)
         ) {
           this.topDeckFromHand(cards[i]);
         }

@@ -135,9 +135,9 @@ describe("getActionFromEntry", () => {
 
   it("should return 'aside with' when the line matches 'aside'", () => {
     // Act and Assert
-    expect(deck.getActionFromLine("pNick sets 3 Estates aside with Grotto")).toBe(
-      "aside"
-    );
+    expect(
+      deck.getActionFromLine("pNick sets 3 Estates aside with Grotto")
+    ).toBe("aside");
   });
 
   it("should return 'in hand' when the line matches 'in hand'", () => {
@@ -149,8 +149,24 @@ describe("getActionFromEntry", () => {
 
   it("should return 'and finds it' when the line matches 'and finds it'", () => {
     // Act and Assert
-    expect(deck.getActionFromLine("pNick wishes for Copper and finds it.")).toBe(
-      "and finds it"
-    );
+    expect(
+      deck.getActionFromLine("pNick wishes for Copper and finds it.")
+    ).toBe("and finds it");
+  });
+
+  it("should return action 'into their deck' correctly", () => {
+    // Act and Assert
+    expect(
+      deck.getActionFromLine("pNick inserts a Copper into their deck.")
+    ).toBe("into their deck");
+  });
+
+  it("should return action 'on the bottom of their deck' correctly", () => {
+    // Act and Assert
+    expect(
+      deck.getActionFromLine(
+        "pNick puts an Estate on the bottom of their deck."
+      )
+    ).toBe("on the bottom of their deck");
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 
-describe("processTopDecksLine", () => {
+describe("processMoveToLibraryLine", () => {
   // Declare Deck reference.
   let deck: Deck;
 
@@ -22,7 +22,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate top decking a card with an Artisan.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the card was moved from hand to library.
     expect(deck.library).toStrictEqual(["Copper", "Bandit"]);
@@ -44,7 +44,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate top decking a card with an Bureaucrat.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the card was moved from hand to library.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -66,7 +66,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate top decking a card with a Courtyard.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the card was moved from hand to library.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -84,7 +84,7 @@ describe("processTopDecksLine", () => {
     deck.setAside = [];
 
     // Act - Simulate top decking a card with a Pilgrim.
-    deck.processTopDecksLine(["Estate"], [1]);
+    deck.processMoveToLibraryLine(["Estate"], [1]);
 
     // Assert - Verify the card was moved from hand to library.
     expect(deck.library).toStrictEqual(["Copper", "Estate"]);
@@ -105,7 +105,7 @@ describe("processTopDecksLine", () => {
     // Arguments for function being tested.
 
     // Act - Simulate top decking a card with a Harbinger.
-    deck.processTopDecksLine(["Bandit"], [1]);
+    deck.processMoveToLibraryLine(["Bandit"], [1]);
 
     // Assert - Verify the card was moved from graveyard to library
     expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
@@ -128,7 +128,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate top decking a card with a Replace.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the card was moved from graveyard to library
     expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
@@ -151,7 +151,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1, 1];
 
     // Act - Simulate top decking a card with an Sentry.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -170,7 +170,7 @@ describe("processTopDecksLine", () => {
     deck.setAside = ["Copper", "Gold", "Moneylender"];
 
     // Act - Simulate top decking a Copper, a Gold, and a Moneylender with a Patr
-    deck.processTopDecksLine(["Copper", "Gold", "Moneylender"], [1, 1, 1]);
+    deck.processMoveToLibraryLine(["Copper", "Gold", "Moneylender"], [1, 1, 1]);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -194,7 +194,7 @@ describe("processTopDecksLine", () => {
     deck.setAside = ["Copper", "Copper"];
 
     // Act - Simulate top decking a Copper, a Gold, and a Moneylender with a Seer
-    deck.processTopDecksLine(["Copper"], [2]);
+    deck.processMoveToLibraryLine(["Copper"], [2]);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -217,7 +217,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate top decking a card with a Lookout.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -240,7 +240,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [3, 1];
 
     // Act - Simulate top decking a card with a Sentinel.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -269,7 +269,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1, 1];
 
     // Act - Simulate top decking a card with a Fortune Hunter.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -277,6 +277,24 @@ describe("processTopDecksLine", () => {
     // Verify graveyard and hand are unchanged.
     expect(deck.graveyard).toStrictEqual(["Bureaucrat"]);
     expect(deck.hand).toStrictEqual(["Market"]);
+  });
+
+  it("should move cards by a Secret Passade from hand to library.", () => {
+    // Arrange deck state
+    deck.latestAction = "Secret Passage";
+    deck.library = ["Copper"];
+    deck.hand = ["Estate", "Copper", "Taxman"];
+
+    // Arguments for function being tested.
+    const cards = ["Estate"];
+    const numberOfCards = [1];
+
+    // Act - Simulate top decking a card with a Fortune Hunter.
+    deck.processMoveToLibraryLine(cards, numberOfCards);
+
+    // Assert - Verify the cards were moved from setAside to library
+    expect(deck.library).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.hand).toStrictEqual(["Copper", "Taxman"]);
   });
 
   it("should move cards 'placed back onto their deck' by a Sea Chart from setAside to library.", () => {
@@ -292,7 +310,7 @@ describe("processTopDecksLine", () => {
     const numberOfCards = [1];
 
     // Act - Simulate top decking a card with a Sea Chart.
-    deck.processTopDecksLine(cards, numberOfCards);
+    deck.processMoveToLibraryLine(cards, numberOfCards);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -310,7 +328,10 @@ describe("processTopDecksLine", () => {
     deck.graveyard = ["Bureaucrat"];
     deck.setAside = ["Copper", "Worker's Village", "Mountain Village"];
     // Act - Simulate top decking a card with a Wandering Minstrel.
-    deck.processTopDecksLine(["Worker's Village", "Mountain Village"], [1, 1]);
+    deck.processMoveToLibraryLine(
+      ["Worker's Village", "Mountain Village"],
+      [1, 1]
+    );
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual(["Copper"]);
@@ -332,7 +353,7 @@ describe("processTopDecksLine", () => {
     deck.graveyard = ["Bureaucrat"];
     deck.setAside = ["Silver", "Copper"];
     // Act - Simulate top decking a card with a Cartographer.
-    deck.processTopDecksLine(["Silver", "Copper"], [1, 1]);
+    deck.processMoveToLibraryLine(["Silver", "Copper"], [1, 1]);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -350,7 +371,7 @@ describe("processTopDecksLine", () => {
     deck.graveyard = ["Bureaucrat"];
     deck.setAside = ["Estate"];
     // Act - Simulate top decking a card with a Fortune Teller.
-    deck.processTopDecksLine(["Estate"], [1]);
+    deck.processMoveToLibraryLine(["Estate"], [1]);
 
     // Assert - Verify the cards were moved from setAside to library
     expect(deck.setAside).toStrictEqual([]);
@@ -367,7 +388,7 @@ describe("processTopDecksLine", () => {
     deck.library = ["Estate", "Copper"];
 
     // Act - Simulate topdecking a Festival with a Scavenger.
-    deck.processTopDecksLine(["Festival"], [1]);
+    deck.processMoveToLibraryLine(["Festival"], [1]);
 
     // Assert - Verify the card was moved from graveyard to library
     expect(deck.graveyard).toStrictEqual(["Copper"]);
