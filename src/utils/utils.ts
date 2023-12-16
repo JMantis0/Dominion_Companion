@@ -428,6 +428,7 @@ const getRowColor = (cardName: string): string => {
     "Gardens",
     "Colony",
     "Overgrown Estate",
+    "Mill"
   ];
   const reactions: string[] = ["Moat", "Hovel"];
   const treasures: string[] = ["Copper", "Silver", "Gold", "Platinum"];

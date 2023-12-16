@@ -48,8 +48,8 @@ describe("processDeckChanges", () => {
   const processStartsWithLine = jest
     .spyOn(Deck.prototype, "processStartsWithLine")
     .mockImplementation(() => null);
-  const processAsideWithLine = jest
-    .spyOn(Deck.prototype, "processAsideWithLine")
+  const processAsideLine = jest
+    .spyOn(Deck.prototype, "processAsideLine")
     .mockImplementation(() => null);
 
   beforeEach(() => {
@@ -465,17 +465,17 @@ describe("processDeckChanges", () => {
     expect(processRevealsLine).not.toBeCalled();
   });
 
-  it("should only call method processAsideWithLine when the act is 'aside with'.", () => {
+  it("should only call method processAsideWithLine when the act is 'aside'.", () => {
     const line = "pNick sets a 3 Coppers aside with Grotto.";
-    const act = "aside with";
+    const act = "aside";
     const cards = ["Copper"];
     const numberOfCards = [3];
 
     deck.processDeckChanges(line, act, cards, numberOfCards);
 
     // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
-    expect(processAsideWithLine).toBeCalledTimes(1);
-    expect(processAsideWithLine).toBeCalledWith(cards, numberOfCards);
+    expect(processAsideLine).toBeCalledTimes(1);
+    expect(processAsideLine).toBeCalledWith(cards, numberOfCards);
     expect(processStartsWithLine).not.toBeCalled();
     expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
     expect(processIntoTheirHandLine).not.toBeCalled();
@@ -503,7 +503,7 @@ describe("processDeckChanges", () => {
     // Assert - Verify only the processRevealsLine method is called, and is called with the correct arguments.
     expect(processDrawsLine).toBeCalledTimes(1);
     expect(processDrawsLine).toBeCalledWith(line, cards, numberOfCards);
-    expect(processAsideWithLine).not.toBeCalled();
+    expect(processAsideLine).not.toBeCalled();
     expect(processStartsWithLine).not.toBeCalled();
     expect(processMovesTheirDeckToTheDiscardLine).not.toBeCalled();
     expect(processIntoTheirHandLine).not.toBeCalled();

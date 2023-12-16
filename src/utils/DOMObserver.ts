@@ -471,12 +471,12 @@ export class DOMObserver {
       "Crucible", //Done
       "Envoy", //Done
       "Innkeeper", //Done
-      "Magpie",
-      "Mill",
-      "Mining Village",
-      "Research",
+      "Magpie", //Done
+      "Mill", //Done
+      "Mining Village", //Done
+      "Research", //Done
       "Rope", //Done
-      "Royal Galley",
+      "Royal Galley", //Done
       "Secret Passage",
       "Spice Merchant",
       "Taxman",

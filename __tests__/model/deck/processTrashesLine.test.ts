@@ -205,6 +205,30 @@ describe("processTrashesLine", () => {
       expect(deck.entireDeck).toStrictEqual(["Copper", "Estate"]);
     }
   );
+
+  it("should trash from inPlay if the latestAction is 'Mining Village", () => {
+    // Arrange
+    deck.latestAction = "Mining Village";
+    deck.entireDeck = ["Copper", "Estate", "Mining Village", "Copper"];
+    deck.inPlay = ["Mining Village"];
+    deck.library = ["Copper"];
+    deck.hand = ["Estate", "Copper"];
+    deck.trash = ["Copper"];
+
+    // Act
+    deck.processTrashesLine(
+      "Non-duration effect line",
+      ["Mining Village"],
+      [1]
+    );
+
+    // Assert - Verify the card was trashed from inPlay
+    expect(deck.inPlay).toStrictEqual([]);
+    expect(deck.trash).toStrictEqual(["Copper", "Mining Village"]);
+    // Verify the card was removed from the entire deck.
+    expect(deck.entireDeck).toStrictEqual(["Copper", "Estate", "Copper"]);
+  });
+
   it("should trash from inPlay if the latestAction is 'Tragic Hero", () => {
     // Arrange
     deck.latestAction = "Tragic Hero";

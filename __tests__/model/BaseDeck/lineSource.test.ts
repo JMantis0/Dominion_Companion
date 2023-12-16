@@ -126,4 +126,54 @@ describe("lineSource", () => {
       expect(deck.lineSource()).toBe("L buys and gains a Province.");
     }
   );
+
+  it(
+    "should return the opponent's the plays a Royal Galley line line when the last line is setting aside" +
+      "a card with Royal Galley",
+    () => {
+      // Arrange
+      document.body.innerHTML =
+        "<div class='log-scroll-container'>" +
+        "<div class='log-line' id='source'>P plays a Royal Galley.</div>" +
+        "<div class='log-line caused'>P draws a Silver.</div>" +
+        "<div class='log-line caused'>P plays a Secret Passage.</div>" +
+        "<div class='log-line causedAgain'>P draws an Estate and a Harvest.</div>" +
+        "<div class='log-line causedAgain'>P gets +1 Action.</div>" +
+        "<div class='log-line causedAgain'>P topdecks a Copper.</div>" +
+        "<div class='log-line caused'>P sets a Secret Passage aside.</div>" +
+        "</div>";
+
+      deck.logArchive = [
+        "P plays a Royal Galley.",
+        "P draws a Silver.",
+        "P plays a Secret Passage.",
+        "P draws an Estate and a Harvest.",
+        "P gets +1 Action.",
+        "P topdecks a Copper.",
+      ];
+      // Set the paddingLefts
+      const sourceLine = document.getElementById("source");
+      if (sourceLine !== null) sourceLine.style.paddingLeft = "0%";
+      const causeLines = document.getElementsByClassName(
+        "caused"
+      ) as HTMLCollectionOf<HTMLElement>;
+      for (const el of causeLines) {
+        el.style.paddingLeft = "4%";
+        console.log(el.innerHTML);
+        console.log(el.style.paddingLeft);
+      }
+      const causedAgainLines = document.getElementsByClassName(
+        "causedAgain"
+      ) as HTMLCollectionOf<HTMLElement>;
+      for (const el of causedAgainLines) {
+        el.style.paddingLeft = "8%";
+        console.log(el.innerHTML);
+        console.log(el.style.paddingLeft);
+      }
+      console.log(sourceLine?.innerHTML);
+      console.log(sourceLine?.style.paddingLeft);
+
+      expect(deck.lineSource()).toBe("P plays a Royal Galley.");
+    }
+  );
 });

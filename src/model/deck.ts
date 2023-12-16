@@ -601,6 +601,50 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Removes one instance of the given card from hand and adds it to durationSetAside.
+   * @param card - The given card.
+   */
+  durationSetAsideFromInPlay(card: string) {
+    const index = this.inPlay.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in inPlay.`);
+    } else {
+      if (this.debug)
+        console.info(
+          `Setting aside ${card} from inPlay into durationSetAside.`
+        );
+      const durationSetAsideCopy = this.durationSetAside.slice();
+      const inPlayCopy = this.inPlay.slice();
+      durationSetAsideCopy.push(card);
+      inPlayCopy.splice(index, 1);
+      this.setDurationSetAside(durationSetAsideCopy);
+      this.setInPlay(inPlayCopy);
+    }
+  }
+
+  /**
+   * Removes one instance of the given card from library and adds it to durationSetAside.
+   * @param card - The given card.
+   */
+  durationSetAsideFromLibrary(card: string) {
+    const index = this.library.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in library.`);
+    } else {
+      if (this.debug)
+        console.info(
+          `Setting aside ${card} from library into durationSetAside.`
+        );
+      const durationSetAsideCopy = this.durationSetAside.slice();
+      const libraryCopy = this.library.slice();
+      durationSetAsideCopy.push(card);
+      libraryCopy.splice(index, 1);
+      this.setDurationSetAside(durationSetAsideCopy);
+      this.setLibrary(libraryCopy);
+    }
+  }
+
+  /**
    * Takes a card and pushes it to the graveyard field array.
    * @param card = The given card.
    */
@@ -926,10 +970,24 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
-  processAsideWithLine(cards: string[], numberOfCards: number[]) {
+  /**
+   * Update function.  Sets aside cards according to the provided information.
+   * @param line - The current line being processed.
+   * @param cards - Array of card names to be set aside.
+   * @param numberOfCards - Array of the amounts of each card to set aside.
+   */
+  processAsideLine(cards: string[], numberOfCards: number[]) {
+    const sourceCard = this.getCardsAndCountsFromLine(this.lineSource())[0][0];
+    console.log("sourceCard is", sourceCard);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        this.durationSetAsideFromHand(cards[i]);
+        if (["Research"].includes(this.latestAction)) {
+          this.durationSetAsideFromLibrary(cards[i]);
+        } else if (["Royal Galley"].includes(sourceCard)) {
+          this.durationSetAsideFromInPlay(cards[i]);
+        } else {
+          this.durationSetAsideFromHand(cards[i]);
+        }
       }
     }
   }
@@ -997,8 +1055,8 @@ export class Deck extends BaseDeck implements StoreDeck {
       case "starts with":
         this.processStartsWithLine(cards, numberOfCards);
         break;
-      case "aside with":
-        this.processAsideWithLine(cards, numberOfCards);
+      case "aside":
+        this.processAsideLine(cards, numberOfCards);
         break;
 
       // case "aside with Library":
@@ -1402,7 +1460,6 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amount of each card to trash.
    */
   processTrashesLine(line: string, cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestAction;
     let durationEffectCausedBy: string = "None";
     const isDurationEffect = this.isDurationEffect();
     if (isDurationEffect)
@@ -1410,15 +1467,17 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(mostRecentPlay)
+          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(
+            this.latestAction
+          )
         ) {
           this.trashFromSetAside(cards[i]);
-        } else if (["Swindler", "Barbarian"].includes(mostRecentPlay)) {
+        } else if (["Swindler", "Barbarian"].includes(this.latestAction)) {
           this.trashFromLibrary(cards[i]);
         } else if (
-          (mostRecentPlay === "Treasure Map" &&
+          (this.latestAction === "Treasure Map" &&
             this.lastEntryProcessed.match(" plays a Treasure Map.") !== null) ||
-          ["Tragic Hero"].includes(mostRecentPlay) ||
+          ["Tragic Hero", "Mining Village"].includes(this.latestAction) ||
           ["Cabin Boy"].includes(durationEffectCausedBy)
         ) {
           this.trashFromInPlay(cards[i]);

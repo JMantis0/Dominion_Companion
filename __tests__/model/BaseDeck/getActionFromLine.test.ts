@@ -133,10 +133,10 @@ describe("getActionFromEntry", () => {
     );
   });
 
-  it("should return 'aside with' when the line matches 'aside with'", () => {
+  it("should return 'aside with' when the line matches 'aside'", () => {
     // Act and Assert
     expect(deck.getActionFromLine("pNick sets 3 Estates aside with Grotto")).toBe(
-      "aside with"
+      "aside"
     );
   });
 
