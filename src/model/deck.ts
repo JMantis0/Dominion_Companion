@@ -985,6 +985,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.durationSetAsideFromLibrary(cards[i]);
         } else if (["Royal Galley"].includes(sourceCard)) {
           this.durationSetAsideFromInPlay(cards[i]);
+        } else if (["Archive"].includes(this.latestAction)) {
+          // do nothing... cards were already durationSetAside by the Archive's 'looks at' line
         } else {
           this.durationSetAsideFromHand(cards[i]);
         }
@@ -1086,7 +1088,13 @@ export class Deck extends BaseDeck implements StoreDeck {
       durationEffectCausedBy = this.durationEffectCausedBy(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (
+        if (isDurationEffect) {
+          if (["Dungeon", "Tide Pools"].includes(durationEffectCausedBy)) {
+            this.discard(cards[i]);
+          } else {
+            this.discardFromDurationSetAside(cards[i]);
+          }
+        } else if (
           [
             "Sentry",
             "Library",
@@ -1108,12 +1116,6 @@ export class Deck extends BaseDeck implements StoreDeck {
           ["Vassal", "Courier", "Harvest", "Jester"].includes(mostRecentPlay)
         ) {
           this.discardFromLibrary(cards[i]);
-        } else if (isDurationEffect) {
-          if (durationEffectCausedBy === "Dungeon") {
-            this.discard(cards[i]);
-          } else {
-            this.discardFromDurationSetAside(cards[i]);
-          }
         } else {
           this.discard(cards[i]);
         }
@@ -1214,6 +1216,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
+        } else if (["Archive"].includes(this.latestAction)) {
+          this.drawFromDurationSetAside(cards[i]);
         } else if (isDurationEffect) {
           this.drawFromDurationSetAside(cards[i]);
         }
@@ -1244,6 +1248,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           ].includes(mostRecentPlay)
         ) {
           this.setAsideFromLibrary(cards[i]);
+        } else if (["Archive"].includes(this.latestAction)) {
+          this.durationSetAsideFromLibrary(cards[i]);
         } else if (mostRecentPlay === "Library") {
           const cardsToDrawNow: string[] = [
             "Estate",

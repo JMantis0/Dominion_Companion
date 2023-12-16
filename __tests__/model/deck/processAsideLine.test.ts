@@ -4,11 +4,10 @@ import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processAsideLine", () => {
   let deck: Deck;
-  const lineSourceMock = jest
-    .spyOn(BaseDeck.prototype, "lineSource")
-    .mockReturnValue("None");
+  const lineSourceMock = jest.spyOn(BaseDeck.prototype, "lineSource");
   beforeEach(() => {
     deck = new Deck("", false, "", "Player", "P", ["Royal Galley"]);
+    lineSourceMock.mockReturnValue("None");
     jest.clearAllMocks();
   });
 
@@ -54,5 +53,22 @@ describe("processAsideLine", () => {
     // Assert
     expect(deck.inPlay).toStrictEqual(["Research", "Royal Galley"]);
     expect(deck.durationSetAside).toStrictEqual(["Secret Passage"]);
+  });
+
+  // In the case of Archive, the setAside action already occurs during the 'looks at line'  This test
+  // confirms that the cards are not setAside a second time.
+  it("should not move cards at all if latestAction is Archive", () => {
+    deck.latestAction = "Archive";
+    deck.durationSetAside = ["Copper", "Estate"];
+    deck.setAside = [];
+    deck.hand = ["Copper", "Estate"];
+    const cards = ["Copper", "Estate"];
+    const numberOfCards = [1, 1];
+    // Act - Simulate processing an aside line caused by an Archive.  It should not move any cards.
+    deck.processAsideLine(cards, numberOfCards);
+    // Assert - Verify no cards were moved.
+    expect(deck.durationSetAside).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.hand).toStrictEqual(["Copper", "Estate"]);
   });
 });

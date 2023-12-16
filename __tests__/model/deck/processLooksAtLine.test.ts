@@ -239,6 +239,25 @@ describe("processLooksAtLine", () => {
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
+  it("should move the cards looked at by a Archive from library to durationSetAside", () => {
+    // Arrange
+    deck.latestAction = "Archive";
+    deck.library = ["Copper", "Copper", "Estate", "Silver"];
+    deck.durationSetAside = [];
+    deck.waitToDrawLibraryLook = false;
+
+    // Arguments for function being tested.
+    const cards = ["Copper", "Estate", "Silver"];
+    const numberOfCards = [1, 1, 1];
+
+    // Act - Simulate looking at a Copper, an Estate, and a Silver with an Archive.
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    // Assert - Verify cards were moved from library to durationSetAside
+    expect(deck.durationSetAside).toStrictEqual(["Copper", "Estate", "Silver"]);
+    expect(deck.library).toStrictEqual(["Copper"]);
+  });
+
   it("should draw certain cards immediately if they are looked at by a Library", () => {
     // Arrange
     deck.latestAction = "Library";

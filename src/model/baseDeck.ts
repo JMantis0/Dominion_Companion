@@ -312,6 +312,19 @@ export class BaseDeck {
   }
 
   /**
+   * Checks if the given line and last line processed are both trash lines.
+   * Needed to keep the log archive and game log in sync.
+   * @param line - The given line.
+   * @returns Boolean for wether the lines are consecutive trashes.
+   */
+  consecutiveDiscards(line: string): boolean {
+    const consecutiveDiscards =
+      line.match(" discards ") !== null &&
+      this.lastEntryProcessed.match(" discards ") !== null;
+    return consecutiveDiscards;
+  }
+
+  /**
    * Returns boolean for whether the current line and most recent line are consecutive gains
    * without buying.
    * @param line - The given line.
@@ -448,6 +461,9 @@ export class BaseDeck {
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else if (this.consecutiveInHandLines(line)) {
       act = "in hand";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveDiscards(line)) {
+      act = "discards";
       [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromLine(line);

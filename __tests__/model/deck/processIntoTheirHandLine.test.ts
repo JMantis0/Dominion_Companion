@@ -163,7 +163,7 @@ describe("processIntoTheirHandLine", () => {
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
   });
 
-  it("should draw cards into hand from durationSetAside when caused duration effect", () => {
+  it("should draw cards into hand from durationSetAside when caused by a duration effect", () => {
     // Arrange
     deck.latestAction = "None";
     deck.durationSetAside = ["Copper", "Copper", "Vassal"];
@@ -174,5 +174,18 @@ describe("processIntoTheirHandLine", () => {
     // Assert
     expect(deck.durationSetAside).toStrictEqual(["Copper", "Copper"]);
     expect(deck.hand).toStrictEqual(["Bureaucrat", "Vassal"]);
+  });
+
+  it("should draw cards into hand from durationSetAside when caused by an Archive", () => {
+    // Arrange
+    deck.latestAction = "Archive";
+    deck.durationSetAside = ["Copper", "Estate", "Tide Pools"];
+    deck.hand = ["Bureaucrat"];
+    isDurationEffect.mockReturnValue(false);
+    // Act
+    deck.processIntoTheirHandLine(["Tide Pools"], [1]);
+    // Assert
+    expect(deck.durationSetAside).toStrictEqual(["Copper", "Estate"]);
+    expect(deck.hand).toStrictEqual(["Bureaucrat", "Tide Pools"]);
   });
 });

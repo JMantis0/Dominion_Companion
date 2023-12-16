@@ -390,99 +390,99 @@ export class DOMObserver {
       "Duchy",
       "Estate",
       "Curse",
-      "Colony", //Done
-      "Platinum", //Done
-      "Courtyard", //Done
+      "Colony", // Done
+      "Platinum", // Done
+      "Courtyard", // Done
       "Hamlet", // Done
       "Lookout", // Done
       "Masquerade", // Done
-      "Menagerie", //Done
-      "Oasis", //Done
-      "Sage", //Done
-      "Sea Chart", //Done
-      "Sentinel", //Done
-      "Shanty Town", //Done
-      "Storeroom", //Done
-      "Swindler", //Done
-      "Warehouse", //Done
-      "Armory", //Done
-      "Conspirator", //Done
-      "Courier", //Done
-      "Cutpurse", //Done
-      "Dismantle", //Done
-      "Farming Village", //Done
-      "Fortune Hunter", //Done
-      "Mountain Village", //Done
-      "Remake", //Done
-      "Salvager", //Done
-      "Scavenger", //Done
-      "Treasure Map", //Done
-      "Wandering Minstrel", //Done
-      "Worker's Village", //Done
-      "Barbarian", //Done
-      "Bazaar", //Done
-      "Cartographer", //Done
-      "Harvest", //Done
-      "Hunter", //Done
-      "Hunting Party", //Done
-      "Jester", //Done
-      "Junk Dealer", //Done
-      "Magnate", //Done
-      "Minion", //Done
-      "Old Witch", //Done
-      "Patrol", //Done
-      "Pilgrim", //Done
-      "Replace", //Done
-      "Scholar", //Done
-      "Seer", //Done
-      "Soothsayer", //Done
-      "Stables", //Done
-      "Trading Post", //Done
-      "Tragic Hero", //Done
-      "Upgrade", //Done
-      "Wheelwright", //Done
+      "Menagerie", // Done
+      "Oasis", // Done
+      "Sage", // Done
+      "Sea Chart", // Done
+      "Sentinel", // Done
+      "Shanty Town", // Done
+      "Storeroom", // Done
+      "Swindler", // Done
+      "Warehouse", // Done
+      "Armory", // Done
+      "Conspirator", // Done
+      "Courier", // Done
+      "Cutpurse", // Done
+      "Dismantle", // Done
+      "Farming Village", // Done
+      "Fortune Hunter", // Done
+      "Mountain Village", // Done
+      "Remake", // Done
+      "Salvager", // Done
+      "Scavenger", // Done
+      "Treasure Map", // Done
+      "Wandering Minstrel", // Done
+      "Worker's Village", // Done
+      "Barbarian", // Done
+      "Bazaar", // Done
+      "Cartographer", // Done
+      "Harvest", // Done
+      "Hunter", // Done
+      "Hunting Party", // Done
+      "Jester", // Done
+      "Junk Dealer", // Done
+      "Magnate", // Done
+      "Minion", // Done
+      "Old Witch", // Done
+      "Patrol", // Done
+      "Pilgrim", // Done
+      "Replace", // Done
+      "Scholar", // Done
+      "Seer", // Done
+      "Soothsayer", // Done
+      "Stables", // Done
+      "Trading Post", // Done
+      "Tragic Hero", // Done
+      "Upgrade", // Done
+      "Wheelwright", // Done
       "Witch's Hut",
-      "Altar", //Done
-      "Marquis", //Done
-      "Expand", //Done
-      "Necropolis", //Done
-      "Hovel", //Done
-      "Overgrown Estate", //Done
-      "Fool's Gold", //Done
-      "Grotto", //Done
-      "Haven", //Done
-      "Pawn", //Done
-      "Amulet", //Done
-      "Anvil", //Done
-      "Astrolabe", //Done
-      "Dungeon", //Done
-      "Fishing Village", //Done
-      "Fortune Teller", //Done
-      "Gear", //Done
+      "Altar", // Done
+      "Marquis", // Done
+      "Expand", // Done
+      "Necropolis", // Done
+      "Hovel", // Done
+      "Overgrown Estate", // Done
+      "Fool's Gold", // Done
+      "Grotto", // Done
+      "Haven", // Done
+      "Pawn", // Done
+      "Amulet", // Done
+      "Anvil", // Done
+      "Astrolabe", // Done
+      "Dungeon", // Done
+      "Fishing Village", // Done
+      "Fortune Teller", // Done
+      "Gear", // Done
       "Smugglers", // Done
-      "Steward", //Done
+      "Steward", // Done
       "Wishing Well", // Done
-      "Advisor", //Done
-      "Baron", //Done
-      "Cabin Boy", //Done
-      "Caravan", //Done
-      "Carpenter", //Done
-      "Conclave", //Done
-      "Crucible", //Done
-      "Envoy", //Done
-      "Innkeeper", //Done
-      "Magpie", //Done
-      "Mill", //Done
-      "Mining Village", //Done
-      "Research", //Done
-      "Rope", //Done
-      "Royal Galley", //Done
-      "Secret Passage", //Done
-      "Spice Merchant", //Done
-      "Taxman", //Done
-      "Tide Pools",
-      "Town",
-      "Archive",
+      "Advisor", // Done
+      "Baron", // Done
+      "Cabin Boy", // Done
+      "Caravan", // Done
+      "Carpenter", // Done
+      "Conclave", // Done
+      "Crucible", // Done
+      "Envoy", // Done
+      "Innkeeper", // Done
+      "Magpie", // Done
+      "Mill", // Done
+      "Mining Village", // Done
+      "Research", // Done
+      "Rope", // Done
+      "Royal Galley", // Done
+      "Secret Passage", // Done
+      "Spice Merchant", // Done
+      "Taxman", // Done
+      "Tide Pools", // Done
+      "Town", // Done
+      "Archive", // Done
       "Barge",
       "Capital City",
       "Counterfeit",

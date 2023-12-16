@@ -427,4 +427,19 @@ describe("processDiscardsLine", () => {
     expect(deck.hand).toStrictEqual(["Vassal", "Sentry", "Village"]);
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Estate"]);
   });
+
+  it("should process discards caused by Tide Pools effect correctly", () => {
+    // Arrange
+    isDurationEffect.mockReturnValue(true);
+    deck.hand = ["Copper", "Estate", "Vassal", "Sentry", "Village"];
+    deck.graveyard = ["Bureaucrat"];
+    const line = "P discards a Copper and an Estate. (Tide Pools)";
+
+    // Act - Simulate a Tide Pools effect discarding a Copper and an Estate
+    deck.processDiscardsLine(line, ["Copper", "Estate"], [1, 1]);
+
+    // Assert - Verify the hand and graveyard contain the correct cards
+    expect(deck.hand).toStrictEqual(["Vassal", "Sentry", "Village"]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Estate"]);
+  });
 });
