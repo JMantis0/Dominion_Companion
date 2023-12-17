@@ -550,6 +550,8 @@ export class BaseDeck {
         cardMatcher = "Platin";
       } else if (card === "Taxman") {
         cardMatcher = "Taxm";
+      } else if (card === "Journeyman") {
+        cardMatcher = "Journeym";
       } else cardMatcher = card.substring(0, card.length - 1);
       if (
         line.match(new RegExp(`(an?|\\d+|wishes for) ${cardMatcher}`)) !== null

@@ -16,6 +16,7 @@ describe("ifCleanUpNeeded", () => {
   // 4) entireDeck.length = n < 5 && draws on given line = n
   // 5) entireDeck.length = n < 5 && draws on given line < n
   // 6) entireDeck.length >=5 and draws on line = 5 caused by Innkeeper
+  // 7) given line is not a draw line.
 
   // Case 1 - entireDeck.length >= 5 && draws on given line != 5
   it("should return false if entireDeck.length >= 5 && draws on given line != 5", () => {
@@ -113,10 +114,23 @@ describe("ifCleanUpNeeded", () => {
       "pNick plays an Innkeeper.",
       "pNick gets +1 Action.",
       "pNick shuffles their deck.",
-      "pNick draws 2 Coppers, a Silver, an Estate, and an Innkeeper.",
     ];
     const line =
       "pNick draws 2 Coppers, a Silver, an Estate, and an Innkeeper.";
+
+    // Act and Assert
+    expect(deck.ifCleanUpNeeded(line)).toBe(false);
+  });
+
+  it("should return false if the given line is not a draw line", () => {
+    // Arrange
+    deck.logArchive = [
+      "pNick plays a Journeyman.",
+      "pNick names Copper.",
+      "pNick shuffles their deck.",
+    ];
+    const line =
+      "pNick reveals 2 Coppers, 2 Estates, and a Wandering Minstrel.";
 
     // Act and Assert
     expect(deck.ifCleanUpNeeded(line)).toBe(false);

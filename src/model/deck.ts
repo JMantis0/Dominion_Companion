@@ -868,7 +868,8 @@ export class Deck extends BaseDeck implements StoreDeck {
     const cleanUp = this.checkForCleanUp(entry);
     const cellarDraws = this.checkForCellarDraw();
     const innKeeperDraw = this.latestAction === "Innkeeper";
-    return cleanUp && !cellarDraws && !innKeeperDraw;
+    const isDrawLine = entry.match("draws") !== null;
+    return cleanUp && !cellarDraws && !innKeeperDraw && isDrawLine;
   }
 
   /**
@@ -1167,6 +1168,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Advisor",
             "Envoy",
             "Crystal Ball",
+            "Journeyman",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1271,6 +1273,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Seer",
             "Advisor",
             "Envoy",
+            "Journeyman",
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
@@ -1471,6 +1474,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Fortune Teller",
             "Advisor",
             "Envoy",
+            "Journeyman",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);

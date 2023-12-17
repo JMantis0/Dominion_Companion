@@ -138,11 +138,7 @@ describe("processRevealsLine", () => {
     deck.processRevealsLine(["Copper", "Chapel"], [2, 1]);
 
     // Assert - Verify the card is moved from library to setAside
-    expect(deck.library).toStrictEqual([
-      "Estate",
-      "Bureaucrat",
-      "Gold",
-    ]);
+    expect(deck.library).toStrictEqual(["Estate", "Bureaucrat", "Gold"]);
     expect(deck.setAside).toStrictEqual(["Copper", "Copper", "Chapel"]);
   });
 
@@ -253,6 +249,36 @@ describe("processRevealsLine", () => {
       "Gold",
       "Estate",
       "Moneylender",
+    ]);
+  });
+
+  it("should move cards revealed by a Journeyman from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Journeyman";
+    deck.library = [
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Wandering Minstrel",
+      "Cellar",
+    ];
+    deck.setAside = [];
+
+    // Act - Simulate revealing 2 Coppers,2 Estates, and a Wandering Minstrel from library with a Journeyman.
+    deck.processRevealsLine(
+      ["Copper", "Estate", "Wandering Minstrel"],
+      [2, 2, 1]
+    );
+
+    // Assert - Verify the card is moved from library to setAside
+    expect(deck.library).toStrictEqual(["Cellar"]);
+    expect(deck.setAside).toStrictEqual([
+      "Copper",
+      "Copper",
+      "Estate",
+      "Estate",
+      "Wandering Minstrel",
     ]);
   });
 
