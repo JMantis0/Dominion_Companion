@@ -22,7 +22,7 @@ import {
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
 import MinimizeButton from "./MinimizeButton/MinimizeButton";
-import DevDisplay from "./DevDisplay/DevDisplay";
+// import DevDisplay from "./DevDisplay/DevDisplay";
 
 const style = "w-[250px] h-[400px]";
 const hiddenStyle = style + " hidden";

@@ -189,6 +189,23 @@ const discardZoneViewerStateSelectorFunction = (
 };
 
 /**
+ * Takes an array and a member, and returns a number array
+ * containing all the indices for the member in that array.
+ * @param array - The given array.
+ * @param member - The member to get indices for in the array.
+ * @returns An array of numbers containing every index for which the
+ * given member occurs in the array.
+ */
+const getAllIndices = (array: string[], member: string) => {
+  const indexes = [];
+  let i = -1;
+  while ((i = array.indexOf(member, i + 1)) != -1) {
+    indexes.push(i);
+  }
+  return indexes;
+};
+
+/**
  * Gets and returns the game log element's innerText, removing the
  * last line if it matches 'Premoves'.
  * Purpose: Update the global gameLog variable.
@@ -209,6 +226,16 @@ const getClientGameLog = (): string => {
     gameLog = gameLog.split("\n").slice(0, -1).join("\n");
   }
   return gameLog;
+};
+
+/**
+ * Returns the number of instances of the given card in the given array.
+ * @param array - The array to get the number of card instances from.
+ * @param card - The card to get the instance count of.
+ * @returns - The number of instances of the given card that occur in the given array.
+ */
+const getCountOfCard = (array: string[], card: string) => {
+  return getAllIndices(array, card).length;
 };
 
 /**
@@ -428,7 +455,8 @@ const getRowColor = (cardName: string): string => {
     "Gardens",
     "Colony",
     "Overgrown Estate",
-    "Mill"
+    "Mill",
+    "Duke",
   ];
   const reactions: string[] = ["Moat", "Hovel"];
   const treasures: string[] = ["Copper", "Silver", "Gold", "Platinum"];
@@ -1882,7 +1910,9 @@ export {
   cumulativeHyperGeometricProbability,
   customSelectResizableHandles,
   discardZoneViewerStateSelectorFunction,
+  getAllIndices,
   getClientGameLog,
+  getCountOfCard,
   getCountsFromArray,
   getCumulativeHyperGeometricProbabilityForCard,
   getErrorMessage,

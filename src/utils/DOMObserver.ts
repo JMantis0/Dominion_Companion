@@ -483,13 +483,13 @@ export class DOMObserver {
       "Tide Pools", // Done
       "Town", // Done
       "Archive", // Done
-      "Barge",
-      "Capital City",
+      "Barge", // Done
+      "Capital City", // Done
       "Counterfeit", // Done
       "Crew", // Done
       "Crystal Ball", // Done
-      "Duke",
-      "Enlarge",
+      "Duke", //Done
+      "Enlarge", //Done
       "Hunting Lodge",
       "Journeyman",
       "Longship",

@@ -1,6 +1,7 @@
 import { DurationName, GameResult } from "../utils";
 import { getLogScrollContainerLogLines } from "../utils/utils";
 import { duration_constants } from "../../src/utils/durations";
+import { getCountOfCard } from "../utils/utils";
 export class BaseDeck {
   currentVP: number = 3;
   debug: boolean = true;
@@ -945,6 +946,7 @@ export class BaseDeck {
    * Deck method updates the value of the currentVP field.
    */
   updateVP() {
+    const duchyCount = getCountOfCard(this.entireDeck, "Duchy");
     const newCurrentVP = this.entireDeck.reduce(
       (accumulatedVP, currentValue) => {
         switch (currentValue) {
@@ -956,6 +958,8 @@ export class BaseDeck {
             return 1 + accumulatedVP;
           case "Duchy":
             return 3 + accumulatedVP;
+          case "Duke":
+            return duchyCount + accumulatedVP;
           case "Province":
             return 6 + accumulatedVP;
           case "Colony":

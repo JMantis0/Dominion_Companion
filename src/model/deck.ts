@@ -23,6 +23,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   inPlay: Array<string> = [];
   library: Array<string> = [];
   setAside: Array<string> = [];
+  waitToAssignBargeLifespan: boolean = false;
   waitToDrawLibraryLook: boolean = false;
   waitToTopdeckCrystalBallLook: boolean = false;
   waitToShuffle: boolean = false;
@@ -101,6 +102,14 @@ export class Deck extends BaseDeck implements StoreDeck {
 
   setSetAside(setAsideCards: string[]) {
     this.setAside = setAsideCards;
+  }
+
+  getWaitToAssignBargeLifespan() {
+    return this.waitToAssignBargeLifespan;
+  }
+
+  setWaitToAssignBargeLifespan(wait: boolean) {
+    this.waitToAssignBargeLifespan = wait;
   }
 
   getWaitToDrawLibraryLook() {
@@ -324,6 +333,44 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     if (nonHandPlay) return this.latestPlay;
     else return "None";
+  }
+
+  /**
+   * Assigns the correct lifespan to a Barge duration, depending on the player's choice,
+   * whether they used the effect on the same turn, or decided to use the effect on the next turn.
+   */
+  assignBargeLifespanIfNeeded(act: string) {
+    if (
+      this.lastEntryProcessed === `${this.playerNick} plays a Barge.` &&
+      act === "shuffles their deck"
+    ) {
+      this.activeDurations[this.activeDurations.length - 1].setAge(0);
+    } else if (
+      this.lastEntryProcessed === `${this.playerNick} plays a Barge.`
+    ) {
+      // Check paddings
+      const gameLogLines = Array.from(getLogScrollContainerLogLines());
+      const currentLine = gameLogLines.pop();
+      const prevLine = gameLogLines.pop();
+      const currentPadding: number = parseInt(
+        currentLine!.style.paddingLeft.slice(
+          0,
+          currentLine!.style.paddingLeft.length - 1
+        )
+      );
+      const prevPadding: number = parseInt(
+        prevLine!.style.paddingLeft.slice(
+          0,
+          prevLine!.style.paddingLeft.length - 1
+        )
+      );
+      if (currentPadding > prevPadding) {
+        this.activeDurations[this.activeDurations.length - 1].setAge(0);
+      } else {
+        this.activeDurations[this.activeDurations.length - 1].setAge(1);
+      }
+    }
+    this.setWaitToAssignBargeLifespan(false);
   }
 
   /**
@@ -1379,6 +1426,9 @@ export class Deck extends BaseDeck implements StoreDeck {
           // There is an assumption here that there will only be one card on the duration
           // plays line.
           console.log("Duration play occurring, ", cards[i]);
+          if (cards[i] === "Barge") {
+            this.setWaitToAssignBargeLifespan(true);
+          }
           const activeDurationsCopy = this.activeDurations.slice();
           activeDurationsCopy.push(new Duration(cards[i] as DurationName));
           this.setActiveDurations(activeDurationsCopy);
@@ -1876,6 +1926,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         }
         if (this.logEntryAppliesToThisDeck(line)) {
           this.shuffleAndCleanUpIfNeeded(line);
+          this.assignBargeLifespanIfNeeded(act);
           this.topDeckLookedAtCardIfNeeded();
           this.drawLookedAtCardIfNeeded(act);
           this.processDeckChanges(line, act, cards, numberOfCards);
