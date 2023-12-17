@@ -174,7 +174,7 @@ const PrimaryFrame = () => {
                 <div className="p-1 mr-2">
                   <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                     <MainDeckViewer />
-                    {/* <DevDisplay /> */}
+                    {/* <DevDisplay />*/}
                   </div>
                   <div
                     className={primaryFrameTab !== "Discard" ? "hidden" : ""}

@@ -24,6 +24,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   library: Array<string> = [];
   setAside: Array<string> = [];
   waitToDrawLibraryLook: boolean = false;
+  waitToTopdeckCrystalBallLook: boolean = false;
   waitToShuffle: boolean = false;
 
   constructor(
@@ -118,6 +119,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.waitToShuffle = wait;
   }
 
+  getWaitToTopdeckCrystalBallLook(): boolean {
+    return this.waitToTopdeckCrystalBallLook;
+  }
+
+  setWaitToTopdeckCrystalBallLook(wait: boolean) {
+    this.waitToTopdeckCrystalBallLook = wait;
+  }
+
   /**
    * Decreases age of all active durations by 1
    */
@@ -180,6 +189,24 @@ export class Deck extends BaseDeck implements StoreDeck {
       needCleanUp = true;
     }
     return needCleanUp;
+  }
+
+  /**
+   * Checks the logArchive to determine whether the look at activity was triggered
+   * by the given card.
+   * @param line - The given line to check
+   * @returns The boolean for whether the current look at activity was triggered by the given card.
+   */
+  checkForLook(line: string, lookType: string): boolean {
+    let lookLine: boolean = false;
+    if (line.match(" looks at ") !== null) {
+      if (this.latestAction === lookType) {
+        lookLine = true;
+      }
+    } else {
+      lookLine = false;
+    }
+    return lookLine;
   }
 
   /**
@@ -297,24 +324,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     if (nonHandPlay) return this.latestPlay;
     else return "None";
-  }
-
-  /**
-   * Checks the logArchive to determine whether the look at activity was triggered
-   * by a Library.
-   * @param currentLine - The current look at line
-   * @returns The boolean for whether the current look at activity was triggered by a Library
-   */
-  checkForLibraryLook(currentLine: string): boolean {
-    let libraryLook: boolean = false;
-    if (currentLine.match(" looks at ") !== null) {
-      if (this.latestAction === "Library") {
-        libraryLook = true;
-      }
-    } else {
-      libraryLook = false;
-    }
-    return libraryLook;
   }
 
   /**
@@ -868,8 +877,9 @@ export class Deck extends BaseDeck implements StoreDeck {
 
     if (this.logArchive.length >= 1) {
       const len = this.logArchive.length;
-      const prevLineLibraryLook = this.checkForLibraryLook(
-        this.logArchive[len - 1]
+      const prevLineLibraryLook = this.checkForLook(
+        this.logArchive[len - 1],
+        "Library"
       );
       needToDrawCardLookedAtFromPreviousLine =
         prevLineLibraryLook &&
@@ -985,6 +995,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.durationSetAsideFromLibrary(cards[i]);
         } else if (["Royal Galley"].includes(sourceCard)) {
           this.durationSetAsideFromInPlay(cards[i]);
+        } else if (["Archive"].includes(this.latestAction)) {
+          // do nothing... cards were already durationSetAside by the Archive's 'looks at' line
         } else {
           this.durationSetAsideFromHand(cards[i]);
         }
@@ -1029,10 +1041,16 @@ export class Deck extends BaseDeck implements StoreDeck {
         this.processTrashesLine(line, cards, numberOfCards);
         break;
       case "topdecks":
-        this.processTopDecksLine(cards, numberOfCards);
+        this.processMoveToLibraryLine(cards, numberOfCards);
         break;
       case "back onto their deck":
-        this.processTopDecksLine(cards, numberOfCards);
+        this.processMoveToLibraryLine(cards, numberOfCards);
+        break;
+      case "into their deck":
+        this.processMoveToLibraryLine(cards, numberOfCards);
+        break;
+      case "on the bottom of their deck":
+        this.processMoveToLibraryLine(cards, numberOfCards);
         break;
       case "looks at":
         this.processLooksAtLine(cards, numberOfCards);
@@ -1080,7 +1098,13 @@ export class Deck extends BaseDeck implements StoreDeck {
       durationEffectCausedBy = this.durationEffectCausedBy(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (
+        if (isDurationEffect) {
+          if (["Dungeon", "Tide Pools"].includes(durationEffectCausedBy)) {
+            this.discard(cards[i]);
+          } else {
+            this.discardFromDurationSetAside(cards[i]);
+          }
+        } else if (
           [
             "Sentry",
             "Library",
@@ -1095,6 +1119,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Fortune Teller",
             "Advisor",
             "Envoy",
+            "Crystal Ball",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1102,12 +1127,6 @@ export class Deck extends BaseDeck implements StoreDeck {
           ["Vassal", "Courier", "Harvest", "Jester"].includes(mostRecentPlay)
         ) {
           this.discardFromLibrary(cards[i]);
-        } else if (isDurationEffect) {
-          if (durationEffectCausedBy === "Dungeon") {
-            this.discard(cards[i]);
-          } else {
-            this.discardFromDurationSetAside(cards[i]);
-          }
         } else {
           this.discard(cards[i]);
         }
@@ -1150,9 +1169,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Bureaucrat", "Armory", "Treasure Map", "Fool's Gold"].includes(
-            mostRecentPlay
-          ) ||
+          [
+            "Bureaucrat",
+            "Armory",
+            "Treasure Map",
+            "Fool's Gold",
+            "Taxman",
+          ].includes(mostRecentPlay) ||
+          // Fool's Gold reaction
           (this.lineSource()?.match(/gains (a|\d*) Province/) &&
             cards[0] === "Gold" &&
             numberOfCards[0] === 1)
@@ -1203,6 +1227,8 @@ export class Deck extends BaseDeck implements StoreDeck {
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
+        } else if (["Archive"].includes(this.latestAction)) {
+          this.drawFromDurationSetAside(cards[i]);
         } else if (isDurationEffect) {
           this.drawFromDurationSetAside(cards[i]);
         }
@@ -1230,9 +1256,16 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Fortune Hunter",
             "Wandering Minstrel",
             "Cartographer",
+            "Crystal Ball",
           ].includes(mostRecentPlay)
         ) {
+          if (mostRecentPlay === "Crystal Ball") {
+            console.log("waitToTopDeck changing to true.");
+            this.setWaitToTopdeckCrystalBallLook(true);
+          }
           this.setAsideFromLibrary(cards[i]);
+        } else if (["Archive"].includes(this.latestAction)) {
+          this.durationSetAsideFromLibrary(cards[i]);
         } else if (mostRecentPlay === "Library") {
           const cardsToDrawNow: string[] = [
             "Estate",
@@ -1338,13 +1371,8 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to play.
    */
   processPlaysLine(line: string, cards: string[], numberOfCards: number[]) {
-    const throneRoomPlay = line.match(" again.");
-    const treasurePlay = this.checkForTreasurePlayLine(line);
+    const source = this.getCardsAndCountsFromLine(this.lineSource())[0][0];
     const durationPlay = this.isDurationPlay(line);
-    let nonHandPlay = this.checkForNonHandPlay();
-    if (nonHandPlay === "Vassal" && treasurePlay) {
-      nonHandPlay = "None";
-    }
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (durationPlay) {
@@ -1354,15 +1382,15 @@ export class Deck extends BaseDeck implements StoreDeck {
           const activeDurationsCopy = this.activeDurations.slice();
           activeDurationsCopy.push(new Duration(cards[i] as DurationName));
           this.setActiveDurations(activeDurationsCopy);
-          this.play(cards[i]);
-        } else if (nonHandPlay === "Fortune Hunter") {
+        }
+        if (["Fortune Hunter", "Crystal Ball"].includes(source)) {
           this.playFromSetAside(cards[i]);
-          this.setLatestPlaySource("Fortune Hunter");
-        } else if (throneRoomPlay) {
-          this.setLatestPlaySource("Throne Room");
-        } else if (["Courier", "Vassal"].includes(nonHandPlay)) {
+          this.setLatestPlaySource(source);
+        } else if (["Throne Room", "Counterfeit"].includes(source)) {
+          this.setLatestPlaySource(source);
+        } else if (["Courier", "Vassal"].includes(source)) {
           this.playFromDiscard(cards[i]);
-          this.setLatestPlaySource(nonHandPlay);
+          this.setLatestPlaySource(source);
         } else {
           this.play(cards[i]);
           this.setLatestPlaySource("Hand");
@@ -1419,11 +1447,13 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param cards  - Array of card names to topdeck.
    * @param numberOfCards - Array of the amounts of each card to topdeck.
    */
-  processTopDecksLine(cards: string[], numberOfCards: number[]) {
-    const mostRecentAction = this.latestAction;
+  processMoveToLibraryLine(cards: string[], numberOfCards: number[]) {
+    const isDurationEffect = this.isDurationEffect();
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
-        if (
+        if (isDurationEffect) {
+          this.topDeckFromInPlay(cards[i]);
+        } else if (
           [
             "Sentry",
             "Lookout",
@@ -1436,17 +1466,21 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Patrol",
             "Seer",
             "Fortune Teller",
-          ].includes(mostRecentAction)
+          ].includes(this.latestAction)
         ) {
           this.topDeckFromSetAside(cards[i]);
         } else if (
-          ["Harbinger", "Scavenger", "Replace"].includes(mostRecentAction)
+          ["Harbinger", "Scavenger", "Replace"].includes(this.latestAction)
         ) {
           this.topDeckFromGraveyard(cards[i]);
         } else if (
-          ["Artisan", "Bureaucrat", "Courtyard", "Pilgrim"].includes(
-            mostRecentAction
-          )
+          [
+            "Artisan",
+            "Bureaucrat",
+            "Courtyard",
+            "Pilgrim",
+            "Secret Passage",
+          ].includes(this.latestAction)
         ) {
           this.topDeckFromHand(cards[i]);
         }
@@ -1467,7 +1501,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
-          ["Sentry", "Bandit", "Lookout", "Sentinel"].includes(
+          ["Sentry", "Bandit", "Lookout", "Sentinel", "Crystal Ball"].includes(
             this.latestAction
           )
         ) {
@@ -1569,6 +1603,25 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Topdecks the card from the previous line.  Used to
+   * handle Crystal Ball looks that get topdecked.
+   */
+  topdeckCardFromPreviousLine(): void {
+    const prevLine = this.logArchive.slice().pop()!;
+    let prevLineCard: string = "EmptyCard";
+    for (let i = 0; i < this.kingdom.length; i++) {
+      const card = this.kingdom[i];
+      if (prevLine.match(card) !== null) {
+        prevLineCard = card;
+        break;
+      }
+    }
+    if (prevLineCard === "EmptyCard")
+      throw new Error("No card found in the most recent logArchive entry.");
+    this.topDeckFromSetAside(prevLineCard);
+  }
+
+  /**
    * Checks graveyard field array to see if card is there.  If yes,
    * removes one instance of the card from the graveyard field array,
    * and adds one instance of the card to the library field array.
@@ -1613,6 +1666,26 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Removes an instance of the given card from inPlay and adds one instance
+   * to the library.  Throws an error if the given card is not in play.
+   * @param card -The given card.
+   */
+  topDeckFromInPlay(card: string) {
+    const index = this.inPlay.indexOf(card);
+    if (index < 0) {
+      throw new Error(`No ${card} in inPlay.`);
+    } else {
+      if (this.debug) console.info(`Top decking ${card} from inPlay.`);
+      const libraryCopy = this.library.slice();
+      const inPlayCopy = this.inPlay.slice();
+      libraryCopy.push(card);
+      inPlayCopy.splice(index, 1);
+      this.setLibrary(libraryCopy);
+      this.setInPlay(inPlayCopy);
+    }
+  }
+
+  /**
    * Checks if the given card is in the setAside zone.  Then it
    * removes one instance of that card from the setAside zone
    * and adds it to the library zone.
@@ -1631,6 +1704,37 @@ export class Deck extends BaseDeck implements StoreDeck {
       this.setLibrary(libraryCopy);
       this.setSetAside(setAsideCopy);
     }
+  }
+
+  /**
+   * Topdecks card from the previous line if it's a Crystal Ball look that
+   * did not play, trash, or discard the looked at card.
+   */
+  topDeckLookedAtCardIfNeeded() {
+    if (
+      this.latestAction === "Crystal Ball" &&
+      this.checkForLook(this.lastEntryProcessed, "Crystal Ball")
+    ) {
+      const gameLogElement = Array.from(getLogScrollContainerLogLines());
+      const currentLine = gameLogElement.pop();
+      const prevLine = gameLogElement.pop();
+      const currentPadding = parseInt(
+        currentLine!.style.paddingLeft.slice(
+          0,
+          currentLine!.style.paddingLeft.length - 1
+        )
+      );
+      const previousPadding = parseInt(
+        prevLine!.style.paddingLeft.slice(
+          0,
+          prevLine!.style.paddingLeft.length - 1
+        )
+      );
+      if (currentPadding < previousPadding) {
+        this.topdeckCardFromPreviousLine();
+      }
+    }
+    this.setWaitToTopdeckCrystalBallLook(false);
   }
 
   /**
@@ -1772,6 +1876,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         }
         if (this.logEntryAppliesToThisDeck(line)) {
           this.shuffleAndCleanUpIfNeeded(line);
+          this.topDeckLookedAtCardIfNeeded();
           this.drawLookedAtCardIfNeeded(act);
           this.processDeckChanges(line, act, cards, numberOfCards);
         } else {

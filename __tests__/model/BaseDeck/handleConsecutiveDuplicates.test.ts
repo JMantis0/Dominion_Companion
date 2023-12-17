@@ -11,6 +11,7 @@ describe("handleConsecutiveDuplicates", () => {
       "Estate",
       "Silver",
       "Gold",
+      "Tide Pools",
     ]);
   });
 
@@ -143,6 +144,31 @@ describe("handleConsecutiveDuplicates", () => {
         "P plays a Hunter.",
         "P gest +1 Action.",
         "P reveals a Copper and 2 Estates.",
+      ]);
+    }
+  );
+
+  it(
+    "should handle consecutive 'discards' lines by removing the most recent logEntry from the logArchive " +
+      "and returning the correct card types and card amounts",
+    () => {
+      // Arrange
+      deck.logArchive = [
+        "P starts their turn.",
+        "P puts an Estate in hand (Archive).",
+        "P discards a Copper and an Estate. (Tide Pools)",
+      ];
+      deck.lastEntryProcessed =
+        "P discards a Copper and an Estate. (Tide Pools)";
+      const line = "P discards 2 Coppers and 2 Estates. (Tide Pools)";
+      // Act
+      const [cards, number] = deck.handleConsecutiveDuplicates(line);
+      // Assert
+      expect(cards).toStrictEqual(["Copper", "Estate"]);
+      expect(number).toStrictEqual([1, 1]);
+      expect(deck.logArchive).toStrictEqual([
+        "P starts their turn.",
+        "P puts an Estate in hand (Archive).",
       ]);
     }
   );

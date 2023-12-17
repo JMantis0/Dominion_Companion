@@ -160,6 +160,27 @@ describe("processDiscardsLine", () => {
     expect(deck.library).toStrictEqual(["Shouldn't Move"]);
   });
 
+  it("should discard from setAside when latestPlay is a Crystal Ball", () => {
+    // Arrange
+    deck.latestAction = "Crystal Ball";
+    const cards = ["Smithy"];
+    const numberOfCards = [1];
+    deck.setAside = ["Smithy"];
+    deck.graveyard = ["Silver"];
+    deck.library = ["Shouldn't Move"];
+    deck.hand = ["Shouldn't Move"];
+
+    // Act - Simulate discarding from library with Crystal Ball.
+    deck.processDiscardsLine("non-duration effect line", cards, numberOfCards);
+
+    // Assert - Verify setAside and graveyard contain the expected cards.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Silver", "Smithy"]);
+    // Verify other zones were not discarded from.
+    expect(deck.hand).toStrictEqual(["Shouldn't Move"]);
+    expect(deck.library).toStrictEqual(["Shouldn't Move"]);
+  });
+
   // Case - Discard from setAside: Envoy
   it("should discard from setAside when latestPlay is a Envoy", () => {
     // Arrange
@@ -421,6 +442,21 @@ describe("processDiscardsLine", () => {
     const line = "P discards a Copper and an Estate. (Dungeon)";
 
     // Act - Simulate a Dungeon effect discarding a Copper and an Estate
+    deck.processDiscardsLine(line, ["Copper", "Estate"], [1, 1]);
+
+    // Assert - Verify the hand and graveyard contain the correct cards
+    expect(deck.hand).toStrictEqual(["Vassal", "Sentry", "Village"]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Copper", "Estate"]);
+  });
+
+  it("should process discards caused by Tide Pools effect correctly", () => {
+    // Arrange
+    isDurationEffect.mockReturnValue(true);
+    deck.hand = ["Copper", "Estate", "Vassal", "Sentry", "Village"];
+    deck.graveyard = ["Bureaucrat"];
+    const line = "P discards a Copper and an Estate. (Tide Pools)";
+
+    // Act - Simulate a Tide Pools effect discarding a Copper and an Estate
     deck.processDiscardsLine(line, ["Copper", "Estate"], [1, 1]);
 
     // Assert - Verify the hand and graveyard contain the correct cards

@@ -312,6 +312,19 @@ export class BaseDeck {
   }
 
   /**
+   * Checks if the given line and last line processed are both trash lines.
+   * Needed to keep the log archive and game log in sync.
+   * @param line - The given line.
+   * @returns Boolean for wether the lines are consecutive trashes.
+   */
+  consecutiveDiscards(line: string): boolean {
+    const consecutiveDiscards =
+      line.match(" discards ") !== null &&
+      this.lastEntryProcessed.match(" discards ") !== null;
+    return consecutiveDiscards;
+  }
+
+  /**
    * Returns boolean for whether the current line and most recent line are consecutive gains
    * without buying.
    * @param line - The given line.
@@ -394,7 +407,9 @@ export class BaseDeck {
     const consecutiveTreasurePlays: boolean =
       this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
       this.checkForTreasurePlayLine(entry) &&
-      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource); // treasures played by these sources get their own log lines in the client game-log.
+      !["Courier", "Fortune Hunter", "Counterfeit"].includes(
+        this.latestPlaySource
+      ); // treasures played by these sources get their own log lines in the client game-log.
 
     return consecutiveTreasurePlays;
   }
@@ -449,6 +464,9 @@ export class BaseDeck {
     } else if (this.consecutiveInHandLines(line)) {
       act = "in hand";
       [cards, number] = this.handleConsecutiveDuplicates(line);
+    } else if (this.consecutiveDiscards(line)) {
+      act = "discards";
+      [cards, number] = this.handleConsecutiveDuplicates(line);
     } else {
       act = this.getActionFromLine(line);
       [cards, number] = this.getCardsAndCountsFromLine(line);
@@ -495,6 +513,8 @@ export class BaseDeck {
       "starts with",
       "in hand",
       "and finds it",
+      "into their deck",
+      "on the bottom of their deck",
     ];
     const lineWithoutNickName = line.slice(this.playerNick.length);
     if (line.match(" reveals their hand:") === null)
@@ -523,10 +543,12 @@ export class BaseDeck {
     };
     const lineData: Array<LineDatum> = [];
     this.kingdom.forEach((card) => {
-      // Add case for matching Platinums, which have plural form 'Platina'
+      // Matching  plurals handling, Taxman=>Taxmen, Platinums=>Platina.
       let cardMatcher: string;
       if (card === "Platinum") {
         cardMatcher = "Platin";
+      } else if (card === "Taxman") {
+        cardMatcher = "Taxm";
       } else cardMatcher = card.substring(0, card.length - 1);
       if (
         line.match(new RegExp(`(an?|\\d+|wishes for) ${cardMatcher}`)) !== null

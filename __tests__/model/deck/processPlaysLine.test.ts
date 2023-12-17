@@ -1,14 +1,22 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processPlaysLine", () => {
   // Declare Deck reference.
   let deck = new Deck("", false, "", "pNick", "pName", []);
-  // mock checkForVassalPlay
-  const checkForNonHandPlay = jest.spyOn(Deck.prototype, "checkForNonHandPlay");
+  const lineSource = jest.spyOn(BaseDeck.prototype, "lineSource");
   beforeEach(() => {
     jest.resetAllMocks();
-    deck = new Deck("", false, "", "pNick", "pName", []);
+    lineSource.mockReturnValue("");
+    deck = new Deck("", false, "", "pNick", "pName", [
+      "Vassal",
+      "Courier",
+      "Fortune Hunter",
+      "Throne Room",
+      "Counterfeit",
+      "Crystal Ball",
+    ]);
   });
 
   it("should play cards that are played normally from hand.", () => {
@@ -17,9 +25,9 @@ describe("processPlaysLine", () => {
     deck.hand = ["Chapel", "Market"];
     deck.inPlay = ["Cellar"];
     deck.graveyard = ["Estate"];
-    checkForNonHandPlay.mockReturnValue("None");
     // Arguments for function being tested.
     const line = "pNick plays a Market.";
+    lineSource.mockReturnValue(line);
     const cards = ["Market"];
     const numberOfCards = [1];
 
@@ -41,9 +49,10 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Moneylender", "Estate"];
-    checkForNonHandPlay.mockReturnValue("Vassal");
+
     // Arguments for function being tested.
     const line = "pNick plays a Moneylender.";
+    lineSource.mockReturnValue("pNick plays a Vassal.");
     const cards = ["Moneylender"];
     const numberOfCards = [1];
 
@@ -65,9 +74,10 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Moneylender", "Estate"];
-    checkForNonHandPlay.mockReturnValue("Courier");
+
     // Arguments for function being tested.
     const line = "pNick plays a Moneylender.";
+    lineSource.mockReturnValue("pNick plays a Courier.");
     const cards = ["Moneylender"];
     const numberOfCards = [1];
 
@@ -89,9 +99,10 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Copper"];
     deck.inPlay = ["Vassal"];
     deck.graveyard = ["Silver", "Estate"];
-    checkForNonHandPlay.mockReturnValue("Courier");
+
     // Arguments for function being tested.
     const line = "pNick plays a Silver.";
+    lineSource.mockReturnValue("pNick plays a Courier.");
     const cards = ["Silver"];
     const numberOfCards = [1];
 
@@ -113,9 +124,10 @@ describe("processPlaysLine", () => {
     deck.hand = ["Copper", "Estate"];
     deck.inPlay = ["Remodel"];
     deck.graveyard = ["Estate"];
-    checkForNonHandPlay.mockReturnValue("None");
+
     // Test arguments
     const line = "pNick plays a Remodel again.";
+    lineSource.mockReturnValue("pNick plays a Throne Room.");
     const cards = ["Remodel"];
     const numberOfCards = [1];
 
@@ -134,9 +146,10 @@ describe("processPlaysLine", () => {
     //  Arrange a scenario where the card being played is a treasure.
     deck.hand = ["Copper"];
     const line = "pNick plays a Copper.";
+    lineSource.mockReturnValue("pNick plays a Copper.");
     const cards = ["Copper"];
     const numberOfCards = [1];
-    checkForNonHandPlay.mockReturnValue("Vassal");
+
     // Act - Simulate playing a Copper from hand
     deck.processPlaysLine(line, cards, numberOfCards);
 
@@ -146,9 +159,10 @@ describe("processPlaysLine", () => {
 
   it("should setLatestPlaySource to 'Vassal' when the play being processed is caused by a Vassal", () => {
     // Arrange
-    checkForNonHandPlay.mockReturnValue("Vassal");
+
     deck.graveyard = ["Sentry"];
     const line = "pNick plays a Sentry.";
+    lineSource.mockReturnValue("pNick plays a Vassal.");
     const cards = ["Sentry"];
     const numberOfCards = [1];
 
@@ -159,9 +173,10 @@ describe("processPlaysLine", () => {
 
   it("should setLatestPlaySource to 'Courier' when the play being processed is caused by a Courier", () => {
     // Arrange
-    checkForNonHandPlay.mockReturnValue("Courier");
+
     deck.graveyard = ["Copper"];
     const line = "pNick plays a Copper.";
+    lineSource.mockReturnValue("pNick plays a Courier.");
     const cards = ["Copper"];
     const numberOfCards = [1];
 
@@ -170,11 +185,26 @@ describe("processPlaysLine", () => {
     expect(deck.latestPlaySource).toBe("Courier");
   });
 
-  it("should setLatestPlaySource to 'Hand' when the play being processed is played from Hand", () => {
+  it("should setLatestPlaySource to 'Counterfeit' when the play being processed is caused by a Counterfeit", () => {
     // Arrange
-    checkForNonHandPlay.mockReturnValue("None");
+
     deck.hand = ["Copper"];
     const line = "pNick plays a Copper.";
+    lineSource.mockReturnValue("pNick plays a Counterfeit.");
+    const cards = ["Copper"];
+    const numberOfCards = [1];
+
+    // Act simulate playing a Copper from discard with a Counterfeit.
+    deck.processPlaysLine(line, cards, numberOfCards);
+    expect(deck.latestPlaySource).toBe("Counterfeit");
+  });
+
+  it("should setLatestPlaySource to 'Hand' when the play being processed is played from Hand", () => {
+    // Arrange
+
+    deck.hand = ["Copper"];
+    const line = "pNick plays a Copper.";
+    lineSource.mockReturnValue(line);
     const cards = ["Copper"];
     const numberOfCards = [1];
 
@@ -185,8 +215,9 @@ describe("processPlaysLine", () => {
 
   it("should setLatestPlaySource to 'Throne Room' when the play being processed is played by a Throne Room", () => {
     // Arrange
-    checkForNonHandPlay.mockReturnValue("None");
+
     const line = "pNick plays a Sentry again.";
+    lineSource.mockReturnValue("pNick plays a Throne Room.");
     const cards = ["Sentry"];
     const numberOfCards = [1];
 
@@ -200,11 +231,12 @@ describe("processPlaysLine", () => {
       "is played by a Fortune Hunter",
     () => {
       // Arrange
-      checkForNonHandPlay.mockReturnValue("Fortune Hunter");
+
       deck.latestAction = "Fortune Hunter";
       deck.setAside = ["Copper", "Estate", "Chapel"];
       deck.inPlay = ["Fortune Hunter"];
       const line = "pNick plays a Copper.";
+      lineSource.mockReturnValue("pNick plays a Fortune Hunter.");
       const cards = ["Copper"];
       const numberOfCards = [1];
 
@@ -216,11 +248,25 @@ describe("processPlaysLine", () => {
     }
   );
 
+  it("should play from setAside when the line source plays a Crystal Ball", () => {
+    // Arrange
+    lineSource.mockReturnValue("pNick plays a Crystal Ball.");
+    deck.setAside = ["Crew"];
+    deck.inPlay = ["Crystal Ball"];
+
+    // Act
+    deck.processPlaysLine("pNick plays a Crew.", ["Crew"], [1]);
+
+    // Assert
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.inPlay).toStrictEqual(["Crystal Ball", "Crew"]);
+  });
+
   it("should create a duration object when the given line plays a duration card", () => {
     // Arrange
     deck.hand = ["Rope", "Copper"];
     deck.inPlay = ["Merchant"];
-    checkForNonHandPlay.mockReturnValue("None");
+    lineSource.mockReturnValue("pNick plays a Rope.");
     const line = "pNick plays a Rope.";
     const cards = ["Rope"];
     const numberOfCards = [1];

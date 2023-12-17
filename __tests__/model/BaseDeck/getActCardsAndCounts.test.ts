@@ -24,7 +24,7 @@ describe("getActCardsAndCounts", () => {
       "Sentry",
       "Platinum",
       "Overgrown Estate",
-      "Hovel"
+      "Hovel",
     ]);
   });
 
@@ -369,6 +369,28 @@ describe("getActCardsAndCounts", () => {
     expect(cards).toStrictEqual(["Copper", "Hovel", "Overgrown Estate"]);
     expect(numberOfCards).toStrictEqual([1, 0, 0]);
     expect(deck.logArchive).toStrictEqual(["pNick starts their turn."]);
+  });
+
+  it("should handle consecutive 'discards' lines correctly", () => {
+    // Arrange
+    deck.logArchive = [
+      "P starts their turn.",
+      "P puts an Estate in hand (Archive).",
+      "P discards a Copper and an Estate. (Tide Pools)",
+    ];
+    deck.lastEntryProcessed = "P discards a Copper and an Estate. (Tide Pools)";
+    // Act
+    const { act, cards, numberOfCards } = deck.getActCardsAndCounts(
+      "P discards 2 Coppers and 2 Estates. (Tide Pools)"
+    );
+    // Assert
+    expect(act).toStrictEqual("discards");
+    expect(cards).toStrictEqual(["Copper", "Estate"]);
+    expect(numberOfCards).toStrictEqual([1, 1]);
+    expect(deck.logArchive).toStrictEqual([
+      "P starts their turn.",
+      "P puts an Estate in hand (Archive).",
+    ]);
   });
 
   it("should get Overgrown Estate from lines properly", () => {
