@@ -93,4 +93,20 @@ describe("consecutiveTreasurePlays", () => {
     // Assert
     expect(result).toBe(false);
   });
+
+  it("should return false when the most recent play source is a Counterfeit", () => {
+    // Arrange
+    deck.lastEntryProcessed = "pNick plays a Copper. (+$1)"; //This Platinum is played by a Fortune Hunter
+    deck.latestPlaySource = "Counterfeit";
+    const line = "pNick plays a Copper again. (+$1)"; //This platinum is played from hand.
+
+    //  The method should return false because the essential function of Counterfeit is to play a treasure twice,
+    //  and it does so on separate lines.
+
+    // Act - simulate playing a treasure on the previous line, but not on the current line.
+    const result = deck.consecutiveTreasurePlays(line);
+
+    // Assert
+    expect(result).toBe(false);
+  });
 });

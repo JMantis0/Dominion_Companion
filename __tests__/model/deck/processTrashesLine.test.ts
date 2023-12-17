@@ -99,6 +99,26 @@ describe("processTrashesLine", () => {
     expect(deck.hand).toStrictEqual(["Silver"]);
   });
 
+  it("should trash from setAside when caused by a Crystal Ball.", () => {
+    // Arrange
+    deck.latestAction = "Crystal Ball";
+    deck.setAside = ["Silver", "Estate", "Estate"];
+    deck.hand = ["Silver"];
+    deck.entireDeck = ["Silver", "Silver", "Estate", "Estate"];
+    // Arguments for function being tested.
+    const cards = ["Estate"];
+    const numberOfCards = [1];
+
+    // Act - simulate trashing an Estate from setAside by a Crystal Ball.
+    deck.processTrashesLine("Non-duration effect line", cards, numberOfCards);
+
+    // Assert - Verify the card was removed from setAside and entireDeck
+    expect(deck.setAside).toStrictEqual(["Silver", "Estate"]);
+    expect(deck.entireDeck).toStrictEqual(["Silver", "Silver", "Estate"]);
+    // Verify hand is not changed
+    expect(deck.hand).toStrictEqual(["Silver"]);
+  });
+
   it("should trash cards trashed by Sentinel from setAside.", () => {
     // Arrange
     deck.latestAction = "Sentinel";

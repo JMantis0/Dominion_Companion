@@ -55,7 +55,7 @@ export const duration_constants: {
   Cobbler: { LIFESPAN: undefined },
   Contract: { LIFESPAN: undefined },
   Corsair: { LIFESPAN: undefined },
-  Crew: { LIFESPAN: undefined },
+  Crew: { LIFESPAN: 1 },
   Crypt: { LIFESPAN: undefined },
   Cutthroat: { LIFESPAN: undefined },
   "Den of Sin": { LIFESPAN: undefined },

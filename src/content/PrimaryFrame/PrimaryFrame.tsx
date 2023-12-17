@@ -22,7 +22,7 @@ import {
 import { DOMObserver } from "../../utils/DOMObserver";
 import "jqueryui/jquery-ui.css";
 import MinimizeButton from "./MinimizeButton/MinimizeButton";
-// import DevDisplay from "./DevDisplay/DevDisplay";
+import DevDisplay from "./DevDisplay/DevDisplay";
 
 const style = "w-[250px] h-[400px]";
 const hiddenStyle = style + " hidden";
@@ -174,7 +174,7 @@ const PrimaryFrame = () => {
                 <div className="p-1 mr-2">
                   <div className={primaryFrameTab !== "Deck" ? "hidden" : ""}>
                     <MainDeckViewer />
-                    {/* <DevDisplay /> */}
+                    <DevDisplay />
                   </div>
                   <div
                     className={primaryFrameTab !== "Discard" ? "hidden" : ""}

@@ -485,9 +485,9 @@ export class DOMObserver {
       "Archive", // Done
       "Barge",
       "Capital City",
-      "Counterfeit",
-      "Crew",
-      "Crystal Ball",
+      "Counterfeit", // Done
+      "Crew", // Done
+      "Crystal Ball", // Done
       "Duke",
       "Enlarge",
       "Hunting Lodge",

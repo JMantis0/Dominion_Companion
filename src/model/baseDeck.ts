@@ -407,7 +407,9 @@ export class BaseDeck {
     const consecutiveTreasurePlays: boolean =
       this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
       this.checkForTreasurePlayLine(entry) &&
-      !["Courier", "Fortune Hunter"].includes(this.latestPlaySource); // treasures played by these sources get their own log lines in the client game-log.
+      !["Courier", "Fortune Hunter", "Counterfeit"].includes(
+        this.latestPlaySource
+      ); // treasures played by these sources get their own log lines in the client game-log.
 
     return consecutiveTreasurePlays;
   }

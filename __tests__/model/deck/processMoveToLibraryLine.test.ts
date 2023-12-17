@@ -1,12 +1,14 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
+import { BaseDeck } from "../../../src/model/baseDeck";
 
 describe("processMoveToLibraryLine", () => {
   // Declare Deck reference.
   let deck: Deck;
-
+  const isDurationEffect = jest.spyOn(BaseDeck.prototype, "isDurationEffect");
   beforeEach(() => {
     deck = new Deck("", false, "", "pNick", "pName", []);
+    isDurationEffect.mockReturnValue(false);
     jest.clearAllMocks();
   });
 
@@ -393,5 +395,19 @@ describe("processMoveToLibraryLine", () => {
     // Assert - Verify the card was moved from graveyard to library
     expect(deck.graveyard).toStrictEqual(["Copper"]);
     expect(deck.library).toStrictEqual(["Estate", "Copper", "Festival"]);
+  });
+
+  it("should move cards topdecked by a duration effect from inPlay to library", () => {
+    // Arrange
+    deck.latestAction = "None";
+    deck.library = ["Estate", "Copper"];
+    deck.inPlay = ["Rope", "Crew"];
+    isDurationEffect.mockReturnValue(true);
+    // Act - Simulate topdecking a Festival with a Crew duration effect.
+    deck.processMoveToLibraryLine(["Crew"], [1]);
+
+    // Assert - Verify the card was moved from graveyard to library
+    expect(deck.inPlay).toStrictEqual(["Rope"]);
+    expect(deck.library).toStrictEqual(["Estate", "Copper", "Crew"]);
   });
 });

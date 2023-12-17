@@ -239,6 +239,29 @@ describe("processLooksAtLine", () => {
     expect(deck.waitToDrawLibraryLook).toBe(false);
   });
 
+  it("should move the cards looked at by a Crystal Ball from library to setAside", () => {
+    // Arrange
+    deck.latestAction = "Crystal Ball";
+    deck.hand = ["Bureaucrat"];
+    deck.library = ["Estate", "Silver"];
+    deck.setAside = [];
+    deck.waitToDrawLibraryLook = false;
+
+    // Arguments for function being tested.
+    const cards = ["Silver"];
+    const numberOfCards = [1];
+
+    // Act - Simulate looking a Silver with a Crystal Ball.
+    deck.processLooksAtLine(cards, numberOfCards);
+
+    // Assert - Verify cards were moved from library to setAside
+    expect(deck.setAside).toStrictEqual(["Silver"]);
+    expect(deck.library).toStrictEqual(["Estate"]);
+    // Verify hand and waitToDrawLibraryLook are unchanged.
+    expect(deck.hand).toStrictEqual(["Bureaucrat"]);
+    expect(deck.waitToDrawLibraryLook).toBe(false);
+  });
+
   it("should move the cards looked at by a Archive from library to durationSetAside", () => {
     // Arrange
     deck.latestAction = "Archive";
