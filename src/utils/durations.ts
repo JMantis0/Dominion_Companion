@@ -64,7 +64,7 @@ export const duration_constants: {
   Gatekeeper: { LIFESPAN: undefined },
   "Haunted Woods": { LIFESPAN: undefined },
   Highwayman: { LIFESPAN: undefined },
-  Longship: { LIFESPAN: undefined },
+  Longship: { LIFESPAN: 1 },
   Mastermind: {
     LIFESPAN: undefined,
     // plays any card 3 times
