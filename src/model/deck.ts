@@ -23,6 +23,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   inPlay: Array<string> = [];
   library: Array<string> = [];
   setAside: Array<string> = [];
+  waitToAssignBargeLifespan: boolean = false;
   waitToDrawLibraryLook: boolean = false;
   waitToTopdeckCrystalBallLook: boolean = false;
   waitToShuffle: boolean = false;
@@ -103,6 +104,14 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.setAside = setAsideCards;
   }
 
+  getWaitToAssignBargeLifespan() {
+    return this.waitToAssignBargeLifespan;
+  }
+
+  setWaitToAssignBargeLifespan(wait: boolean) {
+    this.waitToAssignBargeLifespan = wait;
+  }
+
   getWaitToDrawLibraryLook() {
     return this.waitToDrawLibraryLook;
   }
@@ -160,6 +169,62 @@ export class Deck extends BaseDeck implements StoreDeck {
       cellarDraws = true;
     }
     return cellarDraws;
+  }
+
+  /**
+   * Checks the log archive to see if the draws on the current line are
+   * caused by a Hunting Lodge
+   * @returns - Boolean for if the current line's draws were from a Hunting Lodge.
+   */
+  checkForHuntingLodgeDraw() {
+    let huntingLodgeDraws = false;
+    const logArchLen = this.logArchive.length;
+    if (
+      // Case 1, no shuffle, no discards
+      (logArchLen > 2 &&
+        this.logArchive[logArchLen - 3].match(" plays a Hunting Lodge") !==
+          null) ||
+      // Case 2, no shuffle, with discards
+      (logArchLen > 3 &&
+        this.logArchive[logArchLen - 4].match(" plays a Hunting Lodge") !==
+          null) ||
+      // Case 3, early shuffle, and discards.
+      (logArchLen > 4 &&
+        this.logArchive[logArchLen - 5].match(" plays a Hunting Lodge") !==
+          null &&
+        this.logArchive[logArchLen - 4].match(" shuffles their deck") !==
+          null) ||
+      // Case 4, later shuffle, and discards
+      (logArchLen > 4 &&
+        this.logArchive[logArchLen - 5].match(" plays a Hunting Lodge") !==
+          null &&
+        this.logArchive[logArchLen - 1].match(" shuffles their deck") !== null)
+    ) {
+      huntingLodgeDraws = true;
+    }
+    return huntingLodgeDraws;
+  }
+
+  /**
+   * Checks the log archive to see if the draws on the current line are
+   * caused by an Innkeeper
+   * @returns - Boolean for if the current line's draws were from an Inkeeper.
+   */
+  checkForInnkeeperDraw() {
+    let innKeeperDraws = false;
+    const logArchLen = this.logArchive.length;
+    if (
+      (logArchLen > 1 &&
+        this.logArchive[logArchLen - 2].match(" plays an Innkeeper") !==
+          null) ||
+      (logArchLen > 2 &&
+        this.logArchive[logArchLen - 1].match(" shuffles their deck") !==
+          null &&
+        this.logArchive[logArchLen - 3].match(" plays an Innkeeper") !== null)
+    ) {
+      innKeeperDraws = true;
+    }
+    return innKeeperDraws;
   }
 
   /**
@@ -324,6 +389,44 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
     if (nonHandPlay) return this.latestPlay;
     else return "None";
+  }
+
+  /**
+   * Assigns the correct lifespan to a Barge duration, depending on the player's choice,
+   * whether they used the effect on the same turn, or decided to use the effect on the next turn.
+   */
+  assignBargeLifespanIfNeeded(act: string) {
+    if (
+      this.lastEntryProcessed === `${this.playerNick} plays a Barge.` &&
+      act === "shuffles their deck"
+    ) {
+      this.activeDurations[this.activeDurations.length - 1].setAge(0);
+    } else if (
+      this.lastEntryProcessed === `${this.playerNick} plays a Barge.`
+    ) {
+      // Check paddings
+      const gameLogLines = Array.from(getLogScrollContainerLogLines());
+      const currentLine = gameLogLines.pop();
+      const prevLine = gameLogLines.pop();
+      const currentPadding: number = parseInt(
+        currentLine!.style.paddingLeft.slice(
+          0,
+          currentLine!.style.paddingLeft.length - 1
+        )
+      );
+      const prevPadding: number = parseInt(
+        prevLine!.style.paddingLeft.slice(
+          0,
+          prevLine!.style.paddingLeft.length - 1
+        )
+      );
+      if (currentPadding > prevPadding) {
+        this.activeDurations[this.activeDurations.length - 1].setAge(0);
+      } else {
+        this.activeDurations[this.activeDurations.length - 1].setAge(1);
+      }
+    }
+    this.setWaitToAssignBargeLifespan(false);
   }
 
   /**
@@ -819,9 +922,14 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   ifCleanUpNeeded(entry: string): boolean {
     const cleanUp = this.checkForCleanUp(entry);
-    const cellarDraws = this.checkForCellarDraw();
-    const innKeeperDraw = this.latestAction === "Innkeeper";
-    return cleanUp && !cellarDraws && !innKeeperDraw;
+    const isDrawLine = entry.match("draws") !== null;
+    return (
+      cleanUp &&
+      !this.checkForCellarDraw() &&
+      !this.checkForInnkeeperDraw() &&
+      !this.checkForHuntingLodgeDraw() &&
+      isDrawLine
+    );
   }
 
   /**
@@ -1120,6 +1228,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Advisor",
             "Envoy",
             "Crystal Ball",
+            "Journeyman",
           ].includes(mostRecentPlay)
         ) {
           this.discardFromSetAside(cards[i]);
@@ -1145,10 +1254,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     // This first section collects 3 booleans which serve
     // as sufficient context to determine whether or not
     // to perform a cleanup before drawing any cards.
-    const cleanupNeeded = this.checkForCleanUp(line);
-    const shuffleOccurred = this.checkForShuffle();
-    const cellarDraws = this.checkForCellarDraw();
-    if (cleanupNeeded && !shuffleOccurred && !cellarDraws) {
+    if (this.ifCleanUpNeeded(line) && !this.checkForShuffle()) {
       this.cleanup();
     }
     for (let i = 0; i < cards.length; i++) {
@@ -1224,6 +1330,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Seer",
             "Advisor",
             "Envoy",
+            "Journeyman",
           ].includes(this.latestAction)
         ) {
           this.drawFromSetAside(cards[i]);
@@ -1379,6 +1486,9 @@ export class Deck extends BaseDeck implements StoreDeck {
           // There is an assumption here that there will only be one card on the duration
           // plays line.
           console.log("Duration play occurring, ", cards[i]);
+          if (cards[i] === "Barge") {
+            this.setWaitToAssignBargeLifespan(true);
+          }
           const activeDurationsCopy = this.activeDurations.slice();
           activeDurationsCopy.push(new Duration(cards[i] as DurationName));
           this.setActiveDurations(activeDurationsCopy);
@@ -1421,6 +1531,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Fortune Teller",
             "Advisor",
             "Envoy",
+            "Journeyman",
           ].includes(this.latestAction)
         ) {
           this.setAsideFromLibrary(cards[i]);
@@ -1876,6 +1987,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         }
         if (this.logEntryAppliesToThisDeck(line)) {
           this.shuffleAndCleanUpIfNeeded(line);
+          this.assignBargeLifespanIfNeeded(act);
           this.topDeckLookedAtCardIfNeeded();
           this.drawLookedAtCardIfNeeded(act);
           this.processDeckChanges(line, act, cards, numberOfCards);

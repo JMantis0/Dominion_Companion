@@ -12,6 +12,7 @@ describe("getCardsAndCountsFromLine", () => {
       "Copper",
       "Overgrown Estate",
       "Taxman",
+      "Journeyman"
     ]);
   });
 
@@ -78,6 +79,17 @@ describe("getCardsAndCountsFromLine", () => {
 
     // Assert
     expect(cardResult).toStrictEqual(["Taxman"]);
+    expect(cardAmountResult).toStrictEqual([2]);
+  });
+
+  it("should handle Journeymen (plural of Journeymen) correctly", () => {
+    // Act
+    const [cardResult, cardAmountResult] = deck.getCardsAndCountsFromLine(
+      "pNick draws 2 Journeymen."
+    );
+
+    // Assert
+    expect(cardResult).toStrictEqual(["Journeyman"]);
     expect(cardAmountResult).toStrictEqual([2]);
   });
 });

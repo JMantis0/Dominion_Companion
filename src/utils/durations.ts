@@ -49,7 +49,7 @@ export const duration_constants: {
   },
   Ghost: { LIFESPAN: undefined },
   Archive: { LIFESPAN: 2 },
-  Barge: { LIFESPAN: undefined },
+  Barge: { LIFESPAN: 1 },
   "Bridge Troll": { LIFESPAN: undefined },
   "Buried Treasure": { LIFESPAN: undefined },
   Cobbler: { LIFESPAN: undefined },
@@ -59,12 +59,12 @@ export const duration_constants: {
   Crypt: { LIFESPAN: undefined },
   Cutthroat: { LIFESPAN: undefined },
   "Den of Sin": { LIFESPAN: undefined },
-  Enlarge: { LIFESPAN: undefined },
+  Enlarge: { LIFESPAN: 1 },
   Frigate: { LIFESPAN: undefined },
   Gatekeeper: { LIFESPAN: undefined },
   "Haunted Woods": { LIFESPAN: undefined },
   Highwayman: { LIFESPAN: undefined },
-  Longship: { LIFESPAN: undefined },
+  Longship: { LIFESPAN: 1 },
   Mastermind: {
     LIFESPAN: undefined,
     // plays any card 3 times

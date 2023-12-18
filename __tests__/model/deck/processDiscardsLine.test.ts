@@ -390,6 +390,21 @@ describe("processDiscardsLine", () => {
     expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
   });
 
+  it("should discard from setAside when caused by a Journeyman", () => {
+    // Arrange
+    deck.latestAction = "Journeyman";
+    deck.library = ["Estate", "Copper"];
+    deck.setAside = ["Silver", "Silver"];
+    deck.graveyard = ["Bureaucrat"];
+
+    // Act
+    deck.processDiscardsLine("non-duration effect line", ["Silver"], [2]);
+
+    // Assert - Verify the cards were moved from setAside to graveyard.
+    expect(deck.setAside).toStrictEqual([]);
+    expect(deck.graveyard).toStrictEqual(["Bureaucrat", "Silver", "Silver"]);
+  });
+
   it("should discard from setAside when discards are caused by a Fortune Teller", () => {
     // Arrange
     deck.latestAction = "Fortune Teller";
