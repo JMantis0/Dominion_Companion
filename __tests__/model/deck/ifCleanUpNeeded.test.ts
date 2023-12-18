@@ -17,10 +17,12 @@ describe("ifCleanUpNeeded", () => {
   // 5) entireDeck.length = n < 5 && draws on given line < n
   // 6) entireDeck.length >=5 and draws on line = 5 caused by Innkeeper
   // 7) given line is not a draw line.
+  // 8) entireDeck.length >= 5 && draws caused by Hunting Lodge.
 
   // Case 1 - entireDeck.length >= 5 && draws on given line != 5
   it("should return false if entireDeck.length >= 5 && draws on given line != 5", () => {
     // Arrange
+    deck.entireDeck = ["Copper", "Copper", "Silver", "Estate", "Innkeeper"];
     deck.logArchive = [
       "oNick draws 4 cards.",
       "oNick gets +1 Buy.",
@@ -41,6 +43,7 @@ describe("ifCleanUpNeeded", () => {
   // Case 2 - entireDeck.length >= 5 && draws = 5 caused by Cellar
   it("should return false if entireDeck.length >= 5 && draws on given line = 5 caused by Cellar", () => {
     // Arrange
+    deck.entireDeck = ["Copper", "Copper", "Silver", "Estate", "Innkeeper"];
     deck.logArchive = [
       "pNick plays a Throne Room.",
       "pNick plays a Laboratory.",
@@ -60,8 +63,9 @@ describe("ifCleanUpNeeded", () => {
   });
 
   // Case 3 - entireDeck.length >= 5 && draws = 5 not caused by Cellar
-  it("should return true if entireDeck.length >= 5 && draws = 5 not caused by Cellar", () => {
+  it("should return true if entireDeck.length >= 5 && draws = 5 not caused by Cellar, Innkeeper, or Hunting Lodge", () => {
     // Arrange
+    deck.entireDeck = ["Copper", "Copper", "Silver", "Estate", "Innkeeper"];
     deck.logArchive = [
       "pNick plays a Laboratory.",
       "pNick draws a Market and a Moneylender.",
@@ -95,11 +99,11 @@ describe("ifCleanUpNeeded", () => {
       true
     );
   });
-  // Case 5 - entireDeck.length = n < 5 && draws on given line < n
 
+  // Case 5 - entireDeck.length = n < 5 && draws on given line < n
   it("should return false if entireDeck.length = n < 5 && draws on given line < n", () => {
     // Arrange logArchive and set entireDeck that is less than 5 cards
-    deck.logArchive = ["pNick plays a Co.", "pNick shuffles their deck."];
+    deck.logArchive = ["pNick plays a Copper.", "pNick shuffles their deck."];
     deck.entireDeck = ["Sentry", "Silver", "Silver"];
 
     // Act and Assert - Verify method returns false, only 1 card being drawn on the given line, while entireDeck is length 3
@@ -109,6 +113,7 @@ describe("ifCleanUpNeeded", () => {
   // Case 6 - entireDeck.length >= 5 && draws = 5 caused by Innkeeper
   it("should return false if entireDeck.length >= 5 && draws on given line = 5 caused by Innkeeper", () => {
     // Arrange
+    deck.entireDeck = ["Copper", "Copper", "Silver", "Estate", "Innkeeper"];
     deck.latestAction = "Innkeeper";
     deck.logArchive = [
       "pNick plays an Innkeeper.",
@@ -122,6 +127,41 @@ describe("ifCleanUpNeeded", () => {
     expect(deck.ifCleanUpNeeded(line)).toBe(false);
   });
 
+  // Case 7
+  it("should return false if the given line is not a draw line", () => {
+    // Arrange
+    deck.entireDeck = ["Copper", "Copper", "Silver", "Estate", "Innkeeper"];
+    deck.logArchive = [
+      "pNick plays a Journeyman.",
+      "pNick names Copper.",
+      "pNick shuffles their deck.",
+    ];
+    const line =
+      "pNick reveals 2 Coppers, 2 Estates, and a Wandering Minstrel.";
+
+    // Act and Assert
+    expect(deck.ifCleanUpNeeded(line)).toBe(false);
+  });
+
+  // Case 8 - entireDeck.length >= 5 && draws = 5 caused by Hunting Lodge.
+  it("should return false if entireDeck.length >= 5 && draws on given line = 5 caused by Hunting Lodge", () => {
+    // Arrange
+    deck.entireDeck = ["Copper", "Copper", "Silver", "Estate", "Innkeeper"];
+    deck.latestAction = "Hunting Lodge";
+    deck.logArchive = [
+      "G plays a Hunting Lodge.",
+      "G draws a Copper.",
+      "G gets +2 Actions.",
+      "G discards 2 Coppers and a Silver.",
+    ];
+    const line =
+      "pNick draws 2 Coppers, a Silver, an Estate, and an Innkeeper.";
+
+    // Act and Assert
+    expect(deck.ifCleanUpNeeded(line)).toBe(false);
+  });
+
+  // Case 9 - given line is not a draw line.
   it("should return false if the given line is not a draw line", () => {
     // Arrange
     deck.logArchive = [

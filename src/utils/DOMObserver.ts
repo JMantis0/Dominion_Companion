@@ -490,9 +490,9 @@ export class DOMObserver {
       "Crystal Ball", // Done
       "Duke", //Done
       "Enlarge", //Done
-      "Hunting Lodge",
-      "Journeyman",
-      "Longship",
+      "Hunting Lodge", // Done
+      "Journeyman", //Done
+      "Longship", //Done
       "Mastermind",
       "Merchant Ship",
       "Modify",
