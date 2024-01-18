@@ -100,6 +100,17 @@ describe("getMostRecentPlay", () => {
     expect(deck.getMostRecentPlay(deck.logArchive)).toBe("None");
   });
 
+  it("should correctly get most recent plays when card is played by a duration effect", () => {
+    // Arrange
+    deck.logArchive = [
+      "Turn 11 - pName",
+      "pNick starts their turn.",
+      "pNick plays an Artisan. (Tide Pools)",
+    ];
+    // Act and Assert
+    expect(deck.getMostRecentPlay(deck.logArchive)).toBe("Artisan");
+  });
+
   it("should throw an error if the logArchive is empty", () => {
     // Act and Assert
     expect(() => deck.getMostRecentPlay([])).toThrowError("Empty logArchive.");

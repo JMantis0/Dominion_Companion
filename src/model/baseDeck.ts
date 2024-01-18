@@ -408,7 +408,7 @@ export class BaseDeck {
     const consecutiveTreasurePlays: boolean =
       this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
       this.checkForTreasurePlayLine(entry) &&
-      !["Courier", "Fortune Hunter", "Counterfeit"].includes(
+      !["Courier", "Fortune Hunter", "Counterfeit", "Crystal Ball"].includes(
         this.latestPlaySource
       ); // treasures played by these sources get their own log lines in the client game-log.
 
@@ -425,7 +425,7 @@ export class BaseDeck {
     const duration_names = Object.keys(duration_constants);
     for (let i = 0; i < duration_names.length; i++) {
       const durationName = duration_names[i] as DurationName;
-      if (durationLine.match(`(${durationName})`) !== null) {
+      if (durationLine.match(`\\(${durationName}\\)`) !== null) {
         durationCausedBy = durationName;
         break;
       }
@@ -826,7 +826,7 @@ export class BaseDeck {
     const durationNames = Object.keys(duration_constants);
     if (playLine.match(" plays ") !== null)
       for (let i = 0; i < durationNames.length; i++) {
-        if (playLine.match(durationNames[i]) !== null) {
+        if (playLine.match(`an? ${durationNames[i]}`) !== null) {
           durationPlay = true;
           break;
         }
@@ -844,7 +844,7 @@ export class BaseDeck {
     const durationNames = Object.keys(duration_constants);
     for (let i = 0; i < durationNames.length; i++) {
       const durationName = durationNames[i];
-      if (line.match(`(${durationName})`) !== null) {
+      if (line.match(`\\(${durationName}\\)`) !== null) {
         isDurationResolutionLine = true;
         break;
       }

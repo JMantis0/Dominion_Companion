@@ -2,19 +2,26 @@ import { DurationName } from "../utils";
 import { duration_constants } from "../utils/durations";
 
 export class Duration {
-  age: number | undefined = 0;
+  age: number | undefined | "unset" = 0;
   name: DurationName;
-  setAside: string[] = [];
-  constructor(name: DurationName, age?: number) {
+  playSource: string | Duration = "unset";
+  sourceOf: string = "unset";
+  constructor(
+    name: DurationName,
+    options?: { playSource?: string | Duration; age?: number }
+  ) {
     this.name = name;
-    if (age !== undefined) {
-      this.age = age;
+    if (options !== undefined && options.playSource !== undefined) {
+      this.playSource = options.playSource;
+    }
+    if (options !== undefined && options.age !== undefined) {
+      this.age = options.age;
     } else this.age = duration_constants[name].LIFESPAN;
   }
-  getAge(): number | undefined {
+  getAge(): number | undefined | "unset" {
     return this.age;
   }
-  setAge(age: number | undefined) {
+  setAge(age: number | undefined | "unset") {
     this.age = age;
   }
   getName(): DurationName {
@@ -23,10 +30,16 @@ export class Duration {
   setName(name: DurationName): void {
     this.name = name;
   }
-  getSetAside(): string[] {
-    return this.setAside;
+  getPlaySource(): string | Duration {
+    return this.playSource;
   }
-  setSetAside(setAside: string[]) {
-    this.setAside = setAside;
+  setPlaySource(card: string) {
+    this.playSource = card;
+  }
+  getSourceOf(): string {
+    return this.sourceOf;
+  }
+  setSourceOf(source: string) {
+    this.sourceOf = source;
   }
 }

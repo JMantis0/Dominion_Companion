@@ -17,12 +17,17 @@ import { Duration } from "./duration";
 export class Deck extends BaseDeck implements StoreDeck {
   activeDurations: Array<Duration> = [];
   durationLogs: Array<string> = [];
+  durationPlaySourceCounter: number = 0;
   durationSetAside: Array<string> = [];
   graveyard: Array<string> = [];
   hand: Array<string> = [];
   inPlay: Array<string> = [];
   library: Array<string> = [];
+  masterMindEffectCount: number = 0;
   setAside: Array<string> = [];
+  throneMotherPadding: number = 0;
+  throneRoomActive: boolean = false;
+  throneID: number = 0;
   waitToAssignBargeLifespan: boolean = false;
   waitToDrawLibraryLook: boolean = false;
   waitToTopdeckCrystalBallLook: boolean = false;
@@ -104,6 +109,30 @@ export class Deck extends BaseDeck implements StoreDeck {
     this.setAside = setAsideCards;
   }
 
+  getThroneRoomActive(): boolean {
+    return this.throneRoomActive;
+  }
+
+  setThroneRoomActive(active: boolean) {
+    this.throneRoomActive = active;
+  }
+
+  getThroneID(): number {
+    return this.throneID;
+  }
+
+  setThroneID(id: number) {
+    this.throneID = id;
+  }
+
+  getThroneMotherPadding(): number {
+    return this.throneMotherPadding;
+  }
+
+  setThroneMotherPadding(padding: number) {
+    this.throneMotherPadding = padding;
+  }
+
   getWaitToAssignBargeLifespan() {
     return this.waitToAssignBargeLifespan;
   }
@@ -141,12 +170,69 @@ export class Deck extends BaseDeck implements StoreDeck {
    */
   ageAllActiveDurations() {
     this.activeDurations.forEach((duration) => {
-      if (duration.age !== undefined) {
+      if (duration.age !== undefined && duration.age !== "unset") {
         duration.setAge(duration.age - 1);
-      } else {
+      } else if (duration.age === undefined) {
         throw Error("Duration age is undefined.");
+      } else if (duration.age === "unset") {
+        throw Error("Duration age is unset.");
       }
     });
+  }
+
+  /**
+   * Assigns the correct lifespan to a Barge duration, depending on the player's choice,
+   * whether they used the effect on the same turn, or decided to use the effect on the next turn.
+   */
+  assignBargeLifespanIfNeeded(act: string) {
+    if (this.waitToAssignBargeLifespan) {
+      const bargeDuration =
+        this.activeDurations[this.activeDurations.length - 1];
+      let lifeSpan = bargeDuration.age;
+      if (
+        // If the duration is not already set to 1
+        bargeDuration.age !== 1 &&
+        // and iff the last entry processed is a Barge play
+        this.lastEntryProcessed.match(`${this.playerNick} plays a Barge`) !==
+          null &&
+        // and the act on the current line is 'shuffles their deck'
+        act === "shuffles their deck"
+      ) {
+        lifeSpan = 0;
+      } else if (
+        bargeDuration.age !== 1 &&
+        this.lastEntryProcessed.match(`${this.playerNick} plays a Barge`) !==
+          null
+      ) {
+        // Check paddings
+        const gameLogLines = Array.from(getLogScrollContainerLogLines());
+        const currentLine = gameLogLines[this.logArchive.length];
+        const prevLine = gameLogLines[this.logArchive.length - 1];
+        const currentPadding: number = parseInt(
+          currentLine!.style.paddingLeft.slice(
+            0,
+            currentLine!.style.paddingLeft.length - 1
+          )
+        );
+        const prevPadding: number = parseInt(
+          prevLine!.style.paddingLeft.slice(
+            0,
+            prevLine!.style.paddingLeft.length - 1
+          )
+        );
+
+        if (currentPadding > prevPadding) {
+          lifeSpan = 0;
+        } else {
+          lifeSpan = 1;
+        }
+      }
+      bargeDuration.setAge(lifeSpan);
+      if (typeof bargeDuration.playSource !== "string") {
+        bargeDuration.playSource.setAge(lifeSpan);
+      }
+      this.setWaitToAssignBargeLifespan(false);
+    }
   }
 
   /**
@@ -208,7 +294,7 @@ export class Deck extends BaseDeck implements StoreDeck {
   /**
    * Checks the log archive to see if the draws on the current line are
    * caused by an Innkeeper
-   * @returns - Boolean for if the current line's draws were from an Inkeeper.
+   * @returns - Boolean for if the current line's draws were from an Innkeeper.
    */
   checkForInnkeeperDraw() {
     let innKeeperDraws = false;
@@ -392,44 +478,6 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
-   * Assigns the correct lifespan to a Barge duration, depending on the player's choice,
-   * whether they used the effect on the same turn, or decided to use the effect on the next turn.
-   */
-  assignBargeLifespanIfNeeded(act: string) {
-    if (
-      this.lastEntryProcessed === `${this.playerNick} plays a Barge.` &&
-      act === "shuffles their deck"
-    ) {
-      this.activeDurations[this.activeDurations.length - 1].setAge(0);
-    } else if (
-      this.lastEntryProcessed === `${this.playerNick} plays a Barge.`
-    ) {
-      // Check paddings
-      const gameLogLines = Array.from(getLogScrollContainerLogLines());
-      const currentLine = gameLogLines.pop();
-      const prevLine = gameLogLines.pop();
-      const currentPadding: number = parseInt(
-        currentLine!.style.paddingLeft.slice(
-          0,
-          currentLine!.style.paddingLeft.length - 1
-        )
-      );
-      const prevPadding: number = parseInt(
-        prevLine!.style.paddingLeft.slice(
-          0,
-          prevLine!.style.paddingLeft.length - 1
-        )
-      );
-      if (currentPadding > prevPadding) {
-        this.activeDurations[this.activeDurations.length - 1].setAge(0);
-      } else {
-        this.activeDurations[this.activeDurations.length - 1].setAge(1);
-      }
-    }
-    this.setWaitToAssignBargeLifespan(false);
-  }
-
-  /**
    * Checks to see if the lastEntryProcessed contains the substring
    * "shuffles their deck".
    * @returns - Boolean for whether the match is found.
@@ -450,9 +498,15 @@ export class Deck extends BaseDeck implements StoreDeck {
     const livingDurations: Duration[] = [];
     const livingDurationNames: string[] = [];
     this.activeDurations.forEach((duration, idx) => {
-      console.log("active duration ", idx);
-      console.log(duration);
-      if (duration.age !== undefined && duration.age > 0) {
+      if (this.debug) {
+        console.log("active duration ", idx);
+        console.log(duration);
+      }
+      if (
+        duration.age !== undefined &&
+        duration.age !== "unset" &&
+        duration.age > 0
+      ) {
         const index = this.inPlay.indexOf(duration.name);
         if (index < 0) throw Error(`No ${duration.name} in play.`);
         const inPlayCopy = this.inPlay.slice();
@@ -461,12 +515,14 @@ export class Deck extends BaseDeck implements StoreDeck {
         inPlayCopy.splice(index, 1);
         this.setInPlay(inPlayCopy);
       } else if (duration.age !== undefined && duration.age === 0) {
-        console.log(
-          `Duration ${duration.name} has reached 0 and will be removed.`
-        );
+        if (this.debug)
+          console.log(
+            `Duration ${duration.name} has reached 0 and will be removed.`
+          );
+      } else if (duration.age === undefined || duration.age === "unset") {
+        throw Error("Duration age is " + duration.age + ".");
       }
     });
-
     const handCopy = this.hand.slice();
     const inPlayCopy = this.inPlay.slice();
     const graveyardCopy = this.graveyard.slice();
@@ -498,23 +554,52 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * Creates a duration objects from the given card and adds it to the
+   * activeDurations field.
+   * @param line - The line currently being processed.
+   * @param card - The given duration card.
+   */
+  createDuration(line: string, card: DurationName, source?: string | Duration) {
+    console.log("Duration play occurring, ", card);
+    if (card === "Barge") {
+      this.setWaitToAssignBargeLifespan(true);
+    }
+    if (line.match(`${card} again`) === null) {
+      // AboveIf condition ensures that new durations are not added to th activeDurations field
+      //  if the log-line where the card is played is playing the card again by a Throne Room.
+      const activeDurationsCopy = this.activeDurations.slice();
+
+      if (
+        this.lastEntryProcessed.match("plays a Throne Room again.") !== null
+      ) {
+        // This if condition ensures that source is not set to Throne Room if the Throne Room is
+        // being played again (ie, not playing Throne Room card from hand)
+        activeDurationsCopy.push(new Duration(card as DurationName));
+      } else {
+        activeDurationsCopy.push(
+          new Duration(card as DurationName, { playSource: source })
+        );
+      }
+      this.setActiveDurations(activeDurationsCopy);
+    }
+  }
+
+  /**
    * Checks hand field array to see if card is there.  If yes,
    * removes an instance of that card from the hand field array
    * and adds an instance of that card to the graveyard field array.
    * @param card - The given card.
    */
   discard(card: string) {
+    if (this.debug)
+      console.info(`Discarding ${card} from hand into discard pile.`);
     const index = this.hand.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in hand.`);
     } else {
       const graveyardCopy = this.graveyard.slice();
       const handCopy = this.hand.slice();
-      if (this.debug)
-        console.info(
-          `Discarding ${this.hand[index]} from hand into discard pile.`
-        );
-      graveyardCopy.push(this.hand[index]);
+      graveyardCopy.push(card);
       handCopy.splice(index, 1);
       this.setGraveyard(graveyardCopy);
       this.setHand(handCopy);
@@ -528,12 +613,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   discardFromLibrary(card: string) {
+    if (this.debug)
+      console.info(`Discarding ${card} from library into discard pile.`);
     const index = this.library.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in library.`);
     } else {
-      if (this.debug)
-        console.info(`Discarding ${card} from library into discard pile.`);
       const graveyardCopy = this.graveyard.slice();
       const libraryCopy = this.library.slice();
       graveyardCopy.push(card);
@@ -587,11 +672,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   draw(card: string) {
+    if (this.debug) console.info(`Drawing ${card} from library into hand.`);
     const index = this.library.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in library.`);
     } else {
-      if (this.debug) console.info(`Drawing ${card} from library into hand.`);
       const handCopy = this.hand.slice();
       const libraryCopy = this.library.slice();
       handCopy.push(card);
@@ -606,12 +691,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   drawFromDurationSetAside(card: string) {
+    if (this.debug)
+      console.info(`Drawing ${card} from durationSetAside into hand.`);
     const index = this.durationSetAside.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in durationSetAside.`);
     } else {
-      if (this.debug)
-        console.info(`Drawing ${card} from durationSetAside into hand.`);
       const handCopy = this.hand.slice();
       const durationSetAsideCopy = this.durationSetAside.slice();
       handCopy.push(card);
@@ -646,11 +731,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   drawFromGraveyard(card: string) {
+    if (this.debug) console.info(`Drawing ${card} from discard into hand.`);
     const index = this.graveyard.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in discard.`);
     } else {
-      if (this.debug) console.info(`Drawing ${card} from discard into hand.`);
       const handCopy = this.hand.slice();
       const graveyardCopy = this.graveyard.slice();
       handCopy.push(card);
@@ -665,13 +750,13 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   drawFromSetAside(card: string): void {
+    if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
     let index = this.setAside.indexOf(card);
     if (index < 0) {
       this.reconcileMissingRevealsProcess();
       index = this.setAside.indexOf(card);
     }
     if (index < 0) throw new Error(`No ${card} in setAside.`);
-    if (this.debug) console.info(`Drawing ${card} from setAside into hand.`);
     const handCopy = this.hand.slice();
     const setAsideCopy = this.setAside.slice();
     handCopy.push(card);
@@ -697,12 +782,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   durationSetAsideFromHand(card: string) {
+    if (this.debug)
+      console.info(`Setting aside ${card} from hand into durationSetAside.`);
     const index = this.hand.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in hand.`);
     } else {
-      if (this.debug)
-        console.info(`Setting aside ${card} from hand into durationSetAside.`);
       const durationSetAsideCopy = this.durationSetAside.slice();
       const handCopy = this.hand.slice();
       durationSetAsideCopy.push(card);
@@ -717,14 +802,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   durationSetAsideFromInPlay(card: string) {
+    if (this.debug)
+      console.info(`Setting aside ${card} from inPlay into durationSetAside.`);
     const index = this.inPlay.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in inPlay.`);
     } else {
-      if (this.debug)
-        console.info(
-          `Setting aside ${card} from inPlay into durationSetAside.`
-        );
       const durationSetAsideCopy = this.durationSetAside.slice();
       const inPlayCopy = this.inPlay.slice();
       durationSetAsideCopy.push(card);
@@ -739,14 +822,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   durationSetAsideFromLibrary(card: string) {
+    if (this.debug)
+      console.info(`Setting aside ${card} from library into durationSetAside.`);
     const index = this.library.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in library.`);
     } else {
-      if (this.debug)
-        console.info(
-          `Setting aside ${card} from library into durationSetAside.`
-        );
       const durationSetAsideCopy = this.durationSetAside.slice();
       const libraryCopy = this.library.slice();
       durationSetAsideCopy.push(card);
@@ -818,13 +899,18 @@ export class Deck extends BaseDeck implements StoreDeck {
           lowerIndex =
             logArchive[i].indexOf(" plays an ") + " plays an ".length;
         }
-
         // the line might end with the card, or it might end with " again."
-
         if (logArchive[i].match(" again.")) {
           mostRecentActionPlayed = logArchive[i].slice(
             lowerIndex,
             logArchive[i].lastIndexOf(" ")
+          );
+        }
+        // the line might end with '(<DurationName>)'
+        else if (logArchive[i].match(/\(.*\)/)) {
+          mostRecentActionPlayed = logArchive[i].slice(
+            lowerIndex,
+            logArchive[i].lastIndexOf(" (") - 1
           );
         } else {
           mostRecentActionPlayed = logArchive[i].slice(
@@ -835,7 +921,6 @@ export class Deck extends BaseDeck implements StoreDeck {
       }
       if (playFound || logArchive[i].match("Turn ")) break;
     }
-
     return mostRecentActionPlayed;
   }
 
@@ -862,18 +947,17 @@ export class Deck extends BaseDeck implements StoreDeck {
           lowerIndex =
             logArchive[i].indexOf(" plays an ") + " plays an ".length;
         }
-
         // the line might end with the card, or it might end with " again."
         if (logArchive[i].match(" again.")) {
           mostRecentCardPlayed = logArchive[i].slice(
             lowerIndex,
             logArchive[i].lastIndexOf(" ")
           );
-          // The line might end with a +$(<number>) if its a treasure play
-        } else if (logArchive[i].match(/\(\+\$\d*\)/)) {
+          // The line might end with a +$(<number>) if its a treasure play, or (<DurationName>) if its a duration effect.
+        } else if (logArchive[i].match(/\(.*\)/)) {
           mostRecentCardPlayed = logArchive[i].slice(
             lowerIndex,
-            logArchive[i].lastIndexOf(" ") - 1
+            logArchive[i].lastIndexOf(" (") - 1
           );
         } else {
           mostRecentCardPlayed = logArchive[i].slice(
@@ -887,7 +971,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     if (!playFound) {
       playFound = false;
     }
-
     return mostRecentCardPlayed;
   }
 
@@ -975,6 +1058,26 @@ export class Deck extends BaseDeck implements StoreDeck {
     return mineGain;
   }
 
+  isThereMastermindSourceAmbiguity() {
+    //Get all existing active Mastermind durations.
+    const playSources = new Set<string>();
+    const mastermindDurations = this.activeDurations.reduce(
+      (prev: Duration[], curr: Duration) => {
+        const mmDurations = prev.slice();
+        const currentDuration = curr;
+        if (curr.name === "Mastermind") {
+          mmDurations.push(currentDuration);
+          if (typeof currentDuration.playSource === "string")
+            playSources.add(currentDuration.playSource);
+        }
+        return mmDurations;
+      },
+      []
+    );
+    console.log("all mastermind durations", mastermindDurations);
+    return playSources.size > 1;
+  }
+
   /**
    * Checks to see if the previous entry was a library look that needs to be drawn.
    * @param act - The act from the current entry.
@@ -996,6 +1099,23 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
 
     return needToDrawCardLookedAtFromPreviousLine;
+  }
+
+  /**
+   * Handles Mastermind Duration effects.  Ensures a card is played
+   * from hand only once.
+   * @param deck - The deck playing a Mastermind
+   * @param card - The card being played thrice by Mastermind
+   */
+  masterMindEffectHandler(deck: Deck, card: string) {
+    if (deck.masterMindEffectCount === 0) {
+      deck.play(card);
+      deck.masterMindEffectCount++;
+    } else if (deck.masterMindEffectCount === 1) {
+      deck.masterMindEffectCount++;
+    } else if (deck.masterMindEffectCount === 2) {
+      deck.masterMindEffectCount = 0;
+    }
   }
 
   /**
@@ -1029,11 +1149,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   play(card: string) {
+    if (this.debug) console.info(`Playing ${card} from hand into play.`);
     const index = this.hand.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in hand.`);
     } else {
-      if (this.debug) console.info(`Playing ${card} from hand into play.`);
       const inPlayCopy = this.inPlay.slice();
       const handCopy = this.hand.slice();
       inPlayCopy.push(card);
@@ -1051,12 +1171,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card  - The given card.
    */
   playFromDiscard(card: string) {
+    if (this.debug)
+      console.info(`Playing ${card} from discard pile into play.`);
     const index = this.graveyard.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in discard pile.`);
     } else {
-      if (this.debug)
-        console.info(`Playing ${card} from discard pile into play.`);
       const inPlayCopy = this.inPlay.slice();
       const graveyardCopy = this.graveyard.slice();
       inPlayCopy.push(card);
@@ -1074,11 +1194,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card  - The given card.
    */
   playFromSetAside(card: string) {
+    if (this.debug) console.info(`Playing ${card} from setAside into play.`);
     const index = this.setAside.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug) console.info(`Playing ${card} from setAside into play.`);
       const inPlayCopy = this.inPlay.slice();
       const setAsideCopy = this.setAside.slice();
       inPlayCopy.push(card);
@@ -1271,7 +1391,6 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to gain.
    */
   processGainsLine(line: string, cards: string[], numberOfCards: number[]) {
-    const mostRecentPlay = this.latestAction;
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (
@@ -1281,7 +1400,7 @@ export class Deck extends BaseDeck implements StoreDeck {
             "Treasure Map",
             "Fool's Gold",
             "Taxman",
-          ].includes(mostRecentPlay) ||
+          ].includes(this.latestAction) ||
           // Fool's Gold reaction
           (this.lineSource()?.match(/gains (a|\d*) Province/) &&
             cards[0] === "Gold" &&
@@ -1289,7 +1408,7 @@ export class Deck extends BaseDeck implements StoreDeck {
         ) {
           this.gainIntoLibrary(cards[i]);
         } else if (
-          ["Artisan", "Mine", "Trading Post"].includes(mostRecentPlay)
+          ["Artisan", "Mine", "Trading Post"].includes(this.latestAction)
         ) {
           this.gainIntoHand(cards[i]);
         } else {
@@ -1408,6 +1527,59 @@ export class Deck extends BaseDeck implements StoreDeck {
     }
   }
 
+  /**
+   * Update function.  Topdecks cards according to the provided information.
+   * @param cards  - Array of card names to topdeck.
+   * @param numberOfCards - Array of the amounts of each card to topdeck.
+   */
+  processMoveToLibraryLine(cards: string[], numberOfCards: number[]) {
+    const isDurationEffect = this.isDurationEffect();
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < numberOfCards[i]; j++) {
+        if (isDurationEffect) {
+          this.topDeckFromInPlay(cards[i]);
+        } else if (
+          [
+            "Sentry",
+            "Lookout",
+            "Sentinel",
+            "Sea Chart",
+            "Fortune Hunter",
+            "Wandering Minstrel",
+            "Hunter",
+            "Cartographer",
+            "Patrol",
+            "Seer",
+            "Fortune Teller",
+          ].includes(this.latestAction)
+        ) {
+          this.topDeckFromSetAside(cards[i]);
+        } else if (
+          ["Harbinger", "Scavenger", "Replace"].includes(this.latestAction)
+        ) {
+          this.topDeckFromGraveyard(cards[i]);
+        } else if (
+          [
+            "Artisan",
+            "Bureaucrat",
+            "Courtyard",
+            "Pilgrim",
+            "Secret Passage",
+          ].includes(this.latestAction)
+        ) {
+          this.topDeckFromHand(cards[i]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Processes deck changes that may occur as a result of Opponent's turns.
+   * @param line - The given log line
+   * @param act - The act from the line, if any.
+   * @param cards - The card types on the given line.
+   * @param numberOfCards - The amounts of each respective card type from the given line.
+   */
   processOpponentLog(
     line: string,
     act: string,
@@ -1478,29 +1650,75 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param numberOfCards - Array of the amounts of each card to play.
    */
   processPlaysLine(line: string, cards: string[], numberOfCards: number[]) {
-    const source = this.getCardsAndCountsFromLine(this.lineSource())[0][0];
+    let source: string;
+    if (this.isDurationEffect()) {
+      source = this.durationEffectCausedBy(line);
+    } else {
+      source = this.getCardsAndCountsFromLine(this.lineSource())[0][0];
+    }
     const durationPlay = this.isDurationPlay(line);
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         if (durationPlay) {
-          // There is an assumption here that there will only be one card on the duration
-          // plays line.
-          console.log("Duration play occurring, ", cards[i]);
-          if (cards[i] === "Barge") {
-            this.setWaitToAssignBargeLifespan(true);
+          if (source === "Mastermind") {
+            if (this.masterMindEffectCount === 0) {
+              //Find a duration with name Mastermind and sourceof Unset, and use it
+              // as the source of the created duration.
+
+              if (!this.isThereMastermindSourceAmbiguity()) {
+                let sourceMastermind: Duration | undefined = undefined;
+                for (let i = 0; i < this.activeDurations.length; i++) {
+                  const duration = this.activeDurations[i];
+                  if (
+                    duration.name === "Mastermind" &&
+                    duration.sourceOf === "unset"
+                  ) {
+                    sourceMastermind = duration;
+                    break;
+                  }
+                }
+                if (sourceMastermind === undefined)
+                  throw Error("No source Mastermind found in activeDurations.");
+                this.createDuration(
+                  line,
+                  cards[i] as DurationName,
+                  sourceMastermind
+                );
+                // Create duration just pushed the duration to activeDurations.  Now get it
+                // as the source of the sourceMastermind.
+                const createdDuration =
+                  this.activeDurations[this.activeDurations.length - 1];
+                sourceMastermind.setAge(createdDuration.age);
+                sourceMastermind.setSourceOf(
+                  createdDuration.name + this.durationPlaySourceCounter++
+                );
+              } else throw Error("Cannot find a unique Mastermind source.");
+            }
+          } else {
+            if (source === "Throne Room") {
+              this.createDuration(
+                line,
+                cards[i] as DurationName,
+                source + this.throneID
+              );
+            } else {
+              this.createDuration(line, cards[i] as DurationName, source);
+            }
           }
-          const activeDurationsCopy = this.activeDurations.slice();
-          activeDurationsCopy.push(new Duration(cards[i] as DurationName));
-          this.setActiveDurations(activeDurationsCopy);
         }
         if (["Fortune Hunter", "Crystal Ball"].includes(source)) {
           this.playFromSetAside(cards[i]);
           this.setLatestPlaySource(source);
         } else if (["Throne Room", "Counterfeit"].includes(source)) {
+          if (line.match(`${cards[i]} again`) === null) {
+            this.play(cards[i]);
+          }
           this.setLatestPlaySource(source);
         } else if (["Courier", "Vassal"].includes(source)) {
           this.playFromDiscard(cards[i]);
           this.setLatestPlaySource(source);
+        } else if (source === "Mastermind") {
+          this.masterMindEffectHandler(this, cards[i]);
         } else {
           this.play(cards[i]);
           this.setLatestPlaySource("Hand");
@@ -1549,52 +1767,6 @@ export class Deck extends BaseDeck implements StoreDeck {
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < numberOfCards[i]; j++) {
         this.gainIntoLibrary(cards[i]);
-      }
-    }
-  }
-
-  /**
-   * Update function.  Topdecks cards according to the provided information.
-   * @param cards  - Array of card names to topdeck.
-   * @param numberOfCards - Array of the amounts of each card to topdeck.
-   */
-  processMoveToLibraryLine(cards: string[], numberOfCards: number[]) {
-    const isDurationEffect = this.isDurationEffect();
-    for (let i = 0; i < cards.length; i++) {
-      for (let j = 0; j < numberOfCards[i]; j++) {
-        if (isDurationEffect) {
-          this.topDeckFromInPlay(cards[i]);
-        } else if (
-          [
-            "Sentry",
-            "Lookout",
-            "Sentinel",
-            "Sea Chart",
-            "Fortune Hunter",
-            "Wandering Minstrel",
-            "Hunter",
-            "Cartographer",
-            "Patrol",
-            "Seer",
-            "Fortune Teller",
-          ].includes(this.latestAction)
-        ) {
-          this.topDeckFromSetAside(cards[i]);
-        } else if (
-          ["Harbinger", "Scavenger", "Replace"].includes(this.latestAction)
-        ) {
-          this.topDeckFromGraveyard(cards[i]);
-        } else if (
-          [
-            "Artisan",
-            "Bureaucrat",
-            "Courtyard",
-            "Pilgrim",
-            "Secret Passage",
-          ].includes(this.latestAction)
-        ) {
-          this.topDeckFromHand(cards[i]);
-        }
       }
     }
   }
@@ -1660,12 +1832,12 @@ export class Deck extends BaseDeck implements StoreDeck {
    *  Removes the given card from the library and pushes it to the setAside zone.
    */
   setAsideFromLibrary(card: string) {
+    if (this.debug)
+      console.info(`Setting aside a ${card} with ${this.latestAction}.`);
     const index = this.library.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in library.`);
     } else {
-      if (this.debug)
-        console.info(`Setting aside a ${card} with ${this.latestAction}.`);
       const setAsideCopy = this.setAside.slice();
       const libraryCopy = this.library.slice();
       setAsideCopy.push(card);
@@ -1714,6 +1886,69 @@ export class Deck extends BaseDeck implements StoreDeck {
   }
 
   /**
+   * If the given line is a Throne Room play, switches on the activeThroneRoom field and
+   * assigns the value of the current log-line from the client to the throneMotherPadding field.
+   * @param line - The given line.
+   * @param act - The act from the current line.
+   * @param cards - The array of cardNames from the current line.
+   * @param numberOfCards - The array of cardAmounts from the current line.
+   * @param logArchive - The current logArchive.
+   */
+  throneRoomInitializer(
+    line: string,
+    act: string,
+    cards: string[],
+    numberOfCards: number[],
+    logArchive: string[]
+  ) {
+    if (
+      !this.throneRoomActive &&
+      line.match(`${this.playerNick} plays a Throne Room`) !== null &&
+      line.match(" again") === null &&
+      act === "plays" &&
+      cards.length === 1 &&
+      numberOfCards.length === 1 &&
+      cards[0] === "Throne Room" &&
+      numberOfCards[0] === 1
+    ) {
+      const logLines = Array.from(getLogScrollContainerLogLines());
+      const lineToCompare = logLines[logArchive.length];
+      const lastLinePaddingLeft = lineToCompare.style.paddingLeft;
+      const paddingLeftStringWithoutPercent = lastLinePaddingLeft.substring(
+        0,
+        lastLinePaddingLeft.length - 1
+      );
+      const paddingLeftNumber = parseFloat(paddingLeftStringWithoutPercent);
+      this.throneRoomActive = true;
+      this.throneMotherPadding = paddingLeftNumber;
+    }
+  }
+
+  /**
+   * If an activeThroneRoom is ending, and updates the
+   * throneID and throneRoomActive fields.  This method is needed as part
+   * of the solution to identify how many throne room cards to remain in
+   * play as a result of playing Durations.
+   * @param logArchive - The current logArchive.
+   */
+  throneRoomTerminator(logArchive: string[]) {
+    if (this.throneRoomActive) {
+      const logLines = Array.from(getLogScrollContainerLogLines());
+      const lineToCompare = logLines[logArchive.length];
+      const lastLinePaddingLeft = lineToCompare.style.paddingLeft;
+      const paddingLeftStringWithoutPercent = lastLinePaddingLeft.substring(
+        0,
+        lastLinePaddingLeft.length - 1
+      );
+      const paddingLeftNumber = parseFloat(paddingLeftStringWithoutPercent);
+      if (paddingLeftNumber <= this.throneMotherPadding) {
+        this.setThroneID(this.throneID + 1);
+        this.setThroneRoomActive(false);
+      }
+    }
+  }
+
+  /**
    * Topdecks the card from the previous line.  Used to
    * handle Crystal Ball looks that get topdecked.
    */
@@ -1740,11 +1975,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   topDeckFromGraveyard(card: string) {
+    if (this.debug) console.info(`Top decking ${card} from discard pile.`);
     const index = this.graveyard.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in discard pile.`);
     } else {
-      if (this.debug) console.info(`Top decking ${card} from discard pile.`);
       const libraryCopy = this.library.slice();
       const graveyardCopy = this.graveyard.slice();
       libraryCopy.push(card);
@@ -1761,12 +1996,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card -The given card.
    */
   topDeckFromHand(card: string) {
+    if (this.debug) console.info(`Top decking ${card} from hand.`);
     const index = this.hand.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in hand.`);
     } else {
-      if (this.debug)
-        console.info(`Top decking ${this.hand[index]} from hand.`);
       const libraryCopy = this.library.slice();
       const handCopy = this.hand.slice();
       libraryCopy.push(card);
@@ -1782,11 +2016,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card -The given card.
    */
   topDeckFromInPlay(card: string) {
+    if (this.debug) console.info(`Top decking ${card} from inPlay.`);
     const index = this.inPlay.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in inPlay.`);
     } else {
-      if (this.debug) console.info(`Top decking ${card} from inPlay.`);
       const libraryCopy = this.library.slice();
       const inPlayCopy = this.inPlay.slice();
       libraryCopy.push(card);
@@ -1803,11 +2037,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   topDeckFromSetAside(card: string): void {
+    if (this.debug) console.info(`Top decking ${card} from setAside.`);
     const index = this.setAside.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug) console.info(`Top decking ${card} from setAside.`);
       const libraryCopy = this.library.slice();
       const setAsideCopy = this.setAside.slice();
       libraryCopy.push(card);
@@ -1827,8 +2061,8 @@ export class Deck extends BaseDeck implements StoreDeck {
       this.checkForLook(this.lastEntryProcessed, "Crystal Ball")
     ) {
       const gameLogElement = Array.from(getLogScrollContainerLogLines());
-      const currentLine = gameLogElement.pop();
-      const prevLine = gameLogElement.pop();
+      const currentLine = gameLogElement[this.logArchive.length];
+      const prevLine = gameLogElement[this.logArchive.length - 1];
       const currentPadding = parseInt(
         currentLine!.style.paddingLeft.slice(
           0,
@@ -1855,11 +2089,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   trashFromHand(card: string): void {
+    if (this.debug) console.info(`Trashing ${card} from hand.`);
     const index = this.hand.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in hand.`);
     } else {
-      if (this.debug) console.info(`Trashing ${card} from hand.`);
       const trashCopy = this.trash.slice();
       const handCopy = this.hand.slice();
       trashCopy.push(card);
@@ -1877,11 +2111,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   trashFromInPlay(card: string) {
+    if (this.debug) console.info(`Trashing ${card} from inPlay.`);
     const index = this.inPlay.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in play.`);
     } else {
-      if (this.debug) console.info(`Trashing ${card} from inPlay.`);
       const trashCopy = this.trash.slice();
       const inPlayCopy = this.inPlay.slice();
       trashCopy.push(card);
@@ -1899,12 +2133,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   trashFromLibrary(card: string) {
+    if (this.debug) console.info(`Trashing ${card} from library.`);
     const index = this.library.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in library.`);
     } else {
-      if (this.debug)
-        console.info(`Trashing ${this.library[index]} from library.`);
       const trashCopy = this.trash.slice();
       const libraryCopy = this.library.slice();
       trashCopy.push(card);
@@ -1922,11 +2155,11 @@ export class Deck extends BaseDeck implements StoreDeck {
    * @param card - The given card.
    */
   trashFromSetAside(card: string): void {
+    if (this.debug) console.info(`Trashing ${card} from setAside.`);
     const index = this.setAside.indexOf(card);
     if (index < 0) {
       throw new Error(`No ${card} in setAside.`);
     } else {
-      if (this.debug) console.info(`Trashing ${card} from setAside.`);
       const trashCopy = this.trash.slice();
       const setAsideCopy = this.setAside.slice();
       trashCopy.push(card);
@@ -1986,6 +2219,21 @@ export class Deck extends BaseDeck implements StoreDeck {
           this.handleConsecutiveMerchantBonus();
         }
         if (this.logEntryAppliesToThisDeck(line)) {
+          //If throneRoomActive is true, compare the current padding
+          // with the mother value.  If it's less than or equal to the mother value
+          // switch throneRoomActive off, and increment ThroneID
+          this.throneRoomTerminator(this.logArchive);
+
+          // If it's a throne room play and throneRoomActive is false,
+          // collect the paddingLeft from the current line, and switch throneRoomActive on.
+          this.throneRoomInitializer(
+            line,
+            act,
+            cards,
+            numberOfCards,
+            this.logArchive
+          );
+          //need a function that checks
           this.shuffleAndCleanUpIfNeeded(line);
           this.assignBargeLifespanIfNeeded(act);
           this.topDeckLookedAtCardIfNeeded();

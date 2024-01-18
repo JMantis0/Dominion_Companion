@@ -493,24 +493,7 @@ export class DOMObserver {
       "Hunting Lodge", // Done
       "Journeyman", //Done
       "Longship", //Done
-      "Mastermind",
       "Merchant Ship",
-      "Modify",
-      "Mystic",
-      "Sea Witch",
-      "Silver Mine",
-      "Specialist",
-      "Tactician",
-      "Torturer",
-      "Treasure Trove",
-      "War Chest",
-      "Wealthy Village",
-      "Wharf",
-      "Fairgrounds",
-      "Farm",
-      "Nobles",
-      "Bank",
-      "King's Cache",
     ];
     for (let i = 0; i < kingdom.length; i++) {
       if (!baseCards.includes(kingdom[i])) {
@@ -721,6 +704,8 @@ export class DOMObserver {
         JSON.parse(JSON.stringify(DOMObserver.decks.get(opponentName)))
       );
     });
+    // remove portions of the decks that are not needed in redux
+
     return {
       playerStoreDeck: JSON.parse(
         JSON.stringify(DOMObserver.decks.get(DOMObserver.playerName))

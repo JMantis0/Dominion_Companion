@@ -9,9 +9,14 @@ describe("isDurationPlay", () => {
   });
   it("should return true when the given line plays a duration card", () => {
     durationNames.forEach((cardName) => {
-      expect(bDeck.isDurationPlay(`P plays a $${cardName}.`)).toBe(true);
+      expect(bDeck.isDurationPlay(`P plays a ${cardName}.`)).toBe(true);
     });
   });
+
+  it("should return false when the given line plays a non-Duration as a duration effect", () => {
+    expect(bDeck.isDurationPlay("P plays an Artisan. (Mastermind)")).toBe(false);
+  });
+
   it("should return false when the given line is not a play line.", () => {
     durationNames.forEach((cardName) => {
       expect(bDeck.isDurationPlay(`P draws a $${cardName}.`)).toBe(false);

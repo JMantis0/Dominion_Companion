@@ -84,7 +84,24 @@ describe("consecutiveTreasurePlays", () => {
     const line = "pNick plays a Platinum. (+$5)"; //This platinum is played from hand.
 
     // The method should return false because the game-log in the client does not remove the log
-    // for the Platinum that was played by the Fortune Hunter even when the next play is a treasure.  The
+    // for the Treasure that was played by the Fortune Hunter even when the next play is a treasure.  The
+    // client game-log does not combine them but keeps them on separate lines.
+
+    // Act - simulate playing a treasure on the previous line, but not on the current line.
+    const result = deck.consecutiveTreasurePlays(line);
+
+    // Assert
+    expect(result).toBe(false);
+  });
+
+  it("should return false when the most recent play source is a Crystal Ball", () => {
+    // Arrange
+    deck.lastEntryProcessed = "pNick plays a Platinum. (+$5)"; //This Platinum is played by a Crystal Ball
+    deck.latestPlaySource = "Crystal Ball";
+    const line = "pNick plays a Platinum. (+$5)"; //This platinum is played from hand.
+
+    // The method should return false because the game-log in the client does not remove the log
+    // for the Treasure that was played by the Crystal Ball even when the next play is a treasure.  The
     // client game-log does not combine them but keeps them on separate lines.
 
     // Act - simulate playing a treasure on the previous line, but not on the current line.
