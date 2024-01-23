@@ -9,3 +9,4 @@ The extension is designed to help you make informed game decisions, have more fu
 
 Note: Currently supports card pools 1 and 2. 
 
+![HowTo](./src/assets/ChromeStoreScreenshot.jpg)
