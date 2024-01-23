@@ -320,12 +320,12 @@ export class DOMObserver {
     } else if (gLogArr.length > procArr.length) {
       const lastLineProcessed = procArr.slice().pop();
       if (lastLineProcessed !== gLogArr[procArr.length - 1]) {
-        console.log(
-          "Unequal lines, but last line of processed logs is not equal to its mate in gamel og"
-        );
-        console.log("LastLine Processed ", lastLineProcessed);
-        console.log("mated game log line", gLogArr[procArr.length - 1]);
-        console.log("Popping off last line from logsProcessed");
+        // console.log(
+        //   "Unequal lines, but last line of processed logs is not equal to its mate in game log"
+        // );
+        // console.log("LastLine Processed ", lastLineProcessed);
+        // console.log("mated game log line", gLogArr[procArr.length - 1]);
+        // console.log("Popping off last line from logsProcessed");
         procArr.pop();
         DOMObserver.setLogsProcessed(procArr.join("\n"));
       }
