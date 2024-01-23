@@ -470,7 +470,7 @@ const getRowColor = (cardName: string): string => {
     color = curseClass;
   } else if (reactions.includes(cardName)) {
     color = reactionClass;
-  } else if (durations.includes(cardName)) {
+  } else if (durations.includes(cardName) && cardName !== "Throne Room") {
     color = durationClass;
   } else color = actionClass;
   return color;

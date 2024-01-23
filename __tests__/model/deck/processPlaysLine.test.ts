@@ -1,21 +1,24 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { Deck } from "../../../src/model/deck";
 import { BaseDeck } from "../../../src/model/baseDeck";
+import { Duration } from "../../../src/model/duration";
 
 describe("processPlaysLine", () => {
   // Declare Deck reference.
-  let deck = new Deck("", false, "", "pNick", "pName", []);
+  let deck: Deck;
   const lineSource = jest.spyOn(BaseDeck.prototype, "lineSource");
   beforeEach(() => {
     jest.resetAllMocks();
     lineSource.mockReturnValue("");
-    deck = new Deck("", false, "", "pNick", "pName", [
+    deck = new Deck("", false, "", "pName", "pNick", [
       "Vassal",
       "Courier",
       "Fortune Hunter",
       "Throne Room",
       "Counterfeit",
       "Crystal Ball",
+      "Barge",
+      "Tide Pools",
     ]);
   });
 
@@ -280,4 +283,119 @@ describe("processPlaysLine", () => {
     expect(deck.hand).toStrictEqual(["Copper"]);
     expect(deck.inPlay).toStrictEqual(["Merchant", "Rope"]);
   });
+
+  it(
+    "should not create a duration object when the given line plays a duration card" +
+      "again by a Throne Room",
+    () => {
+      // Arrange
+      deck.hand = ["Copper"];
+      deck.inPlay = ["Throne Room", "Merchant", "Barge"];
+      lineSource.mockReturnValue("pNick plays a Throne Room.");
+      const line = "pNick plays a Barge again.";
+      const cards = ["Barge"];
+      const numberOfCards = [1];
+
+      // Act
+      deck.processPlaysLine(line, cards, numberOfCards);
+      // Assert - Verify a duration object whose value for field name is "Barge"
+      expect(deck.activeDurations.length).toBe(0);
+      // Verify the zones are unchanged.
+      expect(deck.hand).toStrictEqual(["Copper"]);
+      expect(deck.inPlay).toStrictEqual(["Throne Room", "Merchant", "Barge"]);
+    }
+  );
+
+  it(
+    "should not create a duration object or play the given card when the given line plays a duration card by a Mastermind" +
+      " when masterMindEffectCount does not equal 0.",
+    () => {
+      // Arrange
+      deck.hand = ["Copper"];
+      deck.masterMindEffectCount = 1;
+      deck.inPlay = ["Throne Room", "Merchant", "Barge"];
+      lineSource.mockReturnValue("pNick starts their turn.");
+      const line = "pNick plays a Barge. (Mastermind)";
+      const cards = ["Barge"];
+      const numberOfCards = [1];
+
+      // Act
+      deck.processPlaysLine(line, cards, numberOfCards);
+      // Assert - Verify a duration object whose value for field name is "Barge"
+      expect(deck.activeDurations.length).toBe(0);
+      // Verify the zones are unchanged.
+      expect(deck.hand).toStrictEqual(["Copper"]);
+      expect(deck.inPlay).toStrictEqual(["Throne Room", "Merchant", "Barge"]);
+    }
+  );
+
+  it("should not play a card if the numberOfCards is 0 for that card.", () => {
+    // Arrange
+    deck.hand = ["Copper"];
+    deck.inPlay = [];
+    lineSource.mockReturnValue("None");
+    const line = "pNick plays 3 Coppers and a Gold.";
+    const cards = ["Copper"];
+    const numberOfCards = [0];
+
+    // Act
+    deck.processPlaysLine(line, cards, numberOfCards);
+    // Assert - Verify Copper was not played.
+    expect(deck.hand).toStrictEqual(["Copper"]);
+    expect(deck.inPlay).toStrictEqual([]);
+  });
+
+  it("should throw an error if duration being played by a Mastermind cannot find a uniquely sourced active Mastermind duration", () => {
+    // Arrange an activeDuration field with Masterminds having different play sources.
+    deck.activeDurations = [
+      new Duration("Mastermind", { playSource: "Throne Room" }),
+      new Duration("Mastermind", { playSource: "None" }),
+      new Duration("Mastermind", { playSource: "Mastermind" }),
+    ];
+    const line = "pNick plays a Barge. (Mastermind)";
+    const cards = ["Barge"];
+    const numberOfCards = [1];
+    lineSource.mockReturnValue("pNick starts their turn.");
+    // Act and Assert
+    expect(() =>
+      deck.processPlaysLine(line, cards, numberOfCards)
+    ).toThrowError("Cannot find a unique Mastermind source.");
+  });
+
+  it("should throw an error if duration being played by a Mastermind cannot find any active Mastermind durations", () => {
+    // Arrange an activeDuration field with Masterminds having different play sources.
+    deck.activeDurations = [new Duration("Barge")];
+    const line = "pNick plays a Barge. (Mastermind)";
+    const cards = ["Barge"];
+    const numberOfCards = [1];
+    lineSource.mockReturnValue("pNick starts their turn.");
+    // Act and Assert
+    expect(() =>
+      deck.processPlaysLine(line, cards, numberOfCards)
+    ).toThrowError("No source Mastermind found in activeDurations.");
+  });
+
+  it(
+    "should link a createdDuration to its source and vice versa if a duration is created as " +
+      "an effect of another duration, ie: a Mastermind effect plays a Duration action.",
+    () => {
+      deck.activeDurations = [new Duration("Mastermind", { age: 0 })]; //Set age to 0.  Expect it to be 1 in the assertion.
+      deck.hand = ["Tide Pools"];
+      const line = "pNick plays a Tide Pools. (Mastermind)";
+      const cards = ["Tide Pools"];
+      const numberOfCards = [1];
+      lineSource.mockReturnValue("pNick starts their turn.");
+      // Act
+      deck.processPlaysLine(line, cards, numberOfCards);
+      // Assert
+      const masterMindDuration =
+        deck.activeDurations[deck.activeDurations.length - 2];
+      const tidePoolsDuration =
+        deck.activeDurations[deck.activeDurations.length - 1];
+      expect(masterMindDuration.sourceOf).toStrictEqual("Tide Pools0");
+      expect(tidePoolsDuration.playSource).toStrictEqual(masterMindDuration);
+      expect(tidePoolsDuration.age).toBe(1);
+      expect(masterMindDuration.age).toBe(1);
+    }
+  );
 });

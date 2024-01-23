@@ -53,7 +53,7 @@ describe("lineSource", () => {
     expect(deck.lineSource()).toBe("P plays a Vassal.");
   });
 
-  it("should return last log-line if it has no cause", () => {
+  it("should return None if it has no cause", () => {
     // Arrange
     document.body.innerHTML =
       "<div class='log-scroll-container'>" +
@@ -128,7 +128,7 @@ describe("lineSource", () => {
   );
 
   it(
-    "should return the opponent's the plays a Royal Galley line line when the last line is setting aside" +
+    "should return  the plays a Royal Galley line when the last line is setting aside" +
       "a card with Royal Galley",
     () => {
       // Arrange

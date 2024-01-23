@@ -133,7 +133,8 @@ type DurationName =
   | "Endless Chalice"
   | "Figurehead"
   | "Jewels"
-  | "Prince";
+  | "Prince"
+  | "Throne Room";
 
 /**
  * Interface used for handling unknown objects that *might* be an error.
@@ -215,15 +216,6 @@ type PrimaryFrameTabType =
   | "Opponents";
 
 /**
- * State type for TrashZoneViewer component.
- */
-type TrashZoneViewerState = {
-  playerName: string;
-  playerTrash: string[];
-  opponentTrashData: Array<{ playerName: string; trashZone: string[] }>;
-};
-
-/**
  * Type for a SavedGame as stored in chrome local storage as JSON
  */
 interface SavedGame {
@@ -300,6 +292,15 @@ interface StoreDeck {
   debug: boolean;
 }
 
+/**
+ * State type for TrashZoneViewer component.
+ */
+type TrashZoneViewerState = {
+  playerName: string;
+  playerTrash: string[];
+  opponentTrashData: Array<{ playerName: string; trashZone: string[] }>;
+};
+
 export {
   CardCounts,
   DeckZones,
@@ -313,7 +314,6 @@ export {
   OpponentViewerState,
   OptionalHandles,
   PrimaryFrameTabType,
-  TrashZoneViewerState,
   SavedGame,
   SavedGames,
   SortButtonState,
@@ -321,4 +321,5 @@ export {
   SortReducer,
   SplitMaps,
   StoreDeck,
+  TrashZoneViewerState,
 };

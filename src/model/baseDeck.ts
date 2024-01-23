@@ -249,21 +249,20 @@ export class BaseDeck {
   checkLogAccuracy(): boolean {
     const gameLog = getLogScrollContainerLogLines();
     const gLogTexts = [];
-    let premovesPresent: boolean = false;
-    for (const el of gameLog) {
-      gLogTexts.push(el.innerText);
+
+    for (let i = 0; i < gameLog.length; i++) {
+      const el = gameLog[i];
       if (
         el.textContent !== null &&
         el.textContent.match("Premoves") !== null
       ) {
-        premovesPresent = true;
-      }
+        break;
+      } else gLogTexts.push(el.innerText);
     }
     const accurate =
       gLogTexts.length === this.logArchive.length ||
       (gLogTexts.length === this.logArchive.length + 1 &&
-        gLogTexts.slice().pop() === "Between Turns" &&
-        !premovesPresent);
+        gLogTexts.slice().pop() === "Between Turns");
     if (!accurate) {
       console.log("gameLog", gLogTexts);
       console.log("logArchive", this.logArchive);
@@ -408,7 +407,7 @@ export class BaseDeck {
     const consecutiveTreasurePlays: boolean =
       this.checkForTreasurePlayLine(this.lastEntryProcessed) &&
       this.checkForTreasurePlayLine(entry) &&
-      !["Courier", "Fortune Hunter", "Counterfeit"].includes(
+      !["Courier", "Fortune Hunter", "Counterfeit", "Crystal Ball"].includes(
         this.latestPlaySource
       ); // treasures played by these sources get their own log lines in the client game-log.
 
@@ -425,7 +424,7 @@ export class BaseDeck {
     const duration_names = Object.keys(duration_constants);
     for (let i = 0; i < duration_names.length; i++) {
       const durationName = duration_names[i] as DurationName;
-      if (durationLine.match(`(${durationName})`) !== null) {
+      if (durationLine.match(`\\(${durationName}\\)`) !== null) {
         durationCausedBy = durationName;
         break;
       }
@@ -826,7 +825,7 @@ export class BaseDeck {
     const durationNames = Object.keys(duration_constants);
     if (playLine.match(" plays ") !== null)
       for (let i = 0; i < durationNames.length; i++) {
-        if (playLine.match(durationNames[i]) !== null) {
+        if (playLine.match(`an? ${durationNames[i]}`) !== null) {
           durationPlay = true;
           break;
         }
@@ -844,7 +843,7 @@ export class BaseDeck {
     const durationNames = Object.keys(duration_constants);
     for (let i = 0; i < durationNames.length; i++) {
       const durationName = durationNames[i];
-      if (line.match(`(${durationName})`) !== null) {
+      if (line.match(`\\(${durationName}\\)`) !== null) {
         isDurationResolutionLine = true;
         break;
       }

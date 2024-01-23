@@ -1,5 +1,5 @@
 export const duration_constants: {
-  [title: string]: { LIFESPAN: number | undefined };
+  [title: string]: { LIFESPAN: number | undefined | "unset" };
 } = {
   Cage: { LIFESPAN: undefined },
   Grotto: { LIFESPAN: 1 },
@@ -49,7 +49,7 @@ export const duration_constants: {
   },
   Ghost: { LIFESPAN: undefined },
   Archive: { LIFESPAN: 2 },
-  Barge: { LIFESPAN: 1 },
+  Barge: { LIFESPAN: "unset" },
   "Bridge Troll": { LIFESPAN: undefined },
   "Buried Treasure": { LIFESPAN: undefined },
   Cobbler: { LIFESPAN: undefined },
@@ -66,10 +66,10 @@ export const duration_constants: {
   Highwayman: { LIFESPAN: undefined },
   Longship: { LIFESPAN: 1 },
   Mastermind: {
-    LIFESPAN: undefined,
+    LIFESPAN: 1,
     // plays any card 3 times
   },
-  "Merchant Ship": { LIFESPAN: undefined },
+  "Merchant Ship": { LIFESPAN: 1 },
   Outpost: { LIFESPAN: undefined },
   Pirate: { LIFESPAN: undefined },
   Quartermaster: { LIFESPAN: undefined },
@@ -88,4 +88,5 @@ export const duration_constants: {
   Figurehead: { LIFESPAN: undefined },
   Jewels: { LIFESPAN: undefined },
   Prince: { LIFESPAN: undefined },
+  "Throne Room": { LIFESPAN: 0 },
 };
