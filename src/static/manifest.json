@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Dominion Companion",
-  "version": "1.0",
+  "version": "0.0.0.1",
   "description": "Get the most out of your Dominion games.  Improve your gameplay and have more fun.",
   "icons": {
     "16": "icon-16.png",
@@ -30,9 +30,8 @@
   ],
   "permissions": [
     "tabs",
-    "bookmarks",
-    "unlimitedStorage",
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "web_accessible_resources": [
     {
