@@ -249,21 +249,20 @@ export class BaseDeck {
   checkLogAccuracy(): boolean {
     const gameLog = getLogScrollContainerLogLines();
     const gLogTexts = [];
-    let premovesPresent: boolean = false;
-    for (const el of gameLog) {
-      gLogTexts.push(el.innerText);
+
+    for (let i = 0; i < gameLog.length; i++) {
+      const el = gameLog[i];
       if (
         el.textContent !== null &&
         el.textContent.match("Premoves") !== null
       ) {
-        premovesPresent = true;
-      }
+        break;
+      } else gLogTexts.push(el.innerText);
     }
     const accurate =
       gLogTexts.length === this.logArchive.length ||
       (gLogTexts.length === this.logArchive.length + 1 &&
-        gLogTexts.slice().pop() === "Between Turns" &&
-        !premovesPresent);
+        gLogTexts.slice().pop() === "Between Turns");
     if (!accurate) {
       console.log("gameLog", gLogTexts);
       console.log("logArchive", this.logArchive);

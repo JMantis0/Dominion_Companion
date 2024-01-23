@@ -42,7 +42,7 @@ export class Deck extends BaseDeck implements StoreDeck {
     kingdom: Array<string>
   ) {
     super(gameTitle, ratedGame, rating, playerName, playerNick, kingdom);
-    this.debug = true;
+    this.debug = false;
   }
 
   getActiveDurations(): Duration[] {
